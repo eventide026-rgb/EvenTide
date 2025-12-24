@@ -17,8 +17,8 @@ export function PublicHeader() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
+    <header className="sticky top-4 z-50 w-full">
+      <div className="container flex h-16 max-w-screen-lg items-center rounded-full border border-border/40 bg-background/60 p-2 shadow-lg backdrop-blur-lg">
         <Link href="/" className="mr-6 flex items-center space-x-2">
           <Sprout className="h-6 w-6 text-primary" />
           <span className="font-bold font-headline text-lg">EvenTide</span>
