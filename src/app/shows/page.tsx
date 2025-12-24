@@ -5,11 +5,50 @@ import { EventCard, type Event as Show } from '@/components/event-card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from 'use-debounce';
+
+const sampleShows: Show[] = [
+    {
+        id: 'sample-show-1',
+        name: 'Vibes on the Beach',
+        description: 'The biggest beach party of the year! Featuring live music from top artists, food stalls, and games. Dont miss out on the ultimate summer experience.',
+        eventDate: { toDate: () => new Date('2024-12-15T18:00:00') },
+        location: 'Landmark Beach, Lagos',
+        imageUrls: ['https://picsum.photos/seed/beachparty/600/400'],
+        imageHint: 'beach party',
+        ownerId: 'sample-owner-1',
+        isPublic: true,
+        isTicketed: true,
+    },
+    {
+        id: 'sample-show-2',
+        name: 'Afro Beats Festival',
+        description: 'A two-day festival celebrating the best of Afro Beats. Join us for a weekend of non-stop music, dance, and culture.',
+        eventDate: { toDate: () => new Date('2025-01-20T14:00:00') },
+        location: 'Eko Atlantic, Lagos',
+        imageUrls: ['https://picsum.photos/seed/afrofest/600/400'],
+        imageHint: 'music festival',
+        ownerId: 'sample-owner-2',
+        isPublic: true,
+        isTicketed: true,
+    },
+    {
+        id: 'sample-show-3',
+        name: 'Art & Soul Exhibition',
+        description: 'An immersive art experience showcasing the work of emerging Nigerian artists. Explore stunning paintings, sculptures, and digital art.',
+        eventDate: { toDate: () => new Date('2024-11-30T12:00:00') },
+        location: 'Nike Art Gallery, Lagos',
+        imageUrls: ['https://picsum.photos/seed/artexhibit/600/400'],
+        imageHint: 'art gallery',
+        ownerId: 'sample-owner-3',
+        isPublic: true,
+        isTicketed: true,
+    },
+];
 
 
 export default function ShowsPage() {
@@ -24,14 +63,15 @@ export default function ShowsPage() {
 
   const { data: allShows, isLoading } = useCollection<Show>(showsQuery);
 
-  const filteredShows =
-    !isLoading && allShows
-      ? allShows.filter(
+  const showsToDisplay = !isLoading && allShows && allShows.length > 0 ? allShows : sampleShows;
+
+  const filteredShows = useMemo(() => 
+      showsToDisplay.filter(
           (show) =>
             show.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
             show.location.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-        )
-      : [];
+        ), [showsToDisplay, debouncedSearchTerm]
+    );
 
   return (
     <>
@@ -77,7 +117,7 @@ export default function ShowsPage() {
           <div className="text-center py-16">
             <h2 className="text-2xl font-bold font-headline">No Shows Found</h2>
             <p className="text-muted-foreground mt-2">
-              Your search for &quot;{searchTerm}&quot; did not match any shows.
+              {debouncedSearchTerm ? `Your search for "${debouncedSearchTerm}" did not match any shows.` : 'There are no public shows listed at the moment.'}
             </p>
           </div>
         )}
