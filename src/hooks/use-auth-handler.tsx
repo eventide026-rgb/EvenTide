@@ -7,8 +7,10 @@ import { Auth, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, Firestore } from 'firebase/firestore';
 
 const ROLE_DASHBOARD_MAP: Record<string, string> = {
-  Owner: '/dashboard',
-  Planner: '/dashboard',
+  Owner: '/owner-dashboard',
+  Planner: '/planner-dashboard',
+  Vendor: '/vendor-dashboard',
+  'Fashion Designer': '/vendor-dashboard',
   Hotelier: '/hotelier-dashboard',
   'Hall Owner': '/hall-owner-dashboard',
   'Car Hire Service': '/car-hire-dashboard',
@@ -58,15 +60,15 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
                 }
             }
 
-            const destination = ROLE_DASHBOARD_MAP[role] || '/dashboard'; // Default to a general dashboard
+            const destination = ROLE_DASHBOARD_MAP[role] || '/owner-dashboard'; // Default to owner dashboard
             router.push(destination);
           } else {
             console.warn("User document not found for new login. Redirecting to default dashboard.");
-            router.push('/dashboard');
+            router.push('/owner-dashboard');
           }
         } catch (error) {
           console.error("Error fetching user role:", error);
-          router.push('/dashboard');
+          router.push('/owner-dashboard');
         }
       }
     });

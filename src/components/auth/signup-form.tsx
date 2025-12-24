@@ -39,7 +39,7 @@ const formSchema = z.object({
   lastName: z.string().min(2, { message: "Last name is required." }),
   email: z.string().email({ message: "Please enter a valid email." }),
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
-  role: z.enum(["Owner", "Planner", "Hotelier", "Hall Owner", "Car Hire Service", "Ticketier"], { required_error: "You need to select a role." }),
+  role: z.enum(["Owner", "Planner", "Hotelier", "Hall Owner", "Car Hire Service", "Ticketier", "Vendor", "Fashion Designer"], { required_error: "You need to select a role." }),
   promoterName: z.string().optional(),
 }).refine(data => {
     if (data.role === 'Ticketier') {
@@ -138,6 +138,8 @@ export function SignUpForm() {
                 "Hall Owner": "/hall-owner-dashboard",
                 "Car Hire Service": "/car-hire-dashboard",
                 "Ticketier": "/ticketier-dashboard",
+                "Vendor": "/vendor-dashboard",
+                "Fashion Designer": "/vendor-dashboard",
             };
             router.push(roleDashboardMap[values.role] || "/owner-dashboard");
 
@@ -233,6 +235,8 @@ export function SignUpForm() {
                 <SelectContent>
                   <SelectItem value="Owner">Event Owner</SelectItem>
                   <SelectItem value="Planner">Event Planner</SelectItem>
+                  <SelectItem value="Vendor">Vendor (Photographer, Caterer, etc.)</SelectItem>
+                  <SelectItem value="Fashion Designer">Fashion Designer</SelectItem>
                   <SelectItem value="Hotelier">Hotelier</SelectItem>
                   <SelectItem value="Hall Owner">Venue / Hall Owner</SelectItem>
                   <SelectItem value="Car Hire Service">Car Hire Service</SelectItem>
