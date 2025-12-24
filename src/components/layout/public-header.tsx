@@ -40,6 +40,11 @@ const magazineLinks = [
     { href: "#", label: "From the Editor" },
 ]
 
+const hotelsAndVenuesLinks = [
+    { href: "#", label: "Find a Hotel" },
+    { href: "#", label: "Find a Venue" },
+]
+
 const getImage = (id: string) => {
   return PlaceHolderImages.find((img) => img.id === id);
 };
@@ -48,6 +53,7 @@ const HeaderContent = () => {
   const resourceImage = getImage('eventHall');
   const communityImage = getImage('gardenParty');
   const magazineImage = getImage('magazineReader');
+  const eventHallImage = getImage('eventHall');
 
   return (
     <div className="container flex h-16 max-w-screen-lg items-center rounded-full border border-border/40 bg-background/60 p-2 shadow-lg backdrop-blur-lg">
@@ -146,19 +152,35 @@ const HeaderContent = () => {
           </PopoverContent>
         </Popover>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost">Hotel & Halls</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem asChild>
-              <Link href="#">Find a Hotel</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="#">Find a Venue</Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost">Hotels & Halls <ChevronDown className="ml-1 h-4 w-4" /></Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-64 p-2">
+            {eventHallImage && (
+              <div className="relative h-24 w-full mb-2 rounded-md overflow-hidden">
+                <Image
+                  src={eventHallImage.imageUrl}
+                  alt={eventHallImage.description}
+                  fill
+                  className="object-cover"
+                  data-ai-hint={eventHallImage.imageHint}
+                />
+              </div>
+            )}
+            <div className="grid gap-1">
+              {hotelsAndVenuesLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="rounded-md p-2 text-sm hover:bg-accent"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
 
         {navLinks.map(link => (
           <Link key={link.label} href={link.href} className="transition-colors hover:text-foreground/80 text-foreground/60">{link.label}</Link>
