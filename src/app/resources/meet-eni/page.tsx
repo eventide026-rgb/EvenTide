@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Bot, Brush, Chef, LayoutGrid, Sparkles, Users } from "lucide-react";
+import { BookOpen, Bot, Brush, ChefHat, LayoutGrid, Sparkles, Users } from "lucide-react";
 
 const eniCapabilities = [
     {
@@ -39,7 +39,7 @@ const eniCapabilities = [
         description: "Eni is your trusted partner for the intricate details, providing intelligent suggestions to make your planning process smoother.",
         features: [
             {
-                icon: <Chef className="h-6 w-6 text-primary" />,
+                icon: <ChefHat className="h-6 w-6 text-primary" />,
                 title: "The Menu Planner",
                 details: "Based on your chosen cuisine style and dietary notes, Eni can generate a full, multi-course menu draft for your caterers to review."
             },
