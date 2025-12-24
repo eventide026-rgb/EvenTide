@@ -16,13 +16,13 @@ const footerLinks = {
         { href: "/resources/how-to-use", label: "How to Use EvenTide" },
         { href: "/resources/meet-eni", label: "Meet Eni" },
         { href: "/about", label: "About Us" },
-        { href: "#testimonials", label: "Testimonials" },
     ],
     community: [
         { href: "/guest-login", label: "Guest Login" },
         { href: "/security-login", label: "Security Login" },
         { href: "#", label: "Find Planners" },
         { href: "#", "label": "Find Vendors" },
+        { href: "/resources/submit-testimonial", label: "Submit a Testimonial" },
         { href: "#", label: "Advertise" },
     ],
     magazine: [

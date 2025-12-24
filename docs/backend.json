@@ -1,0 +1,45 @@
+{
+  "entities": {
+    "Testimonial": {
+      "title": "Testimonial",
+      "description": "Represents a user-submitted testimonial for the EvenTide platform.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name or business name of the person submitting the testimonial."
+        },
+        "role": {
+          "type": "string",
+          "description": "The role of the user on the platform.",
+          "enum": ["Event Owner / Host", "Planner", "Vendor", "Guest"]
+        },
+        "testimonial": {
+          "type": "string",
+          "description": "The content of the testimonial."
+        },
+        "isApproved": {
+          "type": "boolean",
+          "description": "Moderation status, true if approved to be publicly visible."
+        },
+        "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp when the testimonial was submitted."
+        }
+      },
+      "required": ["name", "role", "testimonial", "isApproved", "createdAt"]
+    }
+  },
+  "auth": {
+    "providers": ["anonymous"]
+  },
+  "firestore": {
+    "/testimonials/{testimonialId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Testimonial"
+      },
+      "description": "Stores user-submitted testimonials for moderation and display."
+    }
+  }
+}
