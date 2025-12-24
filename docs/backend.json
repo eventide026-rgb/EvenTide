@@ -479,6 +479,44 @@
         }
       },
       "required": ["name", "state", "city", "address", "capacity", "imageUrl", "imageHint"]
+    },
+    "SupportTicket": {
+      "title": "SupportTicket",
+      "description": "Represents a support ticket submitted by a user.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the user submitting the ticket."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The contact email for the user."
+        },
+        "subject": {
+          "type": "string",
+          "description": "The subject of the support ticket."
+        },
+        "message": {
+          "type": "string",
+          "description": "The detailed message of the support ticket."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the support ticket (e.g., open, in-progress, closed)."
+        },
+        "priority": {
+          "type": "string",
+          "description": "The priority of the support ticket (e.g., low, medium, high)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of when the support ticket was submitted."
+        }
+      },
+      "required": ["name", "email", "subject", "message", "status", "priority", "createdAt"]
     }
   },
   "auth": {
@@ -700,9 +738,24 @@
             }
           ]
         }
+      },
+      {
+        "path": "/supportTickets/{ticketId}",
+        "definition": {
+          "entityName": "SupportTicket",
+          "schema": {
+            "$ref": "#/backend/entities/SupportTicket"
+          },
+          "description": "Stores user-submitted support tickets for review by admins.",
+          "params": [
+            {
+              "name": "ticketId",
+              "description": "The unique identifier for the support ticket."
+            }
+          ]
+        }
       }
     ],
     "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging, following the principles of Authorization Independence, Clarity of Intent, DBAC, and QAPs. Authorization independence is achieved through denormalization. For example, the `Event` document will have denormalized fields from `UserProfile` such as owner's role.  \n\n**Explanation of the Structure and How it Meets the Core Design Principles:**\n\n1.  **Authorization Independence:**\n    *   Avoids `get()` calls in security rules by denormalizing relevant authorization data. For example, the `Event` document stores `ownerId`, which allows security rules to directly check the user ID against the event's owner without needing to fetch the owner's profile. The `guests` subcollection will store the eventID to easily manage listing.\n\n2.  **Clarity of Intent:**\n    *   The structure uses descriptive path names and field names to clearly indicate the purpose of each collection and document. For example, `/users/{userId}/events/{eventId}` clearly indicates that events are owned by users.\n\n3.  **DBAC (Database-Based Access Control):**\n    *   User roles are stored directly in the `UserProfile` documents (the 'role' property), eliminating the need for custom claims. Security rules can directly check the user's role in their profile.\n\n4.  **QAPs (Rules Are Not Filters):**\n    *   The structure supports secure list operations. Path-based ownership (e.g., `/users/{userId}/events`) allows listing only the events owned by a specific user. Segregation also helps; for instance, private data is stored under the user's path, while potentially public data (if any) would be in a separate collection with appropriate rules.\n\n5.  **Invariants:**\n    *   The structure supports the integrity of ownership, timestamps, and denormalized data through security rules that enforce constraints on data modification. For instance, the `ownerId` field in the `Event` document can only be set during creation and cannot be changed afterward.\n\n**Denormalization Strategy:**\n\n*   Authorization data is denormalized to avoid `get()` calls in security rules. For instance:\n    *   `Event` documents include the `ownerId` from `UserProfile`.\n    *   Subcollections requiring parent authorization data will include copies of the relevant fields.\n\n**Structural Segregation:**\n\n*   Data with different access needs are stored in separate collections:\n    *   User profiles are stored in `/users/{userId}` for private user data.\n    *   Events are stored in `/events/{eventId}` with access control based on the owner.\n\n**Access Modeling:**\n\n*   Uses path-based ownership for private data: `/users/{userId}/events/{eventId}`.\n*   Employs the membership map pattern for collaborative data (if needed in the future).\n\n**Data Clarity and Predictability:**\n\n*   Explicit state modeling: Using a `status` field for events (e.g., `DRAFT`, `PUBLISHED`).\n*   Predictable schema: Avoiding dynamic keys and using arrays of objects with static keys instead.\n*   Radical consistency: Enforcing strict naming conventions and standardizing authorization fields (e.g., always `ownerId`)."
   }
 }
-    

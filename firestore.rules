@@ -187,6 +187,20 @@ service cloud.firestore {
         allow create: if isSignedIn();
         allow update, delete: if false;
     }
+    
+    /**
+     * @description Rules for support tickets. Any authenticated user can create a support ticket.
+     * These are not readable, updatable or deletable by clients.
+     * @path /supportTickets/{ticketId}
+     * @allow (create) Any authenticated user submitting a support ticket.
+     * @deny (get, list, update, delete) All other operations are disallowed.
+     * @principle Allow-listing writes for support and defaulting to deny for reads and modifications.
+     */
+    match /supportTickets/{ticketId} {
+        allow get, list: if false;
+        allow create: if isSignedIn();
+        allow update, delete: if false;
+    }
 
     /**
      * @description Rules for events. Public events are readable by anyone. Private events are readable only by organizers.
@@ -278,5 +292,3 @@ service cloud.firestore {
     }
   }
 }
-
-    
