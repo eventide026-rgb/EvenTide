@@ -34,7 +34,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/layout/logo";
 
 const navItems = [
-  { href: "/dashboard", icon: Home, label: "Dashboard" },
+  { href: "/owner-dashboard", icon: Home, label: "Dashboard" },
   { href: "/events", icon: PartyPopper, label: "Events" },
   { href: "/calendar", icon: Calendar, label: "Calendar" },
   { href: "/guests", icon: Users, label: "Guests" },
