@@ -12,7 +12,7 @@ import {
   DocumentData,
   or,
 } from 'firebase/firestore';
-import { useFirestore, useCollection } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { NigerianStatesAndCities } from '@/lib/nigerian-states';
 import { Input } from '@/components/ui/input';
 import {
@@ -39,7 +39,7 @@ export default function HotelsPage() {
 
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
 
-  const hotelsQuery = useMemo(() => {
+  const hotelsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
 
     const constraints = [];
@@ -174,5 +174,3 @@ export default function HotelsPage() {
     </div>
   );
 }
-
-    
