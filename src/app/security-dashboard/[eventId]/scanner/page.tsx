@@ -74,7 +74,7 @@ export default function ScannerPage({ params }: { params: { eventId: string } })
     <div className="w-full h-full flex flex-col items-center justify-center p-4">
       <Card className="w-full max-w-md mx-auto relative overflow-hidden">
         <CardContent className="p-0">
-          <div className="relative aspect-square w-full">
+          <div className="relative aspect-square w-full bg-black">
             <video
               ref={videoRef}
               className="w-full h-full object-cover"
@@ -84,12 +84,24 @@ export default function ScannerPage({ params }: { params: { eventId: string } })
             />
 
             {/* Scanning overlay */}
-            {scanStatus === 'scanning' && (
+            {scanStatus === 'scanning' && hasCameraPermission && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50">
                 <div className="w-2/3 h-2/3 border-4 border-dashed border-white/50 rounded-lg" />
                 <ScanLine className="absolute w-2/3 h-10 text-primary animate-pulse" />
                 <p className="absolute bottom-4 text-white text-lg font-semibold">Position QR Code in Frame</p>
               </div>
+            )}
+
+             {/* No Camera Permission Overlay */}
+            {hasCameraPermission === false && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 text-white p-4">
+                    <Alert variant="destructive" className='text-center'>
+                        <AlertTitle>Camera Access Required</AlertTitle>
+                        <AlertDescription>
+                            Please grant camera permissions in your browser settings to activate the scanner.
+                        </AlertDescription>
+                    </Alert>
+                </div>
             )}
 
             {/* Success Overlay */}
@@ -112,15 +124,6 @@ export default function ScannerPage({ params }: { params: { eventId: string } })
           </div>
         </CardContent>
       </Card>
-      
-      {!hasCameraPermission && hasCameraPermission !== null && (
-         <Alert variant="destructive" className="mt-4 max-w-md">
-            <AlertTitle>Camera Access Required</AlertTitle>
-            <AlertDescription>
-                Please allow camera access in your browser settings to use the scanner.
-            </AlertDescription>
-         </Alert>
-      )}
 
       {/* Mock controls for demo */}
       <div className="mt-4 flex gap-4">

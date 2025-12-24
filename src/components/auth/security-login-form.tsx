@@ -16,34 +16,59 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useAuth } from "@/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { Loader2 } from "lucide-react";
 
-// For demonstration, this form will simply redirect.
-// In a real app, it would use Firebase Auth.
 const formSchema = z.object({
-  username: z.string().min(1, { message: "Username is required." }),
+  email: z.string().email({ message: "Please enter a valid email." }),
   password: z.string().min(1, { message: "Password is required." }),
 });
 
 export function SecurityLoginForm() {
   const { toast } = useToast();
   const router = useRouter();
+  const auth = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Mock login logic
-    toast({
-      title: "Security Access Granted",
-      description: "Redirecting to your assignments...",
-    });
-    router.push('/security-dashboard');
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!auth) {
+        toast({
+            variant: "destructive",
+            title: "Authentication service not available.",
+        });
+        return;
+    }
+    setIsLoading(true);
+    try {
+        // We use the actual signInWithEmailAndPassword to ensure it's a valid user.
+        // The redirection and role check is handled by onAuthStateChanged listener.
+        sessionStorage.setItem('isNewLogin', 'true');
+        await signInWithEmailAndPassword(auth, values.email, values.password);
+        // Successful sign-in will trigger onAuthStateChanged in useAuthHandler
+        // which will then handle redirection.
+    } catch (error: any) {
+        let description = "Invalid credentials or user not found.";
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+            description = "The email or password you entered is incorrect.";
+        }
+        toast({
+            variant: "destructive",
+            title: "Login Failed",
+            description,
+        });
+        sessionStorage.removeItem('isNewLogin');
+        setIsLoading(false);
+    }
   }
 
   return (
@@ -51,12 +76,12 @@ export function SecurityLoginForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="username"
+          name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="Your security username" {...field} />
+                <Input placeholder="security@eventide.app" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -75,8 +100,9 @@ export function SecurityLoginForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full">
-          Sign In
+        <Button type="submit" className="w-full" disabled={isLoading}>
+           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+           {isLoading ? "Signing in..." : "Sign In"}
         </Button>
       </form>
     </Form>
