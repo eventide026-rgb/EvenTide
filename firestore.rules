@@ -137,26 +137,26 @@ service cloud.firestore {
     }
 
     /**
-     * @description Rules for hotel listings. This data is public to all signed-in users but cannot be modified.
+     * @description Rules for hotel listings. This data is public but cannot be modified by clients.
      * @path /hotels/{hotelId}
-     * @allow (get, list) Any authenticated user reading hotel data.
+     * @allow (get, list) Any user reading hotel data.
      * @deny (write) Any user attempting to create, update, or delete hotel listings.
      * @principle Secures public marketplace data as read-only for clients.
      */
     match /hotels/{hotelId} {
-      allow get, list: if isSignedIn();
+      allow get, list: if true;
       allow write: if false;
     }
 
     /**
-     * @description Rules for venue listings. This data is public to all signed-in users but cannot be modified.
+     * @description Rules for venue listings. This data is public but cannot be modified by clients.
      * @path /venues/{venueId}
-     * @allow (get, list) Any authenticated user reading venue data.
+     * @allow (get, list) Any user reading venue data.
      * @deny (write) Any user attempting to create, update, or delete venue listings.
      * @principle Secures public marketplace data as read-only for clients.
      */
     match /venues/{venueId} {
-      allow get, list: if isSignedIn();
+      allow get, list: if true;
       allow write: if false;
     }
 
@@ -278,4 +278,5 @@ service cloud.firestore {
     }
   }
 }
+
     
