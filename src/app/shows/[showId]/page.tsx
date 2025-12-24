@@ -21,7 +21,7 @@ type TicketSelection = {
 };
 
 export default function ShowDetailPage({ params }: { params: { showId: string } }) {
-    const { showId } = params;
+    const showId = params.showId;
     const firestore = useFirestore();
     const router = useRouter();
     const [ticketSelection, setTicketSelection] = useState<TicketSelection>({});
