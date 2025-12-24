@@ -1,0 +1,51 @@
+
+'use client';
+
+import Image from 'next/image';
+import Link from 'next/link';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { MapPin } from 'lucide-react';
+
+export type Hotel = {
+    id: string;
+    name: string;
+    state: string;
+    city: string;
+    address: string;
+    imageUrl: string;
+    imageHint: string;
+    description: string;
+};
+
+type HotelListingCardProps = {
+  hotel: Hotel;
+};
+
+export function HotelListingCard({ hotel }: HotelListingCardProps) {
+  return (
+    <Link href={`/resources/hotels/${hotel.id}`} className="group block">
+      <Card className="overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl">
+        <CardHeader className="p-0">
+          <div className="aspect-video relative overflow-hidden">
+            <Image
+              src={hotel.imageUrl}
+              alt={hotel.name}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              data-ai-hint={hotel.imageHint}
+            />
+          </div>
+        </CardHeader>
+        <CardContent className="p-4">
+          <h3 className="font-bold font-headline text-lg truncate">{hotel.name}</h3>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+            <MapPin className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">{hotel.city}, {hotel.state}</span>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
+
+    

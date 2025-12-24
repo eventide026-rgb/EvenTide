@@ -14,7 +14,7 @@
  * Key Security Decisions:
  * - User Isolation: Users can only read and write their own profile data in `/users/{userId}`. Listing users is disabled.
  * - Event Access Control: Access to an event and its subcollections is primarily governed by the event's `isPublic` status and the user's role (owner, planner, cohost).
- * - Read-Only Public Data: The `/pricePlans` collection is readable by any signed-in user but is not writable, protecting this data from client modification.
+ * - Read-Only Public Data: The `/pricePlans` and `/hotels` collections are readable by any signed-in user but are not writable, protecting this data from client modification.
  * - Default to Private: All write operations are denied by default and must be explicitly granted based on ownership or a defined role related to an event.
  *
  * Denormalization for Authorization: To enable efficient and secure rules, this ruleset relies
@@ -137,6 +137,18 @@ service cloud.firestore {
     }
 
     /**
+     * @description Rules for hotel listings. This data is public to all signed-in users but cannot be modified.
+     * @path /hotels/{hotelId}
+     * @allow (get, list) Any authenticated user reading hotel data.
+     * @deny (write) Any user attempting to create, update, or delete hotel listings.
+     * @principle Secures public marketplace data as read-only for clients.
+     */
+    match /hotels/{hotelId} {
+      allow get, list: if isSignedIn();
+      allow write: if false;
+    }
+
+    /**
      * @description Rules for testimonials. Any authenticated user can create a testimonial.
      * Testimonials are not readable, updatable or deletable by clients.
      * @path /testimonials/{testimonialId}
@@ -254,3 +266,5 @@ service cloud.firestore {
     }
   }
 }
+
+    

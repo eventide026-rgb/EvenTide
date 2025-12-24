@@ -30,7 +30,7 @@ const footerLinks = {
         { href: "/resources/editorial", label: "From the Editor" },
     ],
     hotelsAndVenues: [
-        { href: "#", label: "Find a Hotel" },
+        { href: "/resources/hotels", label: "Find a Hotel" },
         { href: "#", label: "Find a Venue" },
     ],
     legal: [
@@ -99,3 +99,5 @@ export function PublicFooter() {
     </footer>
   );
 }
+
+    
