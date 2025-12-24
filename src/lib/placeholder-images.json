@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "eventHall",
+      "description": "A beautifully decorated event hall with round tables, wine glasses, and ambient lighting, ready for a gala.",
+      "imageUrl": "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxldmVudCUyMGhhbGx8ZW58MHx8fHwxNzY2NDg0NTY1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "event hall"
+    },
+    {
+      "id": "africansFun1",
+      "description": "A group of stylishly dressed young Africans laughing and having fun at an outdoor party.",
+      "imageUrl": "https://images.unsplash.com/photo-1546430778-5ce190a3acbc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxhZnJpY2FuJTIwcGFydHl8ZW58MHx8fHwxNzY2NDkyNjcxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "african party"
+    },
+    {
+      "id": "gardenParty",
+      "description": "A vibrant garden party scene during the day, with people mingling under string lights.",
+      "imageUrl": "https://images.unsplash.com/photo-1543168256-8133cc8e3ee4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxnYXJkZW4lMjBwYXJ0eXxlbnwwfHx8fDE3NjY1MTQ0MzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "garden party"
+    },
+    {
+      "id": "invitationCard",
+      "description": "An elegant, close-up shot of a physical wedding invitation card with gold foil lettering.",
+      "imageUrl": "https://images.unsplash.com/photo-1627618996178-360a71be868d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxpbnZpdGF0aW9uJTIwY2FyZHxlbnwwfHx8fDE3NjY0OTI2NzF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "invitation card"
+    },
+    {
+      "id": "africansFun2",
+      "description": "A man and woman in traditional Nigerian attire dancing at a wedding reception.",
+      "imageUrl": "https://images.unsplash.com/flagged/photo-1578907015685-c4919129040d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxuaWdlcmlhbiUyMHdlZGRpbmd8ZW58MHx8fHwxNzY2NDkzMTM5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "nigerian wedding"
+    },
+    {
+      "id": "qrCodePass",
+      "description": "A person holding a smartphone displaying a digital event gatepass with a prominent QR code.",
+      "imageUrl": "https://images.unsplash.com/photo-1595079676339-1534801ad6cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxxciUyMGNvZGV8ZW58MHx8fHwxNzY2NTEzODg5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "qr code"
+    }
+  ]
 }
