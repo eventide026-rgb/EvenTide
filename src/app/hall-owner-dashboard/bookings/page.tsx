@@ -38,12 +38,26 @@ export default function BookingsPage() {
     return query(collection(firestore, 'venueBookings'), where('venueOwnerId', '==', user.uid));
   }, [firestore, user]);
 
-  const { data: bookings, isLoading: isLoadingBookings } = useCollection<VenueBooking>(bookingsQuery);
+  const { data: bookings, isLoading: isLoadingBookings, error } = useCollection<VenueBooking>(bookingsQuery);
 
-  const handleUpdateStatus = async (bookingId: string, newStatus: 'confirmed' | 'declined') => {
+  const handleUpdateStatus = async (bookingId: string, venueId: string, newStatus: 'confirmed' | 'declined') => {
     if (!firestore) return;
     const bookingRef = doc(firestore, 'venueBookings', bookingId);
+    // Also get a reference to the booking in the subcollection to update it there too.
+    const subCollectionBookingQuery = query(collection(firestore, 'venues', venueId, 'bookings'), where('id', '==', bookingId));
+    
     try {
+      // We need to find the document in the subcollection to update it.
+      // This is a simplified approach. A more robust solution might store the subcollection doc ID in the root booking doc.
+      // For now, we assume a single match.
+       const bookingToUpdateInSubcollection = await (await import('firebase/firestore')).getDocs(subCollectionBookingQuery);
+        if (!bookingToUpdateInSubcollection.empty) {
+            const subCollectionDocId = bookingToUpdateInSubcollection.docs[0].id;
+            const subCollectionDocRef = doc(firestore, 'venues', venueId, 'bookings', subCollectionDocId);
+            await updateDoc(subCollectionDocRef, { status: newStatus });
+        }
+
+
       await updateDoc(bookingRef, { status: newStatus });
       toast({
         title: 'Booking Updated',
@@ -60,6 +74,10 @@ export default function BookingsPage() {
   };
 
   const isLoading = isUserLoading || isLoadingBookings;
+
+  if (error) {
+    console.error(error);
+  }
 
   return (
     <Card>
@@ -90,7 +108,7 @@ export default function BookingsPage() {
                   <TableCell>{booking.eventName}</TableCell>
                   <TableCell>{booking.venueName}</TableCell>
                   <TableCell>
-                    {format(booking.eventDate.toDate(), 'PPP')}
+                    {booking.eventDate?.toDate ? format(booking.eventDate.toDate(), 'PPP') : 'Invalid Date'}
                   </TableCell>
                   <TableCell>
                     <Badge variant={
@@ -103,8 +121,8 @@ export default function BookingsPage() {
                   <TableCell className="text-right">
                     {booking.status === 'pending' && (
                       <div className="flex gap-2 justify-end">
-                        <Button size="sm" onClick={() => handleUpdateStatus(booking.id, 'confirmed')}>Confirm</Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleUpdateStatus(booking.id, 'declined')}>Decline</Button>
+                        <Button size="sm" onClick={() => handleUpdateStatus(booking.id, booking.venueId, 'confirmed')}>Confirm</Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleUpdateStatus(booking.id, booking.venueId, 'declined')}>Decline</Button>
                       </div>
                     )}
                   </TableCell>

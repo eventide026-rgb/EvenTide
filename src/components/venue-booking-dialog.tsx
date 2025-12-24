@@ -64,7 +64,11 @@ export function VenueBookingDialog({ venue, user, isUserLoading }: VenueBookingD
     
     try {
       const bookingsCol = collection(firestore, 'venues', venue.id, 'bookings');
+      const venueBookingsCol = collection(firestore, 'venueBookings');
+      
       await addDoc(bookingsCol, bookingData);
+      await addDoc(venueBookingsCol, bookingData);
+
       toast({
         title: 'Booking Request Sent!',
         description: 'The venue owner has been notified. You will receive an update on your request shortly.',

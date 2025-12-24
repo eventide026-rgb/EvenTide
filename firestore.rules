@@ -163,22 +163,35 @@ service cloud.firestore {
       allow get, list: if true;
       allow create: if isSignedIn() && getUserRole(request.auth.uid) == 'Hotelier' && request.resource.data.ownerId == request.auth.uid;
       allow update, delete: if isSignedIn() && isOwner(resource.data.ownerId);
+
+        /**
+         * @description Rules for hotel booking requests within a hotel's subcollection.
+         * @path /hotels/{hotelId}/bookings/{bookingId}
+         * @allow (create) An authenticated user creating a booking for themselves.
+         * @allow (update) The hotel owner updating the status of a booking.
+         * @principle Manages the booking lifecycle between a user and a hotelier.
+         */
+        match /bookings/{bookingId} {
+          allow get: if isSignedIn() && (isOwner(resource.data.userId) || isOwner(get(/databases/$(database)/documents/hotels/$(hotelId)).data.ownerId));
+          allow list: if isSignedIn() && isOwner(get(/databases/$(database)/documents/hotels/$(hotelId)).data.ownerId);
+          allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+          allow update: if isSignedIn() && isOwner(get(/databases/$(database)/documents/hotels/$(hotelId)).data.ownerId); // Hotelier can update status
+          allow delete: if false; // Bookings should be cancelled (status update), not deleted.
+        }
+    }
+    
+    /**
+     * @description Rules for the root `bookings` collection.
+     * @path /bookings/{bookingId}
+     * @allow (list) A hotel owner can list bookings where they are the owner.
+     * @deny (get, write) No direct reads or writes on this collection.
+     */
+    match /bookings/{bookingId} {
+        allow get: if false;
+        allow list: if isSignedIn() && request.query.where.field == "hotelOwnerId" && request.query.where.value == request.auth.uid;
+        allow write: if false;
     }
 
-    /**
-     * @description Rules for hotel booking requests.
-     * @path /hotels/{hotelId}/bookings/{bookingId}
-     * @allow (create) An authenticated user creating a booking for themselves.
-     * @allow (update) The hotel owner updating the status of a booking.
-     * @principle Manages the booking lifecycle between a user and a hotelier.
-     */
-    match /hotels/{hotelId}/bookings/{bookingId} {
-      allow list: if isSignedIn() && isOwner(get(/databases/$(database)/documents/hotels/$(hotelId)).data.ownerId);
-      allow get: if isSignedIn() && (isOwner(resource.data.userId) || isOwner(resource.data.hotelOwnerId));
-      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
-      allow update: if isSignedIn() && isOwner(resource.data.hotelOwnerId); // Hotelier can update status
-      allow delete: if false; // Bookings should be cancelled (status update), not deleted.
-    }
 
     /**
      * @description Rules for venue listings. Publicly readable. Writable only by the owner (Hall Owner).
@@ -191,22 +204,36 @@ service cloud.firestore {
       allow get, list: if true;
       allow create: if isSignedIn() && getUserRole(request.auth.uid) == 'Hall Owner' && request.resource.data.ownerId == request.auth.uid;
       allow update, delete: if isSignedIn() && isOwner(resource.data.ownerId);
+      
+        /**
+         * @description Rules for venue booking requests within a venue's subcollection.
+         * @path /venues/{venueId}/bookings/{bookingId}
+         * @allow (create) An authenticated user creating a booking for themselves.
+         * @allow (update) The venue owner updating the status of a booking.
+         * @principle Manages the booking lifecycle between a user and a venue owner.
+         */
+        match /bookings/{bookingId} {
+          allow list: if isSignedIn() && isOwner(getVenue(venueId).data.ownerId);
+          allow get: if isSignedIn() && (isOwner(resource.data.userId) || isOwner(resource.data.venueOwnerId));
+          allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+          allow update: if isSignedIn() && isOwner(getVenue(venueId).data.ownerId); // Hall Owner can update status
+          allow delete: if false; // Bookings should be cancelled (status update), not deleted.
+        }
     }
-    
+
      /**
-     * @description Rules for venue booking requests.
-     * @path /venues/{venueId}/bookings/{bookingId}
-     * @allow (create) An authenticated user creating a booking for themselves.
-     * @allow (update) The venue owner updating the status of a booking.
-     * @principle Manages the booking lifecycle between a user and a venue owner.
+     * @description Rules for the root `venueBookings` collection.
+     * @path /venueBookings/{bookingId}
+     * @allow (list) A venue owner can list bookings where they are the owner.
+     * @deny (get, write) No direct reads or writes on this collection.
      */
-    match /venues/{venueId}/bookings/{bookingId} {
-      allow list: if isSignedIn() && isOwner(getVenue(venueId).data.ownerId);
-      allow get: if isSignedIn() && (isOwner(resource.data.userId) || isOwner(resource.data.venueOwnerId));
-      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
-      allow update: if isSignedIn() && isOwner(resource.data.venueOwnerId); // Hall Owner can update status
-      allow delete: if false; // Bookings should be cancelled (status update), not deleted.
+    match /venueBookings/{bookingId} {
+        allow get: if false;
+        allow list: if isSignedIn() && request.query.where.field == "venueOwnerId" && request.query.where.value == request.auth.uid;
+        allow create: if isSignedIn() && isOwner(request.resource.data.userId); // Allow user to create for themselves.
+        allow update: if isSignedIn() && isOwner(request.resource.data.venueOwnerId); // Allow owner to update status.
     }
+
 
     /**
      * @description Rules for testimonials. Any authenticated user can create a testimonial.
