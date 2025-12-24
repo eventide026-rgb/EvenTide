@@ -14,7 +14,9 @@ export default function UserAdminLoginPage() {
   return (
     <Card className="mx-auto max-w-sm w-full">
       <CardHeader className="items-center">
-        <Logo />
+        <Link href="/">
+          <Logo />
+        </Link>
         <CardTitle className="text-2xl font-headline pt-4">User Admin Login</CardTitle>
         <CardDescription>
           Enter your credentials to access the dashboard.

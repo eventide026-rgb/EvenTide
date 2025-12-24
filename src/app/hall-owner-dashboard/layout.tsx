@@ -48,7 +48,7 @@ export default function HallOwnerDashboardLayout({ children }: { children: React
       <Sidebar>
         <SidebarHeader>
           <div className="flex items-center gap-2">
-            <Link href="/hall-owner-dashboard" className="flex items-center gap-2 font-headline font-bold text-lg">
+            <Link href="/" className="flex items-center gap-2 font-headline font-bold text-lg">
                 <Logo />
             </Link>
             <SidebarTrigger className="ml-auto" />

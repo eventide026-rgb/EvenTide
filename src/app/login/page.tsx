@@ -16,7 +16,9 @@ export default function LoginPage() {
   return (
     <Card className="mx-auto max-w-sm w-full">
       <CardHeader className="items-center">
-        <Logo />
+        <Link href="/">
+          <Logo />
+        </Link>
         <CardTitle className="text-2xl font-headline pt-4">Welcome Back</CardTitle>
         <CardDescription>Sign in to manage your events.</CardDescription>
       </CardHeader>
