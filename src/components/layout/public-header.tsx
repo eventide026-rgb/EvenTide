@@ -35,13 +35,19 @@ const communityLinks = [
     { href: "#", label: "Advertise" },
 ];
 
+const magazineLinks = [
+    { href: "#", label: "View All Issues" },
+    { href: "#", label: "From the Editor" },
+]
+
 const getImage = (id: string) => {
   return PlaceHolderImages.find((img) => img.id === id);
 };
 
 const HeaderContent = () => {
-  const resourceImage = getImage('eventHall'); // Placeholder, will be updated if a better one is added
+  const resourceImage = getImage('eventHall');
   const communityImage = getImage('gardenParty');
+  const magazineImage = getImage('magazineReader');
 
   return (
     <div className="container flex h-16 max-w-screen-lg items-center rounded-full border border-border/40 bg-background/60 p-2 shadow-lg backdrop-blur-lg">
@@ -110,19 +116,35 @@ const HeaderContent = () => {
           </PopoverContent>
         </Popover>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost">Magazine</Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem asChild>
-              <Link href="#">View All Issues</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="#">From the Editor</Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost">Magazine <ChevronDown className="ml-1 h-4 w-4" /></Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-64 p-2">
+            {magazineImage && (
+              <div className="relative h-24 w-full mb-2 rounded-md overflow-hidden">
+                <Image
+                  src={magazineImage.imageUrl}
+                  alt={magazineImage.description}
+                  fill
+                  className="object-cover"
+                  data-ai-hint={magazineImage.imageHint}
+                />
+              </div>
+            )}
+            <div className="grid gap-1">
+              {magazineLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="rounded-md p-2 text-sm hover:bg-accent"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

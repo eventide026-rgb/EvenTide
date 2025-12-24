@@ -35,6 +35,12 @@
       "description": "A person holding a smartphone displaying a digital event gatepass with a prominent QR code.",
       "imageUrl": "https://images.unsplash.com/photo-1595079676339-1534801ad6cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxxciUyMGNvZGV8ZW58MHx8fHwxNzY2NTEzODg5fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "qr code"
+    },
+    {
+      "id": "magazineReader",
+      "description": "A stylish Black woman sitting on a couch, reading a magazine in a well-lit room.",
+      "imageUrl": "https://images.unsplash.com/photo-1588979355313-6711a095465d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxibGFjayUyMHdvbWFuJTIwcmVhZGluZyUyMG1hZ2F6aW5lfGVufDB8fHx8MTc2NzAxOTEyMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman reading"
     }
   ]
 }
