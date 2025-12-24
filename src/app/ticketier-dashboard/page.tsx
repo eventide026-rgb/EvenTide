@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowUpRight, DollarSign, Users, Ticket, Link as LinkIcon, Copy } from "lucide-react";
+import { ArrowUpRight, DollarSign, Users, Ticket, Link as LinkIcon, Copy, PartyPopper } from "lucide-react";
 import Link from "next/link";
 import {
   Table,
@@ -52,10 +52,10 @@ export default function TicketierDashboardPage() {
        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold font-headline">Promoter Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back! Here's an overview of your events.</p>
+            <p className="text-muted-foreground">Welcome back! Here's an overview of your shows.</p>
           </div>
           <Button asChild>
-            <Link href="/events/new">Create New Event</Link>
+            <Link href="/ticketier-dashboard/shows/new">Create New Show</Link>
           </Button>
        </div>
 
@@ -86,7 +86,7 @@ export default function TicketierDashboardPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Events</CardTitle>
+            <CardTitle className="text-sm font-medium">Active Shows</CardTitle>
             <PartyPopper className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -123,13 +123,13 @@ export default function TicketierDashboardPage() {
        <Card>
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Upcoming Events</CardTitle>
+            <CardTitle>Upcoming Shows</CardTitle>
             <CardDescription>
-              Your next few events at a glance.
+              Your next few shows at a glance.
             </CardDescription>
           </div>
           <Button asChild size="sm" className="ml-auto gap-1">
-            <Link href="/ticketier-dashboard/events">
+            <Link href="/ticketier-dashboard/shows">
               View All
               <ArrowUpRight className="h-4 w-4" />
             </Link>
@@ -139,7 +139,7 @@ export default function TicketierDashboardPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Event</TableHead>
+                <TableHead>Show</TableHead>
                 <TableHead className="hidden sm:table-cell">Status</TableHead>
                 <TableHead className="hidden sm:table-cell">Date</TableHead>
                 <TableHead className="text-right">Tickets Sold</TableHead>

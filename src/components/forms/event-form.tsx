@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
@@ -42,7 +43,7 @@ const formSchema = z.object({
     imageUrls: z.array(z.string().url("Must be a valid URL.")).min(1, "At least one image URL is required."),
     isPublic: z.boolean().default(true),
     isTicketed: z.boolean().default(true),
-    eventType: z.string().min(2, "Event type is required."),
+    eventType: z.string().min(2, "Show type is required."),
 });
 
 
@@ -73,7 +74,7 @@ export function EventForm() {
         
     async function onSubmit(values: z.infer<typeof formSchema>) {
         if (!firestore || !user) {
-            toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to create an event." });
+            toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to create a show." });
             return;
         }
         setIsLoading(true);
@@ -90,18 +91,18 @@ export function EventForm() {
             const docRef = await addDoc(eventsCol, eventData);
             
             toast({
-                title: "Event Created!",
+                title: "Show Created!",
                 description: `Basics for ${values.name} have been saved.`,
             });
             // Redirect to the ticket tier creation step for this new event
-            router.push(`/ticketier-dashboard/events/${docRef.id}/tiers`);
+            router.push(`/ticketier-dashboard/shows/${docRef.id}/tiers`);
 
         } catch (error) {
             console.error("Error creating event:", error);
             toast({
                 variant: "destructive",
                 title: "Submission Failed",
-                description: "There was a problem creating your event. Please try again.",
+                description: "There was a problem creating your show. Please try again.",
             });
         } finally {
             setIsLoading(false);
@@ -116,7 +117,7 @@ export function EventForm() {
                     name="name"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Event Name</FormLabel>
+                            <FormLabel>Show Name</FormLabel>
                             <FormControl><Input placeholder="e.g., Summer Vibes Fest" {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
@@ -128,7 +129,7 @@ export function EventForm() {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Description</FormLabel>
-                            <FormControl><Textarea rows={4} placeholder="Tell everyone what makes your event special..." {...field} /></FormControl>
+                            <FormControl><Textarea rows={4} placeholder="Tell everyone what makes your show special..." {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
@@ -150,7 +151,7 @@ export function EventForm() {
                         name="eventDate"
                         render={({ field }) => (
                             <FormItem className='flex flex-col'>
-                                <FormLabel>Event Date & Time</FormLabel>
+                                <FormLabel>Show Date & Time</FormLabel>
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <FormControl>
@@ -199,7 +200,7 @@ export function EventForm() {
                 
                 <div className="space-y-2">
                     <FormLabel>Image URLs</FormLabel>
-                    <FormDescription>Add at least one public link to an image for your event.</FormDescription>
+                    <FormDescription>Add at least one public link to an image for your show.</FormDescription>
                      {imageUrlFields.map((field, index) => (
                         <FormField
                             key={field.id}
@@ -230,9 +231,9 @@ export function EventForm() {
                         render={({ field }) => (
                             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                                 <div className="space-y-0.5">
-                                    <FormLabel className="text-base">Ticketed Event</FormLabel>
+                                    <FormLabel className="text-base">Ticketed Show</FormLabel>
                                     <FormDescription>
-                                        Enable this to sell tickets for this event.
+                                        Enable this to sell tickets for this show.
                                     </FormDescription>
                                 </div>
                                 <FormControl>
@@ -250,9 +251,9 @@ export function EventForm() {
                         render={({ field }) => (
                             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                                 <div className="space-y-0.5">
-                                    <FormLabel className="text-base">Public Event</FormLabel>
+                                    <FormLabel className="text-base">Public Show</FormLabel>
                                     <FormDescription>
-                                        Allow this event to be listed publicly.
+                                        Allow this show to be listed publicly.
                                     </FormDescription>
                                 </div>
                                 <FormControl>

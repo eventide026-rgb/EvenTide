@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -31,7 +32,7 @@ const formSchema = z.object({
   ticketTiers: z.array(ticketTierSchema).min(1, "At least one ticket tier is required."),
 });
 
-export default function TicketTiersPage({ params }: { params: { eventId: string } }) {
+export default function TicketTiersPage({ params }: { params: { showId: string } }) {
     const { toast } = useToast();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -40,8 +41,8 @@ export default function TicketTiersPage({ params }: { params: { eventId: string 
     
     const eventRef = useMemoFirebase(() => {
         if (!firestore) return null;
-        return doc(firestore, 'events', params.eventId);
-    }, [firestore, params.eventId]);
+        return doc(firestore, 'events', params.showId);
+    }, [firestore, params.showId]);
 
     const { data: event, isLoading: isLoadingEvent } = useDoc(eventRef);
 
@@ -65,14 +66,14 @@ export default function TicketTiersPage({ params }: { params: { eventId: string 
         setIsLoading(true);
 
         const batch = writeBatch(firestore);
-        const tiersCollection = collection(firestore, 'events', params.eventId, 'ticketTiers');
+        const tiersCollection = collection(firestore, 'events', params.showId, 'ticketTiers');
 
         values.ticketTiers.forEach(tier => {
             const tierRef = doc(tiersCollection); // Create a new doc with a random ID
             batch.set(tierRef, {
                 ...tier,
                 sold: 0,
-                eventId: params.eventId
+                eventId: params.showId
             });
         });
 
@@ -80,9 +81,9 @@ export default function TicketTiersPage({ params }: { params: { eventId: string 
             await batch.commit();
             toast({
                 title: "Ticket Tiers Saved!",
-                description: `Your event "${event.name}" is now ready for ticket sales.`,
+                description: `Your show "${event.name}" is now ready for ticket sales.`,
             });
-            router.push(`/ticketier-dashboard/events`);
+            router.push(`/ticketier-dashboard/shows`);
 
         } catch (error) {
             console.error("Error saving ticket tiers:", error);
@@ -159,7 +160,7 @@ export default function TicketTiersPage({ params }: { params: { eventId: string 
 
                         <Button type="submit" className="w-full" disabled={isLoading}>
                             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {isLoading ? "Saving Tiers..." : "Save and Publish Event"}
+                            {isLoading ? "Saving Tiers..." : "Save and Publish Show"}
                         </Button>
                     </form>
                 </Form>

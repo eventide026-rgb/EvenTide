@@ -27,7 +27,7 @@ import { Logo } from "@/components/layout/logo";
 
 const navItems = [
   { href: "/ticketier-dashboard", icon: Home, label: "Dashboard" },
-  { href: "/ticketier-dashboard/events", icon: PartyPopper, label: "My Events" },
+  { href: "/ticketier-dashboard/shows", icon: PartyPopper, label: "My Shows" },
   { href: "/ticketier-dashboard/profile", icon: User, label: "My Profile" },
 ];
 

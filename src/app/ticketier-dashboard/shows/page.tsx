@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -9,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { type Event } from '@/components/event-card';
 import { EventCard } from '@/components/event-card';
 
-export default function MyEventsPage() {
+export default function MyShowsPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
@@ -18,7 +19,7 @@ export default function MyEventsPage() {
     return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
   }, [firestore, user]);
 
-  const { data: myEvents, isLoading: isLoadingEvents } = useCollection<Event>(myEventsQuery);
+  const { data: myShows, isLoading: isLoadingEvents } = useCollection<Event>(myEventsQuery);
 
   const isLoading = isUserLoading || isLoadingEvents;
 
@@ -26,18 +27,18 @@ export default function MyEventsPage() {
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold font-headline">My Events</h1>
-          <p className="text-muted-foreground">Manage your event listings.</p>
+          <h1 className="text-3xl font-bold font-headline">My Shows</h1>
+          <p className="text-muted-foreground">Manage your show listings.</p>
         </div>
         <Button asChild>
-          <Link href="/ticketier-dashboard/events/new">Create New Event</Link>
+          <Link href="/ticketier-dashboard/shows/new">Create New Show</Link>
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Your Events</CardTitle>
-          <CardDescription>All events you have created on EvenTide.</CardDescription>
+          <CardTitle>Your Shows</CardTitle>
+          <CardDescription>All shows you have created on EvenTide.</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading && (
@@ -52,20 +53,20 @@ export default function MyEventsPage() {
             </div>
           )}
 
-          {!isLoading && myEvents && myEvents.length > 0 && (
+          {!isLoading && myShows && myShows.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {myEvents.map((event) => (
+              {myShows.map((event) => (
                 <EventCard key={event.id} event={event} />
               ))}
             </div>
           )}
 
-          {!isLoading && (!myEvents || myEvents.length === 0) && (
+          {!isLoading && (!myShows || myShows.length === 0) && (
             <div className="text-center py-16 border-dashed border-2 rounded-lg">
-              <h3 className="text-xl font-semibold">You haven't created any events yet.</h3>
-              <p className="text-muted-foreground mt-2 mb-4">Click the button below to add your first event.</p>
+              <h3 className="text-xl font-semibold">You haven't created any shows yet.</h3>
+              <p className="text-muted-foreground mt-2 mb-4">Click the button below to add your first show.</p>
               <Button asChild>
-                <Link href="/ticketier-dashboard/events/new">Create New Event</Link>
+                <Link href="/ticketier-dashboard/shows/new">Create New Show</Link>
               </Button>
             </div>
           )}
