@@ -23,7 +23,7 @@ const footerLinks = {
         { href: "#", label: "Find Planners" },
         { href: "#", "label": "Find Vendors" },
         { href: "/resources/submit-testimonial", label: "Submit a Testimonial" },
-        { href: "#", label: "Advertise" },
+        { href: "/resources/advertise", label: "Advertise" },
     ],
     magazine: [
         { href: "#", label: "View All Issues" },

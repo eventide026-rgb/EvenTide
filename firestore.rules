@@ -133,9 +133,7 @@ service cloud.firestore {
      */
     match /pricePlans/{pricePlanId} {
       allow get, list: if isSignedIn();
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow write: if false;
     }
 
     /**
@@ -147,11 +145,23 @@ service cloud.firestore {
      * @principle Allow-listing writes and defaulting to deny for reads and modifications.
      */
     match /testimonials/{testimonialId} {
-        allow get: if false;
-        allow list: if false;
+        allow get, list: if false;
         allow create: if isSignedIn();
-        allow update: if false;
-        allow delete: if false;
+        allow update, delete: if false;
+    }
+
+     /**
+     * @description Rules for advertisement requests. Any authenticated user can submit one.
+     * These are not readable, updatable or deletable by clients.
+     * @path /adRequests/{adRequestId}
+     * @allow (create) Any authenticated user creating an ad request.
+     * @deny (get, list, update, delete) All other operations are disallowed.
+     * @principle Allow-listing writes and defaulting to deny for reads and modifications.
+     */
+    match /adRequests/{adRequestId} {
+        allow get, list: if false;
+        allow create: if isSignedIn();
+        allow update, delete: if false;
     }
 
     /**
