@@ -1,3 +1,5 @@
+'use client';
+
 import Link from "next/link";
 import {
   Card,
@@ -20,7 +22,7 @@ export default function GuestLoginPage() {
       <CardContent>
         <GuestLoginForm />
         <div className="mt-4 text-center text-sm">
-          Not a guest?{" "}
+          Are you the event host?{" "}
           <Link href="/login" className="underline text-primary">
             Login here
           </Link>

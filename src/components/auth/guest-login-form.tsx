@@ -1,7 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { zodResolver } from "@radix-ui/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,7 +41,7 @@ export function GuestLoginForm() {
       description: "Redirecting to your event dashboard...",
     });
     // This should redirect to a guest-specific dashboard
-    router.push('/guest/dashboard'); 
+    router.push('/guest-dashboard/my-invitations'); 
   }
 
   return (
