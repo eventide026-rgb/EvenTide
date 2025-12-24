@@ -69,14 +69,17 @@ const HeaderContent = () => {
           </PopoverTrigger>
           <PopoverContent className="w-64 p-2">
             
+              {resourceImage && (
               <div className="relative h-24 w-full mb-2 rounded-md overflow-hidden">
                 <Image 
-                    src="https://picsum.photos/seed/desk/600/400"
-                    alt="A person learning at a desk"
+                    src={resourceImage.imageUrl}
+                    alt={resourceImage.description}
                     fill
                     className="object-cover"
+                    data-ai-hint={resourceImage.imageHint}
                 />
               </div>
+            )}
             
             <div className="grid gap-1">
               {resourceLinks.map(link => (
