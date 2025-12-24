@@ -41,8 +41,8 @@ const magazineLinks = [
 ]
 
 const hotelsAndVenuesLinks = [
-    { href: "#", label: "Find a Hotel" },
-    { href: "#", label: "Find a Venue" },
+    { href: "/resources/hotels", label: "Find a Hotel" },
+    { href: "/resources/venues", label: "Find a Venue" },
 ]
 
 const getImage = (id: string) => {
@@ -53,7 +53,7 @@ const HeaderContent = () => {
   const resourceImage = getImage('eventHall');
   const communityImage = getImage('gardenParty');
   const magazineImage = getImage('magazineReader');
-  const hotelsImage = getImage('eventHall');
+  const hotelsImage = getImage('venueHall');
 
   return (
     <div className="container flex h-16 max-w-screen-lg items-center rounded-full border border-border/40 bg-background/60 p-2 shadow-lg backdrop-blur-lg">
@@ -157,7 +157,7 @@ const HeaderContent = () => {
 
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost">Hotels & Halls <ChevronDown className="ml-1 h-4 w-4" /></Button>
+            <Button variant="ghost">Hotels & Venues <ChevronDown className="ml-1 h-4 w-4" /></Button>
           </PopoverTrigger>
           <PopoverContent className="w-64 p-2">
             {hotelsImage && (

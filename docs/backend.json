@@ -439,6 +439,46 @@
         }
       },
       "required": ["name", "state", "city", "address", "imageUrl", "imageHint"]
+    },
+    "Venue": {
+      "title": "Venue",
+      "description": "Represents an event venue listing on the EvenTide platform.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the venue."
+        },
+        "state": {
+          "type": "string",
+          "description": "The Nigerian state where the venue is located."
+        },
+        "city": {
+          "type": "string",
+          "description": "The city where the venue is located."
+        },
+        "address": {
+          "type": "string",
+          "description": "The full street address of the venue."
+        },
+        "description": {
+          "type": "string",
+          "description": "A summary of the venue's features and amenities."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL for the venue's primary image."
+        },
+        "imageHint": {
+          "type": "string",
+          "description": "AI hint for the venue image, used for accessibility and search."
+        },
+        "capacity": {
+          "type": "number",
+          "description": "The maximum guest capacity of the venue."
+        }
+      },
+      "required": ["name", "state", "city", "address", "capacity", "imageUrl", "imageHint"]
     }
   },
   "auth": {
@@ -641,6 +681,22 @@
             {
               "name": "hotelId",
               "description": "The unique identifier for the hotel."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/venues/{venueId}",
+        "definition": {
+          "entityName": "Venue",
+          "schema": {
+            "$ref": "#/backend/entities/Venue"
+          },
+          "description": "Stores public listings for event venues available on the platform.",
+          "params": [
+            {
+              "name": "venueId",
+              "description": "The unique identifier for the venue."
             }
           ]
         }

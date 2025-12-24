@@ -41,6 +41,12 @@
       "description": "A stylish Black woman sitting on a couch, reading a magazine in a well-lit room.",
       "imageUrl": "https://images.unsplash.com/photo-1588979355313-6711a095465d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxibGFjayUyMHdvbWFuJTIwcmVhZGluZyUyMG1hZ2F6aW5lfGVufDB8fHx8MTc2NzAxOTEyMnww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "woman reading"
+    },
+    {
+      "id": "venueHall",
+      "description": "A large, empty, modern event venue with high ceilings and chandeliers.",
+      "imageUrl": "https://images.unsplash.com/photo-1531058020387-3be344556be6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxldmVudCUyMHZlbnVlfGVufDB8fHx8MTc2NzE0NjU0Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "event venue"
     }
   ]
 }

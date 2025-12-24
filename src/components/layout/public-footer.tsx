@@ -31,7 +31,7 @@ const footerLinks = {
     ],
     hotelsAndVenues: [
         { href: "/resources/hotels", label: "Find a Hotel" },
-        { href: "#", label: "Find a Venue" },
+        { href: "/resources/venues", label: "Find a Venue" },
     ],
     legal: [
         { href: "#", label: "Privacy Policy" },
@@ -99,5 +99,4 @@ export function PublicFooter() {
     </footer>
   );
 }
-
     
