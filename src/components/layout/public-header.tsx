@@ -71,6 +71,20 @@ export function PublicHeader() {
             </DropdownMenuContent>
           </DropdownMenu>
 
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost">Magazine</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem asChild>
+                <Link href="#">View All Issues</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="#">From the Editor</Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {navLinks.map(link => (
              <Link key={link.label} href={link.href} className="transition-colors hover:text-foreground/80 text-foreground/60">{link.label}</Link>
           ))}
@@ -101,6 +115,7 @@ export function PublicHeader() {
                 </Link>
                  <Link href="#" className="text-muted-foreground hover:text-foreground">Resources</Link>
                  <Link href="#" className="text-muted-foreground hover:text-foreground">Community</Link>
+                 <Link href="#" className="text-muted-foreground hover:text-foreground">Magazine</Link>
                 {navLinks.map(link => (
                     <Link key={link.label} href={link.label} className="text-muted-foreground hover:text-foreground">{link.label}</Link>
                 ))}
