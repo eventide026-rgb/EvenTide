@@ -14,8 +14,8 @@
  * Key Security Decisions:
  * - User Isolation: Users can only read and write their own profile data in `/users/{userId}`. Listing users is disabled.
  * - Event Access Control: Access to an event and its subcollections is primarily governed by the event's `isPublic` status and the user's role (owner, planner, cohost).
- * - Read-Only Public Data: The `/pricePlans`, `/venues` collections are readable by any user, but are not writable by clients.
- * - Owner-based write on public data: Collections like `/hotels` can be written to by authenticated users who are marked as the `ownerId` of the document.
+ * - Read-Only Public Data: The `/pricePlans` collection is readable by any user, but is not writable by clients.
+ * - Owner-based write on public data: Collections like `/hotels` and `/venues` can be written to by authenticated users with specific roles who are marked as the `ownerId` of the document.
  * - Default to Private: All write operations are denied by default and must be explicitly granted based on ownership or a defined role related to an event.
  *
  * Denormalization for Authorization: To enable efficient and secure rules, this ruleset relies
@@ -80,6 +80,13 @@ service cloud.firestore {
      */
     function getEvent(eventId) {
       return get(/databases/$(database)/documents/events/$(eventId));
+    }
+    
+    /**
+     * Retrieves the parent Venue document for a given venueId.
+     */
+    function getVenue(venueId) {
+        return get(/databases/$(database)/documents/venues/$(venueId));
     }
 
     /**
@@ -174,15 +181,31 @@ service cloud.firestore {
     }
 
     /**
-     * @description Rules for venue listings. This data is public but cannot be modified by clients.
+     * @description Rules for venue listings. Publicly readable. Writable only by the owner (Hall Owner).
      * @path /venues/{venueId}
      * @allow (get, list) Any user reading venue data.
-     * @deny (write) Any user attempting to create, update, or delete venue listings.
-     * @principle Secures public marketplace data as read-only for clients.
+     * @deny (create) A non-Hall-Owner user attempting to create a venue listing.
+     * @principle Secures marketplace data by ownership while allowing public discovery.
      */
     match /venues/{venueId} {
       allow get, list: if true;
-      allow write: if false;
+      allow create: if isSignedIn() && getUserRole(request.auth.uid) == 'Hall Owner' && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && isOwner(resource.data.ownerId);
+    }
+    
+     /**
+     * @description Rules for venue booking requests.
+     * @path /venues/{venueId}/bookings/{bookingId}
+     * @allow (create) An authenticated user creating a booking for themselves.
+     * @allow (update) The venue owner updating the status of a booking.
+     * @principle Manages the booking lifecycle between a user and a venue owner.
+     */
+    match /venues/{venueId}/bookings/{bookingId} {
+      allow list: if isSignedIn() && isOwner(getVenue(venueId).data.ownerId);
+      allow get: if isSignedIn() && (isOwner(resource.data.userId) || isOwner(resource.data.venueOwnerId));
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+      allow update: if isSignedIn() && isOwner(resource.data.venueOwnerId); // Hall Owner can update status
+      allow delete: if false; // Bookings should be cancelled (status update), not deleted.
     }
 
     /**

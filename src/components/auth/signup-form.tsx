@@ -27,7 +27,7 @@ const formSchema = z.object({
   fullName: z.string().min(2, { message: "Please enter your full name." }),
   email: z.string().email({ message: "Please enter a valid email." }),
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
-  role: z.enum(["Owner", "Planner"], { required_error: "You need to select a role." }),
+  role: z.enum(["Owner", "Planner", "Hotelier", "Hall Owner"], { required_error: "You need to select a role." }),
 });
 
 export function SignUpForm() {
@@ -108,8 +108,9 @@ export function SignUpForm() {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="Owner">Owner</SelectItem>
-                  <SelectItem value="Planner">Planner</SelectItem>
+                  <SelectItem value="Owner">Event Owner / Planner</SelectItem>
+                  <SelectItem value="Hotelier">Hotelier</SelectItem>
+                  <SelectItem value="Hall Owner">Venue / Hall Owner</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

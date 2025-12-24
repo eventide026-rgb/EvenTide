@@ -17,7 +17,7 @@
         },
         "role": {
           "type": "string",
-          "description": "User's role within the application (Owner, Planner, Guest, Security, Cohost)."
+          "description": "User's role within the application (Owner, Planner, Guest, Security, Cohost, Hotelier, Hall Owner)."
         },
         "firstName": {
           "type": "string",
@@ -481,6 +481,10 @@
       "description": "Represents an event venue listing on the EvenTide platform.",
       "type": "object",
       "properties": {
+        "ownerId": {
+          "type": "string",
+          "description": "The UID of the Hall Owner who owns this listing."
+        },
         "name": {
           "type": "string",
           "description": "The name of the venue."
@@ -501,20 +505,42 @@
           "type": "string",
           "description": "A summary of the venue's features and amenities."
         },
-        "imageUrl": {
-          "type": "string",
-          "description": "URL for the venue's primary image."
-        },
-        "imageHint": {
-          "type": "string",
-          "description": "AI hint for the venue image, used for accessibility and search."
+        "imageUrls": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "An array of URLs for the venue's images."
         },
         "capacity": {
           "type": "number",
           "description": "The maximum guest capacity of the venue."
+        },
+        "amenities": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "A list of amenities offered by the venue (e.g., Parking, Wi-Fi, Stage)."
+        },
+        "features": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "A list of special features of the venue (e.g., Projector, Sound System)."
         }
       },
-      "required": ["name", "state", "city", "address", "capacity", "imageUrl", "imageHint"]
+      "required": ["ownerId", "name", "state", "city", "address", "capacity", "imageUrls", "amenities", "features"]
+    },
+     "VenueBooking": {
+      "title": "VenueBooking",
+      "description": "Represents a booking request for a venue.",
+      "type": "object",
+      "properties": {
+        "venueId": { "type": "string" },
+        "venueOwnerId": { "type": "string" },
+        "userId": { "type": "string" },
+        "eventName": { "type": "string" },
+        "eventDate": { "type": "string", "format": "date-time" },
+        "numberOfGuests": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "declined"] }
+      },
+      "required": ["venueId", "venueOwnerId", "userId", "eventName", "eventDate", "numberOfGuests", "status"]
     },
     "SupportTicket": {
       "title": "SupportTicket",
@@ -791,6 +817,26 @@
             {
               "name": "venueId",
               "description": "The unique identifier for the venue."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/venues/{venueId}/bookings/{bookingId}",
+        "definition": {
+          "entityName": "VenueBooking",
+          "schema": {
+            "$ref": "#/backend/entities/VenueBooking"
+          },
+          "description": "Stores booking requests for a specific venue.",
+          "params": [
+            {
+              "name": "venueId",
+              "description": "The unique identifier for the venue."
+            },
+            {
+              "name": "bookingId",
+              "description": "The unique identifier for the booking."
             }
           ]
         }

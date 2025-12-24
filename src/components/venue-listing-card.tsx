@@ -9,14 +9,16 @@ import { Badge } from './ui/badge';
 
 export type Venue = {
     id: string;
+    ownerId: string;
     name: string;
     state: string;
     city: string;
     address: string;
-    imageUrl: string;
-    imageHint: string;
+    imageUrls: string[];
     description: string;
     capacity: number;
+    amenities: string[];
+    features: string[];
 };
 
 type VenueListingCardProps = {
@@ -30,11 +32,10 @@ export function VenueListingCard({ venue }: VenueListingCardProps) {
         <CardHeader className="p-0">
           <div className="aspect-video relative overflow-hidden">
             <Image
-              src={venue.imageUrl}
+              src={venue.imageUrls[0] || 'https://picsum.photos/seed/placeholder-venue/400/225'}
               alt={venue.name}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
-              data-ai-hint={venue.imageHint}
             />
              <Badge className="absolute top-2 right-2">
                 <Users className="h-3 w-3 mr-1" />
