@@ -9,15 +9,16 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { Logo } from "@/components/layout/logo";
+import { Shield } from "lucide-react";
 
 export default function SuperAdminLoginPage() {
   return (
     <Card className="mx-auto max-w-sm w-full">
       <CardHeader className="items-center">
-        <Logo />
+        <Shield className="h-12 w-12 text-primary" />
         <CardTitle className="text-2xl font-headline pt-4">Super Admin Login</CardTitle>
         <CardDescription>
-          Enter your credentials to access the master panel.
+          Access the platform's command center.
         </CardDescription>
       </CardHeader>
       <CardContent>
