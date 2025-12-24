@@ -137,6 +137,7 @@ const getImage = (id: string) => {
 
 export default function Home() {
   const heroImage = getImage('eventHall');
+  const partyTableImage = getImage('nigerianPartyTable');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [eventType, setEventType] = useState('Wedding');
   const [generatedMessage, setGeneratedMessage] = useState('');
@@ -234,8 +235,31 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Bringing People Together Section */}
+        <section className="py-16 md:py-24">
+          <div className="container mx-auto px-4">
+            <div className="relative max-w-4xl mx-auto aspect-video rounded-lg overflow-hidden">
+                {partyTableImage && (
+                    <Image
+                        src={partyTableImage.imageUrl}
+                        alt={partyTableImage.description}
+                        fill
+                        className="object-cover"
+                        data-ai-hint={partyTableImage.imageHint}
+                    />
+                )}
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <h2 className="text-4xl md:text-5xl font-headline font-bold text-white text-center shadow-lg">
+                        Bringing People Together, Beautifully.
+                    </h2>
+                </div>
+            </div>
+          </div>
+        </section>
+
+
         {/* Interactive AI Demo Section */}
-        <section id="ai-demo" className="py-16 md:py-24">
+        <section id="ai-demo" className="py-16 md:py-24 bg-secondary">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-headline font-bold md:text-4xl">Meet Eni, Your AI Assistant</h2>
@@ -275,7 +299,7 @@ export default function Home() {
         </section>
 
         {/* Social Proof Section */}
-        <section id="testimonials" className="py-16 md:py-24 bg-secondary">
+        <section id="testimonials" className="py-16 md:py-24">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-headline font-bold md:text-4xl">Loved by Planners & Hosts</h2>
@@ -306,7 +330,7 @@ export default function Home() {
         </section>
 
         {/* Role-Based Benefits Section */}
-        <section id="benefits" className="py-16 md:py-24">
+        <section id="benefits" className="py-16 md:py-24 bg-secondary">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
                     <h2 className="text-3xl font-headline font-bold md:text-4xl">A Tool for Everyone on the Team</h2>
@@ -339,7 +363,7 @@ export default function Home() {
 
 
         {/* Pricing Section */}
-        <section id="pricing" className="py-16 md:py-24 bg-secondary">
+        <section id="pricing" className="py-16 md:py-24">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-headline font-bold md:text-4xl">Find the Perfect Plan</h2>
@@ -384,7 +408,7 @@ export default function Home() {
         </section>
 
         {/* Final CTA Section */}
-        <section className="py-16 md:py-24">
+        <section className="py-16 md:py-24 bg-secondary">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-headline font-bold md:text-4xl text-foreground">
               Ready to Create an Unforgettable Event?
