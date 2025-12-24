@@ -14,7 +14,7 @@ export const NigerianStatesAndCities = [
     { state: 'Edo', cities: ['Benin City', 'Auchi', 'Uromi'] },
     { state: 'Ekiti', cities: ['Ado-Ekiti', 'Ikere-Ekiti', 'Efon-Alaaye'] },
     { state: 'Enugu', cities: ['Enugu', 'Nsukka', 'Oji River'] },
-    { state 'Gombe', cities: ['Gombe', 'Kumo', 'Billiri'] },
+    { state: 'Gombe', cities: ['Gombe', 'Kumo', 'Billiri'] },
     { state: 'Imo', cities: ['Owerri', 'Orlu', 'Okigwe'] },
     { state: 'Jigawa', cities: ['Dutse', 'Hadejia', 'Birnin Kudu'] },
     { state: 'Kaduna', cities: ['Kaduna', 'Zaria', 'Kafanchan'] },
