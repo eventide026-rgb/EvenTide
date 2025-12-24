@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -10,6 +11,7 @@ import {
   Home as HomeIcon,
   Palette,
   ShieldCheck,
+  Ticket,
   Users,
   Wand2,
 } from 'lucide-react';
@@ -201,8 +203,11 @@ export default function Home() {
                   Create an Event <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20">
-                <Link href="/guest-login">I am a Guest</Link>
+              <Button asChild size="lg" variant="secondary">
+                <Link href="/events">
+                  <Ticket className="mr-2 h-5 w-5" />
+                  Buy Tickets
+                </Link>
               </Button>
             </div>
           </div>
@@ -430,3 +435,5 @@ export default function Home() {
     </div>
   );
 }
+
+    

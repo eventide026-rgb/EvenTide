@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { ChevronDown, Menu } from 'lucide-react';
+import { ChevronDown, Menu, Ticket } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,6 +42,7 @@ const magazineLinks = [
 ]
 
 const marketplaceLinks = [
+    { href: "/events", label: "Buy Tickets" },
     { href: "/resources/hotels", label: "Find a Hotel" },
     { href: "/resources/venues", label: "Find a Venue" },
     { href: "/resources/cars", label: "Find a Car" },
@@ -275,3 +276,5 @@ export function PublicHeader() {
     </header>
   );
 }
+
+    

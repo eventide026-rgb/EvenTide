@@ -91,6 +91,10 @@
         "isPublic": {
           "type": "boolean",
           "description": "Indicates whether the event is public or private.  Determines visibility of media."
+        },
+        "isTicketed": {
+          "type": "boolean",
+          "description": "Indicates whether the event is ticketed and should be publicly listed for sale."
         }
       },
       "required": [
@@ -103,8 +107,37 @@
         "eventDate",
         "primaryColor",
         "secondaryColor",
-        "isPublic"
+        "isPublic",
+        "isTicketed"
       ]
+    },
+    "TicketTier": {
+      "title": "TicketTier",
+      "description": "Defines a pricing tier for a ticketed event.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "eventId": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "quantity": { "type": "number" },
+        "sold": { "type": "number" }
+      },
+      "required": ["eventId", "name", "price", "quantity", "sold"]
+    },
+    "Ticket": {
+      "title": "Ticket",
+      "description": "Represents a purchased ticket for an event.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "eventId": { "type": "string" },
+        "ticketTierId": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "ticketCode": { "type": "string" },
+        "purchaseDate": { "type": "string", "format": "date-time" }
+      },
+      "required": ["eventId", "ticketTierId", "ownerId", "ticketCode", "purchaseDate"]
     },
     "Guest": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -685,6 +718,22 @@
         }
       },
       {
+        "path": "/events/{eventId}/ticketTiers/{tierId}",
+        "definition": {
+          "entityName": "TicketTier",
+          "schema": { "$ref": "#/backend/entities/TicketTier" },
+          "description": "Stores ticket tiers for a specific event."
+        }
+      },
+      {
+        "path": "/events/{eventId}/tickets/{ticketId}",
+        "definition": {
+          "entityName": "Ticket",
+          "schema": { "$ref": "#/backend/entities/Ticket" },
+          "description": "Stores tickets purchased for a specific event."
+        }
+      },
+      {
         "path": "/events/{eventId}/guests/{guestId}",
         "definition": {
           "entityName": "Guest",
@@ -946,4 +995,4 @@
   }
 }
 
-  
+    

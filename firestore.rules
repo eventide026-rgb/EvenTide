@@ -338,6 +338,25 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       allow update: if isEventStaff(eventId) && isExistingDoc();
       allow delete: if isEventStaff(eventId) && isExistingDoc();
+      
+      /**
+       * @description Rules for event ticket tiers. Readable by public, writable only by event staff.
+       * @path /events/{eventId}/ticketTiers/{tierId}
+       */
+      match /ticketTiers/{tierId} {
+        allow get, list: if getEvent(eventId).data.isPublic == true && getEvent(eventId).data.isTicketed == true;
+        allow create, update, delete: if isEventStaff(eventId);
+      }
+      
+      /**
+       * @description Rules for event tickets. Readable by owner, writable only on creation by a signed-in user.
+       * @path /events/{eventId}/tickets/{ticketId}
+       */
+       match /tickets/{ticketId} {
+        allow get, list: if isOwner(resource.data.ownerId) || isEventStaff(eventId);
+        allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+        allow update, delete: if false; // Tickets are immutable once created.
+      }
     }
 
     /**
@@ -415,4 +434,4 @@ service cloud.firestore {
   }
 }
 
-  
+    
