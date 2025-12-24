@@ -20,9 +20,9 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 const navLinks: { label: string, href: string }[] = [];
 
 const resourceLinks = [
-    { href: "#", label: "What is EvenTide" },
-    { href: "#", label: "How to Use EvenTide" },
-    { href: "#", label: "Meet Eni" },
+    { href: "/resources/what-is-eventide", label: "What is EvenTide" },
+    { href: "/resources/how-to-use", label: "How to Use EvenTide" },
+    { href: "#ai-demo", label: "Meet Eni" },
     { href: "/about", label: "About Us" },
     { href: "#testimonials", label: "Testimonials" },
 ];
