@@ -41,9 +41,10 @@ const magazineLinks = [
     { href: "/resources/editorial", label: "From the Editor" },
 ]
 
-const hotelsAndVenuesLinks = [
+const marketplaceLinks = [
     { href: "/resources/hotels", label: "Find a Hotel" },
     { href: "/resources/venues", label: "Find a Venue" },
+    { href: "/resources/cars", label: "Find a Car" },
 ]
 
 const getImage = (id: string) => {
@@ -158,7 +159,7 @@ const HeaderContent = () => {
 
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost">Hotels & Venues <ChevronDown className="ml-1 h-4 w-4" /></Button>
+            <Button variant="ghost">Marketplace <ChevronDown className="ml-1 h-4 w-4" /></Button>
           </PopoverTrigger>
           <PopoverContent className="w-64 p-2">
             {hotelsImage && (
@@ -173,7 +174,7 @@ const HeaderContent = () => {
               </div>
             )}
             <div className="grid gap-1">
-              {hotelsAndVenuesLinks.map((link) => (
+              {marketplaceLinks.map((link) => (
                 <Link
                   key={link.label}
                   href={link.href}
@@ -215,7 +216,7 @@ const HeaderContent = () => {
               <Link href="#" className="text-muted-foreground hover:text-foreground">Resources</Link>
               <Link href="#" className="text-muted-foreground hover:text-foreground">Community</Link>
               <Link href="/resources/magazine" className="text-muted-foreground hover:text-foreground">Magazine</Link>
-              <Link href="#" className="text-muted-foreground hover:text-foreground">Hotel & Halls</Link>
+              <Link href="#" className="text-muted-foreground hover:text-foreground">Marketplace</Link>
               {navLinks.map(link => (
                   <Link key={link.label} href={link.label} className="text-muted-foreground hover:text-foreground">{link.label}</Link>
               ))}

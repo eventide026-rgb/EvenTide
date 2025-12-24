@@ -30,9 +30,10 @@ const footerLinks = {
         { href: "/resources/magazine", label: "View All Issues" },
         { href: "/resources/editorial", label: "From the Editor" },
     ],
-    hotelsAndVenues: [
+    marketplace: [
         { href: "/resources/hotels", label: "Find a Hotel" },
         { href: "/resources/venues", label: "Find a Venue" },
+        { href: "/resources/cars", label: "Find a Car" },
     ],
     legal: [
         { href: "/resources/privacy", label: "Privacy Policy" },
@@ -75,7 +76,7 @@ export function PublicFooter() {
                 <FooterLinkColumn title="Resources" links={footerLinks.resources} />
                 <FooterLinkColumn title="Community" links={footerLinks.community} />
                 <FooterLinkColumn title="Magazine" links={footerLinks.magazine} />
-                <FooterLinkColumn title="Hotels & Venues" links={footerLinks.hotelsAndVenues} />
+                <FooterLinkColumn title="Marketplace" links={footerLinks.marketplace} />
                 <FooterLinkColumn title="Legal" links={footerLinks.legal} />
             </div>
         </div>
@@ -100,4 +101,3 @@ export function PublicFooter() {
     </footer>
   );
 }
-    

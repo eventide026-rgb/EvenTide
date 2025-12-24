@@ -16,7 +16,7 @@
  * - User Isolation: Users can only read and write their own profile data in `/users/{userId}`. Listing users is disabled.
  * - Event Access Control: Access to an event and its subcollections is primarily governed by the event's `isPublic` status and the user's role (owner, planner, cohost).
  * - Read-Only Public Data: The `/pricePlans` collection is readable by any user, but is not writable by clients.
- * - Owner-based write on public data: Collections like `/hotels` and `/venues` can be written to by authenticated users with specific roles who are marked as the `ownerId` of the document.
+ * - Owner-based write on public data: Collections like `/hotels`, `/venues`, and `/cars` can be written to by authenticated users with specific roles who are marked as the `ownerId` of the document.
  * - Default to Private: All write operations are denied by default and must be explicitly granted based on ownership or a defined role related to an event.
  *
  * Denormalization for Authorization: To enable efficient and secure rules, this ruleset relies
@@ -88,6 +88,13 @@ service cloud.firestore {
      */
     function getVenue(venueId) {
         return get(/databases/$(database)/documents/venues/$(venueId));
+    }
+    
+    /**
+     * Retrieves the parent Car document for a given carId.
+     */
+    function getCar(carId) {
+        return get(/databases/$(database)/documents/cars/$(carId));
     }
 
     /**
@@ -233,6 +240,45 @@ service cloud.firestore {
         allow list: if isSignedIn() && request.query.where.field == "venueOwnerId" && request.query.where.value == request.auth.uid;
         allow create: if isSignedIn() && isOwner(request.resource.data.userId); // Allow user to create for themselves.
         allow update: if isSignedIn() && isOwner(request.resource.data.venueOwnerId); // Allow owner to update status.
+    }
+    
+    /**
+     * @description Rules for car listings. Publicly readable. Writable only by the owner (Car Hire Service).
+     * @path /cars/{carId}
+     * @allow (get, list) Any user reading car data.
+     * @deny (create) A non-CHS user attempting to create a car listing.
+     * @principle Secures marketplace data by ownership while allowing public discovery.
+     */
+    match /cars/{carId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() && getUserRole(request.auth.uid) == 'Car Hire Service' && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && isOwner(resource.data.ownerId);
+
+      /**
+       * @description Rules for car booking requests within a car's subcollection.
+       * @path /cars/{carId}/bookings/{bookingId}
+       * @allow (create) An authenticated user creating a booking for themselves.
+       * @allow (update) The car owner updating the status of a booking.
+       */
+      match /bookings/{bookingId} {
+        allow get: if isSignedIn() && (isOwner(resource.data.userId) || isOwner(getCar(carId).data.ownerId));
+        allow list: if isSignedIn() && isOwner(getCar(carId).data.ownerId);
+        allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+        allow update: if isSignedIn() && isOwner(getCar(carId).data.ownerId);
+        allow delete: if false; // Bookings should be cancelled (status update), not deleted.
+      }
+    }
+    
+    /**
+     * @description Rules for the root `carBookings` collection.
+     * @path /carBookings/{bookingId}
+     * @allow (list) A CHS provider can list bookings where they are the owner.
+     * @deny (get, write) No direct reads or writes on this collection.
+     */
+    match /carBookings/{bookingId} {
+        allow get: if false;
+        allow list: if isSignedIn() && request.query.where.field == "carOwnerId" && request.query.where.value == request.auth.uid;
+        allow write: if false;
     }
 
 

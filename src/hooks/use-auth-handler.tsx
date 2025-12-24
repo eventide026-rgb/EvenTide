@@ -11,6 +11,7 @@ const ROLE_DASHBOARD_MAP: Record<string, string> = {
   Planner: '/dashboard',
   Hotelier: '/hotelier-dashboard',
   'Hall Owner': '/hall-owner-dashboard',
+  'Car Hire Service': '/car-hire-dashboard',
   // Add other roles and their corresponding dashboards here
   // e.g., 'Security': '/security-dashboard',
   'Super Admin': '/admin/super',

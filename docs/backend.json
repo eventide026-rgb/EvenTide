@@ -18,7 +18,7 @@
         },
         "role": {
           "type": "string",
-          "description": "User's role within the application (Owner, Planner, Guest, Security, Cohost, Hotelier, Hall Owner)."
+          "description": "User's role within the application (Owner, Planner, Guest, Security, Cohost, Hotelier, Hall Owner, Car Hire Service)."
         },
         "firstName": {
           "type": "string",
@@ -580,6 +580,67 @@
         }
       },
       "required": ["name", "email", "subject", "message", "status", "priority", "createdAt"]
+    },
+    "Car": {
+        "title": "Car",
+        "description": "Represents a car listing for hire on the EvenTide platform.",
+        "type": "object",
+        "properties": {
+            "ownerId": {
+                "type": "string",
+                "description": "The UID of the Car Hire Service provider who owns this listing."
+            },
+            "make": {
+                "type": "string",
+                "description": "The manufacturer of the car (e.g., Toyota, Mercedes-Benz)."
+            },
+            "model": {
+                "type": "string",
+                "description": "The model of the car (e.g., Camry, C-Class)."
+            },
+            "year": {
+                "type": "number",
+                "description": "The manufacturing year of the car."
+            },
+            "pricePerDay": {
+                "type": "number",
+                "description": "The rental price for the car per day in Naira."
+            },
+            "location": {
+                "type": "object",
+                "properties": {
+                    "city": { "type": "string" },
+                    "state": { "type": "string" }
+                },
+                "required": ["city", "state"]
+            },
+            "imageUrls": {
+                "type": "array",
+                "items": { "type": "string", "format": "uri" },
+                "description": "An array of URLs for the car's images."
+            },
+            "features": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "A list of features for the car (e.g., AC, Automatic, Sunroof)."
+            }
+        },
+        "required": ["ownerId", "make", "model", "year", "pricePerDay", "location", "imageUrls"]
+    },
+    "CarBooking": {
+        "title": "CarBooking",
+        "description": "Represents a booking request for a car.",
+        "type": "object",
+        "properties": {
+            "carId": { "type": "string" },
+            "carOwnerId": { "type": "string" },
+            "userId": { "type": "string" },
+            "pickupDate": { "type": "string", "format": "date-time" },
+            "returnDate": { "type": "string", "format": "date-time" },
+            "totalPrice": { "type": "number" },
+            "status": { "type": "string", "enum": ["pending", "confirmed", "declined"] }
+        },
+        "required": ["carId", "carOwnerId", "userId", "pickupDate", "returnDate", "totalPrice", "status"]
     }
   },
   "auth": {
@@ -857,6 +918,27 @@
               "description": "The unique identifier for the support ticket."
             }
           ]
+        }
+      },
+      {
+        "path": "/cars/{carId}",
+        "definition": {
+            "entityName": "Car",
+            "schema": { "$ref": "#/backend/entities/Car" },
+            "description": "Stores public listings for cars available for hire.",
+            "params": [{ "name": "carId", "description": "The unique identifier for the car." }]
+        }
+      },
+      {
+        "path": "/cars/{carId}/bookings/{bookingId}",
+        "definition": {
+            "entityName": "CarBooking",
+            "schema": { "$ref": "#/backend/entities/CarBooking" },
+            "description": "Stores booking requests for a specific car.",
+            "params": [
+                { "name": "carId", "description": "The unique identifier for the car." },
+                { "name": "bookingId", "description": "The unique identifier for the car booking." }
+            ]
         }
       }
     ],

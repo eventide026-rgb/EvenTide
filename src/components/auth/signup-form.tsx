@@ -39,7 +39,7 @@ const formSchema = z.object({
   lastName: z.string().min(2, { message: "Last name is required." }),
   email: z.string().email({ message: "Please enter a valid email." }),
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
-  role: z.enum(["Owner", "Planner", "Hotelier", "Hall Owner"], { required_error: "You need to select a role." }),
+  role: z.enum(["Owner", "Planner", "Hotelier", "Hall Owner", "Car Hire Service"], { required_error: "You need to select a role." }),
 });
 
 export function SignUpForm() {
@@ -114,6 +114,7 @@ export function SignUpForm() {
                     "Planner": "/dashboard",
                     "Hotelier": "/hotelier-dashboard",
                     "Hall Owner": "/hall-owner-dashboard",
+                    "Car Hire Service": "/car-hire-dashboard",
                 };
                 router.push(roleDashboardMap[values.role] || "/dashboard");
             }, 500);
@@ -212,6 +213,7 @@ export function SignUpForm() {
                   <SelectItem value="Planner">Event Planner</SelectItem>
                   <SelectItem value="Hotelier">Hotelier</SelectItem>
                   <SelectItem value="Hall Owner">Venue / Hall Owner</SelectItem>
+                  <SelectItem value="Car Hire Service">Car Hire Service</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
