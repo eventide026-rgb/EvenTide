@@ -14,6 +14,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarInset,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import {
   Shield,
@@ -21,18 +22,48 @@ import {
   LogOut,
   Users,
   Briefcase,
+  LifeBuoy,
+  LayoutDashboard,
+  ChevronDown,
+  Megaphone,
+  MessageSquareQuote,
+  DollarSign,
+  BookOpen,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/layout/logo";
 
-const navItems = [
+const superAdminNav = [
   { href: "/admin/super/dashboard", icon: Home, label: "Dashboard" },
   { href: "/admin/super/office", icon: Briefcase, label: "The Office" },
-  { href: "/admin/user/users", icon: Users, label: "User Management" },
 ];
+
+const userAdminNav = [
+    { href: "/admin/user/users", icon: Users, label: "User Management" },
+    { href: "/admin/user/support-tickets", icon: LifeBuoy, label: "Support Tickets" },
+]
+
+const contentAdminNav = [
+  { href: "/admin/content/dashboard", icon: LayoutDashboard, label: "Landing Page" },
+  { href: "/admin/content/dropdowns", icon: ChevronDown, label: "Dropdown Menus" },
+  { href: "/admin/content/ads", icon: Megaphone, label: "Advertisements" },
+  { href: "/admin/content/testimonials", icon: MessageSquareQuote, label: "Testimonials" },
+  { href: "/admin/content/pricing", icon: DollarSign, label: "Pricing Plans" },
+];
+
+const editorialAdminNav = [
+    { href: "/admin/editorial/magazine", icon: BookOpen, label: "Magazine Curation" },
+]
 
 export default function SuperAdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+
+  const allNavItems = [
+      ...superAdminNav,
+      ...userAdminNav,
+      ...contentAdminNav,
+      ...editorialAdminNav
+  ]
 
   return (
     <SidebarProvider>
@@ -47,7 +78,49 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {navItems.map((item) => (
+            {superAdminNav.map((item) => (
+              <SidebarMenuItem key={item.href}>
+                <Link href={item.href} legacyBehavior passHref>
+                  <SidebarMenuButton
+                    isActive={pathname.startsWith(item.href)}
+                    tooltip={{ children: item.label }}
+                  >
+                    <item.icon />
+                    <span>{item.label}</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            ))}
+             <SidebarSeparator />
+             {userAdminNav.map((item) => (
+              <SidebarMenuItem key={item.href}>
+                <Link href={item.href} legacyBehavior passHref>
+                  <SidebarMenuButton
+                    isActive={pathname.startsWith(item.href)}
+                    tooltip={{ children: item.label }}
+                  >
+                    <item.icon />
+                    <span>{item.label}</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            ))}
+            <SidebarSeparator />
+             {contentAdminNav.map((item) => (
+              <SidebarMenuItem key={item.href}>
+                <Link href={item.href} legacyBehavior passHref>
+                  <SidebarMenuButton
+                    isActive={pathname.startsWith(item.href)}
+                    tooltip={{ children: item.label }}
+                  >
+                    <item.icon />
+                    <span>{item.label}</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            ))}
+             <SidebarSeparator />
+             {editorialAdminNav.map((item) => (
               <SidebarMenuItem key={item.href}>
                 <Link href={item.href} legacyBehavior passHref>
                   <SidebarMenuButton
