@@ -48,6 +48,29 @@ export function PublicHeader() {
             </DropdownMenuContent>
           </DropdownMenu>
 
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost">Community</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem asChild>
+                <Link href="/guest-login">Guest Login</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/security-login">Security Login</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="#">Find Planners</Link>
+              </DropdownMenuItem>
+               <DropdownMenuItem asChild>
+                <Link href="#">Find Vendors</Link>
+              </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                <Link href="#">Advertise</Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {navLinks.map(link => (
              <Link key={link.label} href={link.href} className="transition-colors hover:text-foreground/80 text-foreground/60">{link.label}</Link>
           ))}
@@ -77,6 +100,7 @@ export function PublicHeader() {
                     <span className="font-bold font-headline text-lg">EvenTide</span>
                 </Link>
                  <Link href="#" className="text-muted-foreground hover:text-foreground">Resources</Link>
+                 <Link href="#" className="text-muted-foreground hover:text-foreground">Community</Link>
                 {navLinks.map(link => (
                     <Link key={link.label} href={link.label} className="text-muted-foreground hover:text-foreground">{link.label}</Link>
                 ))}
