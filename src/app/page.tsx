@@ -218,7 +218,7 @@ export default function Home() {
             </div>
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
               {howItWorks.map((step) => (
-                <Card key={step.title} className="text-center border-none shadow-none bg-transparent">
+                <Card key={step.title} className="text-center">
                   <CardHeader className="items-center">
                     <div className="bg-primary/10 p-4 rounded-full mb-4">
                       {step.icon}
@@ -285,7 +285,7 @@ export default function Home() {
             </div>
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {testimonials.map((testimonial, index) => (
-                <Card key={index} className="flex flex-col">
+                <Card key={index} className="flex flex-col transition-transform transition-shadow duration-300 hover:scale-105 hover:-translate-y-2 hover:shadow-lg">
                   <CardContent className="pt-6 flex-1">
                     <p className="text-muted-foreground italic">&quot;{testimonial.quote}&quot;</p>
                   </CardContent>
@@ -316,7 +316,7 @@ export default function Home() {
                 </div>
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
                     {roleBenefits.map((role) => (
-                        <Card key={role.title}>
+                        <Card key={role.title} className="border-accent border-2 bg-primary/20 transition-transform transition-shadow duration-300 hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-accent/20">
                             <CardHeader className="flex-row items-center gap-4">
                                 {role.icon}
                                 <CardTitle className="font-headline text-xl">{role.title}</CardTitle>
@@ -349,7 +349,10 @@ export default function Home() {
             </div>
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 items-end">
               {pricingTiers.map((tier) => (
-                <Card key={tier.name} className={cn("flex flex-col", tier.isPopular && "border-primary ring-2 ring-primary shadow-lg")}>
+                <Card key={tier.name} className={cn(
+                  "flex flex-col transition-transform transition-shadow duration-300 hover:scale-105 hover:shadow-2xl", 
+                  tier.isPopular && "border-primary ring-2 ring-primary shadow-lg hover:shadow-accent/20"
+                )}>
                   {tier.isPopular && <Badge className="absolute -top-3 right-4">Popular</Badge>}
                   <CardHeader>
                     <CardTitle className="font-headline text-xl">{tier.name}</CardTitle>
