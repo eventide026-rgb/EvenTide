@@ -59,6 +59,22 @@ type TicketSelection = {
 
 /* ------------------------------------------------------------------ */
 
+const sampleShow: Show = {
+    id: 'sample-show-1',
+    name: 'Vibes on the Beach',
+    description: 'The biggest beach party of the year! Featuring live music from top artists, food stalls, and games. Dont miss out on the ultimate summer experience.',
+    eventDate: new Date('2024-12-15T18:00:00'),
+    location: 'Landmark Beach, Lagos',
+    imageUrls: ['https://picsum.photos/seed/beachparty/1200/800'],
+};
+
+const sampleTiers: TicketTier[] = [
+    { id: 'tier1', name: 'General Admission', price: 10000, quantity: 500, sold: 150 },
+    { id: 'tier2', name: 'VIP', price: 25000, quantity: 100, sold: 30 },
+    { id: 'tier3', name: 'VVIP Table', price: 200000, quantity: 10, sold: 4 },
+];
+
+
 export default function ShowDetailPage({
   params,
 }: {
@@ -80,11 +96,15 @@ export default function ShowDetailPage({
     return query(collection(firestore, 'shows', showId, 'ticketTiers'));
   }, [firestore, showId]);
 
-  const { data: show, isLoading: isLoadingShow } = useDoc<Show>(showRef);
-  const { data: ticketTiers, isLoading: isLoadingTiers } =
+  const { data: showData, isLoading: isLoadingShow } = useDoc<Show>(showRef);
+  const { data: ticketTiersData, isLoading: isLoadingTiers } =
     useCollection<TicketTier>(ticketTiersQuery);
 
   const isLoading = isLoadingShow || isLoadingTiers;
+
+  const show = showData ?? (process.env.NODE_ENV === 'development' ? sampleShow : null);
+  const ticketTiers = ticketTiersData?.length ? ticketTiersData : (process.env.NODE_ENV === 'development' ? sampleTiers : []);
+
 
   const handleQuantityChange = (tierId: string, delta: number) => {
     setTicketSelection((prev) => {
@@ -122,11 +142,9 @@ export default function ShowDetailPage({
     );
   }
 
-  if (!show && !isLoading) {
+  if (!show) {
     return notFound();
   }
-
-  if (!show) return null;
 
   const totalSelectedTickets = Object.values(ticketSelection).reduce(
     (sum, qty) => sum + qty,
