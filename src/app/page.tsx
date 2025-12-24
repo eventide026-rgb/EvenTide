@@ -197,15 +197,20 @@ export default function Home() {
             <p className="mt-4 max-w-2xl text-lg md:text-xl font-body text-white/90">
               Welcome to EvenTide, your AI-powered partner for flawless event management. From intimate gatherings to grand galas, we bring your vision to life with intuitive tools and expert assistance.
             </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Button asChild size="lg" className="font-bold">
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button asChild size="lg" className="font-bold w-full sm:w-auto">
                 <Link href="/signup">
                   Create an Event <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="secondary">
+              <Button asChild size="lg" variant="outline" className="font-bold bg-white/10 border-white/20 hover:bg-white/20 w-full sm:w-auto">
                 <Link href="/shows">
                   Buy Tickets
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="font-bold bg-white/10 border-white/20 hover:bg-white/20 w-full sm:w-auto">
+                <Link href="/guest-login">
+                  I am a Guest
                 </Link>
               </Button>
             </div>
