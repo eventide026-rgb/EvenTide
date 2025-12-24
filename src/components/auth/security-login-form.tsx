@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -16,9 +17,11 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 
+// For demonstration, this form will simply redirect.
+// In a real app, it would use Firebase Auth.
 const formSchema = z.object({
-  eventCode: z.string().min(1, { message: "Event code is required." }),
-  securityCode: z.string().min(1, { message: "Security code is required." }),
+  username: z.string().min(1, { message: "Username is required." }),
+  password: z.string().min(1, { message: "Password is required." }),
 });
 
 export function SecurityLoginForm() {
@@ -28,8 +31,8 @@ export function SecurityLoginForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      eventCode: "",
-      securityCode: "",
+      username: "",
+      password: "",
     },
   });
 
@@ -38,10 +41,9 @@ export function SecurityLoginForm() {
     // Mock login logic
     toast({
       title: "Security Access Granted",
-      description: "Redirecting to scanner interface...",
+      description: "Redirecting to your assignments...",
     });
-    // This should redirect to a security-specific scanner page
-    router.push('/security/scanner');
+    router.push('/security-dashboard');
   }
 
   return (
@@ -49,12 +51,12 @@ export function SecurityLoginForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name="eventCode"
+          name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Event Code</FormLabel>
+              <FormLabel>Username</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., WEO-O2CAP5" {...field} />
+                <Input placeholder="Your security username" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -62,19 +64,19 @@ export function SecurityLoginForm() {
         />
         <FormField
           control={form.control}
-          name="securityCode"
+          name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Security Code</FormLabel>
+              <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="Your unique security code" {...field} />
+                <Input type="password" placeholder="••••••••" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
         <Button type="submit" className="w-full">
-          Start Scanning
+          Sign In
         </Button>
       </form>
     </Form>

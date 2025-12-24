@@ -1,3 +1,5 @@
+
+'use client';
 import Link from "next/link";
 import {
   Card,
@@ -14,7 +16,7 @@ export default function SecurityLoginPage() {
       <CardHeader>
         <CardTitle className="text-2xl font-headline">Security Check-in</CardTitle>
         <CardDescription>
-          Enter event and security codes to start scanning.
+          Enter your credentials to access your event assignments.
         </CardDescription>
       </CardHeader>
       <CardContent>

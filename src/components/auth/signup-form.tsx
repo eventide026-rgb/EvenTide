@@ -39,7 +39,7 @@ const formSchema = z.object({
   lastName: z.string().min(2, { message: "Last name is required." }),
   email: z.string().email({ message: "Please enter a valid email." }),
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
-  role: z.enum(["Owner", "Planner", "Hotelier", "Hall Owner", "Car Hire Service", "Ticketier", "Vendor", "Fashion Designer"], { required_error: "You need to select a role." }),
+  role: z.enum(["Owner", "Planner", "Hotelier", "Hall Owner", "Car Hire Service", "Ticketier", "Vendor", "Fashion Designer", "Security"], { required_error: "You need to select a role." }),
   promoterName: z.string().optional(),
 }).refine(data => {
     if (data.role === 'Ticketier') {
@@ -140,6 +140,7 @@ export function SignUpForm() {
                 "Ticketier": "/ticketier-dashboard",
                 "Vendor": "/vendor-dashboard",
                 "Fashion Designer": "/vendor-dashboard",
+                "Security": "/security-dashboard",
             };
             router.push(roleDashboardMap[values.role] || "/owner-dashboard");
 
@@ -241,6 +242,7 @@ export function SignUpForm() {
                   <SelectItem value="Hall Owner">Venue / Hall Owner</SelectItem>
                   <SelectItem value="Car Hire Service">Car Hire Service</SelectItem>
                   <SelectItem value="Ticketier">Ticketier / Promoter</SelectItem>
+                  <SelectItem value="Security">Security Personnel</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
