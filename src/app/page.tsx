@@ -192,7 +192,7 @@ export default function Home() {
               </span>
             </h1>
             <p className="mt-4 max-w-2xl text-lg md:text-xl font-body text-white/90">
-              EvenTide is your AI-powered partner for flawless event management.
+              Welcome to EvenTide, your AI-powered partner for flawless event management. From intimate gatherings to grand galas, we bring your vision to life with intuitive tools and expert assistance.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Button asChild size="lg" className="font-bold">
