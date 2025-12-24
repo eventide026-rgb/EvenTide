@@ -21,7 +21,6 @@ export function PublicHeader() {
     <header className="sticky top-4 z-50 w-full">
       <div className="container flex h-16 max-w-screen-lg items-center rounded-full border border-border/40 bg-background/60 p-2 shadow-lg backdrop-blur-lg">
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <Sprout className="h-6 w-6 text-primary" />
           <span className="font-bold font-headline text-lg">EvenTide</span>
         </Link>
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
@@ -118,7 +117,6 @@ export function PublicHeader() {
             <SheetContent side="right">
               <nav className="grid gap-6 text-lg font-medium">
                 <Link href="/" className="flex items-center space-x-2">
-                    <Sprout className="h-6 w-6 text-primary" />
                     <span className="font-bold font-headline text-lg">EvenTide</span>
                 </Link>
                  <Link href="#" className="text-muted-foreground hover:text-foreground">Resources</Link>

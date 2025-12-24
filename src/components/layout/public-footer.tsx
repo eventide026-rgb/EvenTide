@@ -63,7 +63,6 @@ export function PublicFooter() {
         <div className="flex flex-col items-center gap-8 lg:gap-12">
             <div className="flex flex-col items-center text-center">
                  <div className="flex items-center space-x-2 mb-4">
-                    <Sprout className="h-8 w-8 text-primary" />
                     <span className="font-bold text-xl font-headline">EvenTide</span>
                 </div>
                 <p className="text-muted-foreground text-sm max-w-xs">

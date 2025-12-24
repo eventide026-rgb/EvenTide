@@ -52,7 +52,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <SidebarHeader>
           <div className="flex items-center gap-2">
             <Link href="/dashboard" className="flex items-center gap-2 font-headline font-bold text-lg">
-                <Sprout className="size-6 text-primary" />
                 <span>EvenTide</span>
             </Link>
             <SidebarTrigger className="ml-auto" />
