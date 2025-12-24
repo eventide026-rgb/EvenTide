@@ -24,7 +24,7 @@ const resourceLinks = [
     { href: "/resources/how-to-use", label: "How to Use EvenTide" },
     { href: "/resources/meet-eni", label: "Meet Eni" },
     { href: "/about", label: "About Us" },
-    { href: "/resources/submit-testimonial", label: "Testimonials" },
+    { href: "/resources/submit-testimonial", label: "Submit a Testimonial" },
 ];
 
 const communityLinks = [
@@ -53,7 +53,7 @@ const HeaderContent = () => {
   const resourceImage = getImage('eventHall');
   const communityImage = getImage('gardenParty');
   const magazineImage = getImage('magazineReader');
-  const eventHallImage = getImage('eventHall');
+  const hotelsImage = getImage('eventHall');
 
   return (
     <div className="container flex h-16 max-w-screen-lg items-center rounded-full border border-border/40 bg-background/60 p-2 shadow-lg backdrop-blur-lg">
@@ -160,14 +160,14 @@ const HeaderContent = () => {
             <Button variant="ghost">Hotels & Halls <ChevronDown className="ml-1 h-4 w-4" /></Button>
           </PopoverTrigger>
           <PopoverContent className="w-64 p-2">
-            {eventHallImage && (
+            {hotelsImage && (
               <div className="relative h-24 w-full mb-2 rounded-md overflow-hidden">
                 <Image
-                  src={eventHallImage.imageUrl}
-                  alt={eventHallImage.description}
+                  src={hotelsImage.imageUrl}
+                  alt={hotelsImage.description}
                   fill
                   className="object-cover"
-                  data-ai-hint={eventHallImage.imageHint}
+                  data-ai-hint={hotelsImage.imageHint}
                 />
               </div>
             )}
