@@ -16,7 +16,7 @@ import {
   Wand2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { PublicHeader } from '@/components/layout/public-header';
 import { PublicFooter } from '@/components/layout/public-footer';
@@ -102,33 +102,29 @@ const pricingTiers = [
     {
         name: "Free",
         price: "₦0",
-        period: "/month",
-        guestCapacity: "Up to 50 Guests",
-        features: ["1 Event", "Basic AI Design", "Guest List Management"],
+        description: "Perfect for small, private gatherings.",
+        features: ["Up to 50 Guests", "1 Event", "Basic AI Design", "Guest List Management"],
         isPopular: false,
     },
     {
         name: "Standard",
-        price: "₦25,000",
-        period: "/month",
-        guestCapacity: "Up to 300 Guests",
-        features: ["5 Events", "Advanced AI Design", "Team Collaboration", "Vendor Marketplace"],
+        price: "₦45,000",
+        description: "Ideal for medium-sized events.",
+        features: ["Up to 300 Guests", "5 Events", "Advanced AI Design", "Team Collaboration", "Vendor Marketplace Access"],
         isPopular: true,
     },
     {
         name: "Gold",
-        price: "₦75,000",
-        period: "/month",
-        guestCapacity: "Up to 1000 Guests",
-        features: ["Unlimited Events", "Full AI Suite", "Priority Support", "Advanced Analytics"],
+        price: "₦95,000",
+        description: "For large events and professionals.",
+        features: ["Up to 1000 Guests", "Unlimited Events", "Full AI Suite", "Priority Support", "Advanced Analytics"],
         isPopular: false,
     },
     {
         name: "Platinum",
         price: "Contact Us",
-        period: "",
-        guestCapacity: "Enterprise Scale",
-        features: ["Custom Solutions", "Dedicated Account Manager", "White-labeling Options", "API Access"],
+        description: "Tailored for enterprise needs.",
+        features: ["Custom Guest Capacity", "Dedicated Account Manager", "White-labeling Options", "API Access"],
         isPopular: false,
     }
 ]
@@ -375,41 +371,40 @@ export default function Home() {
         <section id="pricing" className="py-16 md:py-24">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-headline font-bold md:text-4xl">Find the Perfect Plan</h2>
+              <h2 className="text-3xl font-headline font-bold md:text-4xl">Pricing Plans for Every Event</h2>
               <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-                Choose the plan that fits your needs, from small gatherings to large-scale enterprise events.
+                Choose the perfect plan that fits the scale of your event.
               </p>
             </div>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 items-end">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 items-stretch">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
-                  "flex flex-col transition-transform transition-shadow duration-300 hover:scale-105 hover:shadow-2xl", 
-                  tier.isPopular && "border-primary ring-2 ring-primary shadow-lg hover:shadow-accent/20"
+                  "flex flex-col transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl relative", 
+                  tier.isPopular && "border-2 border-primary shadow-lg shadow-primary/20"
                 )}>
                   {tier.isPopular && <Badge className="absolute -top-3 right-4">Popular</Badge>}
                   <CardHeader>
-                    <CardTitle className="font-headline text-xl">{tier.name}</CardTitle>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-bold">{tier.price}</span>
-                      {tier.period && <span className="text-muted-foreground">{tier.period}</span>}
+                    <CardTitle className="font-headline text-2xl">{tier.name}</CardTitle>
+                     <div className="flex items-baseline gap-1">
+                      <p className="text-4xl font-bold">{tier.price}</p>
                     </div>
-                    <CardDescription>{tier.guestCapacity}</CardDescription>
+                    <CardDescription>{tier.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="flex-1">
                     <ul className="space-y-3">
                       {tier.features.map((feature, i) => (
-                        <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <CheckCircle className="h-4 w-4 text-green-500" />
+                        <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                          <CheckCircle className="h-4 w-4 text-primary flex-shrink-0 mt-1" />
                           <span>{feature}</span>
                         </li>
                       ))}
                     </ul>
                   </CardContent>
-                  <CardContent>
+                  <CardFooter>
                      <Button className="w-full" variant={tier.isPopular ? "default" : "outline"}>
-                        {tier.price === "Contact Us" ? "Contact Sales" : "Get Started"}
+                        {tier.price === "Contact Us" ? "Contact Sales" : "Choose " + tier.name}
                      </Button>
-                  </CardContent>
+                  </CardFooter>
                 </Card>
               ))}
             </div>
