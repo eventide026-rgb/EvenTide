@@ -26,7 +26,7 @@ const footerLinks = {
         { href: "/advertise", label: "Advertise" },
     ],
     magazine: [
-        { href: "#", label: "View All Issues" },
+        { href: "/resources/magazine", label: "View All Issues" },
         { href: "/resources/editorial", label: "From the Editor" },
     ],
     hotelsAndVenues: [

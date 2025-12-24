@@ -36,7 +36,7 @@ const communityLinks = [
 ];
 
 const magazineLinks = [
-    { href: "#", label: "View All Issues" },
+    { href: "/resources/magazine", label: "View All Issues" },
     { href: "/resources/editorial", label: "From the Editor" },
 ]
 
@@ -213,7 +213,7 @@ const HeaderContent = () => {
               </Link>
               <Link href="#" className="text-muted-foreground hover:text-foreground">Resources</Link>
               <Link href="#" className="text-muted-foreground hover:text-foreground">Community</Link>
-              <Link href="#" className="text-muted-foreground hover:text-foreground">Magazine</Link>
+              <Link href="/resources/magazine" className="text-muted-foreground hover:text-foreground">Magazine</Link>
               <Link href="#" className="text-muted-foreground hover:text-foreground">Hotel & Halls</Link>
               {navLinks.map(link => (
                   <Link key={link.label} href={link.label} className="text-muted-foreground hover:text-foreground">{link.label}</Link>
