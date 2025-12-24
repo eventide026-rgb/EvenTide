@@ -37,7 +37,7 @@ const communityLinks = [
 
 const magazineLinks = [
     { href: "#", label: "View All Issues" },
-    { href: "#", label: "From the Editor" },
+    { href: "/resources/editorial", label: "From the Editor" },
 ]
 
 const hotelsAndVenuesLinks = [
