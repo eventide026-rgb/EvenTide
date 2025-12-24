@@ -100,13 +100,15 @@ const HeaderContent = () => (
          <Link key={link.label} href={link.href} className="transition-colors hover:text-foreground/80 text-foreground/60">{link.label}</Link>
       ))}
     </nav>
-    <div className="flex flex-1 items-center justify-end space-x-2">
-       <Button asChild variant="ghost">
-        <Link href="/login">Login</Link>
-      </Button>
-      <Button asChild>
-        <Link href="/signup">Sign Up</Link>
-      </Button>
+    <div className="flex flex-1 items-center justify-end">
+      <div className="hidden md:flex items-center space-x-1 rounded-full border bg-background/80 p-1">
+        <Button variant="ghost" asChild className="rounded-full">
+          <Link href="/login">Login</Link>
+        </Button>
+        <Button asChild className="rounded-full">
+          <Link href="/signup">Sign Up</Link>
+        </Button>
+      </div>
     </div>
     <div className="md:hidden">
       <Sheet>
