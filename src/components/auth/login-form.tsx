@@ -1,9 +1,10 @@
-"use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
+'use client';
+
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -11,37 +12,57 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { initiateEmailSignIn } from '@/firebase/non-blocking-login';
+import { useAuth } from '@/firebase';
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+  email: z.string().email({ message: 'Please enter a valid email.' }),
+  password: z.string().min(1, { message: 'Password is required.' }),
 });
 
 export function LoginForm() {
   const { toast } = useToast();
-  const router = useRouter();
+  const auth = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const searchParams = useSearchParams();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Mock login logic
-    toast({
-      title: "Login Successful",
-      description: "Redirecting to your dashboard...",
-    });
-    router.push('/dashboard');
+  useEffect(() => {
+    const email = searchParams.get('email');
+    if (email) {
+      form.setValue('email', email);
+    }
+  }, [searchParams, form]);
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    setIsLoading(true);
+    try {
+      sessionStorage.setItem('isNewLogin', 'true');
+      await initiateEmailSignIn(auth, values.email, values.password);
+    } catch (error: any) {
+      console.error('Sign In Error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Sign In Failed',
+        description: error.message || 'Invalid email or password.',
+      });
+      setIsLoading(false);
+      sessionStorage.removeItem('isNewLogin');
+    }
   }
 
   return (
@@ -65,24 +86,29 @@ export function LoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-                <div className="flex items-center">
-                    <FormLabel>Password</FormLabel>
-                    <Link
-                        href="#"
-                        className="ml-auto inline-block text-sm underline text-primary"
-                    >
-                        Forgot your password?
-                    </Link>
-                </div>
-              <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
-              </FormControl>
+              <FormLabel>Password</FormLabel>
+              <div className="relative">
+                <FormControl>
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    {...field}
+                  />
+                </FormControl>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground"
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full">
-          Login
+        <Button type="submit" className="w-full" disabled={isLoading}>
+          {isLoading ? <Loader2 className="animate-spin" /> : 'Sign In'}
         </Button>
       </form>
     </Form>

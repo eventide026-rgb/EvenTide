@@ -1,3 +1,4 @@
+
 /**
  * Core Philosophy: This ruleset enforces a user-centric and event-centric security model.
  * User data is strictly private, accessible only by the owner. Event data access is managed

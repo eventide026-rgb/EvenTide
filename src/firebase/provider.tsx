@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
@@ -5,6 +6,7 @@ import { FirebaseApp } from 'firebase/app';
 import { Firestore } from 'firebase/firestore';
 import { Auth, User, onAuthStateChanged } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
+import { useAuthHandler } from '@/hooks/use-auth-handler';
 
 interface FirebaseProviderProps {
   children: ReactNode;
@@ -66,6 +68,9 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     isUserLoading: true, // Start loading until first auth event
     userError: null,
   });
+
+  // Use the custom hook to handle role-based redirection
+  useAuthHandler(auth, firestore);
 
   // Effect to subscribe to Firebase auth state changes
   useEffect(() => {

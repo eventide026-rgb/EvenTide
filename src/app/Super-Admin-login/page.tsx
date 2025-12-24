@@ -1,3 +1,4 @@
+
 import { LoginForm } from "@/components/auth/login-form";
 import {
   Card,
@@ -7,14 +8,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
+import { Logo } from "@/components/layout/logo";
 
 export default function SuperAdminLoginPage() {
   return (
     <Card className="mx-auto max-w-sm w-full">
-      <CardHeader>
-        <CardTitle className="text-2xl font-headline">Super Admin Login</CardTitle>
+      <CardHeader className="items-center">
+        <Logo />
+        <CardTitle className="text-2xl font-headline pt-4">Super Admin Login</CardTitle>
         <CardDescription>
-          Enter your credentials to access the master control panel.
+          Enter your credentials to access the master panel.
         </CardDescription>
       </CardHeader>
       <CardContent>

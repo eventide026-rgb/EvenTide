@@ -1,28 +1,31 @@
-import Link from "next/link";
+
+'use client';
+
+import Link from 'next/link';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { LoginForm } from "@/components/auth/login-form";
+} from '@/components/ui/card';
+import { LoginForm } from '@/components/auth/login-form';
+import { Logo } from '@/components/layout/logo';
 
 export default function LoginPage() {
   return (
     <Card className="mx-auto max-w-sm w-full">
-      <CardHeader>
-        <CardTitle className="text-2xl font-headline">Owner & Planner Login</CardTitle>
-        <CardDescription>
-          Enter your email below to login to your account
-        </CardDescription>
+      <CardHeader className="items-center">
+        <Logo />
+        <CardTitle className="text-2xl font-headline pt-4">Welcome Back</CardTitle>
+        <CardDescription>Sign in to manage your events.</CardDescription>
       </CardHeader>
       <CardContent>
         <LoginForm />
         <div className="mt-4 text-center text-sm">
-          Don&apos;t have an account?{" "}
+          Don&apos;t have an account?{' '}
           <Link href="/signup" className="underline text-primary">
-            Sign up
+            Sign Up
           </Link>
         </div>
       </CardContent>
