@@ -32,80 +32,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/layout/logo";
-
-const navItems = [
-  { href: "/owner-dashboard", icon: Home, label: "Dashboard" },
-  { href: "/events", icon: PartyPopper, label: "Events" },
-  { href: "/calendar", icon: Calendar, label: "Calendar" },
-  { href: "/guests", icon: Users, label: "Guests" },
-  { href: "/invitations", icon: Bell, label: "Invitations" },
-  { href: "/planners-cohosts", icon: Contact, label: "Planners & Cohosts" },
-  { href: "/find-users", icon: Search, label: "Find Users" },
-  { href: "/design-hub", icon: Palette, label: "Design Hub" },
-  { href: "/media-library", icon: ImageIcon, label: "Media Library" },
-];
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect from the generic app layout to the specific owner dashboard
+    router.replace('/owner-dashboard');
+  }, [router]);
 
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader>
-          <div className="flex items-center gap-2">
-            <Link href="/" className="flex items-center gap-2 font-headline font-bold text-lg">
-                <Logo />
-            </Link>
-            <SidebarTrigger className="ml-auto" />
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            {navItems.map((item) => (
-              <SidebarMenuItem key={item.href}>
-                <Link href={item.href}>
-                  <SidebarMenuButton
-                    isActive={pathname.startsWith(item.href)}
-                    tooltip={{ children: item.label }}
-                  >
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter>
-           <SidebarMenu>
-            <SidebarMenuItem>
-                <SidebarMenuButton tooltip={{ children: 'Profile' }}>
-                    <Avatar className="h-8 w-8">
-                        <AvatarImage src="https://picsum.photos/seed/avatar/100/100" alt="User" />
-                        <AvatarFallback>U</AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col text-left">
-                        <span className="font-semibold">User Name</span>
-                        <span className="text-xs text-muted-foreground">owner@eventide.app</span>
-                    </div>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
-             <SidebarMenuItem>
-                <Link href="/">
-                    <SidebarMenuButton tooltip={{ children: 'Logout' }}>
-                        <LogOut />
-                        <span>Logout</span>
-                    </SidebarMenuButton>
-                </Link>
-            </SidebarMenuItem>
-           </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-      <SidebarInset>
-        <main className="min-h-svh bg-background p-4 sm:p-6 lg:p-8">
-            {children}
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+    <div className="flex h-full min-h-screen w-full items-center justify-center">
+      <p>Redirecting...</p>
+    </div>
   );
 }

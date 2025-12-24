@@ -132,14 +132,14 @@ export function SignUpForm() {
             });
             
             const roleDashboardMap: Record<string, string> = {
-                "Owner": "/dashboard",
-                "Planner": "/dashboard",
+                "Owner": "/owner-dashboard",
+                "Planner": "/planner-dashboard",
                 "Hotelier": "/hotelier-dashboard",
                 "Hall Owner": "/hall-owner-dashboard",
                 "Car Hire Service": "/car-hire-dashboard",
                 "Ticketier": "/ticketier-dashboard",
             };
-            router.push(roleDashboardMap[values.role] || "/dashboard");
+            router.push(roleDashboardMap[values.role] || "/owner-dashboard");
 
         }
 
