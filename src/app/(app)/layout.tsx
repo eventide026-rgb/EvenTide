@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -30,6 +31,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Logo } from "@/components/layout/logo";
 
 const navItems = [
   { href: "/dashboard", icon: Home, label: "Dashboard" },
@@ -52,7 +54,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <SidebarHeader>
           <div className="flex items-center gap-2">
             <Link href="/dashboard" className="flex items-center gap-2 font-headline font-bold text-lg">
-                <span>EvenTide</span>
+                <Logo />
             </Link>
             <SidebarTrigger className="ml-auto" />
           </div>

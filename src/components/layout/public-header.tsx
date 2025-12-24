@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Logo } from './logo';
 
 const navLinks: { label: string, href: string }[] = [];
 
@@ -58,7 +59,7 @@ const HeaderContent = () => {
   return (
     <div className="container flex h-16 max-w-screen-lg items-center rounded-full border border-border/40 bg-background/60 p-2 shadow-lg backdrop-blur-lg">
       <Link href="/" className="mr-6 flex items-center space-x-2">
-        <span className="font-logo font-bold text-lg bg-gradient-to-r from-blue-400 to-yellow-300 text-transparent bg-clip-text">EvenTide</span>
+        <Logo />
       </Link>
       <nav className="hidden md:flex items-center space-x-1 text-sm font-medium">
         <Popover>
@@ -209,7 +210,7 @@ const HeaderContent = () => {
           <SheetContent side="right">
             <nav className="grid gap-6 text-lg font-medium">
               <Link href="/" className="flex items-center space-x-2">
-                  <span className="font-logo font-bold text-lg bg-gradient-to-r from-blue-400 to-yellow-300 text-transparent bg-clip-text">EvenTide</span>
+                  <Logo />
               </Link>
               <Link href="#" className="text-muted-foreground hover:text-foreground">Resources</Link>
               <Link href="#" className="text-muted-foreground hover:text-foreground">Community</Link>
