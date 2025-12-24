@@ -21,7 +21,7 @@ export default function ContentAdminLoginPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <LoginForm />
+        <LoginForm loginType="Content Admin" />
          <div className="mt-4 text-center text-sm">
           Not a Content Admin?{" "}
           <Link href="/" className="underline text-primary">

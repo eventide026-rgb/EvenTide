@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Auth, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, Firestore } from 'firebase/firestore';
 
@@ -12,23 +12,32 @@ const ROLE_DASHBOARD_MAP: Record<string, string> = {
   Hotelier: '/hotelier-dashboard',
   'Hall Owner': '/hall-owner-dashboard',
   'Car Hire Service': '/car-hire-dashboard',
-  // Add other roles and their corresponding dashboards here
-  // e.g., 'Security': '/security-dashboard',
-  'Super Admin': '/admin/super',
-  'User Admin': '/admin/users',
-  'Content Admin': '/admin/content',
+  'Super Admin': '/admin/super/dashboard',
+  'User Admin': '/admin/user/dashboard',
+  'Content Admin': '/admin/content/dashboard',
+  'Editorial Admin': '/admin/editorial/dashboard',
 };
+
+const ADMIN_LOGIN_PATHS: Record<string, string> = {
+    'Super Admin': '/super-admin-login',
+    'User Admin': '/user-admin-login',
+    'Content Admin': '/content-admin-login',
+    'Editorial Admin': '/editorial-admin-login',
+}
 
 export function useAuthHandler(auth: Auth, firestore: Firestore) {
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       const isNewLogin = sessionStorage.getItem('isNewLogin') === 'true';
+      const loginType = sessionStorage.getItem('loginType');
 
       if (user && isNewLogin) {
-        // Clear the flag immediately to prevent re-redirection on refresh
+        // Clear the flags immediately to prevent re-redirection on refresh
         sessionStorage.removeItem('isNewLogin');
+        sessionStorage.removeItem('loginType');
 
         try {
           const userDocRef = doc(firestore, 'users', user.uid);
@@ -37,16 +46,25 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
           if (userDoc.exists()) {
             const userData = userDoc.data();
             const role = userData.role;
+
+            // Security check for admin logins
+            if (loginType && loginType.includes('Admin')) {
+                if (role !== loginType) {
+                    // If roles don't match for an admin login attempt, sign out and stay
+                    await auth.signOut();
+                    console.warn(`Role mismatch: Expected ${loginType}, got ${role}.`);
+                    return; // Stop further processing
+                }
+            }
+
             const destination = ROLE_DASHBOARD_MAP[role] || '/dashboard'; // Default to a general dashboard
             router.push(destination);
           } else {
-            // Handle case where user document doesn't exist, maybe redirect to a profile setup page
             console.warn("User document not found for new login. Redirecting to default dashboard.");
             router.push('/dashboard');
           }
         } catch (error) {
           console.error("Error fetching user role:", error);
-          // Handle error, e.g., by redirecting to a generic error page or default dashboard
           router.push('/dashboard');
         }
       }

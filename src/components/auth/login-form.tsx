@@ -26,7 +26,7 @@ const formSchema = z.object({
   password: z.string().min(1, { message: 'Password is required.' }),
 });
 
-export function LoginForm() {
+export function LoginForm({ loginType }: { loginType?: string }) {
   const { toast } = useToast();
   const auth = useAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +52,9 @@ export function LoginForm() {
     setIsLoading(true);
     try {
       sessionStorage.setItem('isNewLogin', 'true');
+      if (loginType) {
+        sessionStorage.setItem('loginType', loginType);
+      }
       await initiateEmailSignIn(auth, values.email, values.password);
     } catch (error: any) {
       console.error('Sign In Error:', error);
@@ -62,6 +65,7 @@ export function LoginForm() {
       });
       setIsLoading(false);
       sessionStorage.removeItem('isNewLogin');
+      sessionStorage.removeItem('loginType');
     }
   }
 

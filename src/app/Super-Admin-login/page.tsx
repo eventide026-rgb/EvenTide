@@ -21,7 +21,7 @@ export default function SuperAdminLoginPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <LoginForm />
+        <LoginForm loginType="Super Admin" />
         <div className="mt-4 text-center text-sm">
           Not a Super Admin?{" "}
           <Link href="/" className="underline text-primary">
