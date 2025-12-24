@@ -43,7 +43,7 @@
       "type": "object",
       "description": "Represents a public, ticketed show created within the EvenTide application by a Ticketier.",
       "properties": {
-        "id": {
+        "showId": {
           "type": "string",
           "description": "Unique identifier for the Show entity."
         },
@@ -90,7 +90,7 @@
         }
       },
       "required": [
-        "id",
+        "showId",
         "ownerId",
         "eventType",
         "name",
@@ -108,7 +108,7 @@
       "type": "object",
       "description": "Represents a private event created within the EvenTide application by a Host.",
       "properties": {
-        "id": { "type": "string" },
+        "eventId": { "type": "string" },
         "ownerId": { "type": "string" },
         "eventCode": { "type": "string" },
         "eventType": { "type": "string" },
@@ -120,7 +120,7 @@
         "primaryColor": { "type": "string" },
         "secondaryColor": { "type": "string" }
       },
-      "required": ["id", "ownerId", "eventCode", "eventType", "name", "description", "eventDate", "location", "imageUrls", "primaryColor", "secondaryColor"]
+      "required": ["eventId", "ownerId", "eventCode", "eventType", "name", "description", "eventDate", "location", "imageUrls", "primaryColor", "secondaryColor"]
     },
     "TicketTier": {
       "title": "TicketTier",
