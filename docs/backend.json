@@ -340,6 +340,35 @@
         "eventId",
         "userProfileId"
       ]
+    },
+    "Testimonial": {
+      "title": "Testimonial",
+      "description": "A user-submitted testimonial about their experience with the EvenTide platform.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name or business name of the person submitting the testimonial."
+        },
+        "role": {
+          "type": "string",
+          "description": "The role of the person on the platform (e.g., Event Owner / Host, Planner, Vendor, Guest)."
+        },
+        "testimonial": {
+          "type": "string",
+          "description": "The content of the testimonial."
+        },
+        "isApproved": {
+          "type": "boolean",
+          "description": "Moderation status. True if the testimonial is approved to be shown publicly."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of when the testimonial was submitted."
+        }
+      },
+      "required": ["name", "role", "testimonial", "isApproved", "createdAt"]
     }
   },
   "auth": {
@@ -494,6 +523,22 @@
             {
               "name": "eventCohostId",
               "description": "The unique identifier for the EventCohost."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/testimonials/{testimonialId}",
+        "definition": {
+          "entityName": "Testimonial",
+          "schema": {
+            "$ref": "#/backend/entities/Testimonial"
+          },
+          "description": "Stores user-submitted testimonials for moderation.",
+          "params": [
+            {
+              "name": "testimonialId",
+              "description": "The unique identifier for the testimonial."
             }
           ]
         }
