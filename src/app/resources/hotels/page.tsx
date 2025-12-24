@@ -25,8 +25,6 @@ import {
 import { Hotel, Search, SlidersHorizontal } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { HotelListingCard, type Hotel as HotelType } from '@/components/hotel-listing-card';
-import { PublicFooter } from '@/components/layout/public-footer';
-import { PublicHeader } from '@/components/layout/public-header';
 import { Button } from '@/components/ui/button';
 import { useDebounce } from 'use-debounce';
 
@@ -77,9 +75,7 @@ export default function HotelsPage() {
   }, [selectedState]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <PublicHeader />
-      <main className="flex-1">
+    <>
         <section className="bg-secondary/50 border-b">
           <div className="container mx-auto px-4 py-8 md:py-12">
             <div className="text-center mb-8">
@@ -169,8 +165,6 @@ export default function HotelsPage() {
            )}
 
         </section>
-      </main>
-      <PublicFooter />
-    </div>
+    </>
   );
 }
