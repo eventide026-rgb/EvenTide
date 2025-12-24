@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -49,7 +50,7 @@ const olderIssues = [
         href: "#",
         date: "May 2024",
         title: "Vendor Spotlight: The Culinary Artists",
-        image": {
+        image: {
             "id": "olderFood",
             "description": "A close up of beautifully plated food at an event.",
             "imageUrl": "https://picsum.photos/seed/eventfood/400/600",
