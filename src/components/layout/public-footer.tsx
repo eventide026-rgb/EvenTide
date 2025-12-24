@@ -35,7 +35,7 @@ const footerLinks = {
     ],
     legal: [
         { href: "/resources/privacy", label: "Privacy Policy" },
-        { href: "#", label: "Terms of Service" },
+        { href: "/resources/terms", label: "Terms of Service" },
         { href: "/contact", label: "Contact Us" },
     ]
 }
