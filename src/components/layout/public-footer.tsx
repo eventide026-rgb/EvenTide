@@ -1,4 +1,5 @@
-import { Sprout, Twitter, Github, Linkedin, Instagram } from 'lucide-react';
+
+import { Twitter, Github, Linkedin } from 'lucide-react';
 import Link from 'next/link';
 
 function SocialIcon({ href, children }: { href: string; children: React.ReactNode }) {
@@ -11,9 +12,9 @@ function SocialIcon({ href, children }: { href: string; children: React.ReactNod
 
 const footerLinks = {
     resources: [
-        { href: "#", label: "What is EvenTide" },
-        { href: "#", label: "How to Use EvenTide" },
-        { href: "#", label: "Meet Eni" },
+        { href: "/resources/what-is-eventide", label: "What is EvenTide" },
+        { href: "/resources/how-to-use", label: "How to Use EvenTide" },
+        { href: "#ai-demo", label: "Meet Eni" },
         { href: "/about", label: "About Us" },
         { href: "#testimonials", label: "Testimonials" },
     ],
@@ -59,9 +60,9 @@ function FooterLinkColumn({ title, links }: { title: string; links: { href: stri
 export function PublicFooter() {
   return (
     <footer className="bg-secondary/50 border-t">
-      <div className="container mx-auto px-4 py-12 md:py-16 text-center">
-        <div className="flex flex-col items-center gap-8 lg:gap-12">
-            <div className="flex flex-col items-center text-center">
+      <div className="container mx-auto px-4 py-12 md:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+            <div className="lg:col-span-4 flex flex-col text-center lg:text-left items-center lg:items-start">
                  <div className="flex items-center space-x-2 mb-4">
                     <span className="font-bold text-xl font-headline">EvenTide</span>
                 </div>
@@ -69,7 +70,7 @@ export function PublicFooter() {
                     AI-powered event management for unforgettable moments.
                 </p>
             </div>
-            <div className="w-full grid grid-cols-2 md:grid-cols-5 gap-8 text-left">
+            <div className="lg:col-span-8 w-full grid grid-cols-2 md:grid-cols-5 gap-8 text-left">
                 <FooterLinkColumn title="Resources" links={footerLinks.resources} />
                 <FooterLinkColumn title="Community" links={footerLinks.community} />
                 <FooterLinkColumn title="Magazine" links={footerLinks.magazine} />
@@ -78,7 +79,7 @@ export function PublicFooter() {
             </div>
         </div>
 
-        <div className="mt-12 border-t pt-8 flex flex-col items-center gap-4">
+        <div className="mt-12 border-t pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} EvenTide. All rights reserved.
           </p>
@@ -91,9 +92,6 @@ export function PublicFooter() {
             </SocialIcon>
             <SocialIcon href="#">
                 <Linkedin className="size-5" />
-            </SocialIcon>
-             <SocialIcon href="#">
-                <Instagram className="size-5" />
             </SocialIcon>
           </div>
         </div>
