@@ -205,7 +205,6 @@ export default function Home() {
               </Button>
               <Button asChild size="lg" variant="secondary">
                 <Link href="/events">
-                  <Ticket className="mr-2 h-5 w-5" />
                   Buy Tickets
                 </Link>
               </Button>
@@ -435,5 +434,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
