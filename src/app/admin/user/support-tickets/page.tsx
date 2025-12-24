@@ -1,5 +1,6 @@
 
 import { Card, CardDescription, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { SupportTicketsTable } from '@/components/admin/support-tickets-table';
 
 export default function SupportTicketsPage() {
   return (
@@ -9,7 +10,7 @@ export default function SupportTicketsPage() {
         <CardDescription>View and manage all user-submitted support requests.</CardDescription>
       </CardHeader>
       <CardContent>
-         <p className="text-muted-foreground text-center py-16">Support tickets queue will be displayed here.</p>
+         <SupportTicketsTable />
       </CardContent>
     </Card>
   );
