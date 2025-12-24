@@ -20,19 +20,20 @@ type TicketSelection = {
 };
 
 export default function EventDetailPage({ params }: { params: { eventId: string } }) {
+    const { eventId } = params;
     const firestore = useFirestore();
     const router = useRouter();
     const [ticketSelection, setTicketSelection] = useState<TicketSelection>({});
 
     const eventRef = useMemoFirebase(() => {
-        if (!firestore || !params.eventId) return null;
-        return doc(firestore, 'events', params.eventId);
-    }, [firestore, params.eventId]);
+        if (!firestore || !eventId) return null;
+        return doc(firestore, 'events', eventId);
+    }, [firestore, eventId]);
 
     const ticketTiersQuery = useMemoFirebase(() => {
-        if (!firestore || !params.eventId) return null;
-        return query(collection(firestore, 'events', params.eventId, 'ticketTiers'));
-    }, [firestore, params.eventId]);
+        if (!firestore || !eventId) return null;
+        return query(collection(firestore, 'events', eventId, 'ticketTiers'));
+    }, [firestore, eventId]);
 
     const { data: event, isLoading: isLoadingEvent } = useDoc<Event>(eventRef);
     const { data: ticketTiers, isLoading: isLoadingTiers } = useCollection<TicketTier>(ticketTiersQuery);
@@ -58,7 +59,7 @@ export default function EventDetailPage({ params }: { params: { eventId: string 
             selection: selection.join(','),
         });
 
-        router.push(`/events/${params.eventId}/purchase?${queryParams.toString()}`);
+        router.push(`/events/${eventId}/purchase?${queryParams.toString()}`);
     };
 
     if (isLoading) {
