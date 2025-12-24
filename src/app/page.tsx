@@ -104,28 +104,28 @@ const pricingTiers = [
         name: "Free",
         price: "₦0",
         description: "Perfect for small, private gatherings.",
-        features: ["Up to 50 Guests", "1 Event", "Basic AI Design", "Guest List Management"],
+        features: ["Up to 50 Guests", "1 Planner", "Basic AI Design Tools", "Guest List Management"],
         isPopular: false,
     },
     {
         name: "Standard",
         price: "₦45,000",
         description: "Ideal for medium-sized events.",
-        features: ["Up to 300 Guests", "5 Events", "Advanced AI Design", "Team Collaboration", "Vendor Marketplace Access"],
+        features: ["Up to 300 Guests", "Up to 5 Planners", "Up to 5 Co-hosts", "Advanced AI Design Suite", "Team Collaboration Tools"],
         isPopular: true,
     },
     {
         name: "Gold",
         price: "₦95,000",
         description: "For large events and professionals.",
-        features: ["Up to 1000 Guests", "Unlimited Events", "Full AI Suite", "Priority Support", "Advanced Analytics"],
+        features: ["Up to 1,000 Guests", "Up to 10 Planners", "Up to 10 Co-hosts", "Up to 10 Security Personnel", "Full AI Suite & Analytics"],
         isPopular: false,
     },
     {
         name: "Platinum",
         price: "Contact Us",
         description: "Tailored for enterprise needs.",
-        features: ["Custom Guest Capacity", "Dedicated Account Manager", "White-labeling Options", "API Access"],
+        features: ["Custom Guest Capacity", "Unlimited Planners & Co-hosts", "Dedicated Security Management", "White-labeling Options", "API Access"],
         isPopular: false,
     }
 ]
