@@ -156,5 +156,78 @@ service cloud.firestore {
       allow update: if isEventStaff(eventId) && isExistingDoc();
       allow delete: if isEventStaff(eventId) && isExistingDoc();
     }
+    
+    // Marketplace Rules
+    
+    match /cars/{carId} {
+        allow get, list: if true;
+        allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+        allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+
+        match /bookings/{bookingId} {
+            allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.carOwnerId == request.auth.uid);
+            allow list: if isSignedIn() && resource.data.carOwnerId == request.auth.uid;
+            allow create: if isSignedIn();
+            allow update, delete: if isSignedIn() && resource.data.carOwnerId == request.auth.uid;
+        }
+    }
+
+    match /carBookings/{bookingId} {
+        allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.carOwnerId == request.auth.uid);
+        allow create: if isSignedIn();
+        allow update: if isSignedIn() && resource.data.carOwnerId == request.auth.uid;
+    }
+
+    match /venues/{venueId} {
+        allow get, list: if true;
+        allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+        allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+
+        match /bookings/{bookingId} {
+            allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.venueOwnerId == request.auth.uid);
+            allow list: if isSignedIn() && resource.data.venueOwnerId == request.auth.uid;
+            allow create: if isSignedIn();
+            allow update, delete: if isSignedIn() && resource.data.venueOwnerId == request.auth.uid;
+        }
+    }
+     match /venueBookings/{bookingId} {
+        allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.venueOwnerId == request.auth.uid);
+        allow create: if isSignedIn();
+        allow update: if isSignedIn() && resource.data.venueOwnerId == request.auth.uid;
+    }
+
+    match /hotels/{hotelId} {
+        allow get, list: if true;
+        allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+        allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+
+        match /bookings/{bookingId} {
+            allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.hotelOwnerId == request.auth.uid);
+            allow list: if isSignedIn() && resource.data.hotelOwnerId == request.auth.uid;
+            allow create: if isSignedIn();
+            allow update, delete: if isSignedIn() && resource.data.hotelOwnerId == request.auth.uid;
+        }
+    }
+     match /bookings/{bookingId} {
+        allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.hotelOwnerId == request.auth.uid);
+        allow create: if isSignedIn();
+        allow update: if isSignedIn() && resource.data.hotelOwnerId == request.auth.uid;
+    }
+    
+    // Administrative Rules
+    match /adRequests/{requestId} {
+        allow read, write: if false; // Should be handled by admin roles
+    }
+
+    match /testimonials/{testimonialId} {
+        allow get, list: if true;
+        allow create: if isSignedIn();
+        allow update, delete: if false; // Should be handled by admin roles
+    }
+     match /supportTickets/{ticketId} {
+        allow create: if true;
+        allow read, update, delete: if false; // Should be handled by admin roles
+    }
+
   }
 }
