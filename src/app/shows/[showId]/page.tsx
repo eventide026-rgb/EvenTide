@@ -4,14 +4,14 @@
 import { useMemo, useState } from 'react';
 import { doc, collection, query, where } from 'firebase/firestore';
 import { useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
-import { notFound, useRouter, useSearchParams } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { PublicHeader } from '@/components/layout/public-header';
 import { PublicFooter } from '@/components/layout/public-footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Calendar, MapPin, MinusCircle, PlusCircle } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { type Event as Show } from '@/components/event-card';
+import { type Show } from '@/components/event-card';
 import { type TicketTier } from '@/app/ticketier-dashboard/shows/[showId]/tiers/page';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,7 @@ type TicketSelection = {
 };
 
 export default function ShowDetailPage({ params }: { params: { showId: string } }) {
-    const showId = params.showId;
+    const { showId } = params;
     const firestore = useFirestore();
     const router = useRouter();
     const [ticketSelection, setTicketSelection] = useState<TicketSelection>({});
@@ -45,6 +45,10 @@ export default function ShowDetailPage({ params }: { params: { showId: string } 
         setTicketSelection(prev => {
             const currentQuantity = prev[tierId] || 0;
             const newQuantity = Math.max(0, currentQuantity + delta);
+            const tier = ticketTiers?.find(t => t.id === tierId);
+            if (tier && newQuantity > (tier.quantity - (tier.sold || 0))) {
+                return prev;
+            }
             return { ...prev, [tierId]: newQuantity };
         });
     };
