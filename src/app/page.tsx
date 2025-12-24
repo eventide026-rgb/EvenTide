@@ -190,7 +190,7 @@ export default function Home() {
             <h1 className="text-4xl font-headline font-extrabold tracking-tight md:text-6xl lg:text-7xl text-shadow-lg leading-tight">
               Plan Your Event
               <br />
-              <span className="text-primary transition-all duration-300">
+              <span className="bg-gradient-to-r from-primary to-accent text-transparent bg-clip-text transition-all duration-300">
                 {rotatingWords[currentIndex]}
               </span>
             </h1>
