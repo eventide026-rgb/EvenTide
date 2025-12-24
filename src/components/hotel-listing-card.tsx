@@ -6,15 +6,24 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { MapPin } from 'lucide-react';
 
+export type RoomType = {
+    name: string;
+    price: number;
+    capacity: number;
+};
+
 export type Hotel = {
     id: string;
+    ownerId: string;
     name: string;
     state: string;
     city: string;
     address: string;
-    imageUrl: string;
-    imageHint: string;
     description: string;
+    imageUrls: string[];
+    amenities: string[];
+    roomTypes: RoomType[];
+    imageHint?: string; // Kept optional for now
 };
 
 type HotelListingCardProps = {
@@ -28,7 +37,7 @@ export function HotelListingCard({ hotel }: HotelListingCardProps) {
         <CardHeader className="p-0">
           <div className="aspect-video relative overflow-hidden">
             <Image
-              src={hotel.imageUrl}
+              src={hotel.imageUrls[0] || 'https://picsum.photos/seed/placeholder/400/225'}
               alt={hotel.name}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -47,5 +56,3 @@ export function HotelListingCard({ hotel }: HotelListingCardProps) {
     </Link>
   );
 }
-
-    

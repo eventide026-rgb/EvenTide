@@ -409,6 +409,10 @@
       "description": "Represents a hotel listing on the EvenTide platform.",
       "type": "object",
       "properties": {
+        "ownerId": {
+          "type": "string",
+          "description": "The UID of the hotelier who owns this listing."
+        },
         "name": {
           "type": "string",
           "description": "The name of the hotel."
@@ -427,18 +431,50 @@
         },
         "description": {
           "type": "string",
-          "description": "A brief summary of the hotel's features and amenities."
+          "description": "A detailed summary of the hotel's features and amenities."
         },
-        "imageUrl": {
-          "type": "string",
-          "description": "URL for the hotel's primary image."
+        "imageUrls": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "An array of URLs for the hotel's images."
         },
-        "imageHint": {
-          "type": "string",
-          "description": "AI hint for the hotel image, used for accessibility and search."
+        "amenities": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "A list of amenities offered by the hotel (e.g., Wi-Fi, Pool, Gym)."
+        },
+        "roomTypes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "price": { "type": "number" },
+              "capacity": { "type": "number" }
+            },
+            "required": ["name", "price", "capacity"]
+          },
+          "description": "A list of available room types with their details."
         }
       },
-      "required": ["name", "state", "city", "address", "imageUrl", "imageHint"]
+      "required": ["ownerId", "name", "state", "city", "address", "description", "imageUrls", "amenities", "roomTypes"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "Represents a booking request for a hotel room.",
+      "type": "object",
+      "properties": {
+        "hotelId": { "type": "string" },
+        "hotelOwnerId": { "type": "string" },
+        "userId": { "type": "string" },
+        "roomTypeName": { "type": "string" },
+        "checkInDate": { "type": "string", "format": "date-time" },
+        "checkOutDate": { "type": "string", "format": "date-time" },
+        "numberOfGuests": { "type": "number" },
+        "totalPrice": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "declined"] }
+      },
+      "required": ["hotelId", "hotelOwnerId", "userId", "roomTypeName", "checkInDate", "checkOutDate", "numberOfGuests", "totalPrice", "status"]
     },
     "Venue": {
       "title": "Venue",
@@ -719,6 +755,26 @@
             {
               "name": "hotelId",
               "description": "The unique identifier for the hotel."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/hotels/{hotelId}/bookings/{bookingId}",
+        "definition": {
+          "entityName": "Booking",
+          "schema": {
+            "$ref": "#/backend/entities/Booking"
+          },
+          "description": "Stores booking requests for a specific hotel.",
+          "params": [
+            {
+              "name": "hotelId",
+              "description": "The unique identifier for the hotel."
+            },
+            {
+              "name": "bookingId",
+              "description": "The unique identifier for the booking."
             }
           ]
         }

@@ -14,7 +14,8 @@
  * Key Security Decisions:
  * - User Isolation: Users can only read and write their own profile data in `/users/{userId}`. Listing users is disabled.
  * - Event Access Control: Access to an event and its subcollections is primarily governed by the event's `isPublic` status and the user's role (owner, planner, cohost).
- * - Read-Only Public Data: The `/pricePlans`, `/hotels`, and `/venues` collections are readable by any signed-in user but are not writable, protecting this data from client modification.
+ * - Read-Only Public Data: The `/pricePlans`, `/venues` collections are readable by any user, but are not writable by clients.
+ * - Owner-based write on public data: Collections like `/hotels` can be written to by authenticated users who are marked as the `ownerId` of the document.
  * - Default to Private: All write operations are denied by default and must be explicitly granted based on ownership or a defined role related to an event.
  *
  * Denormalization for Authorization: To enable efficient and secure rules, this ruleset relies
@@ -63,6 +64,14 @@ service cloud.firestore {
      */
     function isExistingOwner(userId) {
       return isOwner(userId) && isExistingDoc();
+    }
+    
+    /**
+     * Gets the user's role from their profile document.
+     * Assumes a /users/{userId} structure with a 'role' field.
+     */
+    function getUserRole(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data.role;
     }
 
     /**
@@ -137,15 +146,31 @@ service cloud.firestore {
     }
 
     /**
-     * @description Rules for hotel listings. This data is public but cannot be modified by clients.
+     * @description Rules for hotel listings. Publicly readable. Writable only by the owner Hotelier.
      * @path /hotels/{hotelId}
      * @allow (get, list) Any user reading hotel data.
-     * @deny (write) Any user attempting to create, update, or delete hotel listings.
-     * @principle Secures public marketplace data as read-only for clients.
+     * @deny (create) A non-hotelier user attempting to create a hotel listing.
+     * @principle Secures marketplace data by ownership while allowing public discovery.
      */
     match /hotels/{hotelId} {
       allow get, list: if true;
-      allow write: if false;
+      allow create: if isSignedIn() && getUserRole(request.auth.uid) == 'Hotelier' && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && isOwner(resource.data.ownerId);
+    }
+
+    /**
+     * @description Rules for hotel booking requests.
+     * @path /hotels/{hotelId}/bookings/{bookingId}
+     * @allow (create) An authenticated user creating a booking for themselves.
+     * @allow (update) The hotel owner updating the status of a booking.
+     * @principle Manages the booking lifecycle between a user and a hotelier.
+     */
+    match /hotels/{hotelId}/bookings/{bookingId} {
+      allow list: if isSignedIn() && isOwner(get(/databases/$(database)/documents/hotels/$(hotelId)).data.ownerId);
+      allow get: if isSignedIn() && (isOwner(resource.data.userId) || isOwner(resource.data.hotelOwnerId));
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+      allow update: if isSignedIn() && isOwner(resource.data.hotelOwnerId); // Hotelier can update status
+      allow delete: if false; // Bookings should be cancelled (status update), not deleted.
     }
 
     /**
