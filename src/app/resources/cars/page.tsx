@@ -10,6 +10,54 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { CarListingCard, type Car as CarType } from '@/components/car-listing-card';
 import { useDebounce } from 'use-debounce';
 
+const sampleCars: CarType[] = [
+    {
+        id: 'sample-car-1',
+        ownerId: 'sample-owner',
+        make: 'Toyota',
+        model: 'Land Cruiser',
+        year: 2022,
+        pricePerDay: 150000,
+        location: { city: 'Lekki', state: 'Lagos' },
+        imageUrls: ['https://picsum.photos/seed/landcruiser/400/225'],
+        features: ['Air Conditioning', 'Automatic', '4x4'],
+    },
+    {
+        id: 'sample-car-2',
+        ownerId: 'sample-owner',
+        make: 'Mercedes-Benz',
+        model: 'G-Wagon',
+        year: 2023,
+        pricePerDay: 350000,
+        location: { city: 'Ikeja', state: 'Lagos' },
+        imageUrls: ['https://picsum.photos/seed/gwagon/400/225'],
+        features: ['Air Conditioning', 'Automatic', 'Leather Seats', 'Sunroof'],
+    },
+    {
+        id: 'sample-car-3',
+        ownerId: 'sample-owner',
+        make: 'Lexus',
+        model: 'LX 570',
+        year: 2021,
+        pricePerDay: 200000,
+        location: { city: 'Maitama', state: 'Abuja' },
+        imageUrls: ['https://picsum.photos/seed/lx570/400/225'],
+        features: ['Air Conditioning', 'Automatic', '3-Row Seating'],
+    },
+    {
+        id: 'sample-car-4',
+        ownerId: 'sample-owner',
+        make: 'Range Rover',
+        model: 'Vogue',
+        year: 2022,
+        pricePerDay: 280000,
+        location: { city: 'Port Harcourt', state: 'Rivers' },
+        imageUrls: ['https://picsum.photos/seed/vogue/400/225'],
+        features: ['Air Conditioning', 'Automatic', 'Panoramic Roof'],
+    }
+];
+
+
 export default function CarsPage() {
   const firestore = useFirestore();
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,18 +69,20 @@ export default function CarsPage() {
   }, [firestore]);
 
   const { data: allCars, isLoading } = useCollection<CarType>(carsQuery);
+  
+  const carsToDisplay = !isLoading && allCars && allCars.length > 0 ? allCars : sampleCars;
 
   const filteredCars = useMemo(() => {
-    if (!allCars) return [];
-    if (!debouncedSearchTerm) return allCars;
+    if (!carsToDisplay) return [];
+    if (!debouncedSearchTerm) return carsToDisplay;
 
     const lowercasedFilter = debouncedSearchTerm.toLowerCase();
-    return allCars.filter(car => 
+    return carsToDisplay.filter(car => 
         car.make.toLowerCase().includes(lowercasedFilter) ||
         car.model.toLowerCase().includes(lowercasedFilter) ||
         car.year.toString().includes(lowercasedFilter)
     );
-  }, [allCars, debouncedSearchTerm]);
+  }, [carsToDisplay, debouncedSearchTerm]);
 
   return (
     <>
