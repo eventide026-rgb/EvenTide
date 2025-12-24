@@ -56,7 +56,7 @@ const HeaderContent = () => {
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-64 p-2">
-            {resourceImage && (
+            
               <div className="relative h-24 w-full mb-2 rounded-md overflow-hidden">
                 <Image 
                     src="https://picsum.photos/seed/desk/600/400"
@@ -65,7 +65,7 @@ const HeaderContent = () => {
                     className="object-cover"
                 />
               </div>
-            )}
+            
             <div className="grid gap-1">
               {resourceLinks.map(link => (
                 <Link 
@@ -82,7 +82,7 @@ const HeaderContent = () => {
 
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost">Community</Button>
+            <Button variant="ghost">Community <ChevronDown className="ml-1 h-4 w-4" /></Button>
           </PopoverTrigger>
           <PopoverContent className="w-64 p-2">
              {communityImage && (
