@@ -7,11 +7,7 @@ import { Menu, Sprout } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
-const navLinks = [
-  { href: '#features', label: 'Features' },
-  { href: '#gallery', label: 'Gallery' },
-  { href: '/pricing', label: 'Pricing' },
-];
+const navLinks = [];
 
 export function PublicHeader() {
   const pathname = usePathname();
