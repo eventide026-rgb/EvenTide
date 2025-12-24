@@ -24,7 +24,7 @@ const resourceLinks = [
     { href: "/resources/how-to-use", label: "How to Use EvenTide" },
     { href: "/resources/meet-eni", label: "Meet Eni" },
     { href: "/about", label: "About Us" },
-    { href: "#testimonials", label: "Testimonials" },
+    { href: "/resources/submit-testimonial", label: "Testimonials" },
 ];
 
 const communityLinks = [
