@@ -11,9 +11,10 @@ import { Badge } from './ui/badge';
 export type Event = {
   id: string;
   name: string;
-  eventDate: Date;
+  description: string;
+  eventDate: any; // Firestore timestamp
   location: string;
-  imageUrl: string;
+  imageUrls: string[];
   imageHint?: string;
   ownerId: string;
   isPublic: boolean;
@@ -31,22 +32,24 @@ export function EventCard({ event }: EventCardProps) {
         <CardHeader className="p-0">
           <div className="aspect-video relative overflow-hidden">
             <Image
-              src={event.imageUrl}
+              src={event.imageUrls[0]}
               alt={event.name}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
               data-ai-hint={event.imageHint}
             />
-             <Badge className="absolute top-2 right-2">
-                Tickets Available
-            </Badge>
+            {event.isTicketed && (
+                 <Badge className="absolute top-2 right-2">
+                    Tickets Available
+                </Badge>
+            )}
           </div>
         </CardHeader>
         <CardContent className="p-4">
           <h3 className="font-bold font-headline text-lg truncate">{event.name}</h3>
           <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
             <Calendar className="h-4 w-4 flex-shrink-0" />
-            <span className="truncate">{format(new Date(event.eventDate), 'PPP')}</span>
+            <span className="truncate">{format(event.eventDate.toDate(), 'PPP')}</span>
           </div>
            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
             <MapPin className="h-4 w-4 flex-shrink-0" />

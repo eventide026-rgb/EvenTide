@@ -59,18 +59,30 @@
           "type": "string",
           "description": "Type of event (Wedding, General Event, Birthday, etc.)."
         },
-        "eventName": {
+        "name": {
           "type": "string",
           "description": "Name of the event."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the event."
         },
         "eventDate": {
           "type": "string",
           "description": "Date and time of the event.",
           "format": "date-time"
         },
-        "eventLocation": {
+        "location": {
           "type": "string",
           "description": "Location of the event."
+        },
+        "imageUrls": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "uri"
+            },
+            "description": "An array of URLs for event images."
         },
         "primaryColor": {
           "type": "string",
@@ -94,9 +106,11 @@
         "ownerId",
         "eventCode",
         "eventType",
-        "eventName",
+        "name",
+        "description",
         "eventDate",
-        "eventLocation",
+        "location",
+        "imageUrls",
         "primaryColor",
         "secondaryColor",
         "isPublic",
