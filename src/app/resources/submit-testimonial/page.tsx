@@ -11,7 +11,7 @@ export default function SubmitTestimonialPage() {
                         <PenSquare className="h-12 w-12 mb-4 text-primary" />
                         <CardTitle className="text-4xl font-headline">Share Your Experience</CardTitle>
                         <CardDescription>
-                            Loved using EvenTide? We&apos;d be honored if you shared a testimonial.
+                            Loved using EvenTide? We'd be honored if you shared a testimonial.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
