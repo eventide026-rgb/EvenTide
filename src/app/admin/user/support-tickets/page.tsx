@@ -8,7 +8,7 @@ export default function SupportTicketsPage() {
       <CardHeader>
         <CardTitle>Support Tickets</CardTitle>
         <CardDescription>View and manage all user-submitted support requests.</CardDescription>
-      </CardHeader>
+      </Header>
       <CardContent>
          <SupportTicketsTable />
       </CardContent>
