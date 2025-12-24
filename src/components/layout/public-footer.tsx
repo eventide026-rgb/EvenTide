@@ -34,7 +34,7 @@ const footerLinks = {
         { href: "/resources/venues", label: "Find a Venue" },
     ],
     legal: [
-        { href: "#", label: "Privacy Policy" },
+        { href: "/resources/privacy", label: "Privacy Policy" },
         { href: "#", label: "Terms of Service" },
         { href: "/contact", label: "Contact Us" },
     ]
