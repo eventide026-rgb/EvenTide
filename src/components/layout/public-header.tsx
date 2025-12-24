@@ -32,7 +32,7 @@ const communityLinks = [
     { href: "/security-login", label: "Security Login" },
     { href: "#", label: "Find Planners" },
     { href: "#", label: "Find Vendors" },
-    { href: "#", label: "Advertise" },
+    { href: "/advertise", label: "Advertise" },
 ];
 
 const magazineLinks = [
