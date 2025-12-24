@@ -31,7 +31,7 @@ const footerLinks = {
         { href: "/resources/editorial", label: "From the Editor" },
     ],
     marketplace: [
-        { href: "/events", label: "Buy Tickets" },
+        { href: "/shows", label: "Buy Tickets" },
         { href: "/resources/hotels", label: "Find a Hotel" },
         { href: "/resources/venues", label: "Find a Venue" },
         { href: "/resources/cars", label: "Find a Car" },
@@ -102,5 +102,3 @@ export function PublicFooter() {
     </footer>
   );
 }
-
-    

@@ -204,7 +204,7 @@ export default function Home() {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="secondary">
-                <Link href="/events">
+                <Link href="/shows">
                   Buy Tickets
                 </Link>
               </Button>

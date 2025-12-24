@@ -1,7 +1,8 @@
+
 import { PublicFooter } from "@/components/layout/public-footer";
 import { PublicHeader } from "@/components/layout/public-header";
 
-export default function EventsLayout({
+export default function ShowsLayout({
   children,
 }: {
   children: React.ReactNode;

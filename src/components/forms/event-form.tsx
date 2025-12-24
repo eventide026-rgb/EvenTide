@@ -16,15 +16,8 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useFirestore, useUser } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
@@ -36,7 +29,7 @@ import { format } from 'date-fns';
 import { Switch } from '../ui/switch';
 
 const formSchema = z.object({
-    name: z.string().min(3, "Event name must be at least 3 characters."),
+    name: z.string().min(3, "Show name must be at least 3 characters."),
     description: z.string().min(20, "Description must be at least 20 characters."),
     location: z.string().min(5, "Location is required."),
     eventDate: z.date({ required_error: "Please select a date and time." }),
@@ -79,7 +72,7 @@ export function EventForm() {
         }
         setIsLoading(true);
 
-        const eventData = {
+        const showData = {
             ...values,
             ownerId: user.uid,
             createdAt: serverTimestamp(),
@@ -87,18 +80,18 @@ export function EventForm() {
         };
 
         try {
-            const eventsCol = collection(firestore, "events");
-            const docRef = await addDoc(eventsCol, eventData);
+            const showsCol = collection(firestore, "shows");
+            const docRef = await addDoc(showsCol, showData);
             
             toast({
                 title: "Show Created!",
                 description: `Basics for ${values.name} have been saved.`,
             });
-            // Redirect to the ticket tier creation step for this new event
+            // Redirect to the ticket tier creation step for this new show
             router.push(`/ticketier-dashboard/shows/${docRef.id}/tiers`);
 
         } catch (error) {
-            console.error("Error creating event:", error);
+            console.error("Error creating show:", error);
             toast({
                 variant: "destructive",
                 title: "Submission Failed",

@@ -26,8 +26,10 @@ type EventCardProps = {
 };
 
 export function EventCard({ event }: EventCardProps) {
+  const eventPath = event.isTicketed ? 'shows' : 'events';
+
   return (
-    <Link href={`/events/${event.id}`} className="group block">
+    <Link href={`/${eventPath}/${event.id}`} className="group block">
       <Card className="overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl">
         <CardHeader className="p-0">
           <div className="aspect-video relative overflow-hidden">

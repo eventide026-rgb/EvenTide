@@ -39,12 +39,12 @@ export default function TicketTiersPage({ params }: { params: { showId: string }
     const firestore = useFirestore();
     const { user } = useUser();
     
-    const eventRef = useMemoFirebase(() => {
+    const showRef = useMemoFirebase(() => {
         if (!firestore) return null;
-        return doc(firestore, 'events', params.showId);
+        return doc(firestore, 'shows', params.showId);
     }, [firestore, params.showId]);
 
-    const { data: event, isLoading: isLoadingEvent } = useDoc(eventRef);
+    const { data: show, isLoading: isLoadingShow } = useDoc(showRef);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -59,21 +59,21 @@ export default function TicketTiersPage({ params }: { params: { showId: string }
     });
         
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        if (!firestore || !user || !event) {
+        if (!firestore || !user || !show) {
             toast({ variant: "destructive", title: "Error", description: "Could not save ticket tiers. Please try again." });
             return;
         }
         setIsLoading(true);
 
         const batch = writeBatch(firestore);
-        const tiersCollection = collection(firestore, 'events', params.showId, 'ticketTiers');
+        const tiersCollection = collection(firestore, 'shows', params.showId, 'ticketTiers');
 
         values.ticketTiers.forEach(tier => {
             const tierRef = doc(tiersCollection); // Create a new doc with a random ID
             batch.set(tierRef, {
                 ...tier,
                 sold: 0,
-                eventId: params.showId
+                showId: params.showId
             });
         });
 
@@ -81,7 +81,7 @@ export default function TicketTiersPage({ params }: { params: { showId: string }
             await batch.commit();
             toast({
                 title: "Ticket Tiers Saved!",
-                description: `Your show "${event.name}" is now ready for ticket sales.`,
+                description: `Your show "${show.name}" is now ready for ticket sales.`,
             });
             router.push(`/ticketier-dashboard/shows`);
 
@@ -97,7 +97,7 @@ export default function TicketTiersPage({ params }: { params: { showId: string }
         }
     }
     
-    if (isLoadingEvent) {
+    if (isLoadingShow) {
         return <div className='flex justify-center items-center h-96'><Loader2 className='h-8 w-8 animate-spin' /></div>
     }
 
@@ -106,7 +106,7 @@ export default function TicketTiersPage({ params }: { params: { showId: string }
             <CardHeader>
                 <CardTitle className="text-3xl font-headline">Manage Ticket Tiers</CardTitle>
                 <CardDescription>
-                    Define the pricing structure for &quot;{event?.name}&quot;. You can add multiple tiers like VIP, Early Bird, etc.
+                    Define the pricing structure for &quot;{show?.name}&quot;. You can add multiple tiers like VIP, Early Bird, etc.
                 </CardDescription>
             </CardHeader>
             <CardContent>

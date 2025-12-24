@@ -7,19 +7,19 @@ import { collection, query, where } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { type Event } from '@/components/event-card';
+import { type Event as Show } from '@/components/event-card';
 import { EventCard } from '@/components/event-card';
 
 export default function MyShowsPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
-  const myEventsQuery = useMemoFirebase(() => {
+  const myShowsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
+    return query(collection(firestore, 'shows'), where('ownerId', '==', user.uid));
   }, [firestore, user]);
 
-  const { data: myShows, isLoading: isLoadingEvents } = useCollection<Event>(myEventsQuery);
+  const { data: myShows, isLoading: isLoadingEvents } = useCollection<Show>(myShowsQuery);
 
   const isLoading = isUserLoading || isLoadingEvents;
 
@@ -55,8 +55,8 @@ export default function MyShowsPage() {
 
           {!isLoading && myShows && myShows.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {myShows.map((event) => (
-                <EventCard key={event.id} event={event} />
+              {myShows.map((show) => (
+                <EventCard key={show.id} event={show} />
               ))}
             </div>
           )}

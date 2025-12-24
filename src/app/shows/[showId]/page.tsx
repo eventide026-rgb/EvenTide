@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -10,8 +11,8 @@ import { PublicFooter } from '@/components/layout/public-footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Calendar, MapPin, MinusCircle, PlusCircle } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { type Event } from '@/components/event-card';
-import { type TicketTier } from '@/app/(app)/events/new/page';
+import { type Event as Show } from '@/components/event-card';
+import { type TicketTier } from '@/app/ticketier-dashboard/shows/[showId]/tiers/page';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 
@@ -19,26 +20,26 @@ type TicketSelection = {
   [tierId: string]: number;
 };
 
-export default function EventDetailPage({ params }: { params: { eventId: string } }) {
-    const { eventId } = params;
+export default function ShowDetailPage({ params }: { params: { showId: string } }) {
+    const { showId } = params;
     const firestore = useFirestore();
     const router = useRouter();
     const [ticketSelection, setTicketSelection] = useState<TicketSelection>({});
 
-    const eventRef = useMemoFirebase(() => {
-        if (!firestore || !eventId) return null;
-        return doc(firestore, 'events', eventId);
-    }, [firestore, eventId]);
+    const showRef = useMemoFirebase(() => {
+        if (!firestore || !showId) return null;
+        return doc(firestore, 'shows', showId);
+    }, [firestore, showId]);
 
     const ticketTiersQuery = useMemoFirebase(() => {
-        if (!firestore || !eventId) return null;
-        return query(collection(firestore, 'events', eventId, 'ticketTiers'));
-    }, [firestore, eventId]);
+        if (!firestore || !showId) return null;
+        return query(collection(firestore, 'shows', showId, 'ticketTiers'));
+    }, [firestore, showId]);
 
-    const { data: event, isLoading: isLoadingEvent } = useDoc<Event>(eventRef);
+    const { data: show, isLoading: isLoadingShow } = useDoc<Show>(showRef);
     const { data: ticketTiers, isLoading: isLoadingTiers } = useCollection<TicketTier>(ticketTiersQuery);
 
-    const isLoading = isLoadingEvent || isLoadingTiers;
+    const isLoading = isLoadingShow || isLoadingTiers;
 
     const handleQuantityChange = (tierId: string, delta: number) => {
         setTicketSelection(prev => {
@@ -59,7 +60,7 @@ export default function EventDetailPage({ params }: { params: { eventId: string 
             selection: selection.join(','),
         });
 
-        router.push(`/events/${eventId}/purchase?${queryParams.toString()}`);
+        router.push(`/shows/${showId}/purchase?${queryParams.toString()}`);
     };
 
     if (isLoading) {
@@ -70,11 +71,11 @@ export default function EventDetailPage({ params }: { params: { eventId: string 
         );
     }
     
-    if (!event && !isLoading) {
+    if (!show && !isLoading) {
         return notFound();
     }
     
-    if (!event) return null;
+    if (!show) return null;
 
     const totalSelectedTickets = Object.values(ticketSelection).reduce((sum, qty) => sum + qty, 0);
 
@@ -87,12 +88,12 @@ export default function EventDetailPage({ params }: { params: { eventId: string 
                         <div className="lg:col-span-3">
                              <Carousel className="w-full rounded-lg overflow-hidden border">
                                 <CarouselContent>
-                                    {event.imageUrls && event.imageUrls.map((url, index) => (
+                                    {show.imageUrls && show.imageUrls.map((url, index) => (
                                         <CarouselItem key={index}>
                                             <div className="aspect-video relative">
                                                 <Image
                                                     src={url}
-                                                    alt={`${event.name} view ${index + 1}`}
+                                                    alt={`${show.name} view ${index + 1}`}
                                                     fill
                                                     className="object-cover"
                                                 />
@@ -105,21 +106,21 @@ export default function EventDetailPage({ params }: { params: { eventId: string 
                             </Carousel>
                             <Card className="mt-8">
                                 <CardHeader>
-                                    <CardTitle className="text-3xl font-headline">{event.name}</CardTitle>
+                                    <CardTitle className="text-3xl font-headline">{show.name}</CardTitle>
                                     <div className="flex flex-col sm:flex-row sm:items-center gap-x-4 gap-y-2 text-muted-foreground pt-2">
                                         <div className="flex items-center gap-2">
                                             <Calendar className="h-4 w-4" />
-                                            <span>{format(new Date(event.eventDate), 'PPP p')}</span>
+                                            <span>{format(new Date(show.eventDate), 'PPP p')}</span>
                                         </div>
                                          <div className="flex items-center gap-2">
                                             <MapPin className="h-4 w-4" />
-                                            <span>{event.location}</span>
+                                            <span>{show.location}</span>
                                         </div>
                                     </div>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="prose prose-invert max-w-none text-foreground/80">
-                                      <p>{event.description}</p>
+                                      <p>{show.description}</p>
                                     </div>
                                 </CardContent>
                             </Card>

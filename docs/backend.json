@@ -37,85 +37,119 @@
         "role"
       ]
     },
-    "Event": {
+    "Show": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Event",
+      "title": "Show",
       "type": "object",
-      "description": "Represents an event created within the EvenTide application.",
+      "description": "Represents a public, ticketed show created within the EvenTide application by a Ticketier.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the Event entity."
+          "description": "Unique identifier for the Show entity."
         },
         "ownerId": {
           "type": "string",
-          "description": "Reference to UserProfile representing the event owner. (Relationship: UserProfile 1:N Event)"
-        },
-        "eventCode": {
-          "type": "string",
-          "description": "Unique code generated for the event."
+          "description": "Reference to UserProfile representing the show owner (Ticketier)."
         },
         "eventType": {
           "type": "string",
-          "description": "Type of event (Wedding, General Event, Birthday, etc.)."
+          "description": "Type of show (Concert, Festival, etc.)."
         },
         "name": {
           "type": "string",
-          "description": "Name of the event."
+          "description": "Name of the show."
         },
         "description": {
           "type": "string",
-          "description": "Detailed description of the event."
+          "description": "Detailed description of the show."
         },
         "eventDate": {
           "type": "string",
-          "description": "Date and time of the event.",
+          "description": "Date and time of the show.",
           "format": "date-time"
         },
         "location": {
           "type": "string",
-          "description": "Location of the event."
+          "description": "Location of the show."
         },
         "imageUrls": {
-            "type": "array",
-            "items": {
-                "type": "string",
-                "format": "uri"
-            },
-            "description": "An array of URLs for event images."
-        },
-        "primaryColor": {
-          "type": "string",
-          "description": "Primary color for the event's theme."
-        },
-        "secondaryColor": {
-          "type": "string",
-          "description": "Secondary color for the event's theme."
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          },
+          "description": "An array of URLs for show images."
         },
         "isPublic": {
           "type": "boolean",
-          "description": "Indicates whether the event is public or private."
+          "description": "Indicates whether the show is public or private. Should be true for shows."
         },
         "isTicketed": {
-            "type": "boolean",
-            "description": "Indicates if the event requires tickets for entry."
+          "type": "boolean",
+          "description": "Indicates if the show requires tickets for entry. Should be true for shows."
         }
       },
       "required": [
         "id",
         "ownerId",
-        "eventCode",
         "eventType",
         "name",
         "description",
         "eventDate",
         "location",
         "imageUrls",
-        "primaryColor",
-        "secondaryColor",
         "isPublic",
         "isTicketed"
       ]
+    },
+    "Event": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Event",
+      "type": "object",
+      "description": "Represents a private event created within the EvenTide application by a Host.",
+      "properties": {
+        "id": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "eventCode": { "type": "string" },
+        "eventType": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "eventDate": { "type": "string", "format": "date-time" },
+        "location": { "type": "string" },
+        "imageUrls": { "type": "array", "items": { "type": "string", "format": "uri" }},
+        "primaryColor": { "type": "string" },
+        "secondaryColor": { "type": "string" }
+      },
+      "required": ["id", "ownerId", "eventCode", "eventType", "name", "description", "eventDate", "location", "imageUrls", "primaryColor", "secondaryColor"]
+    },
+    "TicketTier": {
+      "title": "TicketTier",
+      "type": "object",
+      "description": "Defines a pricing and quantity tier for tickets of a specific show.",
+      "properties": {
+        "id": { "type": "string" },
+        "showId": { "type": "string" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "quantity": { "type": "number" },
+        "sold": { "type": "number" }
+      },
+      "required": ["id", "showId", "name", "price", "quantity", "sold"]
+    },
+    "Ticket": {
+      "title": "Ticket",
+      "type": "object",
+      "description": "Represents a single ticket purchased by a user for a show.",
+      "properties": {
+        "id": { "type": "string" },
+        "showId": { "type": "string" },
+        "buyerId": { "type": "string" },
+        "ticketCode": { "type": "string" },
+        "tierName": { "type": "string" },
+        "price": { "type": "number" },
+        "purchasedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "showId", "buyerId", "ticketCode", "tierName", "price", "purchasedAt"]
     },
     "Guest": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -450,67 +484,71 @@
         "path": "/users/{userId}",
         "definition": {
           "entityName": "UserProfile",
-          "schema": {
-            "$ref": "#/backend/entities/UserProfile"
-          },
+          "schema": { "$ref": "#/backend/entities/UserProfile" },
           "description": "Stores user profile information. Path-based ownership ensures only the user can access their own profile.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user. Corresponds to the Firebase Auth UID."
-            }
-          ]
+          "params": [{ "name": "userId", "description": "The unique identifier of the user. Corresponds to the Firebase Auth UID." }]
         }
       },
       {
         "path": "/ticketiers/{ticketierId}",
         "definition": {
           "entityName": "Ticketier",
-          "schema": {
-            "$ref": "#/backend/entities/Ticketier"
-          },
+          "schema": { "$ref": "#/backend/entities/Ticketier" },
           "description": "Stores public profiles for Ticketiers/Promoters.",
-          "params": [
-            {
-              "name": "ticketierId",
-              "description": "The unique identifier of the ticketier, corresponding to their UID."
-            }
-          ]
+          "params": [{ "name": "ticketierId", "description": "The unique identifier of the ticketier, corresponding to their UID." }]
+        }
+      },
+      {
+        "path": "/shows/{showId}",
+        "definition": {
+            "entityName": "Show",
+            "schema": { "$ref": "#/backend/entities/Show" },
+            "description": "Stores public, ticketed show details. Includes the ownerId to identify the event creator (Ticketier).",
+            "params": [{ "name": "showId", "description": "The unique identifier for the show." }]
+        }
+      },
+      {
+        "path": "/shows/{showId}/ticketTiers/{tierId}",
+        "definition": {
+            "entityName": "TicketTier",
+            "schema": { "$ref": "#/backend/entities/TicketTier" },
+            "description": "Stores ticket pricing and quantity tiers for a specific show.",
+            "params": [
+                { "name": "showId", "description": "The unique identifier of the show." },
+                { "name": "tierId", "description": "The unique identifier of the ticket tier." }
+            ]
+        }
+      },
+      {
+        "path": "/shows/{showId}/tickets/{ticketId}",
+        "definition": {
+            "entityName": "Ticket",
+            "schema": { "$ref": "#/backend/entities/Ticket" },
+            "description": "Stores individual tickets purchased for a show.",
+            "params": [
+                { "name": "showId", "description": "The unique identifier of the show." },
+                { "name": "ticketId", "description": "The unique identifier of the ticket." }
+            ]
         }
       },
       {
         "path": "/events/{eventId}",
         "definition": {
           "entityName": "Event",
-          "schema": {
-            "$ref": "#/backend/entities/Event"
-          },
-          "description": "Stores event details. Includes the ownerId to identify the event creator.",
-          "params": [
-            {
-              "name": "eventId",
-              "description": "The unique identifier of the event."
-            }
-          ]
+          "schema": { "$ref": "#/backend/entities/Event" },
+          "description": "Stores private event details. Includes the ownerId to identify the event creator.",
+          "params": [{ "name": "eventId", "description": "The unique identifier of the event." }]
         }
       },
       {
         "path": "/events/{eventId}/guests/{guestId}",
         "definition": {
           "entityName": "Guest",
-          "schema": {
-            "$ref": "#/backend/entities/Guest"
-          },
+          "schema": { "$ref": "#/backend/entities/Guest" },
           "description": "Stores guest information related to an event.",
           "params": [
-            {
-              "name": "eventId",
-              "description": "The unique identifier of the event."
-            },
-            {
-              "name": "guestId",
-              "description": "The unique identifier of the guest."
-            }
+            { "name": "eventId", "description": "The unique identifier of the event." },
+            { "name": "guestId", "description": "The unique identifier of the guest." }
           ]
         }
       },
@@ -518,19 +556,11 @@
         "path": "/events/{eventId}/planners/{plannerId}",
         "definition": {
           "entityName": "EventPlanner",
-          "schema": {
-            "$ref": "#/backend/entities/EventPlanner"
-          },
+          "schema": { "$ref": "#/backend/entities/EventPlanner" },
           "description": "Stores event planner assignments for an event. Acts as a membership map indicating who is an event planner.",
           "params": [
-            {
-              "name": "eventId",
-              "description": "The unique identifier of the event."
-            },
-            {
-              "name": "plannerId",
-              "description": "The unique identifier of the planner."
-            }
+            { "name": "eventId", "description": "The unique identifier of the event." },
+            { "name": "plannerId", "description": "The unique identifier of the planner." }
           ]
         }
       },
@@ -538,19 +568,11 @@
         "path": "/events/{eventId}/cohosts/{cohostId}",
         "definition": {
           "entityName": "EventCohost",
-          "schema": {
-            "$ref": "#/backend/entities/EventCohost"
-          },
+          "schema": { "$ref": "#/backend/entities/EventCohost" },
           "description": "Stores event cohost assignments for an event. Acts as a membership map indicating who is a cohost.",
           "params": [
-            {
-              "name": "eventId",
-              "description": "The unique identifier of the event."
-            },
-            {
-              "name": "cohostId",
-              "description": "The unique identifier of the cohost."
-            }
+            { "name": "eventId", "description": "The unique identifier of the event." },
+            { "name": "cohostId", "description": "The unique identifier of the cohost." }
           ]
         }
       },
@@ -558,19 +580,11 @@
         "path": "/events/{eventId}/chat_messages/{messageId}",
         "definition": {
           "entityName": "ChatMessage",
-          "schema": {
-            "$ref": "#/backend/entities/ChatMessage"
-          },
+          "schema": { "$ref": "#/backend/entities/ChatMessage" },
           "description": "Stores chat messages for an event.",
           "params": [
-            {
-              "name": "eventId",
-              "description": "The unique identifier of the event."
-            },
-            {
-              "name": "messageId",
-              "description": "The unique identifier of the chat message."
-            }
+            { "name": "eventId", "description": "The unique identifier of the event." },
+            { "name": "messageId", "description": "The unique identifier of the chat message." }
           ]
         }
       },
@@ -578,19 +592,11 @@
         "path": "/events/{eventId}/media/{mediaId}",
         "definition": {
           "entityName": "Media",
-          "schema": {
-            "$ref": "#/backend/entities/Media"
-          },
+          "schema": { "$ref": "#/backend/entities/Media" },
           "description": "Stores media files (photos/videos) associated with an event.",
           "params": [
-            {
-              "name": "eventId",
-              "description": "The unique identifier of the event."
-            },
-            {
-              "name": "mediaId",
-              "description": "The unique identifier of the media."
-            }
+            { "name": "eventId", "description": "The unique identifier of the event." },
+            { "name": "mediaId", "description": "The unique identifier of the media." }
           ]
         }
       },
@@ -598,51 +604,29 @@
         "path": "/price_plans/{pricePlanId}",
         "definition": {
           "entityName": "PricePlan",
-          "schema": {
-            "$ref": "#/backend/entities/PricePlan"
-          },
+          "schema": { "$ref": "#/backend/entities/PricePlan" },
           "description": "Stores the details of available pricing plans.",
-          "params": [
-            {
-              "name": "pricePlanId",
-              "description": "The unique identifier of the price plan."
-            }
-          ]
+          "params": [{ "name": "pricePlanId", "description": "The unique identifier of the price plan." }]
         }
       },
       {
         "path": "/events/{eventId}/event_pricing",
         "definition": {
           "entityName": "EventPricing",
-          "schema": {
-            "$ref": "#/backend/entities/EventPricing"
-          },
+          "schema": { "$ref": "#/backend/entities/EventPricing" },
           "description": "Stores the pricing plan assigned to an event.",
-          "params": [
-            {
-              "name": "eventId",
-              "description": "The unique identifier of the event."
-            }
-          ]
+          "params": [{ "name": "eventId", "description": "The unique identifier of the event." }]
         }
       },
       {
         "path": "/events/{eventId}/security_codes/{securityCodeId}",
         "definition": {
           "entityName": "SecurityCode",
-          "schema": {
-            "$ref": "#/backend/entities/SecurityCode"
-          },
+          "schema": { "$ref": "#/backend/entities/SecurityCode" },
           "description": "Stores security codes for security personnel assigned to an event.",
           "params": [
-            {
-              "name": "eventId",
-              "description": "The unique identifier of the event."
-            },
-            {
-              "name": "securityCodeId",
-              "description": "The unique identifier of the security code."
-            }
+            { "name": "eventId", "description": "The unique identifier of the event." },
+            { "name": "securityCodeId", "description": "The unique identifier of the security code." }
           ]
         }
       },
@@ -650,23 +634,15 @@
         "path": "/events/{eventId}/announcements/{announcementId}",
         "definition": {
           "entityName": "Announcement",
-          "schema": {
-            "$ref": "#/backend/entities/Announcement"
-          },
+          "schema": { "$ref": "#/backend/entities/Announcement" },
           "description": "Stores announcements related to an event.",
           "params": [
-            {
-              "name": "eventId",
-              "description": "The unique identifier of the event."
-            },
-            {
-              "name": "announcementId",
-              "description": "The unique identifier of the announcement."
-            }
+            { "name": "eventId", "description": "The unique identifier of the event." },
+            { "name": "announcementId", "description": "The unique identifier of the announcement." }
           ]
         }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging, following the principles of Authorization Independence, Clarity of Intent, DBAC, and QAPs. Authorization independence is achieved through denormalization of authorization data, specifically, the `members` map in events and the replication of relevant event data in subcollections. This eliminates the need for costly and insecure `get()` calls in security rules. Structural Segregation is implemented by keeping data with different access requirements in separate collections (e.g., user profiles are separate from event data). The structure follows consistent access modeling patterns, using path-based ownership for user-owned data and membership maps for collaborative data. This approach directly facilitates QAPs (Rules are not Filters) because list operations can be secured without filtering data based on client-provided values, as the necessary authorization data is readily available in the document being listed. The structure uses explicit state modeling, predictable schemas, and radical consistency in naming conventions for improved clarity and maintainability. \n\nSpecifically, Event access control is managed by the `Event.ownerId` and denormalized maps in collections like EventPlanner, EventCohost and Guest ensuring authorization rules can be applied without needing to read other documents. The `isPublic` field enables secure list operations for public events. The `UserProfile` documents are kept separate and secured via path-based access control.\n\nThe Membership Map pattern is applied throughout the design wherever collaborative access is required (e.g. event planners and cohosts).  The Guests are structured under the Events collection to simplify data querying and management."
+    "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging. Public, ticketed shows created by Ticketiers are stored in a top-level `/shows` collection, separating them from private events created by Hosts, which are stored in the `/events` collection. This structural segregation improves query performance and simplifies security rules. User data is kept in a separate `/users` collection, and public Ticketier profiles are in `/ticketiers`, both secured by path-based ownership. Subcollections for shows (like `ticketTiers` and `tickets`) and events (like `guests` and `planners`) are nested under their parent documents, ensuring data locality and enabling targeted queries and security."
   }
 }

@@ -11,7 +11,7 @@ import { PublicFooter } from '@/components/layout/public-footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { EventCard, type Event } from '@/components/event-card';
+import { EventCard, type Event as Show } from '@/components/event-card';
 
 type TicketierProfile = {
     id: string;
@@ -28,20 +28,19 @@ export default function TicketierPublicPage({ params }: { params: { ticketierId:
         return doc(firestore, 'ticketiers', params.ticketierId);
     }, [firestore, params.ticketierId]);
 
-    const eventsQuery = useMemoFirebase(() => {
+    const showsQuery = useMemoFirebase(() => {
         if (!firestore || !params.ticketierId) return null;
         return query(
-            collection(firestore, 'events'), 
+            collection(firestore, 'shows'), 
             where('ownerId', '==', params.ticketierId),
-            where('isPublic', '==', true),
-            where('isTicketed', '==', true)
+            where('isPublic', '==', true)
         );
     }, [firestore, params.ticketierId]);
 
     const { data: ticketier, isLoading: isLoadingTicketier } = useDoc<TicketierProfile>(ticketierRef);
-    const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
+    const { data: shows, isLoading: isLoadingShows } = useCollection<Show>(showsQuery);
 
-    const isLoading = isLoadingTicketier || isLoadingEvents;
+    const isLoading = isLoadingTicketier || isLoadingShows;
 
     if (!isLoading && !ticketier) {
         return notFound();
@@ -74,7 +73,7 @@ export default function TicketierPublicPage({ params }: { params: { ticketierId:
                     </div>
                 </section>
                 <section className="container mx-auto px-4 py-8 md:py-12">
-                    <h2 className="text-2xl font-headline font-bold mb-8 text-center">Upcoming Events</h2>
+                    <h2 className="text-2xl font-headline font-bold mb-8 text-center">Upcoming Shows</h2>
                     {isLoading && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             {[...Array(3)].map((_, i) => (
@@ -86,16 +85,16 @@ export default function TicketierPublicPage({ params }: { params: { ticketierId:
                             ))}
                         </div>
                     )}
-                    {!isLoading && events && events.length > 0 && (
+                    {!isLoading && shows && shows.length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {events.map(event => (
-                                <EventCard key={event.id} event={event} />
+                            {shows.map(show => (
+                                <EventCard key={show.id} event={show} />
                             ))}
                         </div>
                     )}
-                     {!isLoading && (!events || events.length === 0) && (
+                     {!isLoading && (!shows || shows.length === 0) && (
                         <div className="text-center py-16">
-                            <p className="text-muted-foreground">This promoter has no upcoming public events.</p>
+                            <p className="text-muted-foreground">This promoter has no upcoming public shows.</p>
                         </div>
                      )}
                 </section>

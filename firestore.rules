@@ -1,89 +1,53 @@
 
-/**
- * Core Philosophy: This ruleset enforces a security model centered around event collaboration and user data privacy.
- * The primary goal is to ensure that users have exclusive control over their personal data, while event data
- * can be securely shared among legitimate participants (owners, planners, co-hosts, etc.).
- *
- * Data Structure: The database is organized into several top-level collections:
- * - /users/{userId}: Stores private user profiles, accessible only by the user themselves.
- * - /events/{eventId}: The central hub for all event-related data. Each event document acts as a parent for numerous
- *   subcollections that manage different aspects of the event (guests, chat, media).
- * - /price_plans/{pricePlanId}: A public, read-only collection containing pricing information.
- */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     // Helper Functions for Reusability and Readability
 
-    /**
-     * Checks if a user is authenticated.
-     */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /**
-     * Checks if the authenticated user's UID matches the provided userId.
-     * This is the primary function for enforcing document ownership.
-     */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    /**
-     * Checks if the document being written to already exists.
-     * CRITICAL for preventing updates or deletes on non-existent documents.
-     */
     function isExistingDoc() {
       return resource != null;
     }
+    
+    function getShow(showId) {
+      return get(/databases/$(database)/documents/shows/$(showId));
+    }
+    
+    function isShowOwner(showId) {
+        let showData = getShow(showId).data;
+        return isSignedIn() && showData.ownerId == request.auth.uid;
+    }
 
-    /**
-     * Retrieves the parent event document data. Used by subcollection rules.
-     * This incurs a read operation but is necessary for secure context.
-     */
     function getEvent(eventId) {
       return get(/databases/$(database)/documents/events/$(eventId));
     }
 
-    /**
-     * Checks if the requesting user is the owner of the specified event.
-     */
     function isEventOwner(eventId) {
       let eventData = getEvent(eventId).data;
       return isSignedIn() && eventData.ownerId == request.auth.uid;
     }
 
-    /**
-     * Checks if the requesting user is listed as a planner for the event.
-     * Assumes the planner document ID is the user's UID.
-     */
     function isEventPlanner(eventId) {
       return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/planners/$(request.auth.uid));
     }
 
-    /**
-     * Checks if the requesting user is listed as a co-host for the event.
-     * Assumes the co-host document ID is the user's UID.
-     */
     function isEventCohost(eventId) {
       return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/cohosts/$(request.auth.uid));
     }
 
-    /**
-     * Checks if the user is part of the event's management staff (Owner, Planner, or Co-host).
-     */
     function isEventStaff(eventId) {
       return isEventOwner(eventId) || isEventPlanner(eventId) || isEventCohost(eventId);
     }
 
-    /**
-     * Determines if a user can read data within an event's context (subcollections).
-     * Grants access to event staff. Extensible to other roles if the data model allows.
-     */
     function canReadEventData(eventId) {
-      // NOTE: Guest access is not included due to data modeling limitations.
       return isEventStaff(eventId);
     }
 
@@ -97,16 +61,34 @@ service cloud.firestore {
     }
 
     match /ticketiers/{ticketierId} {
-        allow get: if true; // Publicly readable profiles
+        allow get: if true;
         allow list: if true;
         allow create: if isOwner(ticketierId);
         allow update: if isOwner(ticketierId);
-        allow delete: if false; // Disallow deletion for now
+        allow delete: if false;
+    }
+    
+    match /shows/{showId} {
+      allow get, list: if true; // Shows are public
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update: if isShowOwner(showId) && isExistingDoc();
+      allow delete: if isShowOwner(showId) && isExistingDoc();
     }
 
+    match /shows/{showId}/ticketTiers/{tierId} {
+        allow get, list: if true; // Tiers are public
+        allow create, update, delete: if isShowOwner(showId);
+    }
+    
+    match /shows/{showId}/tickets/{ticketId} {
+        allow get, list: if isShowOwner(showId) || isOwner(resource.data.buyerId);
+        allow create: if isSignedIn();
+        allow update, delete: if isShowOwner(showId);
+    }
+    
     match /events/{eventId} {
-      allow get: if resource.data.isPublic == true || isEventStaff(eventId);
-      allow list: if true; 
+      allow get: if isEventStaff(eventId);
+      allow list: if false;
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       allow update: if isEventOwner(eventId) && isExistingDoc() && request.resource.data.ownerId == resource.data.ownerId;
       allow delete: if isEventOwner(eventId) && isExistingDoc();
@@ -146,17 +128,6 @@ service cloud.firestore {
       allow create: if isEventStaff(eventId) && request.resource.data.uploaderId == request.auth.uid && request.resource.data.eventId == eventId;
       allow update: if false; 
       allow delete: if (isEventStaff(eventId) || isOwner(resource.data.uploaderId)) && isExistingDoc();
-    }
-    
-    match /events/{eventId}/ticketTiers/{tierId} {
-        allow get, list: if getEvent(eventId).data.isPublic == true;
-        allow create, update, delete: if isEventOwner(eventId);
-    }
-    
-    match /events/{eventId}/tickets/{ticketId} {
-        allow get, list: if isEventStaff(eventId) || isOwner(resource.data.buyerId);
-        allow create: if isSignedIn();
-        allow update, delete: if isEventOwner(eventId);
     }
 
     match /price_plans/{pricePlanId} {
