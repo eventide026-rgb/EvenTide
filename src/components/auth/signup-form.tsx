@@ -28,7 +28,7 @@ import { useAuth, useFirestore } from "@/firebase";
 import { 
   createUserWithEmailAndPassword,
 } from 'firebase/auth';
-import { setDoc, doc, serverTimestamp } from "firebase/firestore";
+import { setDoc, doc, serverTimestamp, writeBatch } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
 import { errorEmitter } from "@/firebase/error-emitter";
 import { FirestorePermissionError } from "@/firebase/errors";
@@ -39,7 +39,16 @@ const formSchema = z.object({
   lastName: z.string().min(2, { message: "Last name is required." }),
   email: z.string().email({ message: "Please enter a valid email." }),
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
-  role: z.enum(["Owner", "Planner", "Hotelier", "Hall Owner", "Car Hire Service"], { required_error: "You need to select a role." }),
+  role: z.enum(["Owner", "Planner", "Hotelier", "Hall Owner", "Car Hire Service", "Ticketier"], { required_error: "You need to select a role." }),
+  promoterName: z.string().optional(),
+}).refine(data => {
+    if (data.role === 'Ticketier') {
+        return !!data.promoterName && data.promoterName.length >= 2;
+    }
+    return true;
+}, {
+    message: "Promoter name is required for Ticketiers.",
+    path: ["promoterName"],
 });
 
 export function SignUpForm() {
@@ -56,8 +65,11 @@ export function SignUpForm() {
       lastName: "",
       email: "",
       password: "",
+      promoterName: "",
     },
   });
+
+  const role = form.watch("role");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if(!auth || !firestore) {
@@ -76,6 +88,8 @@ export function SignUpForm() {
         const user = userCredential.user;
 
         if (user) {
+            const batch = writeBatch(firestore);
+
             const userProfileData = {
                 id: user.uid,
                 email: values.email,
@@ -86,16 +100,27 @@ export function SignUpForm() {
             };
             
             const userDocRef = doc(firestore, "users", user.uid);
+            batch.set(userDocRef, userProfileData);
 
-            await setDoc(userDocRef, userProfileData).catch((error) => {
-                 // Throw a more specific error for the catch block below
+            if (values.role === 'Ticketier') {
+                const ticketierProfileData = {
+                    id: user.uid,
+                    promoterName: values.promoterName,
+                    bio: `The official promoter page for ${values.promoterName}.`, // Default bio
+                    avatarUrl: `https://picsum.photos/seed/${user.uid}/200`, // Placeholder avatar
+                    createdAt: serverTimestamp(),
+                };
+                const ticketierDocRef = doc(firestore, "ticketiers", user.uid);
+                batch.set(ticketierDocRef, ticketierProfileData);
+            }
+
+            await batch.commit().catch((error) => {
                  const contextualError = new FirestorePermissionError({
-                    path: userDocRef.path,
+                    path: 'batch write',
                     operation: 'create',
-                    requestResourceData: userProfileData,
+                    requestResourceData: { userProfileData, roleData: values.role === 'Ticketier' ? 'Ticketier Profile' : undefined },
                 });
                 errorEmitter.emit('permission-error', contextualError);
-                // Re-throw to be caught by the outer catch block
                 throw new Error("Failed to create user profile. Please contact support.");
             });
 
@@ -105,23 +130,20 @@ export function SignUpForm() {
                 title: "Account Created!",
                 description: "Welcome to EvenTide! Redirecting you now...",
             });
+            
+            const roleDashboardMap: Record<string, string> = {
+                "Owner": "/dashboard",
+                "Planner": "/dashboard",
+                "Hotelier": "/hotelier-dashboard",
+                "Hall Owner": "/hall-owner-dashboard",
+                "Car Hire Service": "/car-hire-dashboard",
+                "Ticketier": "/ticketier-dashboard",
+            };
+            router.push(roleDashboardMap[values.role] || "/dashboard");
 
-            // The auth handler in the provider will redirect to the correct dashboard.
-            // A fallback redirect in case the handler is slow.
-            setTimeout(() => {
-                const roleDashboardMap: Record<string, string> = {
-                    "Owner": "/dashboard",
-                    "Planner": "/dashboard",
-                    "Hotelier": "/hotelier-dashboard",
-                    "Hall Owner": "/hall-owner-dashboard",
-                    "Car Hire Service": "/car-hire-dashboard",
-                };
-                router.push(roleDashboardMap[values.role] || "/dashboard");
-            }, 500);
         }
 
     } catch (error: any) {
-      // Handle Firebase Auth errors (e.g., email-already-in-use)
       let description = "An unexpected error occurred. Please try again.";
       if (error.code === 'auth/email-already-in-use') {
         description = "This email address is already in use. Please log in or use a different email.";
@@ -214,12 +236,28 @@ export function SignUpForm() {
                   <SelectItem value="Hotelier">Hotelier</SelectItem>
                   <SelectItem value="Hall Owner">Venue / Hall Owner</SelectItem>
                   <SelectItem value="Car Hire Service">Car Hire Service</SelectItem>
+                  <SelectItem value="Ticketier">Ticketier / Promoter</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
             </FormItem>
           )}
         />
+        {role === "Ticketier" && (
+            <FormField
+                control={form.control}
+                name="promoterName"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Promoter Name</FormLabel>
+                    <FormControl>
+                        <Input placeholder="e.g., Vibes on Vibes Ent." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+            />
+        )}
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? <Loader2 className="animate-spin" /> : 'Create Account'}
         </Button>

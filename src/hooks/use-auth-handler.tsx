@@ -12,6 +12,7 @@ const ROLE_DASHBOARD_MAP: Record<string, string> = {
   Hotelier: '/hotelier-dashboard',
   'Hall Owner': '/hall-owner-dashboard',
   'Car Hire Service': '/car-hire-dashboard',
+  'Ticketier': '/ticketier-dashboard',
   'Super Admin': '/admin/super/dashboard',
   'User Admin': '/admin/user/dashboard',
   'Content Admin': '/admin/content/dashboard',

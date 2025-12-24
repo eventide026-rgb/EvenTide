@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -82,6 +83,10 @@
         "isPublic": {
           "type": "boolean",
           "description": "Indicates whether the event is public or private."
+        },
+        "isTicketed": {
+            "type": "boolean",
+            "description": "Indicates if the event requires tickets for entry."
         }
       },
       "required": [
@@ -94,7 +99,8 @@
         "eventLocation",
         "primaryColor",
         "secondaryColor",
-        "isPublic"
+        "isPublic",
+        "isTicketed"
       ]
     },
     "Guest": {
@@ -404,6 +410,18 @@
         "content",
         "timestamp"
       ]
+    },
+    "Ticketier": {
+        "title": "Ticketier",
+        "type": "object",
+        "description": "Represents a Ticketier or Promoter's public profile.",
+        "properties": {
+            "id": { "type": "string", "description": "The user's UID." },
+            "promoterName": { "type": "string", "description": "The public name of the promoter or brand." },
+            "bio": { "type": "string", "description": "A short biography for the promoter's public page." },
+            "avatarUrl": { "type": "string", "description": "URL for the promoter's avatar or logo." }
+        },
+        "required": ["id", "promoterName"]
     }
   },
   "auth": {
@@ -426,6 +444,22 @@
             {
               "name": "userId",
               "description": "The unique identifier of the user. Corresponds to the Firebase Auth UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/ticketiers/{ticketierId}",
+        "definition": {
+          "entityName": "Ticketier",
+          "schema": {
+            "$ref": "#/backend/entities/Ticketier"
+          },
+          "description": "Stores public profiles for Ticketiers/Promoters.",
+          "params": [
+            {
+              "name": "ticketierId",
+              "description": "The unique identifier of the ticketier, corresponding to their UID."
             }
           ]
         }
