@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Sprout } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import {
   DropdownMenu,
@@ -21,7 +21,7 @@ export function PublicHeader() {
     <header className="sticky top-4 z-50 w-full">
       <div className="container flex h-16 max-w-screen-lg items-center rounded-full border border-border/40 bg-background/60 p-2 shadow-lg backdrop-blur-lg">
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <span className="font-bold font-headline text-lg">EvenTide</span>
+          <span className="font-logo font-bold text-lg bg-gradient-to-r from-blue-400 to-yellow-300 text-transparent bg-clip-text">EvenTide</span>
         </Link>
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
           <DropdownMenu>
@@ -103,8 +103,11 @@ export function PublicHeader() {
           ))}
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-2">
-          <Button asChild>
+           <Button asChild variant="ghost">
             <Link href="/login">Login</Link>
+          </Button>
+          <Button asChild>
+            <Link href="/signup">Sign Up</Link>
           </Button>
         </div>
         <div className="md:hidden">
@@ -117,17 +120,24 @@ export function PublicHeader() {
             <SheetContent side="right">
               <nav className="grid gap-6 text-lg font-medium">
                 <Link href="/" className="flex items-center space-x-2">
-                    <span className="font-bold font-headline text-lg">EvenTide</span>
+                    <span className="font-logo font-bold text-lg bg-gradient-to-r from-blue-400 to-yellow-300 text-transparent bg-clip-text">EvenTide</span>
                 </Link>
                  <Link href="#" className="text-muted-foreground hover:text-foreground">Resources</Link>
                  <Link href="#" className="text-muted-foreground hover:text-foreground">Community</Link>
                  <Link href="#" className="text-muted-foreground hover:text-foreground">Magazine</Link>
+                 <Link href="#" className="text-muted-foreground hover:text-foreground">Hotel & Halls</Link>
                 {navLinks.map(link => (
                     <Link key={link.label} href={link.label} className="text-muted-foreground hover:text-foreground">{link.label}</Link>
                 ))}
                 <div className="flex flex-col space-y-2 pt-6">
                      <Button asChild>
                         <Link href="/login">Owner / Planner Login</Link>
+                    </Button>
+                     <Button asChild>
+                        <Link href="/guest-login">Guest Login</Link>
+                    </Button>
+                     <Button asChild>
+                        <Link href="/security-login">Security Login</Link>
                     </Button>
                 </div>
               </nav>
