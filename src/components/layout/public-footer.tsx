@@ -1,4 +1,4 @@
-import { Sprout, Twitter, Github, Linkedin } from 'lucide-react';
+import { Sprout, Twitter, Github, Linkedin, Instagram } from 'lucide-react';
 import Link from 'next/link';
 
 function SocialIcon({ href, children }: { href: string; children: React.ReactNode }) {
@@ -92,6 +92,9 @@ export function PublicFooter() {
             </SocialIcon>
             <SocialIcon href="#">
                 <Linkedin className="size-5" />
+            </SocialIcon>
+             <SocialIcon href="#">
+                <Instagram className="size-5" />
             </SocialIcon>
           </div>
         </div>
