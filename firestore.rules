@@ -1,437 +1,272 @@
-
 /**
- * Core Philosophy: This ruleset enforces a user-centric and event-centric security model.
- * User data is strictly private, accessible only by the owner. Event data access is managed
- * through a role-based system (owner, planner, cohost) and a public flag. Subcollections
- * inherit access rights from their parent event, requiring reads of the parent event document
- * to determine permissions.
+ * Core Philosophy: This ruleset enforces a security model centered around event collaboration and user data privacy.
+ * The primary goal is to ensure that users have exclusive control over their personal data, while event data
+ * can be securely shared among legitimate participants (owners, planners, co-hosts, etc.).
  *
- * Data Structure: The database is organized around two primary top-level collections: `/users` for
- * individual user profiles and `/events` for all event-related data. All specific event
- * information, such as guests, media, and announcements, are stored in subcollections under
- * their respective event document (e.g., /events/{eventId}/guests/{guestId}). A `/pricePlans`
- * collection holds publicly readable pricing information.
+ * Data Structure: The database is organized into several top-level collections:
+ * - /users/{userId}: Stores private user profiles, accessible only by the user themselves.
+ * - /events/{eventId}: The central hub for all event-related data. Each event document acts as a parent for numerous
+ *   subcollections that manage different aspects of the event (guests, chat, media).
+ * - /price_plans/{pricePlanId}: A public, read-only collection containing pricing information.
  *
  * Key Security Decisions:
- * - User Isolation: Users can only read and write their own profile data in `/users/{userId}`. Listing users is disabled.
- * - Event Access Control: Access to an event and its subcollections is primarily governed by the event's `isPublic` status and the user's role (owner, planner, cohost).
- * - Read-Only Public Data: The `/pricePlans` collection is readable by any user, but is not writable by clients.
- * - Owner-based write on public data: Collections like `/hotels`, `/venues`, and `/cars` can be written to by authenticated users with specific roles who are marked as the `ownerId` of the document.
- * - Default to Private: All write operations are denied by default and must be explicitly granted based on ownership or a defined role related to an event.
+ * - User Isolation: A user's profile in `/users/{userId}` is strictly private. User listing is disabled to prevent data scraping.
+ * - Event Membership: Access to an event and its subcollections is determined by a user's role (Owner, Planner, Co-host).
+ *   These roles are established by the existence of corresponding documents in subcollections like `/planners` and `/cohosts`.
+ * - Denormalization for Authorization: To secure subcollections, rules must look up roles from the parent event context.
+ *   This is achieved using `get()` to read the event's `ownerId` and `exists()` to check for planner/co-host membership documents.
+ *   While the ideal state described in the design reasoning is a denormalized `members` map on the event document, these
+ *   lookups are a necessary intermediate step given the current collection-based membership structure.
+ * - Public vs. Private Events: The `isPublic` flag on an event document dictates its visibility. Public events are readable
+ *   by anyone, while private events are restricted to event staff.
+ * - Guest Access Limitation: Due to the current data model where guest identity (`userProfileId`) is stored inside a guest
+ *   document (with a random ID), it is not possible for security rules to efficiently verify if a requesting user is a guest
+ *   for shared resources like `/chat_messages`. Therefore, access to collaborative subcollections is currently restricted to
+ *   event staff (Owners, Planners, Co-hosts) who can be securely and efficiently verified.
  *
- * Denormalization for Authorization: To enable efficient and secure rules, this ruleset relies
- * on denormalized fields on the `Event` document, specifically `ownerId` and `plannerId`, to grant
- * management permissions without extra lookups.
- *
- * CRITICAL NOTE on Data Modeling for Roles: The current structure for `eventCohosts` and `guests`
- * in subcollections makes it impossible for security rules to efficiently grant them permissions
- * for parent resources or for listing sibling resources (e.g., a guest cannot list announcements
- * for a private event). For a more robust and scalable security model, it is STRONGLY RECOMMENDED
- * to denormalize a map of participant UIDs and their roles (e.g., `{ members: {'uid1': 'owner', 'uid2': 'cohost', 'uid3': 'guest'} }`)
- * directly onto the parent `/events/{eventId}` document. This would eliminate costly `exists()` checks
- * and enable more granular, powerful rules.
+ * Prototyping Mode: These rules prioritize strong authorization (who can access what) but remain flexible on data shapes.
+ * Validation is limited to fields critical for establishing ownership and relational integrity, allowing for rapid
+ * application development and iteration.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions for improved readability and reusability.
+    // Helper Functions for Reusability and Readability
 
     /**
-     * Checks if the user is authenticated.
+     * Checks if a user is authenticated.
      */
     function isSignedIn() {
       return request.auth != null;
     }
 
     /**
-     * Checks if the currently authenticated user's UID matches the provided userId.
-     * This is the foundation of the user ownership model.
+     * Checks if the authenticated user's UID matches the provided userId.
+     * This is the primary function for enforcing document ownership.
      */
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      return isSignedIn() && request.auth.uid == userId;
     }
 
     /**
-     * Checks if the resource being operated on already exists in Firestore.
-     * Crucial for protecting against writes on non-existent documents.
+     * Checks if the document being written to already exists.
+     * CRITICAL for preventing updates or deletes on non-existent documents.
      */
     function isExistingDoc() {
       return resource != null;
     }
 
     /**
-     * Combines ownership check with an existence check for secure updates and deletes.
-     */
-    function isExistingOwner(userId) {
-      return isOwner(userId) && isExistingDoc();
-    }
-    
-    /**
-     * Gets the user's role from their profile document.
-     * Assumes a /users/{userId} structure with a 'role' field.
-     */
-    function getUserRole(userId) {
-      return get(/databases/$(database)/documents/users/$(userId)).data.role;
-    }
-
-    /**
-     * Retrieves the parent Event document for a given eventId.
-     * Used by subcollection rules to check parent document properties (e.g., isPublic, ownerId).
+     * Retrieves the parent event document data. Used by subcollection rules.
+     * This incurs a read operation but is necessary for secure context.
      */
     function getEvent(eventId) {
       return get(/databases/$(database)/documents/events/$(eventId));
     }
-    
+
     /**
-     * Retrieves the parent Venue document for a given venueId.
+     * Checks if the requesting user is the owner of the specified event.
      */
-    function getVenue(venueId) {
-        return get(/databases/$(database)/documents/venues/$(venueId));
-    }
-    
-    /**
-     * Retrieves the parent Car document for a given carId.
-     */
-    function getCar(carId) {
-        return get(/databases/$(database)/documents/cars/$(carId));
+    function isEventOwner(eventId) {
+      let eventData = getEvent(eventId).data;
+      return isSignedIn() && eventData.ownerId == request.auth.uid;
     }
 
     /**
-     * Determines if the user is an event "staff" member (Owner or Planner).
-     * This check reads the parent event document.
+     * Checks if the requesting user is listed as a planner for the event.
+     * Assumes the planner document ID is the user's UID.
      */
-    function isEventStaff(eventId) {
-      let eventDoc = getEvent(eventId).data;
-      return request.auth.uid == eventDoc.ownerId || request.auth.uid == eventDoc.plannerId;
+    function isEventPlanner(eventId) {
+      return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/planners/$(request.auth.uid));
     }
 
     /**
-     * Checks if the current user is a cohost for the event.
-     * NOTE: This check assumes the document ID in the 'eventCohosts' subcollection
-     * is the user's UID. This is a fragile pattern; denormalizing cohost UIDs onto the
-     * parent Event document is the recommended, more secure approach.
+     * Checks if the requesting user is listed as a co-host for the event.
+     * Assumes the co-host document ID is the user's UID.
      */
     function isEventCohost(eventId) {
-      return exists(/databases/$(database)/documents/events/$(eventId)/eventCohosts/$(request.auth.uid));
+      return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/cohosts/$(request.auth.uid));
     }
 
     /**
-     * Checks if a user is an organizer (Staff or Cohost) of a given event.
+     * Checks if the user is part of the event's management staff (Owner, Planner, or Co-host).
      */
-    function isEventOrganizer(eventId) {
-      return isEventStaff(eventId) || isEventCohost(eventId);
-    }
-    
-    /**
-     * Determines if a user can read data associated with a private event.
-     * This is granted to staff and cohosts.
-     * NOTE: Granting access to guests is not possible with the current data structure
-     * without denormalizing a guest list/map onto the parent Event document.
-     */
-    function canReadPrivateEventData(eventId) {
-      return isEventOrganizer(eventId);
+    function isEventStaff(eventId) {
+      return isEventOwner(eventId) || isEventPlanner(eventId) || isEventCohost(eventId);
     }
 
     /**
-     * @description Rules for user profiles. Only the owner can read or write their own profile.
+     * Determines if a user can read data within an event's context (subcollections).
+     * Grants access to event staff. Extensible to other roles if the data model allows.
+     */
+    function canReadEventData(eventId) {
+      // NOTE: Guest access is not included due to data modeling limitations.
+      // See Key Security Decisions in the main documentation block.
+      return isEventStaff(eventId);
+    }
+
+
+    /**
+     * @description Secure access to a user's private profile.
      * @path /users/{userId}
-     * @allow (get) An authenticated user ('user_abc') reading their own profile at `/users/user_abc`.
-     * @deny (get) An authenticated user ('user_xyz') attempting to read `/users/user_abc`.
-     * @principle Restricts access to a user's own data tree.
+     * @allow (create) A signed-in user (UID 'user123') creates their own profile at '/users/user123'.
+     * @deny (read) A signed-in user (UID 'user456') tries to read the profile at '/users/user123'.
+     * @principle Restricts access to a user's own data tree using path-based ownership.
      */
     match /users/{userId} {
       allow get: if isOwner(userId);
-      allow list: if false; // Disallow listing all users for privacy and security.
+      allow list: if false; // Disallow listing/querying users for privacy.
       allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if false;
+      allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.id == resource.data.id;
+      allow delete: if isOwner(userId) && isExistingDoc();
     }
 
     /**
-     * @description Rules for price plans. This data is public to all signed-in users but cannot be modified.
-     * @path /pricePlans/{pricePlanId}
-     * @allow (get) Any authenticated user reading `/pricePlans/standard`.
-     * @deny (create) Any user attempting to create a new price plan.
-     * @principle Secures static, application-wide data as read-only for clients.
-     */
-    match /pricePlans/{pricePlanId} {
-      allow get, list: if isSignedIn();
-      allow write: if false;
-    }
-
-    /**
-     * @description Rules for hotel listings. Publicly readable. Writable only by the owner Hotelier.
-     * @path /hotels/{hotelId}
-     * @allow (get, list) Any user reading hotel data.
-     * @deny (create) A non-hotelier user attempting to create a hotel listing.
-     * @principle Secures marketplace data by ownership while allowing public discovery.
-     */
-    match /hotels/{hotelId} {
-      allow get, list: if true;
-      allow create: if isSignedIn() && getUserRole(request.auth.uid) == 'Hotelier' && request.resource.data.ownerId == request.auth.uid;
-      allow update, delete: if isSignedIn() && isOwner(resource.data.ownerId);
-
-        /**
-         * @description Rules for hotel booking requests within a hotel's subcollection.
-         * @path /hotels/{hotelId}/bookings/{bookingId}
-         * @allow (create) An authenticated user creating a booking for themselves.
-         * @allow (update) The hotel owner updating the status of a booking.
-         * @principle Manages the booking lifecycle between a user and a hotelier.
-         */
-        match /bookings/{bookingId} {
-          allow get: if isSignedIn() && (isOwner(resource.data.userId) || isOwner(get(/databases/$(database)/documents/hotels/$(hotelId)).data.ownerId));
-          allow list: if isSignedIn() && isOwner(get(/databases/$(database)/documents/hotels/$(hotelId)).data.ownerId);
-          allow create: if isSignedIn() && isOwner(request.resource.data.userId);
-          allow update: if isSignedIn() && isOwner(get(/databases/$(database)/documents/hotels/$(hotelId)).data.ownerId); // Hotelier can update status
-          allow delete: if false; // Bookings should be cancelled (status update), not deleted.
-        }
-    }
-    
-    /**
-     * @description Rules for the root `bookings` collection.
-     * @path /bookings/{bookingId}
-     * @allow (list) A hotel owner can list bookings where they are the owner.
-     * @deny (get, write) No direct reads or writes on this collection.
-     */
-    match /bookings/{bookingId} {
-        allow get: if false;
-        allow list: if isSignedIn() && request.query.where.field == "hotelOwnerId" && request.query.where.value == request.auth.uid;
-        allow write: if false;
-    }
-
-
-    /**
-     * @description Rules for venue listings. Publicly readable. Writable only by the owner (Hall Owner).
-     * @path /venues/{venueId}
-     * @allow (get, list) Any user reading venue data.
-     * @deny (create) A non-Hall-Owner user attempting to create a venue listing.
-     * @principle Secures marketplace data by ownership while allowing public discovery.
-     */
-    match /venues/{venueId} {
-      allow get, list: if true;
-      allow create: if isSignedIn() && getUserRole(request.auth.uid) == 'Hall Owner' && request.resource.data.ownerId == request.auth.uid;
-      allow update, delete: if isSignedIn() && isOwner(resource.data.ownerId);
-      
-        /**
-         * @description Rules for venue booking requests within a venue's subcollection.
-         * @path /venues/{venueId}/bookings/{bookingId}
-         * @allow (create) An authenticated user creating a booking for themselves.
-         * @allow (update) The venue owner updating the status of a booking.
-         * @principle Manages the booking lifecycle between a user and a venue owner.
-         */
-        match /bookings/{bookingId} {
-          allow list: if isSignedIn() && isOwner(getVenue(venueId).data.ownerId);
-          allow get: if isSignedIn() && (isOwner(resource.data.userId) || isOwner(resource.data.venueOwnerId));
-          allow create: if isSignedIn() && isOwner(request.resource.data.userId);
-          allow update: if isSignedIn() && isOwner(getVenue(venueId).data.ownerId); // Hall Owner can update status
-          allow delete: if false; // Bookings should be cancelled (status update), not deleted.
-        }
-    }
-
-     /**
-     * @description Rules for the root `venueBookings` collection.
-     * @path /venueBookings/{bookingId}
-     * @allow (list) A venue owner can list bookings where they are the owner.
-     * @deny (get, write) No direct reads or writes on this collection.
-     */
-    match /venueBookings/{bookingId} {
-        allow get: if false;
-        allow list: if isSignedIn() && request.query.where.field == "venueOwnerId" && request.query.where.value == request.auth.uid;
-        allow create: if isSignedIn() && isOwner(request.resource.data.userId); // Allow user to create for themselves.
-        allow update: if isSignedIn() && isOwner(request.resource.data.venueOwnerId); // Allow owner to update status.
-    }
-    
-    /**
-     * @description Rules for car listings. Publicly readable. Writable only by the owner (Car Hire Service).
-     * @path /cars/{carId}
-     * @allow (get, list) Any user reading car data.
-     * @deny (create) A non-CHS user attempting to create a car listing.
-     * @principle Secures marketplace data by ownership while allowing public discovery.
-     */
-    match /cars/{carId} {
-      allow get, list: if true;
-      allow create: if isSignedIn() && getUserRole(request.auth.uid) == 'Car Hire Service' && request.resource.data.ownerId == request.auth.uid;
-      allow update, delete: if isSignedIn() && isOwner(resource.data.ownerId);
-
-      /**
-       * @description Rules for car booking requests within a car's subcollection.
-       * @path /cars/{carId}/bookings/{bookingId}
-       * @allow (create) An authenticated user creating a booking for themselves.
-       * @allow (update) The car owner updating the status of a booking.
-       */
-      match /bookings/{bookingId} {
-        allow get: if isSignedIn() && (isOwner(resource.data.userId) || isOwner(getCar(carId).data.ownerId));
-        allow list: if isSignedIn() && isOwner(getCar(carId).data.ownerId);
-        allow create: if isSignedIn() && isOwner(request.resource.data.userId);
-        allow update: if isSignedIn() && isOwner(getCar(carId).data.ownerId);
-        allow delete: if false; // Bookings should be cancelled (status update), not deleted.
-      }
-    }
-    
-    /**
-     * @description Rules for the root `carBookings` collection.
-     * @path /carBookings/{bookingId}
-     * @allow (list) A CHS provider can list bookings where they are the owner.
-     * @deny (get, write) No direct reads or writes on this collection.
-     */
-    match /carBookings/{bookingId} {
-        allow get: if false;
-        allow list: if isSignedIn() && request.query.where.field == "carOwnerId" && request.query.where.value == request.auth.uid;
-        allow write: if false;
-    }
-
-
-    /**
-     * @description Rules for testimonials. Any authenticated user can create a testimonial.
-     * Testimonials are not readable, updatable or deletable by clients.
-     * @path /testimonials/{testimonialId}
-     * @allow (create) Any authenticated user creating a testimonial.
-     * @deny (get, list, update, delete) All other operations are disallowed.
-     * @principle Allow-listing writes and defaulting to deny for reads and modifications.
-     */
-    match /testimonials/{testimonialId} {
-        allow get, list: if false;
-        allow create: if isSignedIn();
-        allow update, delete: if false;
-    }
-
-     /**
-     * @description Rules for advertisement requests. Any authenticated user can submit one.
-     * These are not readable, updatable or deletable by clients.
-     * @path /adRequests/{adRequestId}
-     * @allow (create) Any authenticated user creating an ad request.
-     * @deny (get, list, update, delete) All other operations are disallowed.
-     * @principle Allow-listing writes and defaulting to deny for reads and modifications.
-     */
-    match /adRequests/{adRequestId} {
-        allow get, list: if false;
-        allow create: if isSignedIn();
-        allow update, delete: if false;
-    }
-    
-    /**
-     * @description Rules for support tickets. Any authenticated user can create a support ticket.
-     * These are not readable, updatable or deletable by clients.
-     * @path /supportTickets/{ticketId}
-     * @allow (create) Any authenticated user submitting a support ticket.
-     * @deny (get, list, update, delete) All other operations are disallowed.
-     * @principle Allow-listing writes for support and defaulting to deny for reads and modifications.
-     */
-    match /supportTickets/{ticketId} {
-        allow get, list: if false;
-        allow create: if isSignedIn();
-        allow update, delete: if false;
-    }
-
-    /**
-     * @description Rules for events. Public events are readable by anyone. Private events are readable only by organizers.
-     * Only event staff can update or delete an event.
+     * @description Manages access to event documents. Public events are readable by all.
+     * Writes are restricted to the event owner.
      * @path /events/{eventId}
-     * @allow (get) Any user reading a public event document where `isPublic == true`.
-     * @deny (update) A cohost user attempting to update the event details.
-     * @principle Implements a hybrid public/private model based on a document field.
+     * @allow (read) Any user (even unauthenticated) reads an event document where `isPublic` is true.
+     * @allow (write) The user whose UID matches the `ownerId` creates a new event.
+     * @deny (read) An unauthenticated user tries to read a private event (`isPublic` is false).
+     * @deny (write) A user who is not the owner tries to delete the event.
+     * @principle Enforces a "Public Read with Owner-Only Writes" pattern.
      */
     match /events/{eventId} {
-      allow get: if resource.data.isPublic == true || canReadPrivateEventData(eventId);
-      allow list: if true; // Allows clients to query for public events. e.g., collection('events').where('isPublic', '==', true)
+      allow get: if resource.data.isPublic == true || isEventStaff(eventId);
+      allow list: if true; // Allows clients to query for public events.
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow update: if isEventStaff(eventId) && isExistingDoc();
-      allow delete: if isEventStaff(eventId) && isExistingDoc();
-      
-      /**
-       * @description Rules for event ticket tiers. Readable by public, writable only by event staff.
-       * @path /events/{eventId}/ticketTiers/{tierId}
-       */
-      match /ticketTiers/{tierId} {
-        allow get, list: if getEvent(eventId).data.isPublic == true && getEvent(eventId).data.isTicketed == true;
-        allow create, update, delete: if isEventStaff(eventId);
-      }
-      
-      /**
-       * @description Rules for event tickets. Readable by owner, writable only on creation by a signed-in user.
-       * @path /events/{eventId}/tickets/{ticketId}
-       */
-       match /tickets/{ticketId} {
-        allow get, list: if isOwner(resource.data.ownerId) || isEventStaff(eventId);
-        allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-        allow update, delete: if false; // Tickets are immutable once created.
-      }
+      allow update: if isEventOwner(eventId) && isExistingDoc() && request.resource.data.ownerId == resource.data.ownerId;
+      allow delete: if isEventOwner(eventId) && isExistingDoc();
     }
 
     /**
-     * @description Rules for event guests. Organizers can manage the guest list. Guests can view their own guest document.
+     * @description Manages the guest list for an event.
      * @path /events/{eventId}/guests/{guestId}
-     * @allow (get) An organizer reading any guest document in their event.
-     * @deny (list) A regular guest attempting to list all other guests for the event.
-     * @principle Derives permissions from a parent document's role-based access control.
+     * @allow (read) An event staff member reads the details of a guest. A guest reads their own details.
+     * @allow (write) An event staff member adds, updates, or removes a guest from the list.
+     * @deny (list) A random user tries to list all guests for an event.
+     * @principle Access is delegated from the parent event, controlled by event staff roles.
      */
     match /events/{eventId}/guests/{guestId} {
-      allow get: if isEventOrganizer(eventId) || isOwner(resource.data.userProfileId);
-      allow list: if isEventOrganizer(eventId);
-      allow create: if isEventOrganizer(eventId) && request.resource.data.eventId == eventId;
-      allow update: if isEventOrganizer(eventId) && request.resource.data.eventId == resource.data.eventId;
-      allow delete: if isEventOrganizer(eventId) && isExistingDoc();
+      allow get: if canReadEventData(eventId) || isOwner(guestId);
+      allow list: if canReadEventData(eventId);
+      allow create: if isEventStaff(eventId) && request.resource.data.eventId == eventId;
+      allow update: if (isEventStaff(eventId) || isOwner(guestId)) && isExistingDoc();
+      allow delete: if isEventStaff(eventId) && isExistingDoc();
     }
 
     /**
-     * @description Rules for event announcements. Readable by participants of public events or organizers of private events.
-     * Writable only by event organizers.
-     * @path /events/{eventId}/announcements/{announcementId}
-     * @allow (create) An event planner creating a new announcement for their event.
-     * @deny (delete) A user trying to delete an announcement written by another user.
-     * @principle Enforces creator ownership for modifications while allowing broader read access based on parent context.
+     * @description Manages the planner list for an event. Only the event owner can modify this list.
+     * @path /events/{eventId}/planners/{plannerId}
+     * @allow (create) The event owner adds a new planner to the event.
+     * @deny (delete) A planner tries to remove another planner from the event.
+     * @principle Membership management is restricted to the primary resource owner.
      */
-    match /events/{eventId}/announcements/{announcementId} {
-      allow get, list: if getEvent(eventId).data.isPublic == true || canReadPrivateEventData(eventId);
-      allow create: if isEventOrganizer(eventId) && request.resource.data.authorId == request.auth.uid && request.resource.data.eventId == eventId;
-      allow update: if isOwner(resource.data.authorId) && request.resource.data.authorId == resource.data.authorId;
-      allow delete: if isExistingOwner(resource.data.authorId);
+    match /events/{eventId}/planners/{plannerId} {
+      allow get, list: if canReadEventData(eventId);
+      allow create: if isEventOwner(eventId) && request.resource.data.eventId == eventId && request.resource.data.plannerId == plannerId;
+      allow update: if isEventOwner(eventId) && isExistingDoc();
+      allow delete: if isEventOwner(eventId) && isExistingDoc();
     }
 
     /**
-     * @description Rules for event chat messages. Readable by participants. Writable by organizers.
-     * @path /events/{eventId}/chats/{chatId}
-     * @allow (create) A cohost sending a message in the event chat.
-     * @deny (update) A user trying to edit a message sent by someone else.
-     * @principle Secures communication channels based on event participation and message ownership.
+     * @description Manages the co-host list for an event. Only the event owner can modify this list.
+     * @path /events/{eventId}/cohosts/{cohostId}
+     * @allow (create) The event owner adds a new co-host to the event.
+     * @deny (delete) A co-host tries to remove another co-host from the event.
+     * @principle Membership management is restricted to the primary resource owner.
      */
-    match /events/{eventId}/chats/{chatId} {
-      allow get, list: if getEvent(eventId).data.isPublic == true || canReadPrivateEventData(eventId);
-      allow create: if isEventOrganizer(eventId) && request.resource.data.senderId == request.auth.uid && request.resource.data.eventId == eventId;
-      allow update: if isOwner(resource.data.senderId) && request.resource.data.senderId == resource.data.senderId;
-      allow delete: if isExistingOwner(resource.data.senderId);
+    match /events/{eventId}/cohosts/{cohostId} {
+      allow get, list: if canReadEventData(eventId);
+      allow create: if isEventOwner(eventId) && request.resource.data.eventId == eventId && request.resource.data.cohostId == cohostId;
+      allow update: if isEventOwner(eventId) && isExistingDoc();
+      allow delete: if isEventOwner(eventId) && isExistingDoc();
     }
 
     /**
-     * @description Rules for event media. Readable based on event privacy. Writable by organizers.
-     * Deletable by the uploader or event staff.
+     * @description Secures the chat messages for an event.
+     * @path /events/{eventId}/chat_messages/{messageId}
+     * @allow (create) An event staff member sends a message.
+     * @deny (read) A user not associated with the event tries to read chat messages.
+     * @principle Access is restricted to verified event staff. Messages are immutable.
+     */
+    match /events/{eventId}/chat_messages/{messageId} {
+      allow get, list: if canReadEventData(eventId);
+      allow create: if isEventStaff(eventId) && request.resource.data.senderId == request.auth.uid && request.resource.data.eventId == eventId;
+      allow update: if false; // Chat messages should be immutable.
+      allow delete: if (isEventStaff(eventId) || isOwner(resource.data.senderId)) && isExistingDoc();
+    }
+
+    /**
+     * @description Secures the media gallery for an event.
      * @path /events/{eventId}/media/{mediaId}
-     * @allow (create) An event owner uploading a photo.
-     * @deny (delete) A cohost attempting to delete a photo uploaded by the event owner.
-     * @principle Provides flexible read access while strictly controlling creation and deletion based on roles.
+     * @allow (create) An event staff member uploads a photo.
+     * @deny (delete) A random user tries to delete a photo from the event's gallery.
+     * @principle Access is restricted to verified event staff. Media uploads are immutable.
      */
     match /events/{eventId}/media/{mediaId} {
-      allow get, list: if getEvent(eventId).data.isPublic == true || canReadPrivateEventData(eventId);
-      allow create: if isEventOrganizer(eventId) && request.resource.data.uploaderId == request.auth.uid && request.resource.data.eventId == eventId;
-      allow update: if false; // Media uploads are typically immutable.
+      allow get, list: if canReadEventData(eventId);
+      allow create: if isEventStaff(eventId) && request.resource.data.uploaderId == request.auth.uid && request.resource.data.eventId == eventId;
+      allow update: if false; // Media metadata is immutable.
       allow delete: if (isEventStaff(eventId) || isOwner(resource.data.uploaderId)) && isExistingDoc();
     }
 
     /**
-     * @description Rules for event cohosts. Only event staff (owner, planner) can manage the list of cohosts.
-     * @path /events/{eventId}/eventCohosts/{eventCohostId}
-     * @allow (create) The event owner adding a new cohost.
-     * @deny (delete) A cohost trying to remove another cohost.
-     * @principle Restricts management of roles to higher-privileged users.
+     * @description Publicly readable pricing plan information.
+     * @path /price_plans/{pricePlanId}
+     * @allow (read) Any client application can read the available price plans.
+     * @deny (write) No client can create, update, or delete price plans.
+     * @principle Defines a public, read-only data collection.
      */
-    match /events/{eventId}/eventCohosts/{eventCohostId} {
-      allow get, list: if getEvent(eventId).data.isPublic == true || canReadPrivateEventData(eventId);
+    match /price_plans/{pricePlanId} {
+      allow get, list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Manages the assigned pricing plan for an event.
+     * @path /events/{eventId}/event_pricing/{pricingId}
+     * @allow (create) The event owner assigns a pricing plan to their event.
+     * @deny (update) Anyone other than the event owner tries to change the event's plan.
+     * @principle Access is delegated from the parent event and restricted to the owner.
+     */
+    match /events/{eventId}/event_pricing/{pricingId} {
+      allow get, list: if canReadEventData(eventId);
+      allow create: if isEventOwner(eventId) && request.resource.data.eventId == eventId;
+      allow update: if isEventOwner(eventId) && isExistingDoc();
+      allow delete: if isEventOwner(eventId) && isExistingDoc();
+    }
+
+    /**
+     * @description Manages sensitive security codes for an event.
+     * @path /events/{eventId}/security_codes/{securityCodeId}
+     * @allow (read) An event staff member views a security code.
+     * @deny (list) A security person tries to list all other security codes.
+     * @principle Access to sensitive data is highly restricted to management roles.
+     */
+    match /events/{eventId}/security_codes/{securityCodeId} {
+      allow get: if isEventStaff(eventId) || isOwner(securityCodeId);
+      allow list: if isEventStaff(eventId);
       allow create: if isEventStaff(eventId) && request.resource.data.eventId == eventId;
-      allow update: if isEventStaff(eventId) && request.resource.data.eventId == resource.data.eventId;
+      allow update: if isEventStaff(eventId) && isExistingDoc();
+      allow delete: if isEventStaff(eventId) && isExistingDoc();
+    }
+
+    /**
+     * @description Manages announcements for an event.
+     * @path /events/{eventId}/announcements/{announcementId}
+     * @allow (create) An event staff member posts a new announcement.
+     * @deny (update) A guest or random user tries to edit an announcement.
+     * @principle Content creation and moderation is restricted to verified event staff.
+     */
+    match /events/{eventId}/announcements/{announcementId} {
+      allow get, list: if canReadEventData(eventId);
+      allow create: if isEventStaff(eventId) && request.resource.data.authorId == request.auth.uid && request.resource.data.eventId == eventId;
+      allow update: if isEventStaff(eventId) && isExistingDoc();
       allow delete: if isEventStaff(eventId) && isExistingDoc();
     }
   }
 }
-
-    
