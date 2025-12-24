@@ -23,8 +23,8 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { useFirestore } from "@/firebase";
-import { addDoc, collection } from "firebase/firestore";
+// import { useFirestore } from "@/firebase";
+// import { addDoc, collection } from "firebase/firestore";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Please enter your name or business name." }),
@@ -37,7 +37,7 @@ const formSchema = z.object({
 export function TestimonialForm() {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
-    const firestore = useFirestore();
+    // const firestore = useFirestore();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -48,15 +48,17 @@ export function TestimonialForm() {
     });
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        if (!firestore) return;
+        // if (!firestore) return;
         setIsLoading(true);
         try {
-            const docRef = await addDoc(collection(firestore, "testimonials"), {
-                ...values,
-                isApproved: false,
-                createdAt: new Date(),
-            });
-            console.log("Testimonial submitted with ID: ", docRef.id);
+            // const docRef = await addDoc(collection(firestore, "testimonials"), {
+            //     ...values,
+            //     isApproved: false,
+            //     createdAt: new Date(),
+            // });
+            // console.log("Testimonial submitted with ID: ", docRef.id);
+
+            console.log("Testimonial submitted:", values);
 
             toast({
                 title: "Submission Received!",
