@@ -2,7 +2,7 @@
 import { Card, CardDescription, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Users, LifeBuoy } from 'lucide-react';
+import { Users, FileQuestion } from 'lucide-react';
 
 export default function UserAdminDashboardPage() {
   return (
@@ -14,23 +14,23 @@ export default function UserAdminDashboardPage() {
         <div className="grid md:grid-cols-2 gap-8">
             <Card className="flex flex-col">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Users /> User Management</CardTitle>
-                    <CardDescription>Assign roles and manage all platform users.</CardDescription>
+                    <CardTitle className="flex items-center gap-2"><Users /> User Console</CardTitle>
+                    <CardDescription>View, search, and manage roles for all non-administrative users on the platform.</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow flex items-end">
                     <Button asChild>
-                        <Link href="/admin/user/users">Go to User Management</Link>
+                        <Link href="/admin/user/users">Go to User Console</Link>
                     </Button>
                 </CardContent>
             </Card>
             <Card className="flex flex-col">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><LifeBuoy /> Support Tickets</CardTitle>
-                    <CardDescription>View and resolve user-submitted support requests.</CardDescription>
+                    <CardTitle className="flex items-center gap-2"><FileQuestion /> Support Tickets</CardTitle>
+                    <CardDescription>View, track, and manage all user-submitted support requests and inquiries.</CardDescription>
                 </CardHeader>
                  <CardContent className="flex-grow flex items-end">
                     <Button asChild>
-                        <Link href="/admin/user/support-tickets">Go to Support Tickets</Link>
+                        <Link href="/admin/user/support-tickets">Go to Ticket Queue</Link>
                     </Button>
                 </CardContent>
             </Card>
