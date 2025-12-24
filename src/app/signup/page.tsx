@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import {
   Card,
@@ -7,14 +8,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { SignUpForm } from "@/components/auth/signup-form";
+import { Logo } from "@/components/layout/logo";
 
 export default function SignUpPage() {
   return (
     <Card className="mx-auto max-w-sm w-full">
-      <CardHeader>
-        <CardTitle className="text-2xl font-headline">Create an Account</CardTitle>
+      <CardHeader className="items-center">
+        <Logo />
+        <CardTitle className="text-2xl font-headline pt-4">Create an Account</CardTitle>
         <CardDescription>
-          Enter your information to create an account
+          Join EvenTide to start planning your perfect event.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -22,7 +25,7 @@ export default function SignUpPage() {
         <div className="mt-4 text-center text-sm">
           Already have an account?{" "}
           <Link href="/login" className="underline text-primary">
-            Login
+            Sign In
           </Link>
         </div>
       </CardContent>

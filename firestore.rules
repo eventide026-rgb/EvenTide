@@ -138,7 +138,7 @@ service cloud.firestore {
       allow list: if false; // Disallow listing all users for privacy and security.
       allow create: if isOwner(userId) && request.resource.data.id == userId;
       allow update: if isOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(userId);
+      allow delete: if false;
     }
 
     /**
