@@ -1,10 +1,10 @@
+
 'use client';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { ChevronDown, Menu } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,37 +13,53 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import Image from 'next/image';
 
 const navLinks: { label: string, href: string }[] = [];
+
+const resourceLinks = [
+    { href: "#", label: "What is EvenTide" },
+    { href: "#", label: "How to Use EvenTide" },
+    { href: "#", label: "Meet Eni" },
+    { href: "/about", label: "About Us" },
+    { href: "#testimonials", label: "Testimonials" },
+]
 
 const HeaderContent = () => (
   <div className="container flex h-16 max-w-screen-lg items-center rounded-full border border-border/40 bg-background/60 p-2 shadow-lg backdrop-blur-lg">
     <Link href="/" className="mr-6 flex items-center space-x-2">
       <span className="font-logo font-bold text-lg bg-gradient-to-r from-blue-400 to-yellow-300 text-transparent bg-clip-text">EvenTide</span>
     </Link>
-    <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost">Resources</Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem asChild>
-            <Link href="#">What is EvenTide</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="#">How to Use EvenTide</Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="#">Meet Eni</Link>
-          </DropdownMenuItem>
-           <DropdownMenuItem asChild>
-            <Link href="/about">About Us</Link>
-          </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-            <Link href="#testimonials">Testimonials</Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <nav className="hidden md:flex items-center space-x-1 text-sm font-medium">
+       <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost">
+            Resources <ChevronDown className="ml-1 h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-64 p-2">
+          <div className="relative h-24 w-full mb-2 rounded-md overflow-hidden">
+            <Image 
+                src="https://picsum.photos/seed/desk/600/400"
+                alt="A person learning at a desk"
+                fill
+                className="object-cover"
+            />
+          </div>
+          <div className="grid gap-1">
+          {resourceLinks.map(link => (
+            <Link 
+              key={link.label}
+              href={link.href}
+              className="rounded-md p-2 text-sm hover:bg-accent"
+            >
+              {link.label}
+            </Link>
+          ))}
+          </div>
+        </PopoverContent>
+      </Popover>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
