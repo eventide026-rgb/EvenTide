@@ -27,6 +27,11 @@ import { Logo } from '@/components/layout/logo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -97,7 +102,7 @@ const sidebarNav = [
 const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
     const pathname = usePathname();
     return (
-        <div className="absolute left-full top-0 -mt-2 ml-2 w-56 origin-left rounded-md bg-background border shadow-lg p-2 transition-all duration-200 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
+        <>
             <h3 className="px-3 py-2 text-sm font-semibold text-muted-foreground">{navGroup.title}</h3>
             <ul>
                  {navGroup.links.map(link => (
@@ -115,7 +120,7 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
                     </li>
                 ))}
             </ul>
-        </div>
+        </>
     )
 }
 
@@ -143,26 +148,31 @@ export default function PlannerDashboardLayout({ children }: { children: React.R
           <nav className="flex-1">
             <ul className="space-y-2">
               {sidebarNav.map(group => (
-                <li key={group.title} className="group relative">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link
-                        href={group.links[0].href}
-                        className={cn(
-                            "flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-accent",
-                            group.links.some(l => pathname.startsWith(l.href)) ? "bg-accent text-accent-foreground" : ""
-                        )}
-                      >
-                        <group.icon className="h-5 w-5" />
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="right" className="md:hidden">
-                      {group.title}
-                    </TooltipContent>
-                  </Tooltip>
-                  <div className="hidden md:block">
-                     <FlyoutMenu navGroup={group} />
-                  </div>
+                <li key={group.title}>
+                  <Popover>
+                    <Tooltip>
+                      <PopoverTrigger asChild>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className={cn(
+                                "h-10 w-10 rounded-lg",
+                                group.links.some(l => pathname.startsWith(l.href)) ? "bg-accent text-accent-foreground" : ""
+                            )}
+                          >
+                            <group.icon className="h-5 w-5" />
+                          </Button>
+                        </TooltipTrigger>
+                      </PopoverTrigger>
+                      <TooltipContent side="right" className="md:hidden">
+                        {group.title}
+                      </TooltipContent>
+                    </Tooltip>
+                    <PopoverContent side="right" align="start" className="ml-2 w-56 p-2 hidden md:block">
+                       <FlyoutMenu navGroup={group} />
+                    </PopoverContent>
+                  </Popover>
                 </li>
               ))}
             </ul>
