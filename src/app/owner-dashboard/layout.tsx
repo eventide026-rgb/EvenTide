@@ -20,6 +20,8 @@ import {
   Bell,
   LogOut,
   ClipboardList,
+  Contact,
+  ShieldCheck,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
