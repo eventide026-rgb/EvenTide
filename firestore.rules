@@ -73,7 +73,7 @@ service cloud.firestore {
 
     match /users/{userId} {
       // Any signed-in user can read any other user's profile for discovery purposes.
-      allow get, list: if isSignedIn();
+      allow list, get: if isSignedIn();
       allow create: if request.auth.uid == userId;
       allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.id == resource.data.id;
       allow delete: if isOwner(userId) && isExistingDoc();
@@ -164,8 +164,13 @@ service cloud.firestore {
 
       match /fashionContracts/{contractId} {
           allow create: if isEventOwner(eventId) && request.resource.data.ownerId == request.auth.uid;
-          allow read, update: if isEventOwner(eventId) || isOwner(request.resource.data.designerId);
+          allow read, update: if isEventOwner(eventId) || isOwner(resource.data.designerId);
           allow delete: if isEventOwner(eventId);
+
+          match /messages/{messageId} {
+            allow read, create: if isEventOwner(eventId) || isEventPlanner(eventId) || isOwner(get(/databases/$(database)/documents/events/$(eventId)/fashionContracts/$(contractId)).data.designerId);
+            allow update, delete: if isOwner(resource.data.senderId);
+          }
       }
     }
     
