@@ -72,6 +72,11 @@ service cloud.firestore {
       allow create: if request.auth.uid == userId && request.resource.data.id == userId;
       allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.id == resource.data.id;
       allow delete: if isOwner(userId) && isExistingDoc();
+      
+      // Notifications can only be accessed by the user they belong to.
+      match /notifications/{notificationId} {
+        allow read, write: if isOwner(userId);
+      }
     }
 
     match /ticketiers/{ticketierId} {

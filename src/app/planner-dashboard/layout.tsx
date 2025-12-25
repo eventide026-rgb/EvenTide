@@ -41,6 +41,7 @@ import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
+import { NotificationBell } from '@/components/layout/notification-bell';
 
 const sidebarNav = [
     {
@@ -48,7 +49,6 @@ const sidebarNav = [
         icon: Home,
         links: [
             { href: "/planner-dashboard", label: "Dashboard", icon: LayoutDashboard },
-            { href: "/planner-dashboard/notifications", label: "Notifications", icon: Bell },
             { href: "/planner-dashboard/calendar", label: "Calendar", icon: Calendar },
             { href: "/planner-dashboard/profile", label: "My Profile", icon: User },
         ]
@@ -178,6 +178,7 @@ export default function PlannerDashboardLayout({ children }: { children: React.R
             </ul>
           </nav>
            <div className="mt-auto flex flex-col items-center gap-4">
+                 <NotificationBell />
                  <Tooltip>
                     <TooltipTrigger asChild>
                        <Link href="/planner-dashboard/profile">

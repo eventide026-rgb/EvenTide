@@ -21,11 +21,13 @@ import {
   PartyPopper,
   Ticket,
   User,
+  Bell,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/layout/logo";
 import { useAuth } from "@/firebase";
 import { signOut } from "firebase/auth";
+import { NotificationBell } from "@/components/layout/notification-bell";
 
 const navItems = [
   { href: "/ticketier-dashboard", icon: Home, label: "Dashboard" },
@@ -82,6 +84,9 @@ export default function TicketierDashboardLayout({ children }: { children: React
         </SidebarContent>
         <SidebarFooter>
            <SidebarMenu>
+             <SidebarMenuItem>
+                <NotificationBell />
+            </SidebarMenuItem>
             <SidebarMenuItem>
                 <Link href="/ticketier-dashboard/profile" legacyBehavior passHref>
                     <SidebarMenuButton 

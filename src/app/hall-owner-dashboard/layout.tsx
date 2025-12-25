@@ -22,11 +22,13 @@ import {
   Home,
   LogOut,
   User,
+  Bell,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/layout/logo";
 import { useAuth } from "@/firebase";
 import { signOut } from "firebase/auth";
+import { NotificationBell } from "@/components/layout/notification-bell";
 
 const navItems = [
   { href: "/hall-owner-dashboard", icon: Home, label: "Dashboard" },
@@ -84,6 +86,9 @@ export default function HallOwnerDashboardLayout({ children }: { children: React
         </SidebarContent>
         <SidebarFooter>
            <SidebarMenu>
+            <SidebarMenuItem>
+                <NotificationBell />
+            </SidebarMenuItem>
             <SidebarMenuItem>
                 <Link href="/hall-owner-dashboard/profile" legacyBehavior passHref>
                     <SidebarMenuButton 

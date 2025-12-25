@@ -497,6 +497,21 @@
         }
       },
       "required": ["title", "introduction", "eventSummaries", "advertisement", "status", "createdAt"]
+    },
+    "Notification": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Notification",
+        "type": "object",
+        "description": "Represents a single notification for a user.",
+        "properties": {
+            "id": { "type": "string", "description": "Unique identifier for the notification." },
+            "userId": { "type": "string", "description": "The ID of the user who receives the notification." },
+            "message": { "type": "string", "description": "The content of the notification message." },
+            "link": { "type": "string", "description": "A URL path to navigate to when the notification is clicked." },
+            "read": { "type": "boolean", "description": "Flag indicating if the notification has been read." },
+            "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the notification was created." }
+        },
+        "required": ["id", "userId", "message", "link", "read", "createdAt"]
     }
   },
   "auth": {
@@ -514,6 +529,18 @@
           "schema": { "$ref": "#/backend/entities/UserProfile" },
           "description": "Stores user profile information. Path-based ownership ensures only the user can access their own profile.",
           "params": [{ "name": "userId", "description": "The unique identifier of the user. Corresponds to the Firebase Auth UID." }]
+        }
+      },
+      {
+        "path": "/users/{userId}/notifications/{notificationId}",
+        "definition": {
+            "entityName": "Notification",
+            "schema": { "$ref": "#/backend/entities/Notification" },
+            "description": "Stores notifications for a specific user. Only the user can read or write to their own notifications.",
+            "params": [
+                { "name": "userId", "description": "The unique identifier of the user." },
+                { "name": "notificationId", "description": "The unique identifier of the notification." }
+            ]
         }
       },
       {
@@ -688,6 +715,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging. Public, ticketed shows created by Ticketiers are stored in a top-level `/shows` collection, separating them from private events created by Hosts, which are stored in the `/events` collection. This structural segregation improves query performance and simplifies security rules. User data is kept in a separate `/users` collection, and public Ticketier profiles are in `/ticketiers`, both secured by path-based ownership. Subcollections for shows (like `ticketTiers` and `tickets`) and events (like `guests` and `planners`) are nested under their parent documents, ensuring data locality and enabling targeted queries and security."
+    "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging. Public, ticketed shows created by Ticketiers are stored in a top-level `/shows` collection, separating them from private events created by Hosts, which are stored in the `/events` collection. This structural segregation improves query performance and simplifies security rules. User data is kept in a separate `/users` collection, and public Ticketier profiles are in `/ticketiers`, both secured by path-based ownership. Subcollections for shows (like `ticketTiers` and `tickets`) and events (like `guests` and `planners`) are nested under their parent documents, ensuring data locality and enabling targeted queries and security. A dedicated `notifications` subcollection under each user provides a private, real-time channel for alerts."
   }
 }

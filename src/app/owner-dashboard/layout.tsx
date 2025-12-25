@@ -5,6 +5,7 @@ import {
   Briefcase,
   Calendar,
   CheckSquare,
+  Contact,
   CreditCard,
   Gift,
   Home,
@@ -20,11 +21,10 @@ import {
   Bell,
   LogOut,
   ClipboardList,
-  Contact,
   ShieldCheck,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Logo } from '@/components/layout/logo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -39,12 +39,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useState } from 'react';
-import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
+import { NotificationBell } from '@/components/layout/notification-bell';
 
 const sidebarNav = [
     {
@@ -52,9 +51,8 @@ const sidebarNav = [
         icon: Home,
         links: [
             { href: "/owner-dashboard", label: "Dashboard", icon: LayoutDashboard },
-            { href: "/owner-dashboard/notifications", label: "Notifications", icon: Bell },
-            { href: "/owner-dashboard/calendar", label: "Calendar", icon: Calendar },
             { href: "/owner-dashboard/analytics", label: "Analytics", icon: Percent },
+            { href: "/owner-dashboard/calendar", label: "Calendar", icon: Calendar },
         ]
     },
     {
@@ -186,6 +184,7 @@ export default function OwnerDashboardLayout({ children }: { children: React.Rea
             </ul>
           </nav>
            <div className="mt-auto flex flex-col items-center gap-4">
+                 <NotificationBell />
                  <Tooltip>
                     <TooltipTrigger asChild>
                        <Link href="/owner-dashboard/account">
