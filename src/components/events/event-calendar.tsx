@@ -130,7 +130,7 @@ export function EventCalendar() {
                         }}
                         components={{
                             Day: (props) => {
-                                if (props.displayMonth.getMonth() !== props.date.getMonth()) {
+                                if (!props.date || props.displayMonth.getMonth() !== props.date.getMonth()) {
                                     return <div />;
                                 }
                                 return <DayWithDot {...props}/>;
