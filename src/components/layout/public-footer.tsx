@@ -66,9 +66,9 @@ export function PublicFooter() {
       <div className="container mx-auto px-4 py-12 md:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
             <div className="lg:col-span-4 flex flex-col text-center lg:text-left items-center lg:items-start">
-                 <div className="flex items-center space-x-2 mb-4">
+                 <Link href="/" className="flex items-center space-x-2 mb-4">
                     <Logo />
-                </div>
+                </Link>
                 <p className="text-muted-foreground text-sm max-w-xs">
                     AI-powered event management for unforgettable moments.
                 </p>
