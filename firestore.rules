@@ -69,7 +69,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow get: if isOwner(userId);
       allow list: if false; 
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow create: if request.auth.uid == userId && request.resource.data.id == userId;
       allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.id == resource.data.id;
       allow delete: if isOwner(userId) && isExistingDoc();
     }
@@ -77,9 +77,15 @@ service cloud.firestore {
     match /ticketiers/{ticketierId} {
         allow get: if true;
         allow list: if true;
-        allow create: if isOwner(ticketierId);
+        allow create: if request.auth.uid == ticketierId;
         allow update: if isOwner(ticketierId);
         allow delete: if false;
+    }
+
+    match /vendors/{vendorId} {
+        allow get, list: if true;
+        allow create: if request.auth.uid == vendorId;
+        allow update, delete: if isOwner(vendorId);
     }
     
     match /shows/{showId} {
@@ -258,3 +264,4 @@ service cloud.firestore {
 
   }
 }
+
