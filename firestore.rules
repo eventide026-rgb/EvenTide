@@ -67,15 +67,13 @@ service cloud.firestore {
     }
 
     function canReadEventData(eventId) {
-      return isEventStaff(eventId);
+      return isEventStaff(eventId) || isEventGuest(eventId);
     }
 
 
     match /users/{userId} {
-      // Allow any signed-in user to get or list user documents.
-      // This is necessary for features like searching for users by email.
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
+      // Any signed-in user can read any other user's profile for discovery purposes.
+      allow get, list: if isSignedIn();
       allow create: if request.auth.uid == userId;
       allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.id == resource.data.id;
       allow delete: if isOwner(userId) && isExistingDoc();
@@ -179,7 +177,7 @@ service cloud.firestore {
 
     match /events/{eventId}/guests/{guestId} {
       allow get: if canReadEventData(eventId) || isOwner(guestId);
-      allow list: if canReadEventData(eventId);
+      allow list: if isEventStaff(eventId);
       allow create: if isEventStaff(eventId) && request.resource.data.eventId == eventId;
       allow update: if (isEventStaff(eventId) || isOwner(guestId)) && isExistingDoc();
       allow delete: if isEventStaff(eventId) && isExistingDoc();
@@ -234,10 +232,9 @@ service cloud.firestore {
     }
 
     match /events/{eventId}/announcements/{announcementId} {
-      allow get, list: if canReadEventData(eventId);
+      allow read: if canReadEventData(eventId);
       allow create: if isEventStaff(eventId) && request.resource.data.authorId == request.auth.uid && request.resource.data.eventId == eventId;
-      allow update: if isEventStaff(eventId) && isExistingDoc();
-      allow delete: if isEventStaff(eventId) && isExistingDoc();
+      allow update, delete: if isEventStaff(eventId) && isExistingDoc();
     }
     
     // Marketplace Rules

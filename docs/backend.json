@@ -518,33 +518,45 @@
       "description": "Represents announcements or notifications relating to an event.",
       "properties": {
         "id": {
-          "type": "string",
-          "description": "Unique identifier for the Announcement entity."
+          "type": "string"
         },
         "eventId": {
-          "type": "string",
-          "description": "Reference to the Event the announcement belongs to. (Relationship: Event 1:N Announcement)"
+          "type": "string"
         },
         "authorId": {
-          "type": "string",
-          "description": "Reference to the UserProfile who made the announcement. (Relationship: UserProfile 1:N Announcement)"
+          "type": "string"
+        },
+        "authorName": {
+            "type": "string"
+        },
+        "authorRole": {
+            "type": "string"
         },
         "content": {
-          "type": "string",
-          "description": "Content of the announcement."
+          "type": "string"
         },
         "timestamp": {
           "type": "string",
-          "description": "Timestamp of when the announcement was created.",
           "format": "date-time"
+        },
+        "targetGroup": {
+            "type": "string",
+            "enum": ["All Guests", "Specific Categories"]
+        },
+        "targetRoles": {
+            "type": "array",
+            "items": { "type": "string" }
         }
       },
       "required": [
         "id",
         "eventId",
         "authorId",
+        "authorName",
+        "authorRole",
         "content",
-        "timestamp"
+        "timestamp",
+        "targetGroup"
       ]
     },
     "PlannerProfile": {
