@@ -100,15 +100,18 @@ export function SignUpForm() {
         if (user) {
             const batch = writeBatch(firestore);
 
-            const userProfileData = {
+            const userProfileData: any = {
                 id: user.uid,
                 email: values.email,
                 role: values.role,
                 firstName: values.firstName,
                 lastName: values.lastName,
                 createdAt: serverTimestamp(),
-                ...(values.role === 'Vendor' && { specialty: values.vendorSpecialty }),
             };
+            
+            if (values.role === 'Vendor' || values.role === 'Fashion Designer') {
+                userProfileData.specialty = values.role === 'Fashion Designer' ? 'Fashion Designer' : values.vendorSpecialty;
+            }
             
             const userDocRef = doc(firestore, "users", user.uid);
             batch.set(userDocRef, userProfileData);
@@ -125,12 +128,12 @@ export function SignUpForm() {
                 batch.set(ticketierDocRef, ticketierProfileData);
             }
             
-            if (values.role === 'Vendor') {
+            if (values.role === 'Vendor' || values.role === 'Fashion Designer') {
                 const vendorData = {
                     id: user.uid,
                     name: `${values.firstName} ${values.lastName}`,
                     email: values.email,
-                    specialty: values.vendorSpecialty,
+                    specialty: userProfileData.specialty,
                     createdAt: serverTimestamp(),
                 };
                 const vendorDocRef = doc(firestore, 'vendors', user.uid);

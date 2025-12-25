@@ -73,7 +73,7 @@ const specialtyNavs: Record<string, any[]> = {
     "Caterer": [
         { href: "/vendor-dashboard/menu-planner", label: "Menu Planner", icon: ChefHat },
     ],
-    "MC": [
+    "MC/Host": [
         { href: "/vendor-dashboard/program-viewer", label: "Program Viewer", icon: Mic },
     ],
     "Decorator": [
@@ -115,22 +115,18 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
   const { user } = useUser();
   const firestore = useFirestore();
 
-  // This is a simplified example. In a real app, the vendor's specialty
-  // would be stored in their Firestore profile document.
-  const [specialty, setSpecialty] = useState("Photographer"); // Default or fetched from user profile
+  const [specialty, setSpecialty] = useState(""); 
 
   const userDocRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return doc(firestore, 'users', user.uid);
   }, [firestore, user]);
 
-  const { data: userProfile } = useDoc(userDocRef);
+  const { data: userProfile } = useDoc<{specialty?: string}>(userDocRef);
 
   useEffect(() => {
     if (userProfile && userProfile.specialty) {
         setSpecialty(userProfile.specialty);
-    } else if (userProfile && userProfile.role === 'Fashion Designer') {
-        setSpecialty('Fashion Designer');
     }
   }, [userProfile]);
 
