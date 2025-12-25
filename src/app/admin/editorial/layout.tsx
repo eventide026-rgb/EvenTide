@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   SidebarProvider,
   Sidebar,
@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/layout/logo";
+import { useAuth } from "@/firebase";
+import { signOut } from "firebase/auth";
 
 const navItems = [
   { href: "/admin/editorial/dashboard", icon: Home, label: "Dashboard" },
@@ -31,6 +33,15 @@ const navItems = [
 
 export default function EditorialAdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const auth = useAuth();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    if (auth) {
+      await signOut(auth);
+      router.push('/');
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -75,12 +86,10 @@ export default function EditorialAdminLayout({ children }: { children: React.Rea
                 </SidebarMenuButton>
             </SidebarMenuItem>
              <SidebarMenuItem>
-                <Link href="/" legacyBehavior passHref>
-                    <SidebarMenuButton tooltip={{ children: 'Logout' }}>
-                        <LogOut />
-                        <span>Logout</span>
-                    </SidebarMenuButton>
-                </Link>
+                <SidebarMenuButton tooltip={{ children: 'Logout' }} onClick={handleSignOut}>
+                    <LogOut />
+                    <span>Logout</span>
+                </SidebarMenuButton>
             </SidebarMenuItem>
            </SidebarMenu>
         </SidebarFooter>

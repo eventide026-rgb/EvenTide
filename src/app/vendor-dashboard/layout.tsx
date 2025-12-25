@@ -23,7 +23,7 @@ import {
   Shirt,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Logo } from '@/components/layout/logo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -36,8 +36,8 @@ import {
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
-import { useUser, useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { useUser, useDoc, useFirestore, useMemoFirebase, useAuth } from '@/firebase';
+import { doc, signOut } from 'firebase/auth';
 
 
 const baseNav = [
@@ -114,6 +114,8 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
   const pathname = usePathname();
   const { user } = useUser();
   const firestore = useFirestore();
+  const auth = useAuth();
+  const router = useRouter();
 
   const [specialty, setSpecialty] = useState(""); 
 
@@ -131,6 +133,14 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
   }, [userProfile]);
 
   const specialtyLinks = specialtyNavs[specialty] || [];
+
+  const handleSignOut = async () => {
+    if (auth) {
+      await signOut(auth);
+      router.push('/');
+    }
+  };
+
 
   return (
     <TooltipProvider>
@@ -204,11 +214,9 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
                 </Tooltip>
                  <Tooltip>
                     <TooltipTrigger asChild>
-                       <Link href="/">
-                            <Button variant="ghost" size="icon">
-                                <LogOut className="h-5 w-5" />
-                            </Button>
-                       </Link>
+                        <Button variant="ghost" size="icon" onClick={handleSignOut}>
+                            <LogOut className="h-5 w-5" />
+                        </Button>
                     </TooltipTrigger>
                     <TooltipContent side="right">
                         Logout

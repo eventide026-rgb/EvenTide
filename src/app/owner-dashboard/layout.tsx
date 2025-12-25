@@ -41,6 +41,9 @@ import {
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 const sidebarNav = [
     {
@@ -132,6 +135,15 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
 
 export default function OwnerDashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const auth = useAuth();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    if (auth) {
+      await signOut(auth);
+      router.push('/');
+    }
+  };
 
   return (
     <TooltipProvider>
@@ -184,11 +196,9 @@ export default function OwnerDashboardLayout({ children }: { children: React.Rea
                 </Tooltip>
                  <Tooltip>
                     <TooltipTrigger asChild>
-                       <Link href="/">
-                            <Button variant="ghost" size="icon">
-                                <LogOut className="h-5 w-5" />
-                            </Button>
-                       </Link>
+                       <Button variant="ghost" size="icon" onClick={handleSignOut}>
+                          <LogOut className="h-5 w-5" />
+                       </Button>
                     </TooltipTrigger>
                     <TooltipContent side="right">
                         Logout
