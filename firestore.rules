@@ -84,6 +84,12 @@ service cloud.firestore {
       }
     }
 
+    match /plannerProfiles/{plannerId} {
+        allow get, list: if true;
+        allow create: if request.auth.uid == plannerId;
+        allow update, delete: if isOwner(plannerId);
+    }
+
     match /ticketiers/{ticketierId} {
         allow get: if true;
         allow list: if true;

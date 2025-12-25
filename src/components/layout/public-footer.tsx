@@ -21,7 +21,7 @@ const footerLinks = {
     community: [
         { href: "/guest-login", label: "Guest Login" },
         { href: "/security-login", label: "Security Login" },
-        { href: "#", label: "Find Planners" },
+        { href: "/resources/planners", label: "Find Planners" },
         { href: "#", "label": "Find Vendors" },
         { href: "/resources/submit-testimonial", label: "Submit a Testimonial" },
         { href: "/advertise", label: "Advertise" },

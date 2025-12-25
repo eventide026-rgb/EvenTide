@@ -74,7 +74,7 @@ const sidebarNav = [
         ]
     },
     {
-        title: "Planner & Fashion",
+        title: "Marketplace",
         icon: Briefcase,
         links: [
             { href: "/resources/planners", label: "Find a Planner", icon: Search },

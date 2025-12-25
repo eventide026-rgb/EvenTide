@@ -532,6 +532,31 @@
         "timestamp"
       ]
     },
+    "PlannerProfile": {
+        "title": "PlannerProfile",
+        "type": "object",
+        "description": "Represents a public profile for an event planner.",
+        "properties": {
+            "id": { "type": "string", "description": "The user's UID, linking to their UserProfile." },
+            "name": { "type": "string", "description": "The planner's public display name." },
+            "email": { "type": "string", "format": "email" },
+            "city": { "type": "string" },
+            "state": { "type": "string" },
+            "bio": { "type": "string", "description": "A professional biography." },
+            "avatarUrl": { "type": "string", "format": "uri" },
+            "portfolio": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "imageUrl": { "type": "string", "format": "uri" },
+                        "description": { "type": "string" }
+                    }
+                }
+            }
+        },
+        "required": ["id", "name", "email"]
+    },
     "Ticketier": {
         "title": "Ticketier",
         "type": "object",
@@ -655,6 +680,15 @@
                 { "name": "userId", "description": "The unique identifier of the user." },
                 { "name": "notificationId", "description": "The unique identifier of the notification." }
             ]
+        }
+      },
+      {
+        "path": "/plannerProfiles/{plannerId}",
+        "definition": {
+          "entityName": "PlannerProfile",
+          "schema": { "$ref": "#/backend/entities/PlannerProfile" },
+          "description": "Stores public profiles for event planners.",
+          "params": [{ "name": "plannerId", "description": "The unique identifier of the planner, corresponding to their UID." }]
         }
       },
       {
