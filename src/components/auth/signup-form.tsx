@@ -147,7 +147,6 @@ export function SignUpForm() {
                     requestResourceData: { userProfileData },
                 });
                 errorEmitter.emit('permission-error', contextualError);
-                throw new Error("Failed to create user profile. Please contact support.");
             });
 
             sessionStorage.setItem('isNewLogin', 'true');
