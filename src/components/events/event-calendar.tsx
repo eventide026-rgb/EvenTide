@@ -129,7 +129,12 @@ export function EventCalendar() {
                             cell: "h-9 w-full text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
                         }}
                         components={{
-                            Day: DayWithDot
+                            Day: (props) => {
+                                if (props.displayMonth.getMonth() !== props.date.getMonth()) {
+                                    return <div />;
+                                }
+                                return <DayWithDot {...props}/>;
+                            }
                         }}
                     />
                 </CardContent>
