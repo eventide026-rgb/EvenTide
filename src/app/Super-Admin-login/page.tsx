@@ -15,7 +15,9 @@ export default function SuperAdminLoginPage() {
   return (
     <Card className="mx-auto max-w-sm w-full">
       <CardHeader className="items-center">
-        <Shield className="h-12 w-12 text-primary" />
+        <Link href="/">
+          <Logo />
+        </Link>
         <CardTitle className="text-2xl font-headline pt-4">Super Admin Login</CardTitle>
         <CardDescription>
           Access the platform's command center.

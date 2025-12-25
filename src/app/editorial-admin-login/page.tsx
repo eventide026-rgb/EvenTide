@@ -9,12 +9,15 @@ import {
 } from "@/components/ui/card";
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
+import { Logo } from "@/components/layout/logo";
 
 export default function EditorialAdminLoginPage() {
   return (
     <Card className="mx-auto max-w-sm w-full">
       <CardHeader className="items-center">
-        <BookOpen className="h-12 w-12 text-primary" />
+        <Link href="/">
+          <Logo />
+        </Link>
         <CardTitle className="text-2xl font-headline pt-4">Editorial Admin Login</CardTitle>
         <CardDescription>
           Access the magazine curation workspace.
