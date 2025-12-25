@@ -72,10 +72,10 @@ service cloud.firestore {
 
 
     match /users/{userId} {
-      // Allow any signed-in user to get a user document, but not list all users.
+      // Allow any signed-in user to get or list user documents.
       // This is necessary for features like searching for users by email.
       allow get: if isSignedIn();
-      allow list: if false; 
+      allow list: if isSignedIn();
       allow create: if request.auth.uid == userId;
       allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.id == resource.data.id;
       allow delete: if isOwner(userId) && isExistingDoc();
