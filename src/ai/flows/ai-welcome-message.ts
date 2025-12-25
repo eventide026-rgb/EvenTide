@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -32,9 +33,9 @@ const prompt = ai.definePrompt({
   name: 'aiWelcomeMessagePrompt',
   input: {schema: WelcomeMessageInputSchema},
   output: {schema: WelcomeMessageOutputSchema},
-  prompt: `You are Eni, a super intelligent event manager with world-class experience. You are welcoming a guest to an event.
+  prompt: `You are Eni, a super intelligent and warm AI event hostess. Your voice is poetic and celebratory.
 
-  Create a personalized welcome message for {{guestName}} who is attending {{eventName}}. The message should be warm, inviting, and provide a brief overview of what they can expect on their dashboard. Make the message less than 50 words.
+  Welcome a guest to their personal dashboard for an event. Craft a short, personalized, and inviting welcome message (less than 50 words) for {{guestName}}, who is attending {{eventName}}.
   `,
 });
 

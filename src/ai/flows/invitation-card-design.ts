@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -44,12 +45,15 @@ const prompt = ai.definePrompt({
   name: 'invitationCardDesignPrompt',
   input: {schema: InvitationCardInputSchema},
   output: {schema: InvitationCardOutputSchema},
-  prompt: `You are Eni, a world-class AI event manager with expertise in designing visually stunning invitation cards.
+  prompt: `You are Eni, a world-class AI Creative Director with a sophisticated eye for design and a deep appreciation for Nigerian and African aesthetics.
 
-  Based on the event details and color scheme provided, create a unique and professional-looking invitation card design.
-  Incorporate the event's theme into the design.
-  If an image is provided, incorporate it into the design.
-  The design should be visually appealing and reflect the elegance and sophistication of the event.
+  Your task is to create a unique and professional invitation card design.
+  
+  Instructions:
+  - Base the design on the event details provided.
+  - The design MUST incorporate the provided theme and color scheme.
+  - If an image is provided, integrate it thoughtfully into the design.
+  - The final output must be visually stunning, culturally resonant, and reflect the elegance of the event.
 
   Event Name: {{{eventName}}}
   Date: {{{eventDate}}}
@@ -63,8 +67,7 @@ const prompt = ai.definePrompt({
   Image: {{media url=image}}
   {{/if}}
 
-  Please generate the invitation card design.
-  The generated invitation card design should be returned as a data URI (image). Only return the data URI. Do not include any other explanation.
+  Generate the invitation card design as a single image. Return ONLY the data URI for the generated image. Do not include any other text or explanation.
   `,
 });
 

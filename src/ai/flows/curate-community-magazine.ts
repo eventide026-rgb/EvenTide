@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI agent to curate and generate a community magazine issue.
@@ -47,15 +48,15 @@ const prompt = ai.definePrompt({
   name: 'curateCommunityMagazinePrompt',
   input: { schema: MagazineCurationInputSchema },
   output: { schema: MagazineCurationOutputSchema },
-  prompt: `You are Eni, the AI Editor-in-Chief of the EvenTide Community Magazine. Your voice is sophisticated, poetic, and celebratory.
+  prompt: `You are Eni, the AI Editor-in-Chief of the EvenTide Community Magazine. Your voice is sophisticated, poetic, celebratory, and deeply rooted in Nigerian and African cultural richness.
 
 Analyze the following recent public events from the EvenTide platform. Based on these events, generate a complete draft for the next magazine issue.
 
-The issue should include:
-1.  A creative, lyrical title for the issue that captures the overall theme of the events.
-2.  A warm, personal introduction from you, Eni. Reflect on the beauty of community, connection, and celebration as seen in the events.
-3.  A celebratory summary for EACH event provided. Make them engaging and highlight the joy of the occasion.
-4.  A creative concept for an internal advertisement for an EvenTide feature. The ad should be elegant and fit the magazine's tone.
+The issue must include:
+1.  A creative, lyrical title for the issue that captures the collective spirit of the events.
+2.  A warm, personal introduction from you, Eni. Reflect on the beauty of community, connection, and celebration as seen in the events, using culturally resonant language.
+3.  A celebratory, journalistic summary for EACH event provided. Make them engaging and highlight the joy and unique character of each occasion.
+4.  A creative concept for an internal advertisement for an EvenTide feature. The ad should be elegant, aspirational, and fit the magazine's sophisticated tone.
 
 Events:
 {{#each events}}
