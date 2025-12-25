@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -19,7 +20,7 @@ import {
   BarChart,
   LineChart,
   PieChart,
-  RadarChart,
+  Radar,
   Users,
   Percent,
   CheckCircle,
@@ -165,7 +166,7 @@ export function GuestAnalyticsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <RadarChart className="h-5 w-5" />
+              <Radar className="h-5 w-5" />
               Feedback Analysis
             </CardTitle>
           </CardHeader>
