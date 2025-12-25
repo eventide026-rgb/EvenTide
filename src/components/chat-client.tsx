@@ -41,6 +41,7 @@ import { Label } from './ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from './ui/scroll-area';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 
 // Types
 type Event = {
