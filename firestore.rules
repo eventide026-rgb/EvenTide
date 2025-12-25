@@ -38,11 +38,11 @@ service cloud.firestore {
     function getEvent(eventId) {
       // Corrected: Read from the owner's private event document, not the public mirror.
       // We must construct the path using the owner's UID from the request.
-      return get(/databases/$(database)/documents/hosts/$(request.auth.uid)/events/$(eventId));
+      return get(/databases/$(database)/documents/events/$(eventId));
     }
 
     function isEventOwner(eventId) {
-      let eventData = get(/databases/$(database)/documents/events/$(eventId)).data;
+      let eventData = getEvent(eventId).data;
       return isSignedIn() && eventData.ownerId == request.auth.uid;
     }
 
@@ -188,6 +188,13 @@ service cloud.firestore {
             allow update, delete: if isOwner(resource.data.senderId);
           }
       }
+      
+      match /event_pricing/{pricingId} {
+        allow read: if isEventStaff(eventId);
+        allow create: if isEventOwner(eventId) && request.resource.data.eventId == eventId;
+        allow update: if isEventOwner(eventId) && isExistingDoc();
+        allow delete: if isEventOwner(eventId) && isExistingDoc();
+      }
     }
     
      match /events/{eventId}/moodboard/{moodboardId} {
@@ -233,15 +240,8 @@ service cloud.firestore {
     }
 
     match /price_plans/{pricePlanId} {
-      allow get, list: if true;
+      allow read, list: if true;
       allow create, update, delete: if false;
-    }
-
-    match /events/{eventId}/event_pricing/{pricingId} {
-      allow get, list: if canReadEventData(eventId);
-      allow create: if isEventOwner(eventId) && request.resource.data.eventId == eventId;
-      allow update: if isEventOwner(eventId) && isExistingDoc();
-      allow delete: if isEventOwner(eventId) && isExistingDoc();
     }
 
     match /events/{eventId}/security_codes/{securityCodeId} {
@@ -339,5 +339,3 @@ service cloud.firestore {
 
   }
 }
-
-    

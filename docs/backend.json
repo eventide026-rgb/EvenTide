@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "UserProfile": {
@@ -936,12 +935,15 @@
         }
       },
       {
-        "path": "/events/{eventId}/event_pricing",
+        "path": "/events/{eventId}/event_pricing/{pricingId}",
         "definition": {
           "entityName": "EventPricing",
           "schema": { "$ref": "#/backend/entities/EventPricing" },
-          "description": "Stores the pricing plan assigned to an event.",
-          "params": [{ "name": "eventId", "description": "The unique identifier of the event." }]
+          "description": "Stores the pricing plans assigned to an event, allowing for plan stacking.",
+          "params": [
+              { "name": "eventId", "description": "The unique identifier of the event." },
+              { "name": "pricingId", "description": "The unique identifier for the stacked pricing record." }
+          ]
         }
       },
       {
