@@ -6,13 +6,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowRight,
-  CalendarCheck,
-  CalendarPlus,
   CheckCircle,
   Home as HomeIcon,
   Palette,
   ShieldCheck,
-  Ticket,
   Users,
   Wand2,
 } from 'lucide-react';
@@ -34,7 +31,7 @@ const rotatingWords = ['Effortlessly', 'Stylishly', 'Beautifully', 'Perfectly'];
 
 const howItWorks = [
   {
-    icon: <CalendarPlus className="h-8 w-8 text-primary" />,
+    icon: <Wand2 className="h-8 w-8 text-primary" />,
     title: '1. Create Your Event',
     description: 'Start by setting up your event details, date, and venue. Our intuitive interface makes it a breeze.',
   },
@@ -49,7 +46,7 @@ const howItWorks = [
     description: 'Easily import, categorize, and communicate with your guests, all from one central dashboard.',
   },
   {
-    icon: <CalendarCheck className="h-8 w-8 text-primary" />,
+    icon: <ShieldCheck className="h-8 w-8 text-primary" />,
     title: '4. Execute Flawlessly',
     description: 'Use our tools for secure check-ins, real-time announcements, and seamless day-of coordination.',
   },
@@ -103,28 +100,28 @@ const pricingTiers = [
     {
         name: "Free",
         price: "₦0",
-        description: "Perfect for small, private gatherings.",
+        description: "For small, intimate gatherings and personal events.",
         features: ["Up to 50 Guests", "1 Planner", "Basic AI Design Tools", "Guest List Management"],
         isPopular: false,
     },
     {
         name: "Standard",
         price: "₦45,000",
-        description: "Ideal for medium-sized events.",
+        description: "Perfect for most weddings, birthdays, and corporate events.",
         features: ["Up to 300 Guests", "Up to 5 Planners", "Up to 5 Co-hosts", "Advanced AI Design Suite", "Team Collaboration Tools"],
         isPopular: true,
     },
     {
         name: "Gold",
         price: "₦95,000",
-        description: "For large events and professionals.",
+        description: "For larger events and professional planners.",
         features: ["Up to 1,000 Guests", "Up to 10 Planners", "Up to 10 Co-hosts", "Up to 10 Security Personnel", "Full AI Suite & Analytics"],
         isPopular: false,
     },
     {
         name: "Platinum",
         price: "Contact Us",
-        description: "Tailored for enterprise needs.",
+        description: "Tailored for enterprise-level event management.",
         features: ["Custom Guest Capacity", "Unlimited Planners & Co-hosts", "Dedicated Security Management", "White-labeling Options", "API Access"],
         isPopular: false,
     }
