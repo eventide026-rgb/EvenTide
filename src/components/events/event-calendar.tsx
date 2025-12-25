@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { isSameDay, format } from 'date-fns';
 import { CalendarCheck, CheckSquare, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { DayProps } from 'react-day-picker';
 
 type Event = {
     id: string;
@@ -96,12 +97,19 @@ export function EventCalendar() {
             .sort((a, b) => a.date.getTime() - b.date.getTime());
     }, [calendarItems, selectedDate]);
 
-    const DayWithDot = ({ day }: { day: Date }) => (
-        <div className="relative h-full w-full">
-            <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
-            {day.getDate()}
-        </div>
-    );
+    const DayWithDot = (props: DayProps) => {
+        const { date } = props;
+        const hasItem = datesWithItems.some(itemDate => isSameDay(date, itemDate));
+
+        return (
+            <div className="relative h-full w-full flex items-center justify-center">
+                 {date.getDate()}
+                 {hasItem && (
+                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
+                 )}
+            </div>
+        );
+    };
 
     return (
         <div className="grid md:grid-cols-3 gap-8 h-full">
@@ -121,13 +129,7 @@ export function EventCalendar() {
                             cell: "h-9 w-full text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
                         }}
                         components={{
-                            Day: ({ date }) => {
-                                if (!date) {
-                                    return <div />;
-                                }
-                                const hasItem = datesWithItems.some(itemDate => isSameDay(date, itemDate));
-                                return hasItem ? <DayWithDot day={date} /> : <div>{date.getDate()}</div>;
-                            }
+                            Day: DayWithDot
                         }}
                     />
                 </CardContent>
