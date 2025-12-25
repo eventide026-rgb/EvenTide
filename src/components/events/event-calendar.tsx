@@ -129,15 +129,11 @@ export function EventCalendar() {
                             cell: "h-9 w-full text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
                         }}
                         components={{
-                            Day: ({ displayMonth, date, ...rest }) => {
-                                if (!displayMonth || !date) return <div />;
-                            
-                                const isOutsideMonth =
-                                    displayMonth.getMonth() !== date.getMonth();
-                            
-                                if (isOutsideMonth) return <div />;
-                            
-                                return <DayWithDot date={date} displayMonth={displayMonth} {...rest} />;
+                            Day: (props) => {
+                                if (!props.date || props.displayMonth.getMonth() !== props.date.getMonth()) {
+                                    return <></>;
+                                }
+                                return <DayWithDot {...props}/>;
                             }
                         }}
                     />
