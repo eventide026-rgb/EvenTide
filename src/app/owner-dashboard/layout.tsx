@@ -22,6 +22,7 @@ import {
   LogOut,
   ClipboardList,
   ShieldCheck,
+  FileText,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -85,7 +86,7 @@ const sidebarNav = [
         title: "Operations",
         icon: Settings,
         links: [
-            { href: "/owner-dashboard/contracts-tasks", label: "Contracts & Tasks", icon: ClipboardList },
+            { href: "/owner-dashboard/contracts-tasks", label: "Contracts & Tasks", icon: FileText },
             { href: "/owner-dashboard/expenses", label: "Expenses", icon: CreditCard },
         ]
     },
@@ -118,7 +119,7 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
                             href={link.href}
                             className={cn(
                                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
-                                pathname === link.href ? "bg-accent text-accent-foreground" : "text-foreground/80"
+                                pathname.startsWith(link.href) && link.href !== "/owner-dashboard" || (pathname === "/owner-dashboard" && link.href === "/owner-dashboard") ? "bg-accent text-accent-foreground" : "text-foreground/80"
                             )}
                         >
                             <link.icon className="h-4 w-4" />
