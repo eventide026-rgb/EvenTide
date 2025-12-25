@@ -37,7 +37,8 @@ import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { useUser, useDoc, useFirestore, useMemoFirebase, useAuth } from '@/firebase';
-import { doc, signOut } from 'firebase/auth';
+import { doc } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 
 
 const baseNav = [
