@@ -55,6 +55,11 @@ service cloud.firestore {
     function isEventStaff(eventId) {
       return isEventOwner(eventId) || isEventPlanner(eventId) || isEventCohost(eventId);
     }
+    
+    function isEventVendor(eventId, specialty) {
+        // This is a simplified check. A real implementation might check a 'contracts' subcollection.
+        return isSignedIn() && getUserRole(request.auth.uid) == 'Vendor';
+    }
 
     function canReadEventData(eventId) {
       return isEventStaff(eventId);
@@ -102,6 +107,12 @@ service cloud.firestore {
       allow update: if isEventOwner(eventId) && isExistingDoc() && request.resource.data.ownerId == resource.data.ownerId;
       allow delete: if isEventOwner(eventId) && isExistingDoc();
     }
+    
+     match /events/{eventId}/moodboard/{moodboardId} {
+      allow get, list: if isEventStaff(eventId) || isEventVendor(eventId, 'Decorator');
+      allow create, update, delete: if isEventStaff(eventId);
+    }
+
 
     match /events/{eventId}/guests/{guestId} {
       allow get: if canReadEventData(eventId) || isOwner(guestId);

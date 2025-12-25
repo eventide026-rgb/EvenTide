@@ -61,7 +61,7 @@ const baseNav = [
     },
 ];
 
-const specialtyNavs: Record<string, any[]> = {
+const specialtyNavs: Record<string, {href: string, label: string, icon: React.ElementType}[]> = {
     "Photographer": [
         { href: "/vendor-dashboard/shot-list", label: "Shot List", icon: ClipboardList },
         { href: "/vendor-dashboard/upload-media", label: "Upload Media", icon: Upload },
