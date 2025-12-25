@@ -190,6 +190,22 @@
         },
         "required": ["id", "name", "quantity", "claimedCount", "claimedBy"]
     },
+    "SongRequest": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "SongRequest",
+        "description": "Represents a single song request made by a guest for an event.",
+        "type": "object",
+        "properties": {
+            "id": { "type": "string", "description": "Unique identifier for the song request." },
+            "eventId": { "type": "string", "description": "The event this request belongs to." },
+            "requesterId": { "type": "string", "description": "The ID of the guest who made the request." },
+            "requesterName": { "type": "string", "description": "The name of the guest who made the request." },
+            "songTitle": { "type": "string", "description": "The title of the requested song." },
+            "artist": { "type": "string", "description": "The artist of the requested song." },
+            "status": { "type": "string", "enum": ["pending", "approved", "rejected"], "description": "The moderation status of the request." }
+        },
+        "required": ["id", "eventId", "requesterId", "requesterName", "songTitle", "artist", "status"]
+    },
     "TicketTier": {
       "title": "TicketTier",
       "type": "object",
@@ -717,6 +733,18 @@
           "params": [
             { "name": "eventId", "description": "The unique identifier of the event." },
             { "name": "giftId", "description": "The unique identifier of the gift." }
+          ]
+        }
+      },
+      {
+        "path": "/events/{eventId}/songRequests/{requestId}",
+        "definition": {
+          "entityName": "SongRequest",
+          "schema": { "$ref": "#/backend/entities/SongRequest" },
+          "description": "Stores song requests made by guests for a specific event.",
+          "params": [
+            { "name": "eventId", "description": "The unique identifier of the event." },
+            { "name": "requestId", "description": "The unique identifier of the song request." }
           ]
         }
       },

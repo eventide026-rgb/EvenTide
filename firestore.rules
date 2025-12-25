@@ -51,6 +51,10 @@ service cloud.firestore {
     function isEventCohost(eventId) {
       return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/cohosts/$(request.auth.uid));
     }
+    
+    function isEventGuest(eventId) {
+        return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid));
+    }
 
     function isEventStaff(eventId) {
       return isEventOwner(eventId) || isEventPlanner(eventId) || isEventCohost(eventId);
@@ -58,7 +62,8 @@ service cloud.firestore {
     
     function isEventVendor(eventId, specialty) {
         // This is a simplified check. A real implementation might check a 'contracts' subcollection.
-        return isSignedIn() && getUserRole(request.auth.uid) == 'Vendor';
+        let userRole = getUserRole(request.auth.uid);
+        return isSignedIn() && userRole == 'Vendor' || userRole == specialty;
     }
 
     function canReadEventData(eventId) {
@@ -137,6 +142,13 @@ service cloud.firestore {
         allow read: if true; // Guests need to be able to read this
         allow create, delete: if isEventStaff(eventId);
         allow update: if isSignedIn() && isEventOwner(eventId) || exists(/databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid));
+      }
+      
+      match /songRequests/{requestId} {
+        allow create: if isEventGuest(eventId);
+        allow read: if isEventStaff(eventId) || isEventVendor(eventId, 'DJ/Musician') || (isEventGuest(eventId) && resource.data.requesterId == request.auth.uid);
+        allow update: if isEventStaff(eventId); // For changing status
+        allow delete: if isEventStaff(eventId);
       }
     }
     
