@@ -122,6 +122,9 @@ export function EventCalendar() {
                         }}
                         components={{
                             Day: ({ date }) => {
+                                if (!date) {
+                                    return <div />;
+                                }
                                 const hasItem = datesWithItems.some(itemDate => isSameDay(date, itemDate));
                                 return hasItem ? <DayWithDot day={date} /> : <div>{date.getDate()}</div>;
                             }
