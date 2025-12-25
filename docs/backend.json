@@ -443,6 +443,48 @@
             "avatarUrl": { "type": "string", "description": "URL for the promoter's avatar or logo." }
         },
         "required": ["id", "promoterName"]
+    },
+    "MagazineIssue": {
+      "title": "MagazineIssue",
+      "type": "object",
+      "description": "Represents a single issue of the EvenTide Community Magazine.",
+      "properties": {
+        "title": { "type": "string" },
+        "introduction": { "type": "string" },
+        "eventSummaries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "eventName": { "type": "string" },
+              "summary": { "type": "string" }
+            },
+            "required": ["eventName", "summary"]
+          }
+        },
+        "advertisement": {
+          "type": "object",
+          "properties": {
+            "concept": { "type": "string" },
+            "product": { "type": "string" }
+          },
+          "required": ["concept", "product"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "published"],
+          "description": "The publication status of the magazine issue."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publishedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["title", "introduction", "eventSummaries", "advertisement", "status", "createdAt"]
     }
   },
   "auth": {
@@ -613,6 +655,15 @@
             { "name": "eventId", "description": "The unique identifier of the event." },
             { "name": "announcementId", "description": "The unique identifier of the announcement." }
           ]
+        }
+      },
+      {
+        "path": "/magazineIssues/{issueId}",
+        "definition": {
+            "entityName": "MagazineIssue",
+            "schema": { "$ref": "#/backend/entities/MagazineIssue" },
+            "description": "Stores issues of the EvenTide Community Magazine. Drafts are only accessible by admins, while published issues are public.",
+            "params": [{ "name": "issueId", "description": "The unique identifier for the magazine issue." }]
         }
       }
     ],

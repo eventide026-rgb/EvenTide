@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, query, where, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Card, CardDescription, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Sparkles } from 'lucide-react';
@@ -22,15 +22,31 @@ type Event = {
     eventType: string;
 };
 
+// Represents a document from the 'magazineIssues' collection
+export type MagazineIssue = MagazineCurationOutput & {
+    id: string;
+    status: 'draft' | 'published';
+    createdAt: any;
+    publishedAt?: any;
+}
+
 export default function MagazineCurationPage() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
-  const [magazineDraft, setMagazineDraft] = useState<MagazineCurationOutput | null>(null);
+  const [magazineDraft, setMagazineDraft] = useState<MagazineIssue | null>(null);
 
   const publicEventsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'events'), where('isPublic', '==', true));
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    // Query for public events that have already concluded
+    return query(
+        collection(firestore, 'shows'), 
+        where('isPublic', '==', true),
+        where('eventDate', '<', yesterday)
+    );
   }, [firestore]);
 
   const { data: publicEvents, isLoading: isLoadingEvents } = useCollection<Event>(publicEventsQuery);
@@ -39,8 +55,8 @@ export default function MagazineCurationPage() {
     if (!publicEvents || publicEvents.length === 0) {
       toast({
         variant: 'destructive',
-        title: 'No Public Events',
-        description: 'There are no public events available to generate a magazine issue.',
+        title: 'No Recent Public Events',
+        description: 'There are no concluded public events available to generate a magazine issue.',
       });
       return;
     }
@@ -52,21 +68,36 @@ export default function MagazineCurationPage() {
         name: e.name,
         description: e.description,
         eventDate: e.eventDate.toDate().toLocaleDateString(), // Convert timestamp to string
-        eventType: e.eventType,
+        eventType: e.eventType || 'General Event',
       }));
 
       const result = await curateCommunityMagazine({ events: eventsForAI });
-      setMagazineDraft(result);
+      
+      if (!firestore) throw new Error("Firestore not available");
+
+      // Save the generated draft to Firestore
+      const magazineCollection = collection(firestore, 'magazineIssues');
+      const newDraftDoc = {
+        ...result,
+        status: 'draft' as const,
+        createdAt: serverTimestamp(),
+      }
+      
+      const docRef = await addDoc(magazineCollection, newDraftDoc);
+      
+      setMagazineDraft({ ...newDraftDoc, id: docRef.id, createdAt: new Date() });
+
       toast({
         title: 'Draft Generated!',
         description: "Eni has crafted a new magazine issue for your review.",
       });
+
     } catch (error) {
       console.error('Error generating magazine draft:', error);
       toast({
         variant: 'destructive',
         title: 'Generation Failed',
-        description: 'There was an error communicating with the AI. Please try again.',
+        description: 'There was an error communicating with the AI or saving the draft. Please try again.',
       });
     } finally {
       setIsLoading(false);
@@ -86,7 +117,7 @@ export default function MagazineCurationPage() {
             <CardDescription>Let Eni, the AI Editor-in-Chief, automatically generate a complete draft.</CardDescription>
           </div>
           <Button onClick={handleGenerateDraft} disabled={isLoading || isLoadingEvents}>
-            {isLoading ? (
+            {isLoading || isLoadingEvents ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <Sparkles className="mr-2 h-4 w-4" />
@@ -104,9 +135,12 @@ export default function MagazineCurationPage() {
           {!isLoading && magazineDraft ? (
             <MagazinePreview draft={magazineDraft} />
           ) : !isLoading && (
-             <p className="text-muted-foreground text-center py-16">
-                The AI-generated magazine draft will appear here for review and editing.
-             </p>
+             <div className="text-center py-16 border-dashed border-2 rounded-lg">
+                <h3 className="text-xl font-semibold">Generate an issue to begin</h3>
+                 <p className="text-muted-foreground mt-2 max-w-md mx-auto">
+                    Click the &quot;Generate Draft with AI&quot; button. The system will find recent public events and Eni will write the first draft for you.
+                 </p>
+             </div>
           )}
         </CardContent>
       </Card>

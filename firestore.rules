@@ -16,6 +16,15 @@ service cloud.firestore {
     function isExistingDoc() {
       return resource != null;
     }
+
+    function getUserRole(userId) {
+        return get(/databases/$(database)/documents/users/$(userId)).data.role;
+    }
+    
+    function isAdmin() {
+        let role = getUserRole(request.auth.uid);
+        return isSignedIn() && (role == 'Super Admin' || role == 'Content Admin' || role == 'Editorial Admin');
+    }
     
     function getShow(showId) {
       return get(/databases/$(database)/documents/shows/$(showId));
@@ -213,6 +222,12 @@ service cloud.firestore {
         allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.hotelOwnerId == request.auth.uid);
         allow create: if isSignedIn();
         allow update: if isSignedIn() && resource.data.hotelOwnerId == request.auth.uid;
+    }
+
+    match /magazineIssues/{issueId} {
+        allow get: if resource.data.status == 'published' || isAdmin();
+        allow list: if true; // Public can list published issues, admins can list all
+        allow create, update, delete: if isAdmin();
     }
     
     // Administrative Rules
