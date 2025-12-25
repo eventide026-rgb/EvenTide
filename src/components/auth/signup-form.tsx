@@ -32,6 +32,7 @@ import { setDoc, doc, serverTimestamp, writeBatch } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
 import { errorEmitter } from "@/firebase/error-emitter";
 import { FirestorePermissionError } from "@/firebase/errors";
+import { VendorSpecialties } from "@/lib/placeholder-images";
 
 
 const formSchema = z.object({
@@ -41,6 +42,7 @@ const formSchema = z.object({
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
   role: z.enum(["Owner", "Planner", "Hotelier", "Hall Owner", "Car Hire Service", "Ticketier", "Vendor", "Fashion Designer", "Security"], { required_error: "You need to select a role." }),
   promoterName: z.string().optional(),
+  vendorSpecialty: z.string().optional(),
 }).refine(data => {
     if (data.role === 'Ticketier') {
         return !!data.promoterName && data.promoterName.length >= 2;
@@ -49,6 +51,14 @@ const formSchema = z.object({
 }, {
     message: "Promoter name is required for Ticketiers.",
     path: ["promoterName"],
+}).refine(data => {
+    if (data.role === 'Vendor') {
+        return !!data.vendorSpecialty;
+    }
+    return true;
+}, {
+    message: "Please select a vendor specialty.",
+    path: ["vendorSpecialty"],
 });
 
 export function SignUpForm() {
@@ -97,6 +107,7 @@ export function SignUpForm() {
                 firstName: values.firstName,
                 lastName: values.lastName,
                 createdAt: serverTimestamp(),
+                ...(values.role === 'Vendor' && { specialty: values.vendorSpecialty }),
             };
             
             const userDocRef = doc(firestore, "users", user.uid);
@@ -106,19 +117,31 @@ export function SignUpForm() {
                 const ticketierProfileData = {
                     id: user.uid,
                     promoterName: values.promoterName,
-                    bio: `The official promoter page for ${values.promoterName}.`, // Default bio
-                    avatarUrl: `https://picsum.photos/seed/${user.uid}/200`, // Placeholder avatar
+                    bio: `The official promoter page for ${values.promoterName}.`,
+                    avatarUrl: `https://picsum.photos/seed/${user.uid}/200`,
                     createdAt: serverTimestamp(),
                 };
                 const ticketierDocRef = doc(firestore, "ticketiers", user.uid);
                 batch.set(ticketierDocRef, ticketierProfileData);
+            }
+            
+            if (values.role === 'Vendor') {
+                const vendorData = {
+                    id: user.uid,
+                    name: `${values.firstName} ${values.lastName}`,
+                    email: values.email,
+                    specialty: values.vendorSpecialty,
+                    createdAt: serverTimestamp(),
+                };
+                const vendorDocRef = doc(firestore, 'vendors', user.uid);
+                batch.set(vendorDocRef, vendorData);
             }
 
             await batch.commit().catch((error) => {
                  const contextualError = new FirestorePermissionError({
                     path: 'batch write',
                     operation: 'create',
-                    requestResourceData: { userProfileData, roleData: values.role === 'Ticketier' ? 'Ticketier Profile' : undefined },
+                    requestResourceData: { userProfileData },
                 });
                 errorEmitter.emit('permission-error', contextualError);
                 throw new Error("Failed to create user profile. Please contact support.");
@@ -260,6 +283,30 @@ export function SignUpForm() {
                         <Input placeholder="e.g., Vibes on Vibes Ent." {...field} />
                     </FormControl>
                     <FormMessage />
+                    </FormItem>
+                )}
+            />
+        )}
+        {role === "Vendor" && (
+            <FormField
+                control={form.control}
+                name="vendorSpecialty"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Vendor Specialty</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select your specialty" />
+                            </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {VendorSpecialties.map(specialty => (
+                                    <SelectItem key={specialty} value={specialty}>{specialty}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
                     </FormItem>
                 )}
             />

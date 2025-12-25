@@ -444,6 +444,18 @@
         },
         "required": ["id", "promoterName"]
     },
+    "Vendor": {
+        "title": "Vendor",
+        "type": "object",
+        "description": "Represents a vendor's public profile.",
+        "properties": {
+            "id": { "type": "string", "description": "The user's UID." },
+            "name": { "type": "string", "description": "The public name of the vendor or brand." },
+            "email": { "type": "string", "format": "email" },
+            "specialty": { "type": "string", "description": "The vendor's area of expertise (e.g., Photographer, Caterer)." }
+        },
+        "required": ["id", "name", "email", "specialty"]
+    },
     "MagazineIssue": {
       "title": "MagazineIssue",
       "type": "object",
@@ -511,6 +523,15 @@
           "schema": { "$ref": "#/backend/entities/Ticketier" },
           "description": "Stores public profiles for Ticketiers/Promoters.",
           "params": [{ "name": "ticketierId", "description": "The unique identifier of the ticketier, corresponding to their UID." }]
+        }
+      },
+      {
+        "path": "/vendors/{vendorId}",
+        "definition": {
+          "entityName": "Vendor",
+          "schema": { "$ref": "#/backend/entities/Vendor" },
+          "description": "Stores public profiles for vendors, categorized by specialty.",
+          "params": [{ "name": "vendorId", "description": "The unique identifier of the vendor, corresponding to their UID." }]
         }
       },
       {
