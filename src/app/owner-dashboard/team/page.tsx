@@ -14,7 +14,7 @@ function TeamPageContent() {
             <p className="text-muted-foreground">Assemble your event team by inviting planners and co-hosts.</p>
         </div>
       </header>
-      <div className='flex-1 mt-6'>
+      <div className='flex-1 mt-6 h-full'>
          <TeamManagement />
       </div>
     </div>

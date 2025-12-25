@@ -11,6 +11,7 @@ import {
   writeBatch,
   getDocs,
   limit,
+  serverTimestamp
 } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -177,11 +178,11 @@ export function TeamManagement() {
         link: `/planner-dashboard/invitations`,
         read: false,
         createdAt: new Date(),
-        userId: foundUser.id
+        userId: foundUser.id,
+        eventId: selectedEventId
     };
     batch.set(notificationRef, notificationData);
     
-    // Execute the batch and handle potential errors
     batch.commit()
       .then(() => {
         toast({ title: 'Invitation Sent!', description: `${foundUser.firstName} has been invited as a ${role}.`});
@@ -190,11 +191,10 @@ export function TeamManagement() {
       })
       .catch((serverError) => {
         const contextualError = new FirestorePermissionError({
-          path: `batch write to ${teamMemberRef.path} and ${notificationRef.path}`,
+          path: teamMemberRef.path,
           operation: 'create',
           requestResourceData: {
             teamMember: teamMemberData,
-            notification: notificationData,
           },
         });
         errorEmitter.emit('permission-error', contextualError);
