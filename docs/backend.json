@@ -163,6 +163,33 @@
         },
         "required": ["id", "tableId", "seatNumber"]
     },
+    "Gift": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Gift",
+        "description": "Represents a single item in an event's gift registry.",
+        "type": "object",
+        "properties": {
+            "id": { "type": "string" },
+            "name": { "type": "string" },
+            "description": { "type": "string" },
+            "imageUrl": { "type": "string", "format": "uri" },
+            "price": { "type": "number" },
+            "quantity": { "type": "number" },
+            "claimedCount": { "type": "number" },
+            "claimedBy": { 
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "guestId": { "type": "string" },
+                        "guestName": { "type": "string" }
+                    },
+                    "required": ["guestId", "guestName"]
+                }
+            }
+        },
+        "required": ["id", "name", "quantity", "claimedCount", "claimedBy"]
+    },
     "TicketTier": {
       "title": "TicketTier",
       "type": "object",
@@ -678,6 +705,18 @@
             { "name": "eventId", "description": "The unique identifier of the event." },
             { "name": "tableId", "description": "The unique identifier of the table." },
             { "name": "seatId", "description": "The unique identifier for the seat." }
+          ]
+        }
+      },
+      {
+        "path": "/events/{eventId}/gifts/{giftId}",
+        "definition": {
+          "entityName": "Gift",
+          "schema": { "$ref": "#/backend/entities/Gift" },
+          "description": "Stores gift registry items for a specific event.",
+          "params": [
+            { "name": "eventId", "description": "The unique identifier of the event." },
+            { "name": "giftId", "description": "The unique identifier of the gift." }
           ]
         }
       },

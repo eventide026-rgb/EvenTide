@@ -132,6 +132,12 @@ service cloud.firestore {
           allow write: if isEventPlanner(eventId);
         }
       }
+        
+      match /gifts/{giftId} {
+        allow read: if true; // Guests need to be able to read this
+        allow create, delete: if isEventStaff(eventId);
+        allow update: if isSignedIn() && isEventOwner(eventId) || exists(/databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid));
+      }
     }
     
      match /events/{eventId}/moodboard/{moodboardId} {
