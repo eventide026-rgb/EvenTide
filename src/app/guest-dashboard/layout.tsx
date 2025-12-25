@@ -60,7 +60,7 @@ const sidebarNav = [
 const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
     const pathname = usePathname();
     return (
-        <div className="absolute left-full top-0 ml-2 w-56 origin-left rounded-md bg-background border shadow-lg p-2 transition-all duration-200 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
+        <div className="absolute left-full top-0 -mt-2 ml-2 w-56 origin-left rounded-md bg-background border shadow-lg p-2 transition-all duration-200 scale-95 opacity-0 group-hover:scale-100 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
             <h3 className="px-3 py-2 text-sm font-semibold text-muted-foreground">{navGroup.title}</h3>
             <ul>
                  {navGroup.links.map(link => (
