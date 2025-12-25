@@ -51,6 +51,7 @@
           "type": "string",
           "description": "Reference to UserProfile representing the show owner (Ticketier)."
         },
+        "eventCode": { "type": "string", "description": "Unique alphanumeric code for the show." },
         "eventType": {
           "type": "string",
           "description": "Type of show (Concert, Festival, etc.)."
@@ -92,6 +93,7 @@
       "required": [
         "showId",
         "ownerId",
+        "eventCode",
         "eventType",
         "name",
         "description",

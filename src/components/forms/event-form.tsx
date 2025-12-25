@@ -72,9 +72,12 @@ export function EventForm() {
         }
         setIsLoading(true);
 
+        const eventCode = `SHOW-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
         const showData = {
             ...values,
             ownerId: user.uid,
+            eventCode: eventCode,
             createdAt: serverTimestamp(),
             eventDate: values.eventDate,
         };
