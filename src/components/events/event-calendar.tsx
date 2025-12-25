@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { isSameDay, format } from 'date-fns';
 import { CalendarCheck, CheckSquare, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { DayProps } from 'react-day-picker';
+import { DayProps, DayPicker } from 'react-day-picker';
 
 type Event = {
     id: string;
