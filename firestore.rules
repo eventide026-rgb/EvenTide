@@ -150,6 +150,12 @@ service cloud.firestore {
         allow update: if isEventStaff(eventId); // For changing status
         allow delete: if isEventStaff(eventId);
       }
+
+      match /fashionContracts/{contractId} {
+          allow create: if isEventOwner(eventId) && request.resource.data.ownerId == request.auth.uid;
+          allow read, update: if isEventOwner(eventId) || isOwner(request.resource.data.designerId);
+          allow delete: if isEventOwner(eventId);
+      }
     }
     
      match /events/{eventId}/moodboard/{moodboardId} {

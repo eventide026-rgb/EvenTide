@@ -206,6 +206,22 @@
         },
         "required": ["id", "eventId", "requesterId", "requesterName", "songTitle", "artist", "status"]
     },
+    "FashionContract": {
+        "title": "FashionContract",
+        "type": "object",
+        "description": "Represents a formal commission proposal from an Event Owner to a Fashion Designer.",
+        "properties": {
+            "id": { "type": "string" },
+            "eventId": { "type": "string" },
+            "ownerId": { "type": "string" },
+            "designerId": { "type": "string" },
+            "description": { "type": "string", "description": "Detailed description of the designs needed." },
+            "budget": { "type": "number", "description": "The proposed budget for the commission in Naira." },
+            "terms": { "type": "string", "description": "Optional additional terms, like fitting schedules." },
+            "status": { "type": "string", "enum": ["pending", "accepted", "declined", "completed"], "description": "The status of the commission." }
+        },
+        "required": ["id", "eventId", "ownerId", "designerId", "description", "budget", "status"]
+    },
     "TicketTier": {
       "title": "TicketTier",
       "type": "object",
@@ -536,7 +552,21 @@
             "id": { "type": "string", "description": "The user's UID." },
             "name": { "type": "string", "description": "The public name of the vendor or brand." },
             "email": { "type": "string", "format": "email" },
-            "specialty": { "type": "string", "description": "The vendor's area of expertise (e.g., Photographer, Caterer)." }
+            "specialty": { "type": "string", "description": "The vendor's area of expertise (e.g., Photographer, Caterer)." },
+            "city": { "type": "string" },
+            "state": { "type": "string" },
+            "bio": { "type": "string" },
+            "avatarUrl": { "type": "string" },
+            "portfolio": { 
+                "type": "array",
+                "items": { 
+                    "type": "object",
+                    "properties": {
+                        "imageUrl": { "type": "string" },
+                        "description": { "type": "string" }
+                    }
+                }
+            }
         },
         "required": ["id", "name", "email", "specialty"]
     },
@@ -745,6 +775,18 @@
           "params": [
             { "name": "eventId", "description": "The unique identifier of the event." },
             { "name": "requestId", "description": "The unique identifier of the song request." }
+          ]
+        }
+      },
+      {
+        "path": "/events/{eventId}/fashionContracts/{contractId}",
+        "definition": {
+          "entityName": "FashionContract",
+          "schema": { "$ref": "#/backend/entities/FashionContract" },
+          "description": "Stores commission contracts between owners and fashion designers for an event.",
+          "params": [
+            { "name": "eventId", "description": "The unique identifier of the event." },
+            { "name": "contractId", "description": "The unique identifier of the fashion contract." }
           ]
         }
       },
