@@ -51,6 +51,9 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, UserPlus, Search, Trash2 } from 'lucide-react';
 import { Label } from '../ui/label';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
+
 
 type Event = {
   id: string;
@@ -160,30 +163,42 @@ export function TeamManagement() {
 
     // 1. Create team member document
     const teamMemberRef = doc(firestore, 'events', selectedEventId, collectionName, foundUser.id);
-    batch.set(teamMemberRef, {
+    const teamMemberData = {
         userId: foundUser.id,
         status: 'Pending',
         invitedAt: new Date(),
-    });
+    };
+    batch.set(teamMemberRef, teamMemberData);
 
     // 2. Create notification for the invited user
     const notificationRef = doc(collection(firestore, 'users', foundUser.id, 'notifications'));
-    batch.set(notificationRef, {
+    const notificationData = {
         message: `You have been invited to be a ${role} for an event.`,
-        link: `/planner-dashboard/invitations`, // This should be a dynamic link
+        link: `/planner-dashboard/invitations`,
         read: false,
         createdAt: new Date(),
-    });
+        userId: foundUser.id
+    };
+    batch.set(notificationRef, notificationData);
     
-    try {
-        await batch.commit();
+    // Execute the batch and handle potential errors
+    batch.commit()
+      .then(() => {
         toast({ title: 'Invitation Sent!', description: `${foundUser.firstName} has been invited as a ${role}.`});
         setFoundUser(null);
         form.reset();
-    } catch (error) {
-        console.error("Error sending invite:", error);
-        toast({ variant: 'destructive', title: 'Invite Failed', description: 'Could not send the invitation. Please try again.'})
-    }
+      })
+      .catch((serverError) => {
+        const contextualError = new FirestorePermissionError({
+          path: `batch write to ${teamMemberRef.path} and ${notificationRef.path}`,
+          operation: 'create',
+          requestResourceData: {
+            teamMember: teamMemberData,
+            notification: notificationData,
+          },
+        });
+        errorEmitter.emit('permission-error', contextualError);
+      });
   }
 
   const isLoading = isUserLoading || isLoadingEvents;
