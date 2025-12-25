@@ -27,14 +27,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
     AlertDialog,
     AlertDialogAction,
     AlertDialogCancel,
@@ -49,6 +41,7 @@ import { Loader2, Trash2, Gift, Banknote } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
+import { Label } from '@/components/ui/label';
 
 type Event = {
   id: string;
@@ -158,7 +151,7 @@ export default function GiftRegistryPage() {
           <CardDescription>Create and manage a gift registry for your events.</CardDescription>
         </CardHeader>
         <CardContent>
-          <FormLabel>Select an Event</FormLabel>
+          <Label>Select an Event</Label>
           {isLoading ? (
             <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
