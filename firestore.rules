@@ -69,7 +69,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow get: if isOwner(userId);
       allow list: if false; 
-      allow create: if request.auth.uid == userId && request.resource.data.id == userId;
+      allow create: if request.auth.uid == userId;
       allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.id == resource.data.id;
       allow delete: if isOwner(userId) && isExistingDoc();
       
@@ -119,8 +119,17 @@ service cloud.firestore {
       allow delete: if isEventOwner(eventId) && isExistingDoc();
 
       match /tasks/{taskId} {
+        allow read, create, update, delete: if isEventStaff(eventId);
+      }
+
+      match /tables/{tableId} {
         allow read: if isEventStaff(eventId);
-        allow create, update, delete: if isEventStaff(eventId);
+        allow write: if isEventPlanner(eventId);
+
+        match /seats/{seatId} {
+          allow read: if isEventStaff(eventId);
+          allow write: if isEventPlanner(eventId);
+        }
       }
     }
     
