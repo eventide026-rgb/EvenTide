@@ -135,6 +135,11 @@ service cloud.firestore {
       match /tasks/{taskId} {
         allow read, create, update, delete: if isEventStaff(eventId);
       }
+      
+      match /expenses/{expenseId} {
+        allow read: if isEventStaff(eventId);
+        allow create, update, delete: if isEventPlanner(eventId);
+      }
 
       match /tables/{tableId} {
         allow read: if isEventStaff(eventId);

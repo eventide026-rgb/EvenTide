@@ -137,6 +137,21 @@
       },
       "required": ["id", "eventId", "title", "dueDate", "status"]
     },
+    "Expense": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Expense",
+        "type": "object",
+        "description": "Represents a single expense item for an event.",
+        "properties": {
+            "id": { "type": "string", "description": "Unique identifier for the expense." },
+            "eventId": { "type": "string", "description": "The event this expense belongs to." },
+            "category": { "type": "string", "description": "The category of the expense (e.g., Venue, Catering, Decor)." },
+            "description": { "type": "string", "description": "A detailed description of the expense." },
+            "amount": { "type": "number", "description": "The cost of the expense in Naira." },
+            "status": { "type": "string", "enum": ["Paid", "Unpaid"], "description": "The payment status of the expense." }
+        },
+        "required": ["id", "eventId", "category", "amount", "status"]
+    },
     "SeatingTable": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "SeatingTable",
@@ -760,6 +775,18 @@
           "params": [
             { "name": "eventId", "description": "The unique identifier of the event." },
             { "name": "taskId", "description": "The unique identifier of the task." }
+          ]
+        }
+      },
+      {
+        "path": "/events/{eventId}/expenses/{expenseId}",
+        "definition": {
+          "entityName": "Expense",
+          "schema": { "$ref": "#/backend/entities/Expense" },
+          "description": "Stores expense items associated with a specific event.",
+          "params": [
+            { "name": "eventId", "description": "The unique identifier of the event." },
+            { "name": "expenseId", "description": "The unique identifier of the expense." }
           ]
         }
       },
