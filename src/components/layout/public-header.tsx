@@ -59,7 +59,7 @@ const HeaderContent = () => {
   const hotelsImage = getImage('venueHall');
 
   return (
-    <div className="container flex h-16 max-w-screen-lg items-center rounded-full border border-border/40 bg-background/60 p-2 shadow-lg backdrop-blur-lg">
+    <div className="container flex h-14 items-center">
       <Link href="/" className="mr-6 flex items-center space-x-2">
         <Logo />
       </Link>
@@ -192,7 +192,7 @@ const HeaderContent = () => {
           <Link key={link.label} href={link.href} className="transition-colors hover:text-foreground/80 text-foreground/60">{link.label}</Link>
         ))}
       </nav>
-      <div className="flex flex-1 items-center justify-end">
+      <div className="flex flex-1 items-center justify-end space-x-2">
         <div className="hidden md:flex items-center space-x-1 rounded-full border bg-background/80 p-1">
           <Button variant="ghost" asChild className="rounded-full">
             <Link href="/login">Login</Link>
@@ -201,40 +201,40 @@ const HeaderContent = () => {
             <Link href="/signup">Sign Up</Link>
           </Button>
         </div>
-      </div>
-      <div className="md:hidden">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon">
-              <Menu className="h-4 w-4" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right">
-            <nav className="grid gap-6 text-lg font-medium">
-              <Link href="/" className="flex items-center space-x-2">
-                  <Logo />
-              </Link>
-              <Link href="#" className="text-muted-foreground hover:text-foreground">Resources</Link>
-              <Link href="#" className="text-muted-foreground hover:text-foreground">Community</Link>
-              <Link href="/resources/magazine" className="text-muted-foreground hover:text-foreground">Magazine</Link>
-              <Link href="#" className="text-muted-foreground hover:text-foreground">Marketplace</Link>
-              {navLinks.map(link => (
-                  <Link key={link.label} href={link.label} className="text-muted-foreground hover:text-foreground">{link.label}</Link>
-              ))}
-              <div className="flex flex-col space-y-2 pt-6">
-                   <Button asChild>
-                      <Link href="/login">Owner / Planner Login</Link>
-                  </Button>
-                   <Button asChild>
-                      <Link href="/guest-login">Guest Login</Link>
-                  </Button>
-                   <Button asChild>
-                      <Link href="/security-login">Security Login</Link>
-                  </Button>
-              </div>
-            </nav>
-          </SheetContent>
-        </Sheet>
+        <div className="md:hidden">
+            <Sheet>
+            <SheetTrigger asChild>
+                <Button variant="outline" size="icon">
+                <Menu className="h-4 w-4" />
+                </Button>
+            </SheetTrigger>
+            <SheetContent side="right">
+                <nav className="grid gap-6 text-lg font-medium">
+                <Link href="/" className="flex items-center space-x-2">
+                    <Logo />
+                </Link>
+                <Link href="#" className="text-muted-foreground hover:text-foreground">Resources</Link>
+                <Link href="#" className="text-muted-foreground hover:text-foreground">Community</Link>
+                <Link href="/resources/magazine" className="text-muted-foreground hover:text-foreground">Magazine</Link>
+                <Link href="#" className="text-muted-foreground hover:text-foreground">Marketplace</Link>
+                {navLinks.map(link => (
+                    <Link key={link.label} href={link.label} className="text-muted-foreground hover:text-foreground">{link.label}</Link>
+                ))}
+                <div className="flex flex-col space-y-2 pt-6">
+                    <Button asChild>
+                        <Link href="/login">Owner / Planner Login</Link>
+                    </Button>
+                    <Button asChild>
+                        <Link href="/guest-login">Guest Login</Link>
+                    </Button>
+                    <Button asChild>
+                        <Link href="/security-login">Security Login</Link>
+                    </Button>
+                </div>
+                </nav>
+            </SheetContent>
+            </Sheet>
+        </div>
       </div>
     </div>
   );
@@ -258,19 +258,16 @@ export function PublicHeader() {
 
 
   return (
-    <header className="sticky top-4 z-50 w-full">
-      <div className="relative">
-        <div
-          className={cn(
-            'absolute bottom-full left-0 right-0 mb-2 transition-opacity duration-300',
-            isAtTop ? 'opacity-100' : 'opacity-0'
-          )}
-          aria-hidden="true"
-        >
-          <div className="scale-y-[-1] opacity-50 blur-sm">
-            <HeaderContent />
-          </div>
-        </div>
+    <header className={cn(
+        "sticky top-0 z-50 w-full transition-all duration-300",
+        isAtTop ? "top-4" : "top-0"
+    )}>
+       <div
+        className={cn(
+          "container max-w-screen-lg rounded-full border border-border/40 bg-background/60 p-1 shadow-lg backdrop-blur-lg transition-all duration-300",
+          isAtTop ? "rounded-full p-1" : "rounded-none max-w-none border-x-0"
+        )}
+      >
         <HeaderContent />
       </div>
     </header>
