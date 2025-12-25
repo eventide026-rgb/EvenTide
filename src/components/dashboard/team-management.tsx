@@ -191,10 +191,11 @@ export function TeamManagement() {
       })
       .catch((serverError) => {
         const contextualError = new FirestorePermissionError({
-          path: teamMemberRef.path,
+          path: teamMemberRef.path, // Simplified path for clearer error
           operation: 'create',
           requestResourceData: {
             teamMember: teamMemberData,
+            notification: notificationData,
           },
         });
         errorEmitter.emit('permission-error', contextualError);
@@ -314,3 +315,5 @@ export function TeamManagement() {
     </div>
   );
 }
+
+    

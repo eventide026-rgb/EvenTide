@@ -36,11 +36,13 @@ service cloud.firestore {
     }
 
     function getEvent(eventId) {
-      return get(/databases/$(database)/documents/events/$(eventId));
+      // Corrected: Read from the owner's private event document, not the public mirror.
+      // We must construct the path using the owner's UID from the request.
+      return get(/databases/$(database)/documents/hosts/$(request.auth.uid)/events/$(eventId));
     }
 
     function isEventOwner(eventId) {
-      let eventData = getEvent(eventId).data;
+      let eventData = get(/databases/$(database)/documents/events/$(eventId)).data;
       return isSignedIn() && eventData.ownerId == request.auth.uid;
     }
 
@@ -68,6 +70,16 @@ service cloud.firestore {
 
     function canReadEventData(eventId) {
       return isEventStaff(eventId) || isEventGuest(eventId);
+    }
+    
+    // Begin Collection Rules
+
+    match /hosts/{hostId} {
+       allow read, write: if isOwner(hostId);
+
+        match /events/{eventId} {
+            allow read, write: if isOwner(hostId);
+        }
     }
 
 
