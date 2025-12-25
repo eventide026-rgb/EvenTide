@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { isSameDay, format } from 'date-fns';
 import { CalendarCheck, CheckSquare, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { DayProps, DayPicker } from 'react-day-picker';
+import { DayPicker, DayProps } from 'react-day-picker';
 
 type Event = {
     id: string;
@@ -96,7 +96,7 @@ export function EventCalendar() {
             .filter(item => isSameDay(item.date, selectedDate))
             .sort((a, b) => a.date.getTime() - b.date.getTime());
     }, [calendarItems, selectedDate]);
-
+    
     const DayWithDot = (props: DayProps) => {
         const { date } = props;
         const hasItem = datesWithItems.some(itemDate => isSameDay(date, itemDate));
@@ -115,7 +115,7 @@ export function EventCalendar() {
         <div className="grid md:grid-cols-3 gap-8 h-full">
             <Card className="md:col-span-2">
                 <CardContent className="p-2 md:p-4">
-                     <Calendar
+                     <DayPicker
                         mode="single"
                         selected={selectedDate}
                         onSelect={setSelectedDate}
@@ -130,7 +130,7 @@ export function EventCalendar() {
                         }}
                         components={{
                             Day: (props) => {
-                                if (!props.date || props.displayMonth.getMonth() !== props.date.getMonth()) {
+                                if (props.displayMonth.getMonth() !== props.date.getMonth()) {
                                     return <div />;
                                 }
                                 return <DayWithDot {...props}/>;
