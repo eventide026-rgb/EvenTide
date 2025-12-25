@@ -1,16 +1,21 @@
 
-import { Card, CardDescription, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PrivateEventForm } from "@/components/forms/private-event-form";
 
 export default function CreateEventPage() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-3xl font-headline">Create New Event</CardTitle>
-        <CardDescription>A multi-step wizard to guide you through creating your event.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <p className="text-center text-muted-foreground py-16">The Event Creation Wizard will be implemented here.</p>
-      </CardContent>
-    </Card>
-  );
+    return (
+        <div className="flex flex-col gap-8">
+            <Card className="max-w-4xl mx-auto w-full">
+                <CardHeader>
+                    <CardTitle className="text-3xl font-headline">Create a New Event</CardTitle>
+                    <CardDescription>
+                        Fill out the details below to create your private event.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <PrivateEventForm />
+                </CardContent>
+            </Card>
+        </div>
+    );
 }
