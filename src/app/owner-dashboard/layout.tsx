@@ -189,10 +189,9 @@ export default function OwnerDashboardLayout({ children }: { children: React.Rea
                  <Tooltip>
                     <TooltipTrigger asChild>
                        <Link href="/owner-dashboard/account">
-                           <Avatar className="h-9 w-9">
-                                <AvatarImage src="https://picsum.photos/seed/owner-avatar/100" alt="Owner" />
-                                <AvatarFallback>O</AvatarFallback>
-                           </Avatar>
+                           <Button variant="ghost" size="icon" className="h-9 w-9">
+                            <CreditCard className="h-5 w-5" />
+                           </Button>
                        </Link>
                     </TooltipTrigger>
                     <TooltipContent side="right">
