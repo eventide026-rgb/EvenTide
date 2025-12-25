@@ -77,7 +77,7 @@ const sidebarNav = [
         title: "Marketplace",
         icon: Briefcase,
         links: [
-            { href: "/resources/planners", label: "Find a Planner", icon: Search },
+            { href: "/owner-dashboard/find-planner", label: "Find a Planner", icon: Search },
             { href: "/owner-dashboard/find-designer", label: "Fashion Hub", icon: Search },
         ]
     },
