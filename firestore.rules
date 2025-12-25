@@ -117,6 +117,11 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       allow update: if isEventOwner(eventId) && isExistingDoc() && request.resource.data.ownerId == resource.data.ownerId;
       allow delete: if isEventOwner(eventId) && isExistingDoc();
+
+      match /tasks/{taskId} {
+        allow read: if isEventStaff(eventId);
+        allow create, update, delete: if isEventStaff(eventId);
+      }
     }
     
      match /events/{eventId}/moodboard/{moodboardId} {
@@ -269,4 +274,3 @@ service cloud.firestore {
 
   }
 }
-

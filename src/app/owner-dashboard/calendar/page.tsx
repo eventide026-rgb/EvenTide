@@ -1,13 +1,20 @@
 
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+'use client';
+
+import { EventCalendar } from '@/components/events/event-calendar';
 
 export default function CalendarPage() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Calendar</CardTitle>
-        <CardDescription>A full calendar view to visualize all your past and upcoming events.</CardDescription>
-      </CardHeader>
-    </Card>
+    <div className="h-full flex flex-col">
+       <header className="pb-4 border-b">
+        <div>
+            <h1 className="text-3xl font-bold font-headline">My Calendar</h1>
+            <p className="text-muted-foreground">A unified view of all your events and task deadlines.</p>
+        </div>
+      </header>
+      <div className='flex-1 mt-6'>
+         <EventCalendar />
+      </div>
+    </div>
   );
 }

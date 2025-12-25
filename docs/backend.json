@@ -122,6 +122,21 @@
       },
       "required": ["eventId", "ownerId", "eventCode", "eventType", "name", "description", "eventDate", "location", "imageUrls", "primaryColor", "secondaryColor"]
     },
+    "Task": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Task",
+      "type": "object",
+      "description": "Represents a single task or to-do item associated with an event.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the task." },
+        "eventId": { "type": "string", "description": "The event this task belongs to." },
+        "title": { "type": "string", "description": "The title or name of the task." },
+        "description": { "type": "string", "description": "A detailed description of the task." },
+        "dueDate": { "type": "string", "format": "date-time", "description": "The deadline for the task." },
+        "status": { "type": "string", "enum": ["pending", "in-progress", "completed"], "description": "The current status of the task." }
+      },
+      "required": ["id", "eventId", "title", "dueDate", "status"]
+    },
     "TicketTier": {
       "title": "TicketTier",
       "type": "object",
@@ -601,6 +616,18 @@
           "schema": { "$ref": "#/backend/entities/Event" },
           "description": "Stores private event details. Includes the ownerId to identify the event creator.",
           "params": [{ "name": "eventId", "description": "The unique identifier of the event." }]
+        }
+      },
+      {
+        "path": "/events/{eventId}/tasks/{taskId}",
+        "definition": {
+          "entityName": "Task",
+          "schema": { "$ref": "#/backend/entities/Task" },
+          "description": "Stores tasks associated with a specific event.",
+          "params": [
+            { "name": "eventId", "description": "The unique identifier of the event." },
+            { "name": "taskId", "description": "The unique identifier of the task." }
+          ]
         }
       },
       {
