@@ -18,19 +18,22 @@ import { Loader2 } from 'lucide-react';
 type Event = {
   id: string;
   name: string;
+  ownerId: string;
 };
 
 export default function SeatingChartPage() {
   const firestore = useFirestore();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
   const eventsQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
+    if (!firestore || !user?.uid) return null;
     return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
-  }, [firestore, user]);
+  }, [firestore, user?.uid]);
 
   const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
+
+  const isLoading = isUserLoading || isLoadingEvents;
 
   return (
     <div className="flex flex-col gap-6 h-full">
@@ -42,7 +45,7 @@ export default function SeatingChartPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoadingEvents ? (
+          {isLoading ? (
             <Loader2 className="h-5 w-5 animate-spin" />
           ) : (
             <Select onValueChange={setSelectedEventId} value={selectedEventId || ''}>
@@ -58,7 +61,7 @@ export default function SeatingChartPage() {
                   ))
                 ) : (
                   <SelectItem value="no-events" disabled>
-                    No events found
+                    You have no events.
                   </SelectItem>
                 )}
               </SelectContent>
