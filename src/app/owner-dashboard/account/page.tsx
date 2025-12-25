@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -42,7 +41,7 @@ type PricePlan = {
   plannerLimit: number;
   cohostLimit: number;
   securityPersonnelLimit: number;
-  features: string[];
+  features?: string[];
   isPopular?: boolean;
 };
 
@@ -166,7 +165,7 @@ export default function AccountPage() {
             <h2 className="text-2xl font-bold font-headline mb-4">Step 2: Choose Your Plan</h2>
             {isLoadingPlans ? (
                  <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 items-start">
-                     {[...Array(4)].map(i => <Loader2 key={i} className='h-8 w-8 animate-spin' />)}
+                     {[...Array(4)].map((_, i) => <Loader2 key={i} className='h-8 w-8 animate-spin' />)}
                  </div>
             ) : (
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 items-start">
