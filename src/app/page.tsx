@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   Users,
   Wand2,
+  ChevronRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -101,31 +102,63 @@ const pricingTiers = [
         name: "Free",
         price: "₦0",
         description: "For small, intimate gatherings and personal events.",
-        features: ["Up to 50 Guests", "1 Planner", "Basic AI Design Tools", "Guest List Management"],
+        features: [
+            "Up to 20 Guests", 
+            "Digital Invitations", 
+            "QR Code Gate Passes"
+        ],
         isPopular: false,
     },
     {
         name: "Standard",
         price: "₦45,000",
-        description: "Perfect for most weddings, birthdays, and corporate events.",
-        features: ["Up to 300 Guests", "Up to 5 Planners", "Up to 5 Co-hosts", "Advanced AI Design Suite", "Team Collaboration Tools"],
+        description: "Ideal for weddings, birthdays, and corporate events.",
+        features: [
+            "Up to 150 Guests", 
+            "1 Planner", 
+            "4 Co-hosts", 
+            "2 Security Personnel"
+        ],
         isPopular: true,
     },
     {
         name: "Gold",
-        price: "₦95,000",
+        price: "₦80,000",
         description: "For larger events and professional planners.",
-        features: ["Up to 1,000 Guests", "Up to 10 Planners", "Up to 10 Co-hosts", "Up to 10 Security Personnel", "Full AI Suite & Analytics"],
+        features: [
+            "Up to 300 Guests", 
+            "1 Planner", 
+            "8 Co-hosts", 
+            "4 Security Personnel"
+        ],
         isPopular: false,
     },
     {
         name: "Platinum",
-        price: "Contact Us",
-        description: "Tailored for enterprise-level event management.",
-        features: ["Custom Guest Capacity", "Unlimited Planners & Co-hosts", "Dedicated Security Management", "White-labeling Options", "API Access"],
+        price: "₦120,000",
+        description: "The ultimate package for grand occasions.",
+        features: [
+            "Up to 500 Guests", 
+            "1 Planner", 
+            "16 Co-hosts", 
+            "8 Security Personnel", 
+            "Unlimited VIPs"
+        ],
         isPopular: false,
-    }
-]
+    },
+    {
+        name: "Festival",
+        price: "₦200,000",
+        description: "Engineered for large-scale public events.",
+        features: [
+            "Up to 1,000 Guests", 
+            "1 Planner", 
+            "Unlimited Co-hosts", 
+            "16 Security Personnel"
+        ],
+        isPopular: false,
+    },
+];
 
 const getImage = (id: string) => {
   return PlaceHolderImages.find((img) => img.id === id);
@@ -374,7 +407,7 @@ export default function Home() {
                 Choose the perfect plan that fits the scale of your event.
               </p>
             </div>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 items-stretch">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 items-start">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
                   "flex flex-col transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl relative", 
@@ -392,7 +425,7 @@ export default function Home() {
                     <ul className="space-y-3">
                       {tier.features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                          <CheckCircle className="h-4 w-4 text-primary flex-shrink-0 mt-1" />
+                          <ChevronRight className="h-4 w-4 text-primary flex-shrink-0 mt-1" />
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -400,7 +433,7 @@ export default function Home() {
                   </CardContent>
                   <CardFooter>
                      <Button className="w-full" variant={tier.isPopular ? "default" : "outline"}>
-                        {tier.price === "Contact Us" ? "Contact Sales" : "Choose " + tier.name}
+                        {tier.name === "Free" ? "Get Started" : "Choose " + tier.name}
                      </Button>
                   </CardFooter>
                 </Card>
@@ -432,3 +465,4 @@ export default function Home() {
     </div>
   );
 }
+
