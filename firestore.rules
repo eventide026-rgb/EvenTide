@@ -47,6 +47,10 @@ service cloud.firestore {
     function isEventPlanner(eventId) {
       return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/planners/$(request.auth.uid));
     }
+    
+    function isEventPlannerByAssignment() {
+        return isSignedIn() && exists(/databases/$(database)/documents/planners/$(request.auth.uid));
+    }
 
     function isEventCohost(eventId) {
       return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/cohosts/$(request.auth.uid));
@@ -90,18 +94,21 @@ service cloud.firestore {
       
       // Notifications can only be accessed by the user they belong to.
       match /notifications/{notificationId} {
-        allow read: if isOwner(userId);
-        allow write: if isOwner(userId) || isEventOwner(request.resource.data.eventId);
+        allow read, write: if isOwner(userId);
       }
     }
     
     match /users/{document=**} {
         allow list: if isSignedIn();
     }
+    
+    match /planners/{plannerId} {
+        allow get, write: if isOwner(plannerId);
+        allow list: if isSignedIn() && request.query.where.plannerId == request.auth.uid;
+    }
 
     match /plannerProfiles/{plannerId} {
         allow get, list: if true;
-        allow read, write: if request.auth != null && request.auth.uid == plannerId;
         allow create: if request.auth.uid == plannerId;
         allow update, delete: if isOwner(plannerId);
     }
@@ -139,7 +146,7 @@ service cloud.firestore {
     }
     
     match /events/{eventId} {
-      allow get: if isEventStaff(eventId);
+      allow get: if isEventStaff(eventId) || isEventPlannerByAssignment();
       allow read: if request.auth != null;
       allow list: if false;
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
@@ -147,7 +154,7 @@ service cloud.firestore {
       allow delete: if isEventOwner(eventId) && isExistingDoc();
 
       match /tasks/{taskId} {
-        allow read, create, update, delete: if isEventStaff(eventId);
+        allow read, create, update, delete: if isEventStaff(eventId) || isEventPlannerByAssignment();
       }
       
       match /expenses/{expenseId} {
