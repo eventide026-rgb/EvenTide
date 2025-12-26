@@ -95,8 +95,8 @@ function GuestManagementComponent() {
     if (!firestore || !selectedEventId) return;
 
     const guestCollectionRef = collection(firestore, 'events', selectedEventId, 'guests');
-    const newGuestRef = doc(guestCollectionRef);
-    const guestId = `gst-${newGuestRef.id.substring(0, 8)}`;
+    
+    const guestId = `gst-${doc(guestCollectionRef).id.substring(0, 8)}`;
 
     const newGuestData = {
         guestId: guestId,
