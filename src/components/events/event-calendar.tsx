@@ -139,12 +139,11 @@ export function EventCalendar() {
       isSameDay(d, props.date)
     );
     return (
-        <div className="relative flex items-center justify-center h-full w-full">
-            <Day {...props} />
+        <Day {...props}>
             {hasItem && (
-            <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
+                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
             )}
-        </div>
+        </Day>
     );
   }
 
