@@ -222,7 +222,7 @@ service cloud.firestore {
     match /events/{eventId}/guests/{guestId} {
       allow get: if canReadEventData(eventId) || isOwner(guestId);
       allow list: if isEventStaff(eventId);
-      allow create: if isEventStaff(eventId) && request.resource.data.eventId == eventId;
+      allow create: if isEventOwner(eventId);
       allow update: if (isEventStaff(eventId) || isOwner(guestId)) && isExistingDoc();
       allow delete: if isEventStaff(eventId) && isExistingDoc();
     }
@@ -356,5 +356,4 @@ service cloud.firestore {
   }
 }
 
-    
     
