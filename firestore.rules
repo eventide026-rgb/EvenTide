@@ -77,10 +77,7 @@ service cloud.firestore {
     
     // Security rule for the 'planners' collection group query
     match /{path=**}/planners/{plannerId} {
-      allow list: if request.query.where.size() == 1 &&
-                   request.query.where[0][0] == 'userId' &&
-                   request.query.where[0][2] == request.auth.uid;
-      allow read, write: if isOwner(plannerId) || isEventOwner(path.split('/')[1]);
+      allow list: if request.auth.uid == plannerId;
     }
 
     // Begin Collection Rules
@@ -112,12 +109,27 @@ service cloud.firestore {
     }
     
     match /planners/{plannerId} {
+        // Top-level planner rules
         allow read, write: if isOwner(plannerId);
         allow list: if isSignedIn();
         allow get: if isSignedIn();
         allow create: if request.auth.uid == plannerId;
         allow update, delete: if request.auth.uid == plannerId;
-     
+
+    // Subcollection: assignments
+    match /assignments/{assignmentId} {
+        allow read, write: if request.auth != null &&
+          (
+            // Owner can access
+            request.auth.uid == plannerId ||
+            // Managers can access
+            request.auth.uid in get(/databases/$(database)/documents/planners/$(plannerId)).data.managers
+          );
+    }
+		
+    match /planners/{plannerId}/assignments/{assignmentId} {
+         allow list, read: if request.auth != null
+                          && request.auth.uid == plannerId;
     }
 
     match /plannerProfiles/{plannerId} {
@@ -379,9 +391,8 @@ service cloud.firestore {
      match /supportTickets/{ticketId} {
         allow create: if true;
         allow read, update, delete: if false; // Should be handled by admin roles
-    }
-
-  }
-}
-
+      }
+		}	
+   }
   
+}
