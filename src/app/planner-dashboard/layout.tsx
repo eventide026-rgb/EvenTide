@@ -1,6 +1,7 @@
 
 'use client';
 
+import dynamic from 'next/dynamic';
 import {
   Briefcase,
   Calendar,
@@ -156,7 +157,7 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
     )
 }
 
-export default function PlannerDashboardLayout({ children }: { children: React.ReactNode }) {
+function PlannerDashboardLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const isGroupActive = (groupLinks: typeof sidebarNav[0]['links']) => {
@@ -167,7 +168,6 @@ export default function PlannerDashboardLayout({ children }: { children: React.R
         return pathname.startsWith(link.href);
     });
   }
-
 
   return (
     <SidebarProvider>
@@ -212,3 +212,9 @@ export default function PlannerDashboardLayout({ children }: { children: React.R
     </SidebarProvider>
   );
 }
+
+const PlannerDashboardLayout = dynamic(() => Promise.resolve(PlannerDashboardLayoutContent), {
+  ssr: false,
+});
+
+export default PlannerDashboardLayout;
