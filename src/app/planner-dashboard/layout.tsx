@@ -12,9 +12,6 @@ import {
   LayoutDashboard,
   MessageCircle,
   Palette,
-  Scan,
-  Search,
-  Settings,
   Users,
   Bell,
   LogOut,
@@ -29,6 +26,7 @@ import {
   Shield,
   Hotel,
   Building,
+  Search,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -81,7 +79,7 @@ const sidebarNav = [
         links: [
             { href: "/planner-dashboard/vendor-hub", label: "Vendor Hub", icon: Search },
             { href: "/planner-dashboard/fashion-designers", label: "Fashion Designers", icon: Shirt },
-            { href: "/resources/hotels", label: "Find a Hotel", icon: Hotel },
+            { href: "/planner-dashboard/hotels", label: "Find a Hotel", icon: Hotel },
             { href: "/resources/venues", label: "Find a Venue", icon: Building },
         ]
     },
