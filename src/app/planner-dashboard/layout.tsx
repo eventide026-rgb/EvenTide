@@ -24,6 +24,7 @@ import {
   PartyPopper,
   Mail,
   Shirt,
+  Vote,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -82,6 +83,7 @@ const sidebarNav = [
         icon: Users,
         links: [
             { href: "/planner-dashboard/guests", label: "Guest List", icon: Users },
+            { href: "/planner-dashboard/polls", label: "Event Polls", icon: Vote },
             { href: "/planner-dashboard/team", label: "Team", icon: Contact },
             { href: "/planner-dashboard/contracts", label: "Vendor Contracts", icon: FileText },
         ]
