@@ -98,6 +98,13 @@ const sidebarNav = [
             { href: "/owner-dashboard/checkin-monitor", label: "Check-in Monitor", icon: CheckSquare },
         ]
     },
+    {
+        title: "Settings",
+        icon: Settings,
+        links: [
+            { href: "/owner-dashboard/account", label: "Account & Billing", icon: CreditCard },
+        ]
+    }
 ];
 
 const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
