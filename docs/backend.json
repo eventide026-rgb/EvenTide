@@ -120,6 +120,7 @@
         "imageUrls": { "type": "array", "items": { "type": "string", "format": "uri" }},
         "primaryColor": { "type": "string" },
         "secondaryColor": { "type": "string" },
+        "securityCode": { "type": "string", "description": "A temporary code for on-site security to activate scanners." },
         "curatedGalleries": {
           "type": "array",
           "description": "AI-curated photo galleries from the event.",
