@@ -47,6 +47,10 @@ service cloud.firestore {
     function isEventPlanner(eventId) {
       return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/planners/$(request.auth.uid));
     }
+    
+    function isEventPlannerByAssignment() {
+        return isSignedIn() && exists(/databases/$(database)/documents/planners/$(request.auth.uid));
+    }
 
     function isEventCohost(eventId) {
       return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/cohosts/$(request.auth.uid));
@@ -71,6 +75,11 @@ service cloud.firestore {
       return isEventStaff(eventId) || isEventGuest(eventId);
     }
     
+    // Security rule for the 'planners' collection group query
+    match /{path=**}/planners/{plannerId} {
+      allow list: if request.auth.uid == plannerId;
+    }
+
     // Begin Collection Rules
 
     match /hosts/{hostId} {
@@ -98,17 +107,13 @@ service cloud.firestore {
     match /users/{document=**} {
         allow list: if isSignedIn();
     }
+    
     match /planners/{plannerId} {
-        allow list: if isSignedIn();
-        allow get: if isSignedIn();
-        allow create: if request.auth.uid == plannerId;
-        allow update, delete: if request.auth.uid == plannerId;
-      }
-
+        allow read, write: if isOwner(plannerId);
+    }
 
     match /plannerProfiles/{plannerId} {
         allow get, list: if true;
-        allow read, write: if request.auth != null && request.auth.uid == plannerId;
         allow create: if request.auth.uid == plannerId;
         allow update, delete: if isOwner(plannerId);
     }
@@ -146,7 +151,7 @@ service cloud.firestore {
     }
     
     match /events/{eventId} {
-      allow get: if isEventStaff(eventId);
+      allow get: if isEventStaff(eventId) || isEventPlannerByAssignment();
       allow read: if request.auth != null;
       allow list: if false;
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
