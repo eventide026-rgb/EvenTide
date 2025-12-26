@@ -1,0 +1,70 @@
+
+'use client';
+
+import { use, Suspense } from 'react';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import { Loader2, ArrowLeft } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+
+function ProgramPreviewPageContent({ eventId }: { eventId: string }) {
+    const firestore = useFirestore();
+
+    const eventRef = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return doc(firestore, 'events', eventId);
+    }, [firestore, eventId]);
+
+    const { data: event, isLoading: isLoadingEvent } = useDoc(eventRef);
+    
+    const programRef = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return doc(firestore, 'events', eventId, 'program', 'main');
+    }, [firestore, eventId]);
+
+    const { data: program, isLoading: isLoadingProgram } = useDoc(programRef);
+
+
+    if (isLoadingEvent || isLoadingProgram) {
+        return (
+            <div className="flex h-full items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+        );
+    }
+
+    return (
+        <div className="max-w-2xl mx-auto">
+             <Button variant="outline" asChild className="mb-4">
+                <Link href={`/owner-dashboard/stationery-hub`}>
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Back to Stationery Hub
+                </Link>
+            </Button>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Program Card Preview</CardTitle>
+                    <CardDescription>This is a read-only preview of how your event program will appear to guests.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className='text-center py-16 border-dashed border-2 rounded-lg'>
+                        <p className='text-muted-foreground'>Program Card Preview will be implemented here.</p>
+                        {program && <p className='text-xs text-muted-foreground mt-2'>Loaded {program.program?.length || 0} items.</p>}
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+
+export default function ProgramPreviewPage({ params }: { params: Promise<{ eventId: string }> }) {
+    const { eventId } = use(params);
+
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin"/></div>}>
+            <ProgramPreviewPageContent eventId={eventId} />
+        </Suspense>
+    );
+}
