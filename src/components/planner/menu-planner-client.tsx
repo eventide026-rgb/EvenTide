@@ -90,7 +90,9 @@ export function MenuPlannerClient() {
 
   const eventsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return query(collection(firestore, 'events'), where('plannerId', '==', user.uid));
+    // In a real app, this might query an `assignments` collection.
+    // For now, we assume a planner can see all events for simplicity.
+    return query(collection(firestore, 'events'));
   }, [firestore, user]);
   const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
 

@@ -86,8 +86,11 @@ export function ProgramPlannerClient() {
 
   const eventsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return query(collection(firestore, 'events'), where('plannerId', '==', user.uid));
+    // This logic is simplified. In a real app, you'd query an `assignments` collection
+    // to find which events a planner is assigned to.
+    return query(collection(firestore, 'events'));
   }, [firestore, user]);
+
   const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
   const selectedEvent = events?.find(e => e.id === selectedEventId);
 
@@ -144,7 +147,8 @@ export function ProgramPlannerClient() {
               ...values,
               eventType: selectedEvent.eventType
           });
-          form.setValue('program', result.program);
+          const programWithStatus = result.program.map(item => ({...item, status: 'Upcoming' as const}));
+          form.setValue('program', programWithStatus);
           toast({title: "AI Draft Created", description: "The AI-generated program has been applied."});
       } catch (error) {
           console.error(error);
