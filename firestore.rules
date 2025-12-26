@@ -195,6 +195,11 @@ service cloud.firestore {
         allow update: if isEventOwner(eventId) && isExistingDoc();
         allow delete: if isEventOwner(eventId) && isExistingDoc();
       }
+
+      match /program/{docId} {
+        allow read: if isEventStaff(eventId);
+        allow write: if isEventPlanner(eventId);
+      }
     }
     
      match /events/{eventId}/moodboard/{moodboardId} {
@@ -339,3 +344,5 @@ service cloud.firestore {
 
   }
 }
+
+    
