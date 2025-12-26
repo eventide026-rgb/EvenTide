@@ -78,102 +78,104 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
 
   return (
     <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader>
-          <div className="flex items-center gap-2">
-            <Link href="/" className="flex items-center gap-2 font-headline font-bold text-lg">
-                <Logo />
-            </Link>
-            <SidebarTrigger className="ml-auto" />
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            {superAdminNav.map((item) => (
-              <SidebarMenuItem key={item.href}>
-                <Link href={item.href} legacyBehavior passHref>
-                  <SidebarMenuButton
-                    isActive={isNavItemActive(item.href)}
-                    tooltip={{ children: item.label }}
-                  >
-                    <item.icon />
-                    <span>{item.label}</span>
+      <div className="flex min-h-screen w-full flex-row bg-muted/40">
+        <Sidebar>
+          <SidebarHeader>
+            <div className="flex items-center gap-2">
+              <Link href="/" className="flex items-center gap-2 font-headline font-bold text-lg">
+                  <Logo />
+              </Link>
+              <SidebarTrigger className="ml-auto" />
+            </div>
+          </SidebarHeader>
+          <SidebarContent>
+            <SidebarMenu>
+              {superAdminNav.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <Link href={item.href} legacyBehavior passHref>
+                    <SidebarMenuButton
+                      isActive={isNavItemActive(item.href)}
+                      tooltip={{ children: item.label }}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+              <SidebarSeparator />
+              {userAdminNav.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <Link href={item.href} legacyBehavior passHref>
+                    <SidebarMenuButton
+                      isActive={pathname.startsWith(item.href)}
+                      tooltip={{ children: item.label }}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+              <SidebarSeparator />
+              {contentAdminNav.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <Link href={item.href} legacyBehavior passHref>
+                    <SidebarMenuButton
+                      isActive={pathname.startsWith(item.href)}
+                      tooltip={{ children: item.label }}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+              <SidebarSeparator />
+              {editorialAdminNav.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <Link href={item.href} legacyBehavior passHref>
+                    <SidebarMenuButton
+                      isActive={pathname.startsWith(item.href)}
+                      tooltip={{ children: item.label }}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarContent>
+          <SidebarFooter>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                  <SidebarMenuButton tooltip={{ children: 'Profile' }}>
+                      <Avatar className="h-8 w-8">
+                          <AvatarImage src="https://picsum.photos/seed/super-admin/100/100" alt="Super Admin" />
+                          <AvatarFallback>SA</AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col text-left">
+                          <span className="font-semibold">Super Admin</span>
+                          <span className="text-xs text-muted-foreground">super@eventide.app</span>
+                      </div>
                   </SidebarMenuButton>
-                </Link>
               </SidebarMenuItem>
-            ))}
-             <SidebarSeparator />
-             {userAdminNav.map((item) => (
-              <SidebarMenuItem key={item.href}>
-                <Link href={item.href} legacyBehavior passHref>
-                  <SidebarMenuButton
-                    isActive={pathname.startsWith(item.href)}
-                    tooltip={{ children: item.label }}
-                  >
-                    <item.icon />
-                    <span>{item.label}</span>
+              <SidebarMenuItem>
+                  <SidebarMenuButton tooltip={{ children: 'Logout' }} onClick={handleSignOut}>
+                      <LogOut />
+                      <span>Logout</span>
                   </SidebarMenuButton>
-                </Link>
               </SidebarMenuItem>
-            ))}
-            <SidebarSeparator />
-             {contentAdminNav.map((item) => (
-              <SidebarMenuItem key={item.href}>
-                <Link href={item.href} legacyBehavior passHref>
-                  <SidebarMenuButton
-                    isActive={pathname.startsWith(item.href)}
-                    tooltip={{ children: item.label }}
-                  >
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-            ))}
-             <SidebarSeparator />
-             {editorialAdminNav.map((item) => (
-              <SidebarMenuItem key={item.href}>
-                <Link href={item.href} legacyBehavior passHref>
-                  <SidebarMenuButton
-                    isActive={pathname.startsWith(item.href)}
-                    tooltip={{ children: item.label }}
-                  >
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter>
-           <SidebarMenu>
-            <SidebarMenuItem>
-                <SidebarMenuButton tooltip={{ children: 'Profile' }}>
-                    <Avatar className="h-8 w-8">
-                        <AvatarImage src="https://picsum.photos/seed/super-admin/100/100" alt="Super Admin" />
-                        <AvatarFallback>SA</AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col text-left">
-                        <span className="font-semibold">Super Admin</span>
-                        <span className="text-xs text-muted-foreground">super@eventide.app</span>
-                    </div>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
-             <SidebarMenuItem>
-                <SidebarMenuButton tooltip={{ children: 'Logout' }} onClick={handleSignOut}>
-                    <LogOut />
-                    <span>Logout</span>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
-           </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-      <SidebarInset>
-        <main className="min-h-svh bg-background p-4 sm:p-6 lg:p-8">
-            {children}
-        </main>
-      </SidebarInset>
+            </SidebarMenu>
+          </SidebarFooter>
+        </Sidebar>
+        <div className="flex flex-col flex-1 h-full">
+            <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+                {children}
+            </main>
+        </div>
+      </div>
     </SidebarProvider>
   );
 }
