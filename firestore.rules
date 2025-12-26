@@ -77,7 +77,10 @@ service cloud.firestore {
     
     // Security rule for the 'planners' collection group query
     match /{path=**}/planners/{plannerId} {
-      allow list: if request.auth.uid == plannerId;
+      allow list: if request.query.where.size() == 1 &&
+                   request.query.where[0][0] == 'userId' &&
+                   request.query.where[0][2] == request.auth.uid;
+      allow read, write: if isOwner(plannerId) || isEventOwner(path.split('/')[1]);
     }
 
     // Begin Collection Rules
@@ -380,3 +383,5 @@ service cloud.firestore {
 
   }
 }
+
+  
