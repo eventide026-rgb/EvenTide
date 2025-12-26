@@ -30,7 +30,7 @@ import {
   Settings,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Logo } from '@/components/layout/logo';
 import {
   Popover,
@@ -57,6 +57,7 @@ const sidebarNav = [
         links: [
             { href: "/planner-dashboard", label: "Dashboard", icon: LayoutDashboard },
             { href: "/planner-dashboard/notifications", label: "Notifications", icon: Bell },
+            { href: "/planner-dashboard/invitations", label: "Invitations", icon: Mail },
             { href: "/planner-dashboard/calendar", label: "Calendar", icon: Calendar },
             { href: "/planner-dashboard/analytics", label: "Analytics", icon: Percent },
             { href: "/planner-dashboard/my-network", label: "My Network", icon: Contact },

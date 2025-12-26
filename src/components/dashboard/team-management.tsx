@@ -67,6 +67,7 @@ type UserProfile = {
     email: string;
     firstName: string;
     lastName: string;
+    role: string;
 };
 
 type TeamMember = {
@@ -116,26 +117,12 @@ export function TeamManagement() {
 
   const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
 
-  const plannersQuery = useMemoFirebase(() => {
+  const teamMembersQuery = useMemoFirebase(() => {
       if(!firestore || !selectedEventId) return null;
-      return collection(firestore, 'events', selectedEventId, 'planners');
+      return collection(firestore, 'events', selectedEventId, 'teamMembers');
   }, [firestore, selectedEventId]);
 
-  const cohostsQuery = useMemoFirebase(() => {
-      if(!firestore || !selectedEventId) return null;
-      return collection(firestore, 'events', selectedEventId, 'cohosts');
-  }, [firestore, selectedEventId]);
-
-  const {data: planners} = useCollection(plannersQuery);
-  const {data: cohosts} = useCollection(cohostsQuery);
-  
-  // This is a placeholder for a more complex aggregation logic
-  const teamMembers = useMemo(() => {
-      const members: any[] = [];
-      if(planners) members.push(...planners.map(p => ({...p, role: 'Planner'})));
-      if(cohosts) members.push(...cohosts.map(c => ({...c, role: 'Co-host'})));
-      return members;
-  }, [planners, cohosts]);
+  const {data: teamMembers, isLoading: isLoadingTeam} = useCollection(teamMembersQuery);
 
   const handleSearchUser = async () => {
       if (!firestore) return;
@@ -148,7 +135,11 @@ export function TeamManagement() {
       setFoundUser(null);
       const userResult = await findUserByEmail(firestore, email);
       if(userResult) {
-          setFoundUser(userResult);
+          if (userResult.role === 'Owner') {
+            toast({ variant: 'destructive', title: 'Invalid Role', description: 'Event Owners cannot be invited as team members.'});
+          } else {
+            setFoundUser(userResult);
+          }
       } else {
           toast({ variant: 'destructive', title: 'User Not Found', description: `No user with email ${email} exists on EvenTide.`});
       }
@@ -158,15 +149,17 @@ export function TeamManagement() {
   const handleSendInvite = async () => {
     if (!firestore || !user || !selectedEventId || !foundUser) return;
 
-    const role = form.getValues('role');
-    const collectionName = role === 'Planner' ? 'planners' : 'cohosts';
+    const role = foundUser.role; // Use the user's registered role.
     const batch = writeBatch(firestore);
-
-    // 1. Create team member document
-    const teamMemberRef = doc(firestore, 'events', selectedEventId, collectionName, foundUser.id);
+    
+    // 1. Create team member document in the event subcollection
+    const teamMemberRef = doc(firestore, 'events', selectedEventId, 'teamMembers', foundUser.id);
     const teamMemberData = {
         userId: foundUser.id,
-        status: 'Pending',
+        name: `${foundUser.firstName} ${foundUser.lastName}`,
+        email: foundUser.email,
+        role: role,
+        status: 'pending',
         invitedAt: new Date(),
     };
     batch.set(teamMemberRef, teamMemberData);
@@ -174,8 +167,8 @@ export function TeamManagement() {
     // 2. Create notification for the invited user
     const notificationRef = doc(collection(firestore, 'users', foundUser.id, 'notifications'));
     const notificationData = {
-        message: `You have been invited to be a ${role} for an event.`,
-        link: `/planner-dashboard/invitations`,
+        message: `You've been invited by ${user.displayName} to be a ${role} for an event.`,
+        link: `/planner-dashboard/invitations`, // Direct link to invitations page
         read: false,
         createdAt: new Date(),
         userId: foundUser.id,
@@ -214,7 +207,8 @@ export function TeamManagement() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-            {teamMembers && teamMembers.length > 0 ? (
+            {isLoadingTeam && <div className="flex justify-center"><Loader2 className="h-6 w-6 animate-spin" /></div>}
+            {!isLoadingTeam && teamMembers && teamMembers.length > 0 ? (
                  <div className="rounded-md border">
                     <Table>
                         <TableHeader><TableRow>
@@ -226,9 +220,16 @@ export function TeamManagement() {
                         <TableBody>
                             {teamMembers.map(member => (
                                 <TableRow key={member.id}>
-                                    <TableCell>{member.id}</TableCell>
+                                    <TableCell>
+                                      <div className='font-medium'>{member.name}</div>
+                                      <div className="text-sm text-muted-foreground">{member.email}</div>
+                                    </TableCell>
                                     <TableCell><Badge variant="secondary">{member.role}</Badge></TableCell>
-                                    <TableCell>{member.status || 'Accepted'}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={member.status === 'pending' ? 'outline' : member.status === 'accepted' ? 'default' : 'destructive'}>
+                                            {member.status}
+                                        </Badge>
+                                    </TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
                                     </TableCell>
@@ -237,7 +238,7 @@ export function TeamManagement() {
                         </TableBody>
                     </Table>
                 </div>
-            ) : (
+            ) : !isLoadingTeam && (
                  <div className="text-center py-16 border-dashed border-2 rounded-lg">
                     <UserPlus className="mx-auto h-12 w-12 text-muted-foreground" />
                     <h3 className="mt-4 text-xl font-semibold">Your team is empty</h3>
@@ -290,20 +291,8 @@ export function TeamManagement() {
                                 <Card className="bg-muted p-4">
                                     <p className='font-semibold'>{foundUser.firstName} {foundUser.lastName}</p>
                                     <p className='text-sm text-muted-foreground'>{foundUser.email}</p>
-                                    <FormField control={form.control} name="role" render={({ field }) => (
-                                        <FormItem className='mt-4'>
-                                            <FormLabel>3. Assign Role</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="Planner">Planner</SelectItem>
-                                                    <SelectItem value="Co-host">Co-host</SelectItem>
-                                                    <SelectItem value="Security">Security</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </FormItem>
-                                    )} />
-                                    <Button className='w-full mt-4' onClick={handleSendInvite}>Send Invite</Button>
+                                     <Badge variant="outline" className='mt-2'>Role: {foundUser.role}</Badge>
+                                    <Button className='w-full mt-4' onClick={handleSendInvite}>Send Invite as {foundUser.role}</Button>
                                 </Card>
                             )}
                         </form>
@@ -315,5 +304,3 @@ export function TeamManagement() {
     </div>
   );
 }
-
-    

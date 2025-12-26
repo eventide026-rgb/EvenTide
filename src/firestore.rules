@@ -75,6 +75,14 @@ service cloud.firestore {
       return isEventStaff(eventId) || isEventGuest(eventId);
     }
     
+    // Security rule for the 'teamMembers' collection group query
+    match /{path=**}/teamMembers/{memberId} {
+      // Allow planner to read their own pending invitations across all events
+      allow get, list: if isOwner(memberId) && resource.data.status == 'pending';
+      // Allow planner to update their own invitation status
+      allow update: if isOwner(memberId) && request.resource.data.status in ['accepted', 'declined'];
+    }
+
     // Begin Collection Rules
 
     match /hosts/{hostId} {
@@ -82,6 +90,10 @@ service cloud.firestore {
 
         match /events/{eventId} {
             allow read, write: if isOwner(hostId);
+
+            match /teamMembers/{memberId} {
+              allow read, write: if isOwner(hostId);
+            }
         }
     }
 
@@ -94,8 +106,7 @@ service cloud.firestore {
       
       // Notifications can only be accessed by the user they belong to.
       match /notifications/{notificationId} {
-        allow read: if isOwner(userId);
-        allow write: if isOwner(userId) || isEventOwner(request.resource.data.eventId);
+        allow read, write: if isOwner(userId);
       }
     }
     
@@ -105,6 +116,11 @@ service cloud.firestore {
     
     match /planners/{plannerId} {
         allow read, write: if isOwner(plannerId);
+        
+        match /assignments/{assignmentId} {
+            allow read, list: if isOwner(plannerId);
+            allow update: if isOwner(plannerId); // Planner can accept/decline
+        }
     }
 
     match /plannerProfiles/{plannerId} {
@@ -226,6 +242,13 @@ service cloud.firestore {
                        (get(/databases/$(database)/documents/events/$(eventId)).data.guestLimit || 20);
         allow update: if (isEventStaff(eventId) || isOwner(guestId)) && isExistingDoc();
         allow delete: if isEventStaff(eventId) && isExistingDoc();
+      }
+      
+      match /invitations/{invitationId} {
+        allow read, update: if isEventStaff(eventId) || isOwner(resource.data.userId);
+        allow list: if isEventStaff(eventId);
+        allow create: if isEventStaff(eventId);
+        allow delete: if isEventStaff(eventId);
       }
     }
     
