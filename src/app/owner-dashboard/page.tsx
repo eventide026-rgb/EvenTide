@@ -90,7 +90,7 @@ export default function OwnerDashboardPage() {
         if (!selectedEvent && events.length > 0) {
             setSelectedEvent(events[0]);
         }
-    }, [events, selectedEvent]);
+    }, [events]);
     
     const isLoading = isUserLoading || isLoadingEvents;
 
