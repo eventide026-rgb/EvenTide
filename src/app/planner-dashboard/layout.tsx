@@ -80,8 +80,8 @@ const sidebarNav = [
         links: [
             { href: "/planner-dashboard/vendor-hub", label: "Vendor Hub", icon: Search },
             { href: "/planner-dashboard/fashion-designers", label: "Fashion Designers", icon: Shirt },
-            { href: "/planner-dashboard/hotels", label: "Find a Hotel", icon: Hotel },
-            { href: "/resources/venues", label: "Find a Venue", icon: Building },
+            { href: "/planner-dashboard/hotels", label: "Hotel Hub", icon: Hotel },
+            { href: "/planner-dashboard/venues", label: "Venue Hub", icon: Building },
         ]
     },
     {
