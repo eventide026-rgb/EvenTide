@@ -40,7 +40,7 @@ import {
 } from '@/components/ui/tooltip';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/firebase';
+import { useAuth, useUser } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { NotificationBell } from '@/components/layout/notification-bell';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
@@ -110,6 +110,14 @@ const sidebarNav = [
 
 const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
     const pathname = usePathname();
+
+    const isLinkActive = (href: string) => {
+        if (href === "/owner-dashboard") {
+            return pathname === href;
+        }
+        return pathname.startsWith(href);
+    };
+
     return (
         <>
             <h3 className="px-3 py-2 text-sm font-semibold text-muted-foreground">{navGroup.title}</h3>
@@ -120,7 +128,7 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
                             href={link.href}
                             className={cn(
                                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
-                                pathname.startsWith(link.href) && link.href !== "/owner-dashboard" || (pathname === "/owner-dashboard" && link.href === "/owner-dashboard") ? "bg-accent text-accent-foreground" : "text-foreground/80"
+                                isLinkActive(link.href) ? "bg-accent text-accent-foreground" : "text-foreground/80"
                             )}
                         >
                             <link.icon className="h-4 w-4" />
@@ -138,10 +146,11 @@ export default function OwnerDashboardLayout({ children }: { children: React.Rea
   const auth = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useUser();
 
   const handleSignOut = async () => {
     if (auth) {
-      const userName = sessionStorage.getItem('userName') || 'User';
+      const userName = user?.displayName || user?.email || 'User';
       await signOut(auth);
       sessionStorage.clear();
       toast({
@@ -152,11 +161,22 @@ export default function OwnerDashboardLayout({ children }: { children: React.Rea
     }
   };
 
+  const isGroupActive = (groupLinks: typeof sidebarNav[0]['links']) => {
+    return groupLinks.some(link => {
+        if (link.href === "/owner-dashboard") {
+            return pathname === link.href;
+        }
+        return pathname.startsWith(link.href);
+    });
+  }
+
   return (
     <SidebarProvider>
       <Sidebar>
         <SidebarHeader>
-          <Logo />
+          <Link href="/">
+            <Logo />
+          </Link>
           <SidebarTrigger />
         </SidebarHeader>
         <SidebarContent>
@@ -167,7 +187,7 @@ export default function OwnerDashboardLayout({ children }: { children: React.Rea
                     <PopoverTrigger asChild>
                       <SidebarMenuButton
                         tooltip={{ children: group.title }}
-                        isActive={group.links.some(l => pathname.startsWith(l.href))}
+                        isActive={isGroupActive(group.links)}
                       >
                         <group.icon />
                         <span>{group.title}</span>
