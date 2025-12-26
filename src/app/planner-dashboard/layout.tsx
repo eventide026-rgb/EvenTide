@@ -21,6 +21,7 @@ import {
   User,
   ClipboardList,
   Percent,
+  PartyPopper,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -58,6 +59,7 @@ const sidebarNav = [
         title: "Event Management",
         icon: Settings,
         links: [
+            { href: "/planner-dashboard/events", label: "Events", icon: PartyPopper },
             { href: "/planner-dashboard/program-menu", label: "Program & Menu", icon: FileText },
             { href: "/planner-dashboard/seating-chart", label: "Seating Chart", icon: Users },
             { href: "/planner-dashboard/mood-board", label: "Mood Board", icon: Palette },
