@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useDoc, useFirestore } from '@/firebase';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -86,10 +86,16 @@ export function ProgramPlannerClient({ eventId, isReadOnly = false }: ProgramPla
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const eventDocRef = doc(firestore, 'events', eventId);
+  const eventDocRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'events', eventId);
+  }, [firestore, eventId]);
   const { data: event, isLoading: isLoadingEvent } = useDoc<Event>(eventDocRef);
 
-  const programDocRef = doc(firestore, 'events', eventId, 'program', 'main');
+  const programDocRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'events', eventId, 'program', 'main');
+  }, [firestore, eventId]);
   const { data: initialProgramData, isLoading: isLoadingProgram } = useDoc<ProgramData>(programDocRef);
 
   const form = useForm<ProgramData>({

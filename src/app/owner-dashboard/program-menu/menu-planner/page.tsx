@@ -33,7 +33,7 @@ function MenuPlannerOwnerView() {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <MenuPlannerClient eventId={eventId} isReadOnly />
+                <MenuPlannerClient eventId={eventId} isReadOnly={true} />
             </CardContent>
         </Card>
     );

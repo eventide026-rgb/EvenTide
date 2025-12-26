@@ -33,7 +33,7 @@ function ProgramPlannerOwnerView() {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <ProgramPlannerClient eventId={eventId} isReadOnly />
+                <ProgramPlannerClient eventId={eventId} isReadOnly={true} />
             </CardContent>
         </Card>
     );
