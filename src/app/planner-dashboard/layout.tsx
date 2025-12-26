@@ -26,6 +26,7 @@ import {
   Shirt,
   Vote,
   Music,
+  Shield,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -111,6 +112,7 @@ const sidebarNav = [
         links: [
             { href: "/planner-dashboard/checkin-monitor", label: "Check-in Monitor", icon: Scan },
             { href: "/planner-dashboard/manual-checkin", label: "Manual Check-in", icon: CheckSquare },
+            { href: "/planner-dashboard/security-roster", label: "Security Roster", icon: Shield },
         ]
     },
 ];
