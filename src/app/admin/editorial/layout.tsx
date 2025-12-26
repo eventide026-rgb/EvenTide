@@ -43,6 +43,13 @@ export default function EditorialAdminLayout({ children }: { children: React.Rea
     }
   };
 
+  const isNavItemActive = (href: string) => {
+    if (href === "/admin/editorial/dashboard") {
+      return pathname === href;
+    }
+    return pathname.startsWith(href);
+  };
+
   return (
     <SidebarProvider>
       <Sidebar>
@@ -60,7 +67,7 @@ export default function EditorialAdminLayout({ children }: { children: React.Rea
               <SidebarMenuItem key={item.href}>
                 <Link href={item.href} legacyBehavior passHref>
                   <SidebarMenuButton
-                    isActive={pathname.startsWith(item.href)}
+                    isActive={isNavItemActive(item.href)}
                     tooltip={{ children: item.label }}
                   >
                     <item.icon />

@@ -69,12 +69,12 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
     }
   };
 
-  const allNavItems = [
-      ...superAdminNav,
-      ...userAdminNav,
-      ...contentAdminNav,
-      ...editorialAdminNav
-  ]
+  const isNavItemActive = (href: string) => {
+    if (href === "/admin/super/dashboard") {
+      return pathname === href;
+    }
+    return pathname.startsWith(href);
+  };
 
   return (
     <SidebarProvider>
@@ -93,7 +93,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
               <SidebarMenuItem key={item.href}>
                 <Link href={item.href} legacyBehavior passHref>
                   <SidebarMenuButton
-                    isActive={pathname.startsWith(item.href)}
+                    isActive={isNavItemActive(item.href)}
                     tooltip={{ children: item.label }}
                   >
                     <item.icon />

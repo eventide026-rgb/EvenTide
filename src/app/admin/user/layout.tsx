@@ -44,6 +44,13 @@ export default function UserAdminLayout({ children }: { children: React.ReactNod
     }
   };
 
+  const isNavItemActive = (href: string) => {
+    if (href === "/admin/user/dashboard") {
+      return pathname === href;
+    }
+    return pathname.startsWith(href);
+  };
+
   return (
     <SidebarProvider>
       <Sidebar>
@@ -61,7 +68,7 @@ export default function UserAdminLayout({ children }: { children: React.ReactNod
               <SidebarMenuItem key={item.href}>
                 <Link href={item.href} legacyBehavior passHref>
                   <SidebarMenuButton
-                    isActive={pathname.startsWith(item.href)}
+                    isActive={isNavItemActive(item.href)}
                     tooltip={{ children: item.label }}
                   >
                     <item.icon />

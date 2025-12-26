@@ -49,6 +49,13 @@ export default function ContentAdminLayout({ children }: { children: React.React
     }
   };
 
+  const isNavItemActive = (href: string) => {
+    if (href === "/admin/content/dashboard") {
+      return pathname === href;
+    }
+    return pathname.startsWith(href);
+  };
+
   return (
     <SidebarProvider>
       <Sidebar>
@@ -66,7 +73,7 @@ export default function ContentAdminLayout({ children }: { children: React.React
               <SidebarMenuItem key={item.href}>
                 <Link href={item.href} legacyBehavior passHref>
                   <SidebarMenuButton
-                    isActive={pathname.startsWith(item.href)}
+                    isActive={isNavItemActive(item.href)}
                     tooltip={{ children: item.label }}
                   >
                     <item.icon />

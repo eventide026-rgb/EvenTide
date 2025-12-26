@@ -64,6 +64,14 @@ const sidebarNav = [
 
 const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
     const pathname = usePathname();
+
+    const isLinkActive = (href: string) => {
+        if (href === "/guest-dashboard/my-invitations") {
+            return pathname === href;
+        }
+        return pathname.startsWith(href);
+    };
+
     return (
         <>
             <h3 className="px-3 py-2 text-sm font-semibold text-muted-foreground">{navGroup.title}</h3>
@@ -74,7 +82,7 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
                             href={link.href}
                             className={cn(
                                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
-                                pathname === link.href ? "bg-accent text-accent-foreground" : "text-foreground/80"
+                                isLinkActive(link.href) ? "bg-accent text-accent-foreground" : "text-foreground/80"
                             )}
                         >
                             <link.icon className="h-4 w-4" />
@@ -99,6 +107,15 @@ export default function GuestDashboardLayout({ children }: { children: React.Rea
     }
   };
 
+  const isGroupActive = (groupLinks: typeof sidebarNav[0]['links']) => {
+    return groupLinks.some(link => {
+        if (link.href === "/guest-dashboard/my-invitations") {
+            return pathname === link.href;
+        }
+        return pathname.startsWith(link.href);
+    });
+  }
+
   return (
     <TooltipProvider>
       <div className="flex min-h-screen bg-secondary text-foreground">
@@ -120,7 +137,7 @@ export default function GuestDashboardLayout({ children }: { children: React.Rea
                             size="icon"
                             className={cn(
                                 "h-10 w-10 rounded-lg",
-                                group.links.some(l => pathname.startsWith(l.href)) ? "bg-accent text-accent-foreground" : ""
+                                isGroupActive(group.links) ? "bg-accent text-accent-foreground" : ""
                             )}
                           >
                             <group.icon className="h-5 w-5" />
