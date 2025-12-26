@@ -87,10 +87,18 @@ export default function OwnerDashboardPage() {
 
     // Effect to set the selected event once data loads
     React.useEffect(() => {
-        if (!selectedEvent && events.length > 0) {
-            setSelectedEvent(events[0]);
+        if (!selectedEvent && eventsData && eventsData.length > 0) {
+            const firstEvent = {
+                ...eventsData[0],
+                date: eventsData[0].eventDate.toDate().toISOString(),
+                status: eventsData[0].eventDate.toDate() > new Date() ? 'Upcoming' : 'Completed',
+                guests: eventsData[0].guestCount || 0,
+                guestCapacity: eventsData[0].guestLimit || 20,
+                rsvpRate: eventsData[0].guestCount ? Math.round((eventsData[0].guestCount / (eventsData[0].guestLimit || 20)) * 100) : 0,
+            };
+            setSelectedEvent(firstEvent);
         }
-    }, [events]);
+    }, [eventsData, selectedEvent]);
     
     const isLoading = isUserLoading || isLoadingEvents;
 
