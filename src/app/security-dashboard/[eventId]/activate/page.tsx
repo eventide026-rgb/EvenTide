@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, use } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -31,7 +31,7 @@ const formSchema = z.object({
 });
 
 export default function ActivateScannerPage({ params }: { params: { eventId: string } }) {
-    const { eventId } = use(params);
+    const { eventId } = params;
     const { toast } = useToast();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -47,6 +47,7 @@ export default function ActivateScannerPage({ params }: { params: { eventId: str
     const validateCode = async (code: string) => {
         await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network latency
         // This is a placeholder. A real implementation would fetch the code from the event document.
+        // For demonstration, we'll use a simple hardcoded value.
         if (code.toUpperCase() === 'SECURE123') {
             return true;
         }
@@ -70,8 +71,8 @@ export default function ActivateScannerPage({ params }: { params: { eventId: str
                 description: 'The security code is incorrect. Please check with the event manager.',
             });
             form.reset();
+            setIsLoading(false);
         }
-        setIsLoading(false);
     }
 
     return (

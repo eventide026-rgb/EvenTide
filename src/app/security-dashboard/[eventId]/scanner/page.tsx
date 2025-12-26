@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef, useEffect, use } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ScanLine, CheckCircle, XCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 type ScanStatus = 'scanning' | 'success' | 'failure';
 
 export default function ScannerPage({ params }: { params: { eventId: string } }) {
-  const { eventId } = use(params);
+  const { eventId } = params;
   const [scanStatus, setScanStatus] = useState<ScanStatus>('scanning');
   const [scannedData, setScannedData] = useState<string | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
@@ -26,15 +26,10 @@ export default function ScannerPage({ params }: { params: { eventId: string } })
             setHasCameraPermission(true);
 
             if (videoRef.current) {
-            videoRef.current.srcObject = stream;
+                videoRef.current.srcObject = stream;
             }
         } else {
-            setHasCameraPermission(false);
-            toast({
-                variant: 'destructive',
-                title: 'Camera Not Supported',
-                description: 'Your device does not support camera access.',
-            });
+            throw new Error('getUserMedia not supported');
         }
       } catch (error) {
         console.error('Error accessing camera:', error);
