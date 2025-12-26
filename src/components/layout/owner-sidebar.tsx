@@ -55,7 +55,6 @@ const sidebarNav = [
             { href: "/owner-dashboard/program-menu", label: "Program & Menu", icon: ClipboardList },
             { href: "/owner-dashboard/seating-chart", label: "Seating Chart", icon: Users },
             { href: "/owner-dashboard/gift-registry", label: "Gift Registry", icon: Gift },
-            { href: "/owner-dashboard/song-requests", label: "Song Requests", icon: Music },
             { href: "/owner-dashboard/shot-list", label: "Shot List", icon: Camera },
             { href: "/owner-dashboard/media-library", label: "Media Library", icon: ImageIcon },
         ]
@@ -66,6 +65,7 @@ const sidebarNav = [
         links: [
             { href: "/owner-dashboard/guests", label: "Guests", icon: Users },
             { href: "/owner-dashboard/team", label: "Team", icon: Contact },
+            { href: "/owner-dashboard/song-requests", label: "Song Requests", icon: Music },
         ]
     },
     {
