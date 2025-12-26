@@ -87,8 +87,8 @@ export default function StationeryHubPage() {
     const studioLinks = [
         { title: "Invitation Studio", description: "Set your master theme, background, and fonts.", href: `/owner-dashboard/stationery-hub/invitation-studio/${selectedEventId}`, icon: Palette },
         { title: "Gatepass Preview", description: "See how the scannable digital gate pass will look.", href: `/owner-dashboard/stationery-hub/gatepass-preview/${selectedEventId}`, icon: Ticket },
-        { title: "Program Designer", description: "View the event program designed by your planner.", href: `/planner-dashboard/program-menu/program-planner`, icon: BookOpen },
-        { title: "AI Thank-You Notes", description: "Generate personalized thank-you notes for guests.", href: `#`, icon: Send },
+        { title: "Program Designer", description: "View the event program designed by your planner.", href: `/owner-dashboard/stationery-hub/program-preview/${selectedEventId}`, icon: BookOpen },
+        { title: "AI Thank-You Notes", description: "Generate personalized thank-you notes for guests.", href: `/owner-dashboard/stationery-hub/thank-you-notes/${selectedEventId}`, icon: Send },
     ];
 
     return (
@@ -178,7 +178,7 @@ export default function StationeryHubPage() {
                         <StudioCard 
                             key={link.title}
                             {...link}
-                            disabled={!selectedEvent || link.href.includes('#')}
+                            disabled={!selectedEvent}
                         />
                     ))}
                 </CardContent>
