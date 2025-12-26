@@ -47,17 +47,18 @@ export function EventCalendar() {
     }, [firestore, user]);
 
     const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
+    
+    // This is a simplified approach. A more robust solution might involve a more complex query strategy.
+    const firstEventId = events?.[0]?.id;
+    const tasksQuery = useMemoFirebase(() => {
+        if (!firestore || !firstEventId) return null;
+        return query(collection(firestore, 'events', firstEventId, 'tasks'));
+    }, [firestore, firstEventId]);
 
-    // This is a simplified approach for demonstration. In a real-world scenario with many events,
-    // you would fetch tasks for the visible month or selected event to avoid over-fetching.
-    const taskQueries = useMemo(() => {
-        if (!firestore || !events) return [];
-        return events.map(event => query(collection(firestore, 'events', event.id, 'tasks')));
-    }, [firestore, events]);
 
     // useCollection doesn't support an array of queries, so we'd need a custom hook or multiple calls.
     // For simplicity, we'll fetch tasks for the first event as a placeholder for the logic.
-    const { data: tasks, isLoading: isLoadingTasks } = useCollection<Task>(taskQueries.length > 0 ? taskQueries[0] : null);
+    const { data: tasks, isLoading: isLoadingTasks } = useCollection<Task>(tasksQuery);
 
     const isLoading = isLoadingEvents || isLoadingTasks;
 
