@@ -2,8 +2,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, doc, query, setDoc, where } from 'firebase/firestore';
+import { useDoc, useFirestore } from '@/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -14,7 +14,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -76,28 +75,21 @@ const aiFormSchema = z.object({
     mcName: z.string().optional(),
 });
 
-export function ProgramPlannerClient() {
-  const { user } = useUser();
+type ProgramPlannerClientProps = {
+    eventId: string;
+    isReadOnly?: boolean;
+}
+
+export function ProgramPlannerClient({ eventId, isReadOnly = false }: ProgramPlannerClientProps) {
   const firestore = useFirestore();
   const { toast } = useToast();
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const eventsQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null;
-    // This logic is simplified. In a real app, you'd query an `assignments` collection
-    // to find which events a planner is assigned to.
-    return query(collection(firestore, 'events'));
-  }, [firestore, user]);
+  const eventDocRef = doc(firestore, 'events', eventId);
+  const { data: event, isLoading: isLoadingEvent } = useDoc<Event>(eventDocRef);
 
-  const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
-  const selectedEvent = events?.find(e => e.id === selectedEventId);
-
-  const programDocRef = useMemoFirebase(() => {
-    if (!firestore || !selectedEventId) return null;
-    return doc(firestore, 'events', selectedEventId, 'program', 'main');
-  }, [firestore, selectedEventId]);
+  const programDocRef = doc(firestore, 'events', eventId, 'program', 'main');
   const { data: initialProgramData, isLoading: isLoadingProgram } = useDoc<ProgramData>(programDocRef);
 
   const form = useForm<ProgramData>({
@@ -123,7 +115,7 @@ export function ProgramPlannerClient() {
   }, [initialProgramData, form]);
 
   useEffect(() => {
-    if (form.isDirty && programDocRef) {
+    if (form.isDirty && programDocRef && !isReadOnly) {
       const saveChanges = async () => {
         setSaveStatus('saving');
         try {
@@ -137,15 +129,15 @@ export function ProgramPlannerClient() {
       };
       saveChanges();
     }
-  }, [debouncedFormValues, form, programDocRef]);
+  }, [debouncedFormValues, form, programDocRef, isReadOnly]);
   
   const handleGenerateProgram = async (values: z.infer<typeof aiFormSchema>) => {
-      if(!selectedEvent) return;
+      if(!event) return;
       setIsGenerating(true);
       try {
           const result = await generateProgramSuggestions({
               ...values,
-              eventType: selectedEvent.eventType
+              eventType: event.eventType
           });
           const programWithStatus = result.program.map(item => ({...item, status: 'Upcoming' as const}));
           form.setValue('program', programWithStatus);
@@ -158,69 +150,65 @@ export function ProgramPlannerClient() {
       }
   }
 
-  return (
-    <div className="grid md:grid-cols-3 gap-8 items-start">
+  const isLoading = isLoadingEvent || isLoadingProgram;
+
+  const MainContent = () => (
+    <Form {...form}>
+        <form className='space-y-4'>
+            {fields.map((field, index) => (
+                <Card key={field.id} className={isReadOnly ? "bg-muted/30" : ""}>
+                    <CardContent className="p-4 grid grid-cols-12 gap-4">
+                         <FormField control={form.control} name={`program.${index}.title`} render={({field}) => (
+                            <FormItem className="col-span-12"><FormLabel>Title</FormLabel><FormControl><Input {...field} readOnly={isReadOnly} /></FormControl><FormMessage/></FormItem>
+                         )}/>
+                          <FormField control={form.control} name={`program.${index}.startTime`} render={({field}) => (
+                            <FormItem className="col-span-3"><FormLabel>Start Time</FormLabel><FormControl><Input type="time" {...field} readOnly={isReadOnly} /></FormControl><FormMessage/></FormItem>
+                         )}/>
+                          <FormField control={form.control} name={`program.${index}.duration`} render={({field}) => (
+                            <FormItem className="col-span-3"><FormLabel>Duration (min)</FormLabel><FormControl><Input type="number" {...field} readOnly={isReadOnly} /></FormControl><FormMessage/></FormItem>
+                         )}/>
+                           <FormField control={form.control} name={`program.${index}.status`} render={({field}) => (
+                            <FormItem className="col-span-4"><FormLabel>Status</FormLabel>
+                             <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isReadOnly}>
+                                <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
+                                <SelectContent><SelectItem value="Upcoming">Upcoming</SelectItem><SelectItem value="In Progress">In Progress</SelectItem><SelectItem value="Completed">Completed</SelectItem></SelectContent>
+                             </Select>
+                            <FormMessage/></FormItem>
+                         )}/>
+                         {!isReadOnly && (
+                         <div className="col-span-2 flex items-end">
+                            <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}><Trash2 className="h-4 w-4"/></Button>
+                         </div>
+                         )}
+                          <FormField control={form.control} name={`program.${index}.notes`} render={({field}) => (
+                            <FormItem className="col-span-12"><FormLabel>Notes for MC</FormLabel><FormControl><Textarea {...field} rows={2} readOnly={isReadOnly}/></FormControl><FormMessage/></FormItem>
+                         )}/>
+                    </CardContent>
+                </Card>
+            ))}
+            {!isReadOnly && (
+                <Button type="button" variant="outline" onClick={() => append({ title: '', startTime: '00:00', duration: 10, notes: '', status: 'Upcoming' })}>
+                   <PlusCircle className="mr-2 h-4 w-4" /> Add Program Item
+                </Button>
+            )}
+        </form>
+    </Form>
+  );
+
+  const PlannerView = () => (
+     <div className="grid md:grid-cols-3 gap-8 items-start">
       <div className="md:col-span-2 space-y-4">
         <Card>
           <CardHeader>
             <CardTitle>Order of Events</CardTitle>
-            <div className="flex items-center justify-between">
-                 <Label htmlFor="event-select">Select Event</Label>
+             <div className="flex items-center justify-between">
+                 <Label>{event?.name || 'Loading...'}</Label>
                  {saveStatus === 'saving' && <span className="text-sm flex items-center gap-1 text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin"/>Saving...</span>}
                  {saveStatus === 'saved' && <span className="text-sm flex items-center gap-1 text-green-600"><Save className="h-3 w-3"/>All changes saved</span>}
             </div>
-             <Select onValueChange={setSelectedEventId} disabled={isLoadingEvents}>
-                <SelectTrigger id="event-select">
-                    <SelectValue placeholder={isLoadingEvents ? 'Loading events...' : 'Choose an event'}/>
-                </SelectTrigger>
-                <SelectContent>
-                    {events?.map(e => <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>)}
-                </SelectContent>
-            </Select>
           </CardHeader>
           <CardContent>
-            {isLoadingProgram && selectedEventId ? (
-                <Loader2 className="h-8 w-8 animate-spin mx-auto" />
-            ) : selectedEventId ? (
-                <Form {...form}>
-                    <form className='space-y-4'>
-                        {fields.map((field, index) => (
-                            <Card key={field.id}>
-                                <CardContent className="p-4 grid grid-cols-12 gap-4">
-                                     <FormField control={form.control} name={`program.${index}.title`} render={({field}) => (
-                                        <FormItem className="col-span-12"><FormLabel>Title</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
-                                     )}/>
-                                      <FormField control={form.control} name={`program.${index}.startTime`} render={({field}) => (
-                                        <FormItem className="col-span-3"><FormLabel>Start Time</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage/></FormItem>
-                                     )}/>
-                                      <FormField control={form.control} name={`program.${index}.duration`} render={({field}) => (
-                                        <FormItem className="col-span-3"><FormLabel>Duration (min)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage/></FormItem>
-                                     )}/>
-                                       <FormField control={form.control} name={`program.${index}.status`} render={({field}) => (
-                                        <FormItem className="col-span-4"><FormLabel>Status</FormLabel>
-                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
-                                            <SelectContent><SelectItem value="Upcoming">Upcoming</SelectItem><SelectItem value="In Progress">In Progress</SelectItem><SelectItem value="Completed">Completed</SelectItem></SelectContent>
-                                         </Select>
-                                        <FormMessage/></FormItem>
-                                     )}/>
-                                     <div className="col-span-2 flex items-end">
-                                        <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}><Trash2 className="h-4 w-4"/></Button>
-                                     </div>
-                                      <FormField control={form.control} name={`program.${index}.notes`} render={({field}) => (
-                                        <FormItem className="col-span-12"><FormLabel>Notes for MC</FormLabel><FormControl><Textarea {...field} rows={2} /></FormControl><FormMessage/></FormItem>
-                                     )}/>
-                                </CardContent>
-                            </Card>
-                        ))}
-                        <Button type="button" variant="outline" onClick={() => append({ title: '', startTime: '00:00', duration: 10, notes: '', status: 'Upcoming' })}>
-                           <PlusCircle className="mr-2 h-4 w-4" /> Add Program Item
-                        </Button>
-                    </form>
-                </Form>
-            ) : (
-                <p className='text-center text-muted-foreground py-8'>Select an event to start building the program.</p>
-            )}
+            {isLoading ? <Loader2 className="h-8 w-8 animate-spin mx-auto" /> : <MainContent />}
           </CardContent>
         </Card>
       </div>
@@ -244,7 +232,7 @@ export function ProgramPlannerClient() {
                         <FormField control={aiForm.control} name="mcName" render={({field}) => (
                             <FormItem><FormLabel>MC Name (Optional)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
                         )}/>
-                         <Button type="submit" className="w-full" disabled={isGenerating || !selectedEventId}>
+                         <Button type="submit" className="w-full" disabled={isGenerating}>
                             {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
                             {isGenerating ? 'Generating...' : 'Generate Program'}
                         </Button>
@@ -255,4 +243,6 @@ export function ProgramPlannerClient() {
       </div>
     </div>
   );
+
+  return isReadOnly ? <MainContent /> : <PlannerView />;
 }

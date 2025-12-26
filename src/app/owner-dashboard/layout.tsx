@@ -87,6 +87,7 @@ const sidebarNav = [
         title: "Operations",
         icon: Settings,
         links: [
+            { href: "/owner-dashboard/program-menu", label: "Program & Menu", icon: ClipboardList },
             { href: "/owner-dashboard/contracts-tasks", label: "Contracts & Tasks", icon: FileText },
             { href: "/owner-dashboard/expenses", label: "Expenses", icon: CreditCard },
         ]
