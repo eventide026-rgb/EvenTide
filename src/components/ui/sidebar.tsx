@@ -48,6 +48,14 @@ function useSidebar() {
   return context
 }
 
+const getCookie = (name: string): string | undefined => {
+  if (typeof document === 'undefined') return undefined;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift();
+  return undefined;
+};
+
 const SidebarProvider = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
@@ -73,7 +81,18 @@ const SidebarProvider = React.forwardRef<
 
     // This is the internal state of the sidebar.
     // We use openProp and setOpenProp for control from outside the component.
-    const [_open, _setOpen] = React.useState(defaultOpen)
+    const [isInitialized, setIsInitialized] = React.useState(false);
+    const [_open, _setOpen] = React.useState(defaultOpen);
+
+    React.useEffect(() => {
+        const cookieValue = getCookie(SIDEBAR_COOKIE_NAME);
+        if (cookieValue) {
+            _setOpen(cookieValue === 'true');
+        }
+        setIsInitialized(true);
+    }, []);
+    
+
     const open = openProp ?? _open
     const setOpen = React.useCallback(
       (value: boolean | ((value: boolean) => boolean)) => {
@@ -143,6 +162,7 @@ const SidebarProvider = React.forwardRef<
             }
             className={cn(
               "group/sidebar-wrapper flex min-h-svh w-full",
+              !isInitialized && "invisible",
               className
             )}
             ref={ref}
