@@ -9,7 +9,8 @@ import {
   useMemoFirebase,
 } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
-import { DayPicker, DayProps, Day } from 'react-day-picker';
+import { DayPicker, DayContentProps, Day } from 'react-day-picker';
+import 'react-day-picker/dist/style.css'; // ✅ required styles
 import { isSameDay, format } from 'date-fns';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -44,7 +45,7 @@ type CalendarItem = {
 };
 
 /* ------------------------------------------------------------------ */
-/* Component                                                          */
+/* Page Component                                                     */
 /* ------------------------------------------------------------------ */
 
 export function EventCalendar() {
@@ -55,7 +56,7 @@ export function EventCalendar() {
   );
 
   /* ---------------------------------------------------------------- */
-  /* Events (auth-safe)                                               */
+  /* Events                                                           */
   /* ---------------------------------------------------------------- */
 
   const eventsQuery = useMemoFirebase(() => {
@@ -70,16 +71,14 @@ export function EventCalendar() {
     useCollection<Event>(eventsQuery);
 
   /* ---------------------------------------------------------------- */
-  /* Tasks (simplified: first event only)                              */
+  /* Tasks (simplified: first event only)                             */
   /* ---------------------------------------------------------------- */
 
   const firstEventId = events?.[0]?.id;
 
   const tasksQuery = useMemoFirebase(() => {
     if (!firestore || !firstEventId) return null;
-    return query(
-      collection(firestore, 'events', firstEventId, 'tasks')
-    );
+    return query(collection(firestore, 'events', firstEventId, 'tasks'));
   }, [firestore, firstEventId]);
 
   const { data: tasks, isLoading: isLoadingTasks } =
@@ -88,7 +87,7 @@ export function EventCalendar() {
   const isLoading = isLoadingEvents || isLoadingTasks;
 
   /* ---------------------------------------------------------------- */
-  /* Build calendar items safely                                      */
+  /* Build calendar items                                             */
   /* ---------------------------------------------------------------- */
 
   const calendarItems = useMemo<CalendarItem[]>(() => {
@@ -131,19 +130,18 @@ export function EventCalendar() {
   }, [calendarItems, selectedDate]);
 
   /* ---------------------------------------------------------------- */
-  /* Custom Day Renderer (react-day-picker v8+)                        */
+  /* Custom DayContent Renderer                                       */
   /* ---------------------------------------------------------------- */
 
-  function DayWithDot(props: DayProps) {
-    const hasItem = datesWithItems.some((d) =>
-      isSameDay(d, props.date)
-    );
+  function DayWithDot(props: DayContentProps) {
+    const hasItem = datesWithItems.some((d) => isSameDay(d, props.date));
     return (
-        <Day {...props}>
+        <div className="relative flex items-center justify-center h-full w-full">
+            <Day {...props} />
             {hasItem && (
-                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
+            <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
             )}
-        </Day>
+        </div>
     );
   }
 
@@ -160,76 +158,71 @@ export function EventCalendar() {
   }
 
   /* ---------------------------------------------------------------- */
-  /* Render                                                          */
+  /* Render                                                           */
   /* ---------------------------------------------------------------- */
 
   return (
     <div className="grid md:grid-cols-3 gap-8 min-h-[600px]">
-      {/* Calendar */}
-      <Card className="md:col-span-2">
+        {/* Calendar */}
+        <Card className="md:col-span-2">
         <CardContent className="p-4">
-          <DayPicker
+            <DayPicker
             mode="single"
             selected={selectedDate}
             onSelect={setSelectedDate}
             className="w-full"
             components={{
-              Day: DayWithDot
+                Day: DayWithDot,
             }}
-          />
+            />
         </CardContent>
-      </Card>
+        </Card>
 
-      {/* Agenda */}
-      <Card>
+        {/* Agenda */}
+        <Card>
         <CardHeader>
-          <CardTitle>
-            Agenda for{' '}
-            {selectedDate ? format(selectedDate, 'PPP') : '—'}
-          </CardTitle>
+            <CardTitle>
+            Agenda for {selectedDate ? format(selectedDate, 'PPP') : '—'}
+            </CardTitle>
         </CardHeader>
         <CardContent>
-          {selectedDayItems.length === 0 ? (
+            {selectedDayItems.length === 0 ? (
             <p className="text-muted-foreground text-center py-6">
-              No events or tasks for this day.
+                No events or tasks for this day.
             </p>
-          ) : (
+            ) : (
             <ul className="space-y-4">
-              {selectedDayItems.map((item) => (
+                {selectedDayItems.map((item) => (
                 <li
-                  key={`${item.type}-${item.id}`}
-                  className="flex gap-3"
+                    key={`${item.type}-${item.id}`}
+                    className="flex gap-3"
                 >
-                  {item.type === 'event' ? (
+                    {item.type === 'event' ? (
                     <CalendarCheck className="h-5 w-5 text-primary mt-1" />
-                  ) : (
+                    ) : (
                     <CheckSquare className="h-5 w-5 text-blue-500 mt-1" />
-                  )}
-                  <div>
+                    )}
+                    <div>
                     <p className="font-semibold">{item.title}</p>
                     <div className="flex gap-2 mt-1">
-                      <Badge
+                        <Badge
                         variant={
-                          item.type === 'event'
-                            ? 'default'
-                            : 'secondary'
+                            item.type === 'event' ? 'default' : 'secondary'
                         }
-                      >
+                        >
                         {item.type}
-                      </Badge>
-                      {item.task && (
-                        <Badge variant="outline">
-                          {item.task.status}
                         </Badge>
-                      )}
+                        {item.task && (
+                        <Badge variant="outline">{item.task.status}</Badge>
+                        )}
                     </div>
-                  </div>
+                    </div>
                 </li>
-              ))}
+                ))}
             </ul>
-          )}
+            )}
         </CardContent>
-      </Card>
+        </Card>
     </div>
   );
 }
