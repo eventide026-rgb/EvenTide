@@ -39,7 +39,7 @@ export default function NotificationsPage() {
         <Card>
             <CardHeader>
                 <CardTitle>Notifications</CardTitle>
-                <CardDescription>All your event-related notifications in one place.</CardDescription>
+                <CardDescription>All your job-related notifications in one place.</CardDescription>
             </CardHeader>
             <CardContent>
                 {isLoading || isUserLoading ? (
