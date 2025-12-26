@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -93,7 +92,7 @@ export function PrivateEventForm() {
 
         try {
             const eventsCol = collection(firestore, "events");
-            const docRef = await addDoc(eventsCol, eventData);
+            await addDoc(eventsCol, eventData);
             
             toast({
                 title: "Event Created!",
@@ -186,7 +185,7 @@ export function PrivateEventForm() {
                                             initialFocus
                                         />
                                         <div className="p-2 border-t">
-                                            <Input type="time" defaultValue={format(field.value || new Date(), 'HH:mm')} onChange={(e) => {
+                                            <Input type="time" defaultValue={field.value ? format(field.value, 'HH:mm') : '12:00'} onChange={(e) => {
                                                 const [hours, minutes] = e.target.value.split(':');
                                                 const newDate = new Date(field.value || new Date());
                                                 newDate.setHours(parseInt(hours), parseInt(minutes));
