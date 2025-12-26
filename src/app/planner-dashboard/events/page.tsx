@@ -178,7 +178,7 @@ export default function PlannerEventsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold font-headline">My Events</h1>
+        <h1 className="text-3xl font-bold font-headline">My Assigned Events</h1>
         <p className="text-muted-foreground">
           Manage your job invitations and active gigs.
         </p>

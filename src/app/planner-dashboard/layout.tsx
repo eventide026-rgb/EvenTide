@@ -58,7 +58,6 @@ const sidebarNav = [
             { href: "/planner-dashboard", label: "Dashboard", icon: LayoutDashboard },
             { href: "/planner-dashboard/notifications", label: "Notifications", icon: Bell },
             { href: "/planner-dashboard/calendar", label: "Calendar", icon: Calendar },
-            { href: "/planner-dashboard/events", label: "My Events", icon: Briefcase },
             { href: "/planner-dashboard/analytics", label: "Analytics", icon: Percent },
             { href: "/planner-dashboard/my-network", label: "My Network", icon: Contact },
         ]
@@ -67,6 +66,7 @@ const sidebarNav = [
         title: "Event Management",
         icon: Settings,
         links: [
+            { href: "/planner-dashboard/events", label: "Assigned Events", icon: Briefcase },
             { href: "/planner-dashboard/program-menu", label: "Program & Menu", icon: FileText },
             { href: "/planner-dashboard/seating-chart", label: "Seating Chart", icon: Users },
             { href: "/planner-dashboard/mood-board", label: "Mood Board", icon: Palette },
