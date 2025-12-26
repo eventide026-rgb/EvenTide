@@ -20,6 +20,7 @@ import {
   Settings,
   User,
   ClipboardList,
+  Percent,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -50,6 +51,7 @@ const sidebarNav = [
             { href: "/planner-dashboard", label: "Dashboard", icon: LayoutDashboard },
             { href: "/planner-dashboard/calendar", label: "Calendar", icon: Calendar },
             { href: "/planner-dashboard/invitations", label: "Job Invitations", icon: FileText },
+            { href: "/planner-dashboard/analytics", label: "Analytics", icon: Percent },
         ]
     },
     {
