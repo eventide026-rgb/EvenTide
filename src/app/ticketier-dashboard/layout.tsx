@@ -13,7 +13,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  SidebarInset,
 } from "@/components/ui/sidebar";
 import {
   Home,
@@ -85,7 +84,7 @@ export default function TicketierDashboardLayout({ children }: { children: React
             <SidebarMenu>
               <SidebarMenuItem>
                   <Link href="/ticketier-dashboard/profile" legacyBehavior passHref>
-                      <SidebarMenuButton 
+                      <SidebarMenuButton
                           isActive={pathname === "/ticketier-dashboard/profile"}
                           tooltip={{ children: 'Profile' }}
                       >
@@ -109,9 +108,9 @@ export default function TicketierDashboardLayout({ children }: { children: React
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-1 flex-col overflow-hidden">
           <DashboardHeader />
-          <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
               {children}
           </main>
         </div>

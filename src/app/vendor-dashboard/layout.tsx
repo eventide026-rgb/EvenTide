@@ -129,7 +129,7 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
   const auth = useAuth();
   const router = useRouter();
 
-  const [specialty, setSpecialty] = useState(""); 
+  const [specialty, setSpecialty] = useState("");
 
   const userDocRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;

@@ -12,8 +12,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarFooter,
-  SidebarInset,
 } from "@/components/ui/sidebar";
 import {
   Home,
@@ -23,7 +21,6 @@ import {
   Mail,
   Briefcase,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/layout/logo";
 import { useAuth } from "@/firebase";
 import { signOut } from "firebase/auth";
@@ -55,8 +52,8 @@ export default function CoHostDashboardLayout({ children }: { children: React.Re
   };
 
   return (
-    <div className="flex h-screen w-full flex-row bg-muted/40 overflow-hidden">
-        <SidebarProvider>
+    <SidebarProvider>
+      <div className="flex h-screen w-full flex-row bg-muted/40 overflow-hidden">
         <Sidebar>
             <SidebarHeader>
             <Link href="/">
@@ -82,13 +79,13 @@ export default function CoHostDashboardLayout({ children }: { children: React.Re
             </SidebarMenu>
             </SidebarContent>
         </Sidebar>
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-1 flex-col overflow-hidden">
             <DashboardHeader />
-            <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+            <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
                 {children}
             </main>
         </div>
-        </SidebarProvider>
-    </div>
+      </div>
+    </SidebarProvider>
   );
 }

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -50,7 +49,7 @@ type CalendarItem = {
 /* Page Component                                                     */
 /* ------------------------------------------------------------------ */
 
-export function EventCalendar() {
+export default function CalendarPage() {
   const firestore = useFirestore();
   const { user } = useUser();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -142,17 +141,32 @@ export function EventCalendar() {
   /* ---------------------------------------------------------------- */
 
   function DayWithDot(props: DayProps) {
-    const hasItem = useMemo(() => 
-        props.date && calendarItems.some((item) => isSameDay(item.date, props.date))
-    , [calendarItems, props.date]);
-    
+    const { day, children, className } = props;
+    const date = day.date;
+
+    const hasOwned = calendarItems.some(
+      (i) => i.source === 'owned' && isSameDay(i.date, date)
+    );
+    const hasInvited = calendarItems.some(
+      (i) => i.source === 'invited' && isSameDay(i.date, date)
+    );
+    const hasTask = calendarItems.some(
+      (i) => i.type === 'task' && isSameDay(i.date, date)
+    );
+
     return (
-        <Day {...props}>
-          {props.date ? props.date.getDate() : ''}
-          {hasItem && (
-            <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
-          )}
-        </Day>
+      <Day {...props} className={`relative ${className ?? ''}`}>
+        {children}
+        {hasOwned && (
+          <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
+        )}
+        {hasInvited && (
+          <span className="absolute bottom-1 left-[40%] h-1 w-1 rounded-full bg-blue-500" />
+        )}
+        {hasTask && (
+          <span className="absolute bottom-1 left-[60%] h-1 w-1 rounded-full bg-green-500" />
+        )}
+      </Day>
     );
   }
 
@@ -173,77 +187,90 @@ export function EventCalendar() {
   /* ---------------------------------------------------------------- */
 
   return (
-    <div className="grid md:grid-cols-3 gap-8 min-h-[600px]">
-      {/* Calendar */}
-      <Card className="md:col-span-2">
-        <CardContent className="p-4">
-          <DayPicker
-            mode="single"
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-            className="w-full"
-            components={{
-              Day: DayWithDot,
-            }}
-          />
-        </CardContent>
-      </Card>
+    <div className="h-full flex flex-col">
+      <header className="pb-4 border-b">
+        <div>
+          <h1 className="text-3xl font-bold font-headline">My Calendar</h1>
+          <p className="text-muted-foreground">
+            A unified view of all your owned and invited events, plus tasks.
+          </p>
+        </div>
+      </header>
 
-      {/* Agenda */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            Agenda for {selectedDate ? format(selectedDate, 'PPP') : '—'}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {selectedDayItems.length === 0 ? (
-            <p className="text-muted-foreground text-center py-6">
-              No events or tasks for this day.
-            </p>
-          ) : (
-            <ul className="space-y-4">
-              {selectedDayItems.map((item) => (
-                <li key={`${item.type}-${item.id}`} className="flex gap-3">
-                  {item.type === 'event' ? (
-                    <CalendarCheck
-                      className={`h-5 w-5 mt-1 ${
-                        item.source === 'owned'
-                          ? 'text-primary'
-                          : 'text-blue-500'
-                      }`}
-                    />
-                  ) : (
-                    <CheckSquare className="h-5 w-5 text-green-500 mt-1" />
-                  )}
-                  <div>
-                    <p className="font-semibold">{item.title}</p>
-                    <div className="flex gap-2 mt-1">
-                      <Badge
-                        variant={
-                          item.type === 'event'
-                            ? item.source === 'owned'
-                              ? 'default'
-                              : 'secondary'
-                            : 'secondary'
-                        }
-                      >
-                        {item.type}
-                      </Badge>
-                      {item.source && (
-                        <Badge variant="outline">{item.source}</Badge>
+      <div className="flex-1 mt-6">
+        <div className="grid md:grid-cols-3 gap-8 min-h-[600px]">
+          {/* Calendar */}
+          <Card className="md:col-span-2">
+            <CardContent className="p-4">
+              <DayPicker
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                className="w-full"
+                components={{
+                  Day: DayWithDot,
+                }}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Agenda */}
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                Agenda for {selectedDate ? format(selectedDate, 'PPP') : '—'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {selectedDayItems.length === 0 ? (
+                <p className="text-muted-foreground text-center py-6">
+                  No events or tasks for this day.
+                </p>
+              ) : (
+                <ul className="space-y-4">
+                  {selectedDayItems.map((item) => (
+                    <li key={`${item.type}-${item.id}`} className="flex gap-3">
+                      {item.type === 'event' ? (
+                        <CalendarCheck
+                          className={`h-5 w-5 mt-1 ${
+                            item.source === 'owned'
+                              ? 'text-primary'
+                              : 'text-blue-500'
+                          }`}
+                        />
+                      ) : (
+                        <CheckSquare className="h-5 w-5 text-green-500 mt-1" />
                       )}
-                      {item.task && (
-                        <Badge variant="outline">{item.task.status}</Badge>
-                      )}
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+                      <div>
+                        <p className="font-semibold">{item.title}</p>
+                        <div className="flex gap-2 mt-1">
+                          <Badge
+                            variant={
+                              item.type === 'event'
+                                ? item.source === 'owned'
+                                  ? 'default'
+                                  : 'secondary'
+                                : 'secondary'
+                            }
+                          >
+                            {item.type}
+                          </Badge>
+                          {item.source && (
+                            <Badge variant="outline">{item.source}</Badge>
+                          )}
+                          {item.task && (
+                            <Badge variant="outline">{item.task.status}</Badge>
+                          )}
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

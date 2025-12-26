@@ -145,45 +145,45 @@ export default function PlannerDashboardLayout({ children }: { children: React.R
 
 
   return (
-    <div className="flex h-screen w-full flex-row bg-muted/40 overflow-hidden">
-        <SidebarProvider>
-            <Sidebar>
-                <SidebarHeader>
-                <Link href="/">
-                    <Logo />
-                </Link>
-                <SidebarTrigger />
-                </SidebarHeader>
-                <SidebarContent>
-                <SidebarMenu>
-                    {sidebarNav.map(group => (
-                    <SidebarMenuItem key={group.title}>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                            <SidebarMenuButton
-                                tooltip={{ children: group.title }}
-                                isActive={isGroupActive(group.links)}
-                            >
-                                <group.icon />
-                                <span>{group.title}</span>
-                            </SidebarMenuButton>
-                            </PopoverTrigger>
-                            <PopoverContent side="right" align="start" className="ml-2 w-56 p-0">
-                                <FlyoutMenu navGroup={group} />
-                            </PopoverContent>
-                        </Popover>
-                    </SidebarMenuItem>
-                    ))}
-                </SidebarMenu>
-                </SidebarContent>
-            </Sidebar>
-             <div className="flex flex-col flex-1">
-                <DashboardHeader />
-                <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-                  {children}
-                </main>
-            </div>
-        </SidebarProvider>
-    </div>
+    <SidebarProvider>
+      <div className="flex h-screen w-full flex-row bg-muted/40 overflow-hidden">
+        <Sidebar>
+            <SidebarHeader>
+            <Link href="/">
+                <Logo />
+            </Link>
+            <SidebarTrigger />
+            </SidebarHeader>
+            <SidebarContent>
+            <SidebarMenu>
+                {sidebarNav.map(group => (
+                <SidebarMenuItem key={group.title}>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                        <SidebarMenuButton
+                            tooltip={{ children: group.title }}
+                            isActive={isGroupActive(group.links)}
+                        >
+                            <group.icon />
+                            <span>{group.title}</span>
+                        </SidebarMenuButton>
+                        </PopoverTrigger>
+                        <PopoverContent side="right" align="start" className="ml-2 w-56 p-0">
+                            <FlyoutMenu navGroup={group} />
+                        </PopoverContent>
+                    </Popover>
+                </SidebarMenuItem>
+                ))}
+            </SidebarMenu>
+            </SidebarContent>
+        </Sidebar>
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <DashboardHeader />
+            <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+                {children}
+            </main>
+        </div>
+      </div>
+    </SidebarProvider>
   );
 }
