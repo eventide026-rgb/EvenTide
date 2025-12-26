@@ -1,9 +1,9 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, addDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, addDoc, doc, serverTimestamp, writeBatch, getDocs } from 'firebase/firestore';
 import {
   Select,
   SelectContent,
@@ -46,6 +46,64 @@ type PricePlan = {
   isPopular?: boolean;
 };
 
+const seedPricePlansData: Omit<PricePlan, 'id'>[] = [
+    {
+        name: "Free",
+        price: 0,
+        description: "For small, intimate gatherings and personal events.",
+        guestLimit: 20,
+        plannerLimit: 0,
+        cohostLimit: 2,
+        securityPersonnelLimit: 0,
+        features: ["Digital Invitations", "QR Code Gate Passes"],
+        isPopular: false,
+    },
+    {
+        name: "Standard",
+        price: 45000,
+        description: "Ideal for weddings, birthdays, and corporate events.",
+        guestLimit: 150,
+        plannerLimit: 1,
+        cohostLimit: 4,
+        securityPersonnelLimit: 2,
+        features: ["Guest Management", "Team Collaboration"],
+        isPopular: true,
+    },
+    {
+        name: "Gold",
+        price: 80000,
+        description: "For larger events and professional planners.",
+        guestLimit: 300,
+        plannerLimit: 1,
+        cohostLimit: 8,
+        securityPersonnelLimit: 4,
+        features: ["Advanced Analytics", "Budget Tracking"],
+        isPopular: false,
+    },
+    {
+        name: "Platinum",
+        price: 120000,
+        description: "The ultimate package for grand occasions.",
+        guestLimit: 500,
+        plannerLimit: 1,
+        cohostLimit: 16,
+        securityPersonnelLimit: 8,
+        features: ["Priority Support", "AI-Powered Tools"],
+        isPopular: false,
+    },
+    {
+        name: "Festival",
+        price: 200000,
+        description: "Engineered for large-scale public events.",
+        guestLimit: 1000,
+        plannerLimit: 1,
+        cohostLimit: 99, // Essentially unlimited
+        securityPersonnelLimit: 16,
+        features: ["Public Ticket Sales", "Vendor Marketplace"],
+        isPopular: false,
+    },
+];
+
 export default function AccountPage() {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
@@ -67,6 +125,26 @@ export default function AccountPage() {
   }, [firestore]);
   const { data: pricePlans, isLoading: isLoadingPlans } = useCollection<PricePlan>(plansQuery);
   
+  // Seed database if plans are missing
+  useEffect(() => {
+    const seedDatabase = async () => {
+      if (firestore && !isLoadingPlans && pricePlans?.length === 0) {
+        console.log("No pricing plans found. Seeding database...");
+        const batch = writeBatch(firestore);
+        const plansCollection = collection(firestore, 'price_plans');
+        seedPricePlansData.forEach(plan => {
+          const docRef = doc(plansCollection);
+          batch.set(docRef, plan);
+        });
+        await batch.commit();
+        console.log("Database seeded successfully.");
+        // We don't need to force a refresh, useCollection will pick up the new data.
+      }
+    };
+    seedDatabase();
+  }, [firestore, pricePlans, isLoadingPlans]);
+
+
   const sortedPricePlans = useMemo(() => {
     if (!pricePlans) return [];
     return [...pricePlans].sort((a, b) => a.price - b.price);
@@ -169,7 +247,7 @@ export default function AccountPage() {
                      {[...Array(4)].map((_, i) => <Card key={i} className="min-h-[300px] flex justify-center items-center"><Loader2 key={i} className='h-8 w-8 animate-spin' /></Card>)}
                  </div>
             ) : (
-                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 items-start">
+                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 items-start">
                     {sortedPricePlans.map((plan) => (
                         <Card key={plan.id} className={cn(
                         "flex flex-col transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl relative", 
