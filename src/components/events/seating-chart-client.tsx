@@ -1,13 +1,22 @@
 
 'use client';
 
-import { useMemo } from 'react';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query } from 'firebase/firestore';
-import { Loader2, Armchair, User } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { useMemo, useState } from 'react';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query, where, doc } from 'firebase/firestore';
+import { Loader2, Armchair, User, Users } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
+import { Button } from '../ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { ScrollArea } from '../ui/scroll-area';
 
 type SeatingChartClientProps = {
   eventId: string;
@@ -31,51 +40,53 @@ type Guest = {
   name: string;
 };
 
-// This is a simplified representation. In a real app, you might have more complex state management.
 type FullSeat = Seat & { guestName?: string };
 type FullTable = Table & { seats: FullSeat[] };
 
-export function SeatingChartClient({ eventId, userRole }: SeatingChartClientProps) {
+export function SeatingChartClient({ eventId: initialEventId, userRole }: SeatingChartClientProps) {
   const firestore = useFirestore();
+  const { user } = useUser();
+  const [selectedEventId, setSelectedEventId] = useState(initialEventId);
+  const [selectedGuestId, setSelectedGuestId] = useState<string | null>(null);
+
+  const eventsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
+  }, [firestore, user]);
+  const { data: events, isLoading: isLoadingEvents } = useCollection(eventsQuery);
 
   const tablesQuery = useMemoFirebase(() => {
-    if (!firestore || !eventId) return null;
-    return query(collection(firestore, 'events', eventId, 'tables'));
-  }, [firestore, eventId]);
+    if (!firestore || !selectedEventId) return null;
+    return query(collection(firestore, 'events', selectedEventId, 'tables'));
+  }, [firestore, selectedEventId]);
 
   const guestsQuery = useMemoFirebase(() => {
-    if (!firestore || !eventId) return null;
-    return query(collection(firestore, 'events', eventId, 'guests'));
-  }, [firestore, eventId]);
+    if (!firestore || !selectedEventId) return null;
+    return query(collection(firestore, 'events', selectedEventId, 'guests'));
+  }, [firestore, selectedEventId]);
 
   const { data: tablesData, isLoading: isLoadingTables } = useCollection<Table>(tablesQuery);
   const { data: guestsData, isLoading: isLoadingGuests } = useCollection<Guest>(guestsQuery);
 
-  // Note: Fetching seats for all tables can be inefficient. For a large event,
-  // it would be better to fetch seats for a selected table.
-  // This simplified approach fetches all seats for demonstration.
-  const seatsQueries = useMemo(() => {
-    if (!firestore || !tablesData) return [];
-    return tablesData.map(table =>
-      query(collection(firestore, 'events', eventId, 'tables', table.id, 'seats'))
-    );
-  }, [firestore, eventId, tablesData]);
+  const allSeatsQuery = useMemoFirebase(() => {
+      if (!firestore || !selectedEventId) return null;
+      return collection(firestore, `events/${selectedEventId}/seats`);
+  }, [firestore, selectedEventId])
 
-  // This is a limitation of the current `useCollection`. It doesn't handle an array of queries.
-  // We'll simulate by fetching seats for the first table only. A more robust hook would be needed.
-  const { data: seatsData, isLoading: isLoadingSeats } = useCollection<Seat>(
-    seatsQueries.length > 0 ? seatsQueries[0] : null
-  );
+  const { data: seatsData, isLoading: isLoadingSeats } = useCollection<Seat>(allSeatsQuery);
+
+  const unassignedGuests = useMemo(() => {
+    if (!guestsData || !seatsData) return guestsData || [];
+    const assignedGuestIds = new Set(seatsData.map(s => s.guestId).filter(Boolean));
+    return guestsData.filter(g => !assignedGuestIds.has(g.id));
+  }, [guestsData, seatsData]);
 
   const fullSeatingChart = useMemo((): FullTable[] => {
     if (!tablesData || !guestsData) return [];
 
-    // This is a mock-up since we can't easily fetch all seats for all tables with the current hook.
-    // In a real implementation, we would merge all fetched seats with tables.
     return tablesData.map(table => {
       const seatsForTable: FullSeat[] = [];
       for (let i = 1; i <= table.capacity; i++) {
-        // Try to find a real seat if it was fetched (only for first table in this mock)
         const realSeat = seatsData?.find(s => s.seatNumber === i);
         const guest = guestsData.find(g => g.id === realSeat?.guestId);
         
@@ -90,61 +101,102 @@ export function SeatingChartClient({ eventId, userRole }: SeatingChartClientProp
     });
   }, [tablesData, guestsData, seatsData]);
 
+  const isLoading = isLoadingEvents || isLoadingTables || isLoadingGuests || isLoadingSeats;
 
-  const isLoading = isLoadingTables || isLoadingGuests || isLoadingSeats;
-
-  if (isLoading) {
-    return (
-      <Card className="h-full flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <p className="ml-2">Loading Seating Chart...</p>
-      </Card>
-    );
+  if (userRole === 'planner' && !selectedEventId && events) {
+      if (events.length > 0) {
+          setSelectedEventId(events[0].id)
+      }
   }
 
-  if (!tablesData || tablesData.length === 0) {
-     return (
-         <Card className="h-full flex items-center justify-center">
-            <p className="text-muted-foreground">The planner has not created any tables for this event yet.</p>
-        </Card>
-     )
+  const handleSeatClick = (seatId: string) => {
+    if (userRole !== 'planner' || !selectedGuestId) return;
+    console.log(`Assigning guest ${selectedGuestId} to seat ${seatId}`);
+    // In a real app, this would trigger a Firestore update.
+    setSelectedGuestId(null); // Reset selection
   }
 
   return (
-    <TooltipProvider>
-      <div className="bg-secondary/50 p-8 rounded-lg h-full overflow-auto">
-        <div className="space-y-12">
-          {fullSeatingChart.map(table => (
-            <div key={table.id} className="relative rounded-full border-2 border-dashed border-muted-foreground/50 p-8 flex items-center justify-center aspect-square max-w-lg mx-auto">
-                <h3 className="absolute text-muted-foreground font-bold">{table.tableName}</h3>
-                {table.seats.map((seat, index) => {
-                    const angle = (index / table.capacity) * 360;
-                    const style = {
-                        transform: `rotate(${angle}deg) translate(12rem) rotate(-${angle}deg)`,
-                    };
-                    return (
-                        <Tooltip key={seat.id}>
-                            <TooltipTrigger asChild>
-                                <div className="absolute w-12 h-12 flex items-center justify-center" style={style}>
-                                     <div className={cn(
-                                         "p-2 rounded-full",
-                                         seat.guestName ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
-                                     )}>
-                                        {seat.guestName ? <User className="h-5 w-5"/> : <Armchair className="h-5 w-5"/>}
-                                     </div>
-                                </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p className='font-semibold'>Seat {seat.seatNumber}</p>
-                                <p>{seat.guestName || "Available"}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    )
-                })}
-            </div>
-          ))}
+    <div className="grid lg:grid-cols-4 gap-6 h-full">
+        <Card className="lg:col-span-3 h-full">
+            <CardContent className="h-full p-4">
+            {isLoading ? (
+                <div className="flex h-full items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+            ) : fullSeatingChart.length > 0 ? (
+                <TooltipProvider>
+                    <div className="bg-secondary/50 p-8 rounded-lg h-full overflow-auto">
+                        <div className="space-y-12">
+                        {fullSeatingChart.map(table => (
+                            <div key={table.id} className="relative rounded-full border-2 border-dashed border-muted-foreground/50 p-8 flex items-center justify-center aspect-square max-w-lg mx-auto">
+                                <h3 className="absolute text-muted-foreground font-bold">{table.tableName}</h3>
+                                {table.seats.map((seat, index) => {
+                                    const angle = (index / table.capacity) * 360;
+                                    const style = { transform: `rotate(${angle}deg) translate(12rem) rotate(-${angle}deg)`};
+                                    return (
+                                        <Tooltip key={seat.id}>
+                                            <TooltipTrigger asChild>
+                                                <button className="absolute w-12 h-12 flex items-center justify-center" style={style} onClick={() => handleSeatClick(seat.id)} disabled={userRole !== 'planner' || !!seat.guestId && !selectedGuestId}>
+                                                    <div className={cn("p-2 rounded-full", seat.guestName ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground", selectedGuestId && !seat.guestId && "cursor-pointer ring-2 ring-primary")}>
+                                                        {seat.guestName ? <User className="h-5 w-5"/> : <Armchair className="h-5 w-5"/>}
+                                                    </div>
+                                                </button>
+                                            </TooltipTrigger>
+                                            <TooltipContent><p className='font-semibold'>Seat {seat.seatNumber}</p><p>{seat.guestName || "Available"}</p></TooltipContent>
+                                        </Tooltip>
+                                    )
+                                })}
+                            </div>
+                        ))}
+                        </div>
+                    </div>
+                </TooltipProvider>
+            ) : (
+                <div className="flex h-full items-center justify-center">
+                    <p className="text-muted-foreground">The planner has not created any tables for this event yet.</p>
+                </div>
+            )}
+            </CardContent>
+        </Card>
+        <div className="lg:col-span-1 flex flex-col gap-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Event</CardTitle>
+                </CardHeader>
+                <CardContent>
+                     <Select onValueChange={setSelectedEventId} value={selectedEventId || ''} disabled={isLoadingEvents}>
+                        <SelectTrigger><SelectValue placeholder="Select an Event" /></SelectTrigger>
+                        <SelectContent>
+                            {events?.map(event => <SelectItem key={event.id} value={event.id}>{event.name}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </CardContent>
+            </Card>
+            {userRole === 'planner' && (
+                <Card className="flex-grow">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5" />Unassigned Guests</CardTitle>
+                         <CardDescription>{unassignedGuests.length} remaining</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ScrollArea className="h-96">
+                            <div className="space-y-2">
+                                {unassignedGuests.map(guest => (
+                                    <Button key={guest.id} variant={selectedGuestId === guest.id ? 'secondary' : 'ghost'} className="w-full justify-start" onClick={() => setSelectedGuestId(guest.id)}>
+                                        {guest.name}
+                                    </Button>
+                                ))}
+                            </div>
+                        </ScrollArea>
+                        <div className="mt-4 flex gap-2">
+                            <Button className="w-full" disabled={unassignedGuests.length === 0}>Seat with Eni</Button>
+                            <Button className="w-full" variant="secondary" disabled={!selectedGuestId} onClick={() => setSelectedGuestId(null)}>Clear Selection</Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
         </div>
-      </div>
-    </TooltipProvider>
+    </div>
   );
 }

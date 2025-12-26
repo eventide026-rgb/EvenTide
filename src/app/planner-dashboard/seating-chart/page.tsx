@@ -1,13 +1,20 @@
 
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+'use client';
+
+import { SeatingChartClient } from '@/components/events/seating-chart-client';
 
 export default function SeatingChartPage() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Seating Chart</CardTitle>
-        <CardDescription>Design your event's seating arrangement with an intelligent assistant.</CardDescription>
-      </CardHeader>
-    </Card>
+    <div className="flex flex-col gap-6 h-full">
+       <header>
+        <h1 className="text-3xl font-bold font-headline">Seating Chart Designer</h1>
+        <p className="text-muted-foreground">
+          Select an event to begin arranging your guests.
+        </p>
+      </header>
+      <div className="flex-grow">
+        <SeatingChartClient eventId="" userRole="planner" />
+      </div>
+    </div>
   );
 }
