@@ -745,6 +745,15 @@
         }
       },
       {
+        "path": "/planners/{plannerId}",
+        "definition": {
+          "entityName": "EventPlanner",
+          "schema": { "$ref": "#/backend/entities/EventPlanner" },
+          "description": "Top-level collection to track which events a planner is assigned to, for efficient querying.",
+          "params": [{ "name": "plannerId", "description": "The unique identifier of the planner, mapping to a document that contains their event assignments." }]
+        }
+      },
+      {
         "path": "/plannerProfiles/{plannerId}",
         "definition": {
           "entityName": "PlannerProfile",
