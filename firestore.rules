@@ -110,7 +110,8 @@ service cloud.firestore {
     
     match /planners/{plannerId} {
         // Top-level planner rules
-        allow read, write: if isOwner(plannerId);
+        allow read, write: if request.auth != null &&
+        (request.auth.uid == plannerId || request.auth.uid in resource.data.managers);
         allow list: if isSignedIn();
         allow get: if isSignedIn();
         allow create: if request.auth.uid == plannerId;
@@ -128,6 +129,7 @@ service cloud.firestore {
     }
 		
     match /planners/{plannerId}/assignments/{assignmentId} {
+         allow read, write: if request.auth != null && request.auth.uid == plannerId;
          allow list, read: if request.auth != null
                           && request.auth.uid == plannerId;
     }
@@ -178,33 +180,33 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       allow update: if (isEventOwner(eventId) || isEventPlanner(eventId)) && isExistingDoc() && request.resource.data.ownerId == resource.data.ownerId;
       allow delete: if isEventOwner(eventId) && isExistingDoc();
-
-      match /tasks/{taskId} {
-        allow read, create, update, delete: if isEventStaff(eventId);
-      }
+		}
+    match /tasks/{taskId} {
+      allow read, create, update, delete: if isEventStaff(eventId);
+    }
       
-      match /expenses/{expenseId} {
-        allow read: if isEventStaff(eventId);
-        allow create, update, delete: if isEventPlanner(eventId);
-      }
+    match /expenses/{expenseId} {
+      allow read: if isEventStaff(eventId);
+      allow create, update, delete: if isEventPlanner(eventId);
+    }
 
-      match /tables/{tableId} {
-        allow read: if isEventStaff(eventId);
-        allow write: if isEventPlanner(eventId);
+    match /tables/{tableId} {
+      allow read: if isEventStaff(eventId);
+      allow write: if isEventPlanner(eventId);
 
-        match /seats/{seatId} {
-          allow read: if isEventStaff(eventId);
-          allow write: if isEventPlanner(eventId);
+    match /seats/{seatId} {
+      allow read: if isEventStaff(eventId);
+      allow write: if isEventPlanner(eventId);
         }
-      }
+    }
         
-      match /gifts/{giftId} {
+    match /gifts/{giftId} {
         allow read: if true; // Guests need to be able to read this
         allow create, delete: if isEventStaff(eventId);
         allow update: if isSignedIn() && (isEventOwner(eventId) || isEventGuest(eventId));
-      }
+    }
       
-      match /songRequests/{requestId} {
+    match /songRequests/{requestId} {
         allow create: if isEventGuest(eventId);
         allow read: if isEventStaff(eventId) || isEventVendor(eventId, 'DJ/Musician') || (isEventGuest(eventId) && resource.data.requesterId == request.auth.uid);
         allow update: if isEventStaff(eventId); // For changing status
@@ -266,12 +268,19 @@ service cloud.firestore {
       allow get, list: if isEventStaff(eventId) || isEventVendor(eventId, 'Decorator');
       allow create, update, delete: if isEventStaff(eventId);
     }
-
+    
+    
     match /events/{eventId}/planners/{plannerId} {
       allow get, list: if canReadEventData(eventId);
       allow create: if isEventOwner(eventId);
       allow update: if isEventOwner(eventId) && isExistingDoc();
       allow delete: if isEventOwner(eventId) && isExistingDoc();
+    
+    
+    
+    
+    
+    
     }
 
     match /events/{eventId}/cohosts/{cohostId} {
@@ -392,7 +401,7 @@ service cloud.firestore {
         allow create: if true;
         allow read, update, delete: if false; // Should be handled by admin roles
       }
-		}	
+			
    }
   
 }
