@@ -5,7 +5,7 @@
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, addDoc, serverTimestamp, orderBy } from 'firebase/firestore';
+import { collection, query, where, doc, addDoc, serverTimestamp, orderBy, documentId } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -22,6 +22,7 @@ import { Loader2, PlusCircle, UserPlus, Info, Trash2, Edit, Send } from 'lucide-
 import { Label } from '../ui/label';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
+import { Progress } from '../ui/progress';
 
 type Event = {
   id: string;
@@ -62,12 +63,30 @@ function GuestManagementComponent() {
     defaultValues: { name: '', email: '', phoneNumber: '', category: 'General' },
   });
 
-  const eventsQuery = useMemoFirebase(() => {
+  const plannerAssignmentsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'planners'), where('plannerId', '==', user.uid));
+  }, [firestore, user?.uid]);
+  const { data: assignments } = useCollection(plannerAssignmentsQuery);
+  const eventIds = useMemo(() => assignments?.map((a: any) => a.eventId) || [], [assignments]);
+
+  const ownerEventsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
     return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
   }, [firestore, user?.uid]);
+  const { data: ownerEvents } = useCollection<Event>(ownerEventsQuery);
 
-  const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
+  const plannerManagedEventsQuery = useMemoFirebase(() => {
+    if (!firestore || eventIds.length === 0) return null;
+    return query(collection(firestore, 'events'), where(documentId(), 'in', eventIds));
+  }, [firestore, eventIds]);
+  const { data: plannerEvents } = useCollection<Event>(plannerManagedEventsQuery);
+
+  const events = useMemo(() => {
+    const allEvents = [...(ownerEvents || []), ...(plannerEvents || [])];
+    const uniqueEvents = Array.from(new Map(allEvents.map(e => [e.id, e])).values());
+    return uniqueEvents;
+  }, [ownerEvents, plannerEvents]);
 
   const selectedEventRef = useMemoFirebase(() => {
     if (!firestore || !selectedEventId) return null;
@@ -86,7 +105,7 @@ function GuestManagementComponent() {
   const isWalkthrough = searchParams.get('walkthrough') === 'true';
 
   useEffect(() => {
-    if (events && events.length === 1 && !selectedEventId) {
+    if (events && events.length > 0 && !selectedEventId) {
       setSelectedEventId(events[0].id);
     }
   }, [events, selectedEventId]);
@@ -125,61 +144,80 @@ function GuestManagementComponent() {
         });
   };
 
-  const isLoading = isUserLoading || isLoadingEvents;
+  const isLoading = isUserLoading;
   const isFormSubmitting = guestForm.formState.isSubmitting;
+  
+  const guestCount = guests?.length || 0;
+  const guestLimit = selectedEvent?.guestLimit || 20;
+  const capacityPercentage = guestLimit > 0 ? (guestCount / guestLimit) * 100 : 0;
 
   return (
     <div className="grid md:grid-cols-3 gap-8 items-start h-full">
-      <Card className="md:col-span-2">
-        <CardHeader>
-          <CardTitle>Guest Roster</CardTitle>
-          <CardDescription>
-            {selectedEvent ? `Showing guests for "${selectedEvent.name}"` : "Select an event to see the guest list."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-            {isLoadingGuests && selectedEventId ? (
-                <div className="flex justify-center items-center h-64">
-                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                </div>
-            ) : guests && guests.length > 0 ? (
-                <div className="rounded-md border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Category</TableHead>
-                                <TableHead>RSVP</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {guests.map(guest => (
-                                <TableRow key={guest.id}>
-                                    <TableCell className="font-medium">{guest.name}</TableCell>
-                                    <TableCell><Badge variant="outline">{guest.category}</Badge></TableCell>
-                                    <TableCell>{guest.rsvpStatus}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon"><Send className="h-4 w-4" /></Button>
-                                        <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
-                                        <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                                    </TableCell>
+      <div className="md:col-span-2 flex flex-col gap-6">
+        {selectedEvent && (
+             <Card>
+                <CardHeader>
+                    <CardTitle>Guest Capacity</CardTitle>
+                    <CardDescription>
+                        {guestCount} of {guestLimit} spots filled.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Progress value={capacityPercentage} />
+                </CardContent>
+            </Card>
+        )}
+        <Card>
+            <CardHeader>
+            <CardTitle>Guest Roster</CardTitle>
+            <CardDescription>
+                {selectedEvent ? `Showing guests for "${selectedEvent.name}"` : "Select an event to see the guest list."}
+            </CardDescription>
+            </CardHeader>
+            <CardContent>
+                {isLoadingGuests && selectedEventId ? (
+                    <div className="flex justify-center items-center h-64">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </div>
+                ) : guests && guests.length > 0 ? (
+                    <div className="rounded-md border">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Name</TableHead>
+                                    <TableHead>Category</TableHead>
+                                    <TableHead>RSVP</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
-            ) : (
-                <div className="text-center py-16 border-dashed border-2 rounded-lg">
-                    <UserPlus className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <h3 className="mt-4 text-xl font-semibold">Your guest list is empty</h3>
-                    <p className="mt-1 text-muted-foreground">
-                        {selectedEventId ? "Use the form to start adding guests." : "Select an event to begin."}
-                    </p>
-                </div>
-            )}
-        </CardContent>
-      </Card>
+                            </TableHeader>
+                            <TableBody>
+                                {guests.map(guest => (
+                                    <TableRow key={guest.id}>
+                                        <TableCell className="font-medium">{guest.name}</TableCell>
+                                        <TableCell><Badge variant="outline">{guest.category}</Badge></TableCell>
+                                        <TableCell>{guest.rsvpStatus}</TableCell>
+                                        <TableCell className="text-right">
+                                            <Button variant="ghost" size="icon"><Send className="h-4 w-4" /></Button>
+                                            <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
+                                            <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                ) : (
+                    <div className="text-center py-16 border-dashed border-2 rounded-lg">
+                        <UserPlus className="mx-auto h-12 w-12 text-muted-foreground" />
+                        <h3 className="mt-4 text-xl font-semibold">Your guest list is empty</h3>
+                        <p className="mt-1 text-muted-foreground">
+                            {selectedEventId ? "Use the form to start adding guests." : "Select an event to begin."}
+                        </p>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+      </div>
       <div className="md:col-span-1 space-y-6">
         {isWalkthrough && (
             <Alert>
