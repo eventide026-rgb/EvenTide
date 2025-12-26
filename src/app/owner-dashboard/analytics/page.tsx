@@ -5,9 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GuestAnalyticsPage } from '@/components/analytics/guest-analytics-page';
-import { SalesAnalyticsPage } from '@/components/analytics/sales-analytics-page';
 
 export default function AnalyticsPage() {
   return (
@@ -18,18 +16,7 @@ export default function AnalyticsPage() {
           Gain insights into your event's performance and guest engagement.
         </p>
       </div>
-      <Tabs defaultValue="guests" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="guests">Guest Analytics</TabsTrigger>
-          <TabsTrigger value="sales">Ticket Sales</TabsTrigger>
-        </TabsList>
-        <TabsContent value="guests">
-          <GuestAnalyticsPage />
-        </TabsContent>
-        <TabsContent value="sales">
-          <SalesAnalyticsPage />
-        </TabsContent>
-      </Tabs>
+      <GuestAnalyticsPage />
     </div>
   );
 }
