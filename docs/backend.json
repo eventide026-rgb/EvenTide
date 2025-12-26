@@ -119,7 +119,20 @@
         "location": { "type": "string" },
         "imageUrls": { "type": "array", "items": { "type": "string", "format": "uri" }},
         "primaryColor": { "type": "string" },
-        "secondaryColor": { "type": "string" }
+        "secondaryColor": { "type": "string" },
+        "curatedGalleries": {
+          "type": "array",
+          "description": "AI-curated photo galleries from the event.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "imageUrls": { "type": "array", "items": { "type": "string", "format": "uri" }}
+            },
+            "required": ["id", "title", "imageUrls"]
+          }
+        }
       },
       "required": ["eventId", "ownerId", "eventCode", "eventType", "name", "description", "eventDate", "location", "imageUrls", "primaryColor", "secondaryColor"]
     },

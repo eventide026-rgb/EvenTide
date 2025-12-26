@@ -24,6 +24,7 @@ import {
   ShieldCheck,
   FileText,
   Camera,
+  Image as ImageIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -68,6 +69,7 @@ const sidebarNav = [
             { href: "/owner-dashboard/song-requests", label: "Song Requests", icon: Music },
             { href: "/owner-dashboard/program-menu", label: "Program & Menu", icon: ClipboardList },
             { href: "/owner-dashboard/shot-list", label: "Shot List", icon: Camera },
+            { href: "/owner-dashboard/media-library", label: "Media Library", icon: ImageIcon },
         ]
     },
     {
