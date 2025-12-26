@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { ProgramPlannerClient } from '@/components/planner/program-planner-client';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Info } from 'lucide-react';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 
 function ProgramPlannerOwnerView() {
     const searchParams = useSearchParams();
