@@ -1,5 +1,8 @@
 
+'use client';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { VendorProfileForm } from '@/components/forms/vendor-profile-form';
 
 export default function VendorProfilePage() {
   return (
@@ -9,7 +12,7 @@ export default function VendorProfilePage() {
         <CardDescription>This is your storefront. Fill it out completely to attract planners and event owners. Manage your bio, portfolio, and service packages here.</CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="text-center text-muted-foreground py-16">The Vendor Profile Form, portfolio uploader, and service package manager will be implemented here.</p>
+        <VendorProfileForm />
       </CardContent>
     </Card>
   );
