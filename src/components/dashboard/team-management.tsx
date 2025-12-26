@@ -73,9 +73,11 @@ type UserProfile = {
 
 type TeamMember = {
     id: string;
+    userId: string;
+    name: string;
+    email: string;
     role: 'Planner' | 'Co-host' | 'Security';
-    status: 'Pending' | 'Accepted' | 'Declined';
-    user: UserProfile;
+    status: 'pending' | 'accepted' | 'declined';
 }
 
 const inviteFormSchema = z.object({
@@ -123,7 +125,7 @@ export function TeamManagement() {
       return collection(firestore, 'events', selectedEventId, 'teamMembers');
   }, [firestore, selectedEventId]);
 
-  const {data: teamMembers, isLoading: isLoadingTeam} = useCollection(teamMembersQuery);
+  const {data: teamMembers, isLoading: isLoadingTeam} = useCollection<TeamMember>(teamMembersQuery);
 
   const handleSearchUser = async () => {
       if (!firestore) return;
@@ -149,11 +151,12 @@ export function TeamManagement() {
 
   const handleSendInvite = async () => {
     if (!firestore || !user || !selectedEventId || !foundUser) return;
+    const currentEvent = events?.find(e => e.id === selectedEventId);
+    if (!currentEvent) return;
 
-    const role = foundUser.role; // Use the user's registered role.
+    const role = foundUser.role;
     const batch = writeBatch(firestore);
     
-    // 1. Create team member document in the event subcollection
     const teamMemberRef = doc(firestore, 'events', selectedEventId, 'teamMembers', foundUser.id);
     const teamMemberData = {
         userId: foundUser.id,
@@ -162,13 +165,15 @@ export function TeamManagement() {
         role: role,
         status: 'pending',
         invitedAt: new Date(),
+        eventName: currentEvent.name,
+        eventDate: currentEvent.eventDate,
+        eventId: selectedEventId,
     };
     batch.set(teamMemberRef, teamMemberData);
 
-    // 2. Create notification for the invited user
     const notificationRef = doc(collection(firestore, 'users', foundUser.id, 'notifications'));
     batch.set(notificationRef, {
-        message: `You've been invited by ${user.displayName} to be a ${role} for an event.`,
+        message: `You've been invited by ${user.displayName} to be a ${role} for ${currentEvent.name}.`,
         link: `/planner-dashboard/invitations`, // Direct link to invitations page
         read: false,
         createdAt: new Date(),
