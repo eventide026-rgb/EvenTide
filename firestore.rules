@@ -241,7 +241,7 @@ service cloud.firestore {
 
     match /price_plans/{pricePlanId} {
       allow read, list: if true;
-      allow create, update, delete: if false;
+      allow write: if false;
     }
 
     match /events/{eventId}/security_codes/{securityCodeId} {
