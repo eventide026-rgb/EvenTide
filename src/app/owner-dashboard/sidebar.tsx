@@ -51,10 +51,10 @@ const sidebarNav = [
         icon: PartyPopper,
         links: [
             { href: "/owner-dashboard/stationery-hub", label: "Stationery Hub", icon: Palette },
+            { href: "/owner-dashboard/program-menu", label: "Program & Menu", icon: ClipboardList },
             { href: "/owner-dashboard/seating-chart", label: "Seating Chart", icon: Users },
             { href: "/owner-dashboard/gift-registry", label: "Gift Registry", icon: Gift },
             { href: "/owner-dashboard/song-requests", label: "Song Requests", icon: Music },
-            { href: "/owner-dashboard/program-menu", label: "Program & Menu", icon: ClipboardList },
             { href: "/owner-dashboard/shot-list", label: "Shot List", icon: Camera },
             { href: "/owner-dashboard/media-library", label: "Media Library", icon: ImageIcon },
         ]
@@ -102,6 +102,7 @@ const sidebarNav = [
         title: "Settings",
         icon: Settings,
         links: [
+            { href: "/account", label: "My Account", icon: User },
             { href: "/owner-dashboard/account", label: "Account & Billing", icon: CreditCard },
         ]
     }
@@ -111,7 +112,7 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
     const pathname = usePathname();
 
     const isLinkActive = (href: string) => {
-        if (href === "/owner-dashboard") {
+        if (href === "/owner-dashboard" || href === "/account") {
             return pathname === href;
         }
         return pathname.startsWith(href);
@@ -144,7 +145,7 @@ export function OwnerDashboardSidebar() {
     const pathname = usePathname();
     const isGroupActive = (groupLinks: typeof sidebarNav[0]['links']) => {
         return groupLinks.some(link => {
-            if (link.href === "/owner-dashboard") {
+            if (link.href === "/owner-dashboard" || link.href === "/account") {
                 return pathname === link.href;
             }
             return pathname.startsWith(link.href);
