@@ -16,8 +16,6 @@ import { isSameDay, format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, CalendarCheck, CheckSquare } from 'lucide-react';
-import { cn } from '@/lib/utils';
-
 
 /* ------------------------------------------------------------------ */
 /* Types                                                              */
@@ -144,17 +142,16 @@ export function EventCalendar() {
   /* ---------------------------------------------------------------- */
 
   function DayWithDot(props: DayProps) {
-    const { date } = props;
-    const hasItem = calendarItems.some((item) => isSameDay(item.date, date));
+    const hasItem = calendarItems.some((item) => isSameDay(item.date, props.date));
     
     return (
         <Day {...props}>
-          {date.getDate()}
+          {props.date.getDate()}
           {hasItem && (
             <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
           )}
         </Day>
-      );
+    );
   }
 
   /* ---------------------------------------------------------------- */
@@ -174,10 +171,10 @@ export function EventCalendar() {
   /* ---------------------------------------------------------------- */
 
   return (
-    <div className="grid md:grid-cols-3 gap-8 h-full">
+    <div className="grid md:grid-cols-3 gap-8 min-h-[600px]">
       {/* Calendar */}
       <Card className="md:col-span-2">
-        <CardContent className="p-0 sm:p-4">
+        <CardContent className="p-4">
           <DayPicker
             mode="single"
             selected={selectedDate}
@@ -208,9 +205,11 @@ export function EventCalendar() {
                 <li key={`${item.type}-${item.id}`} className="flex gap-3">
                   {item.type === 'event' ? (
                     <CalendarCheck
-                      className={cn('h-5 w-5 mt-1',
-                        item.source === 'owned' ? 'text-primary' : 'text-blue-500'
-                      )}
+                      className={`h-5 w-5 mt-1 ${
+                        item.source === 'owned'
+                          ? 'text-primary'
+                          : 'text-blue-500'
+                      }`}
                     />
                   ) : (
                     <CheckSquare className="h-5 w-5 text-green-500 mt-1" />
