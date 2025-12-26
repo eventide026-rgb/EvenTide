@@ -47,7 +47,7 @@ import {
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { DashboardHeader } from '@/components/layout/dashboard-header';
-import { OwnerDashboardSidebar } from './sidebar';
+import { OwnerDashboardSidebar } from '@/components/layout/owner-sidebar';
 
 export default function OwnerDashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
