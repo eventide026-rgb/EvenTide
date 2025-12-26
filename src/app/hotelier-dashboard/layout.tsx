@@ -53,12 +53,10 @@ export default function HotelierDashboardLayout({ children }: { children: React.
     <SidebarProvider>
       <Sidebar>
         <SidebarHeader>
-          <div className="flex items-center gap-2">
-            <Link href="/" className="flex items-center gap-2 font-headline font-bold text-lg">
-                <Logo />
-            </Link>
-            <SidebarTrigger className="ml-auto" />
-          </div>
+          <Link href="/">
+            <Logo />
+          </Link>
+          <SidebarTrigger />
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
