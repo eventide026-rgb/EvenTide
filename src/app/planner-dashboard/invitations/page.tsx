@@ -1,9 +1,10 @@
 
+
 'use client';
 
 import { useState, useMemo } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collectionGroup, query, where, doc, writeBatch, getDocs, Timestamp } from 'firebase/firestore';
+import { collectionGroup, query, where, doc, writeBatch, getDocs, Timestamp, collection } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -30,6 +31,7 @@ type TeamMemberInvitation = {
 };
 
 type AcceptedGig = {
+    id: string; // The doc ID of the teamMembers document
     eventId: string;
     eventDate: Timestamp;
     eventName: string;
@@ -55,7 +57,7 @@ export default function InvitationsPage() {
     );
   }, [firestore, user?.uid]);
 
-  const { data: invitations, isLoading: isLoadingInvitations } = useCollection(pendingInvitationsQuery);
+  const { data: invitations, isLoading: isLoadingInvitations } = useCollection<TeamMemberInvitation>(pendingInvitationsQuery);
   
   // Query for all accepted gigs to perform clash detection
   const acceptedGigsQuery = useMemoFirebase(() => {
@@ -66,7 +68,14 @@ export default function InvitationsPage() {
         where('status', '==', 'accepted')
     );
   }, [firestore, user?.uid]);
-  const { data: acceptedGigs, isLoading: isLoadingGigs } = useCollection<AcceptedGig>(acceptedGigsQuery);
+  const { data: acceptedGigsData, isLoading: isLoadingGigs } = useCollection<any>(acceptedGigsQuery);
+
+  const acceptedGigs = useMemo(() => {
+    if (!acceptedGigsData) return [];
+    // The query is on 'teamMembers', so we need to get event details separately if not stored on the member doc
+    // Assuming for now eventName and eventDate are on the teamMembers doc after acceptance
+    return acceptedGigsData;
+  }, [acceptedGigsData]);
 
 
   const handleResponse = async (invitation: TeamMemberInvitation, status: 'accepted' | 'declined') => {
@@ -75,7 +84,7 @@ export default function InvitationsPage() {
     if (status === 'accepted' && acceptedGigs) {
         const newEventDate = invitation.eventDate.toDate();
         const clashingEvent = acceptedGigs.find(gig => 
-            isSameDay(gig.eventDate.toDate(), newEventDate)
+            gig.eventDate && isSameDay(gig.eventDate.toDate(), newEventDate)
         );
 
         if (clashingEvent) {
@@ -90,10 +99,10 @@ export default function InvitationsPage() {
   const updateInvitationStatus = async (invitation: TeamMemberInvitation, status: 'accepted' | 'declined') => {
     if (!firestore || !user) return;
 
-    const teamMemberRef = doc(firestore, 'events', invitation.eventId, 'teamMembers', invitation.teamMemberId);
+    const teamMemberRef = doc(firestore, 'events', invitation.eventId, 'teamMembers', invitation.id);
     
     try {
-        await writeBatch(firestore).update(teamMemberRef, { status }).commit();
+        await updateDoc(teamMemberRef, { status });
         toast({
             title: `Invitation ${status}`,
             description: 'The event owner has been notified.',

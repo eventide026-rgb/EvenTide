@@ -167,15 +167,14 @@ export function TeamManagement() {
 
     // 2. Create notification for the invited user
     const notificationRef = doc(collection(firestore, 'users', foundUser.id, 'notifications'));
-    const notificationData = {
+    batch.set(notificationRef, {
         message: `You've been invited by ${user.displayName} to be a ${role} for an event.`,
         link: `/planner-dashboard/invitations`, // Direct link to invitations page
         read: false,
         createdAt: new Date(),
         userId: foundUser.id,
         eventId: selectedEventId
-    };
-    batch.set(notificationRef, notificationData);
+    });
     
     batch.commit()
       .then(() => {
@@ -189,7 +188,6 @@ export function TeamManagement() {
           operation: 'create',
           requestResourceData: {
             teamMember: teamMemberData,
-            notification: notificationData,
           },
         });
         errorEmitter.emit('permission-error', contextualError);
