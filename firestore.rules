@@ -200,6 +200,17 @@ service cloud.firestore {
         allow read: if isEventStaff(eventId);
         allow write: if isEventPlanner(eventId);
       }
+
+      match /menu/{docId} {
+        allow read: if isEventStaff(eventId);
+        allow write: if isEventPlanner(eventId);
+      }
+      
+      match /shotLists/{shotListId} {
+        allow read: if isEventStaff(eventId) || isEventVendor(eventId, 'Photographer') || isEventVendor(eventId, 'Videographer');
+        allow write: if isEventStaff(eventId); // Owner/Planner can add/remove
+        // More granular update rules would be needed for photographer status updates
+      }
     }
     
      match /events/{eventId}/moodboard/{moodboardId} {
@@ -345,4 +356,5 @@ service cloud.firestore {
   }
 }
 
+    
     

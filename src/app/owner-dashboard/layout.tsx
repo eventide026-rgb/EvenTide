@@ -23,6 +23,7 @@ import {
   ClipboardList,
   ShieldCheck,
   FileText,
+  Camera,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -66,6 +67,7 @@ const sidebarNav = [
             { href: "/owner-dashboard/gift-registry", label: "Gift Registry", icon: Gift },
             { href: "/owner-dashboard/song-requests", label: "Song Requests", icon: Music },
             { href: "/owner-dashboard/program-menu", label: "Program & Menu", icon: ClipboardList },
+            { href: "/owner-dashboard/shot-list", label: "Shot List", icon: Camera },
         ]
     },
     {
@@ -207,3 +209,5 @@ export default function OwnerDashboardLayout({ children }: { children: React.Rea
     </SidebarProvider>
   );
 }
+
+    
