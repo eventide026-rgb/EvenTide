@@ -5,7 +5,7 @@ import React, { useMemo, type ReactNode, useEffect } from 'react';
 import { FirebaseProvider } from '@/firebase/provider';
 import { initializeFirebase } from '@/firebase';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDocs, collection, serverTimestamp, writeBatch, query } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDocs, collection, serverTimestamp, writeBatch, query, where, limit } from 'firebase/firestore';
 
 interface FirebaseClientProviderProps {
   children: ReactNode;
@@ -51,27 +51,34 @@ const sampleMagazineIssues = [
 
 async function seedAdminUsers(auth: any, firestore: any) {
   const defaultPassword = 'password123';
+  const usersCollection = collection(firestore, 'users');
 
   for (const admin of adminUsers) {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, admin.email, defaultPassword);
-      const user = userCredential.user;
-      const userDocRef = doc(firestore, 'users', user.uid);
-      await setDoc(userDocRef, {
-        id: user.uid,
-        email: admin.email,
-        role: admin.role,
-        firstName: admin.firstName,
-        lastName: admin.lastName,
-        createdAt: serverTimestamp(),
-      });
-      console.log(`Created admin user: ${admin.email}`);
-    } catch (error: any) {
-      if (error.code === 'auth/email-already-in-use') {
-        console.log(`Admin user ${admin.email} already exists.`);
-      } else {
+    // Check if user already exists in Firestore
+    const userQuery = query(usersCollection, where('email', '==', admin.email), limit(1));
+    const userSnapshot = await getDocs(userQuery);
+
+    if (userSnapshot.empty) {
+      // User does not exist, so create them
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, admin.email, defaultPassword);
+        const user = userCredential.user;
+        const userDocRef = doc(firestore, 'users', user.uid);
+        await setDoc(userDocRef, {
+          id: user.uid,
+          email: admin.email,
+          role: admin.role,
+          firstName: admin.firstName,
+          lastName: admin.lastName,
+          createdAt: serverTimestamp(),
+        });
+        console.log(`Created admin user: ${admin.email}`);
+      } catch (error: any) {
+        // This catch block is for createUserWithEmailAndPassword errors, though less likely now
         console.error(`Error seeding admin user ${admin.email}:`, error);
       }
+    } else {
+      console.log(`Admin user ${admin.email} already exists. Skipping creation.`);
     }
   }
 }
