@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -61,6 +61,18 @@ export default function StationeryHubPage() {
     const firestore = useFirestore();
     const { user, isUserLoading } = useUser();
 
+    useEffect(() => {
+        const savedEventId = sessionStorage.getItem('stationeryHub_selectedEventId');
+        if (savedEventId) {
+            setSelectedEventId(savedEventId);
+        }
+    }, []);
+
+    const handleEventSelect = (eventId: string) => {
+        setSelectedEventId(eventId);
+        sessionStorage.setItem('stationeryHub_selectedEventId', eventId);
+    };
+
     const eventsQuery = useMemoFirebase(() => {
         if (!firestore || !user?.uid) return null;
         return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
@@ -98,7 +110,7 @@ export default function StationeryHubPage() {
                             <span>Loading your events...</span>
                         </div>
                     ) : (
-                        <Select onValueChange={setSelectedEventId} value={selectedEventId || ''}>
+                        <Select onValueChange={handleEventSelect} value={selectedEventId || ''}>
                             <SelectTrigger className="w-full md:w-1/2 lg:w-1/3">
                                 <SelectValue placeholder="Select an event..." />
                             </SelectTrigger>
@@ -166,7 +178,7 @@ export default function StationeryHubPage() {
                         <StudioCard 
                             key={link.title}
                             {...link}
-                            disabled={!selectedEvent || link.href === '#'}
+                            disabled={!selectedEvent || link.href.includes('#')}
                         />
                     ))}
                 </CardContent>
