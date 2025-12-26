@@ -1,0 +1,202 @@
+
+'use client';
+
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query, where, addDoc, serverTimestamp, doc, writeBatch } from 'firebase/firestore';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+  } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
+import { type Vendor } from '@/lib/types';
+
+type Event = {
+  id: string;
+  name: string;
+  ownerId: string;
+};
+
+const proposalSchema = z.object({
+    eventId: z.string({ required_error: 'Please select an event.' }),
+    serviceDescription: z.string().min(10, 'Please provide a detailed description of the service needed.'),
+    proposedPayment: z.coerce.number().min(1, 'Please propose a payment amount.'),
+});
+
+type VendorProposalDialogProps = {
+  vendor: Vendor;
+};
+
+export function VendorProposalDialog({ vendor }: VendorProposalDialogProps) {
+    const { user } = useUser();
+    const firestore = useFirestore();
+    const { toast } = useToast();
+    const [isOpen, setIsOpen] = useState(false);
+
+    const form = useForm<z.infer<typeof proposalSchema>>({
+        resolver: zodResolver(proposalSchema),
+        defaultValues: {
+            serviceDescription: "",
+            proposedPayment: 0,
+        }
+    });
+
+    // In a real app, this would query for events where the current user is the planner.
+    // For now, we query events owned by the user for demonstration.
+    const eventsQuery = useMemoFirebase(() => {
+        if (!firestore || !user?.uid) return null;
+        return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
+    }, [firestore, user?.uid]);
+    
+    const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
+
+    const onSubmit = async (values: z.infer<typeof proposalSchema>) => {
+        if(!user || !firestore) return;
+
+        const contractData = {
+            ...values,
+            plannerId: user.uid,
+            vendorId: vendor.id,
+            status: 'pending',
+            createdAt: serverTimestamp(),
+        }
+
+        const batch = writeBatch(firestore);
+        
+        // This is a placeholder path. In a real app, you might have a top-level `contracts` collection
+        // or nest it under the event, like /events/{eventId}/contracts/{contractId}
+        const contractRef = doc(collection(firestore, 'events', values.eventId, 'vendorContracts'));
+        batch.set(contractRef, contractData);
+
+        const notificationRef = doc(collection(firestore, 'users', vendor.id, 'notifications'));
+        batch.set(notificationRef, {
+            message: `You have a new job proposal for an event.`,
+            link: `/vendor-dashboard/proposals`,
+            read: false,
+            createdAt: serverTimestamp(),
+            userId: vendor.id
+        });
+
+        try {
+            await batch.commit();
+            toast({
+                title: 'Proposal Sent!',
+                description: `Your proposal has been sent to ${vendor.name}.`,
+            });
+            form.reset();
+            setIsOpen(false);
+        } catch (error) {
+            console.error('Error sending proposal:', error);
+            toast({
+                variant: 'destructive',
+                title: 'Failed to send proposal',
+                description: 'There was an issue sending your request. Please try again.',
+            });
+        }
+    }
+
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+                <Button className="w-full">Invite</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-lg">
+                 <DialogHeader>
+                    <DialogTitle>Invite {vendor.name}</DialogTitle>
+                    <DialogDescription>
+                        Send a formal proposal for their services at your event.
+                    </DialogDescription>
+                </DialogHeader>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <FormField
+                            control={form.control}
+                            name="eventId"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Select Event</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoadingEvents}>
+                                        <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder={isLoadingEvents ? "Loading events..." : "Which event is this for?"} />
+                                        </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                        {events?.map(event => (
+                                            <SelectItem key={event.id} value={event.id}>{event.name}</SelectItem>
+                                        ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="serviceDescription"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Service Description</FormLabel>
+                                    <FormControl>
+                                        <Textarea rows={3} placeholder="e.g., Full-day photography coverage from 10 AM to 10 PM, including a pre-event shoot." {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="proposedPayment"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Proposed Payment (₦)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" placeholder="250000" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <DialogFooter>
+                            <DialogClose asChild>
+                                <Button type="button" variant="outline">Cancel</Button>
+                            </DialogClose>
+                            <Button type="submit" disabled={form.formState.isSubmitting}>
+                                {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Send Proposal
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </Form>
+            </DialogContent>
+        </Dialog>
+    )
+}
