@@ -1,179 +1,251 @@
-
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import {
+  useCollection,
+  useFirestore,
+  useUser,
+  useMemoFirebase,
+} from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
-import { Calendar } from '@/components/ui/calendar';
+import { DayPicker } from 'react-day-picker';
+import { isSameDay, format } from 'date-fns';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { isSameDay, format } from 'date-fns';
-import { CalendarCheck, CheckSquare, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { DayPicker, DayProps } from 'react-day-picker';
+import { Loader2, CalendarCheck, CheckSquare } from 'lucide-react';
+
+/* ------------------------------------------------------------------ */
+/* Types                                                              */
+/* ------------------------------------------------------------------ */
 
 type Event = {
-    id: string;
-    name: string;
-    eventDate: any;
-    ownerId: string;
+  id: string;
+  name: string;
+  eventDate?: any;
+  ownerId: string;
 };
 
 type Task = {
-    id: string;
-    eventId: string;
-    title: string;
-    dueDate: any;
-    status: 'pending' | 'in-progress' | 'completed';
+  id: string;
+  eventId: string;
+  title: string;
+  dueDate?: any;
+  status: 'pending' | 'in-progress' | 'completed';
 };
 
 type CalendarItem = {
-    id: string;
-    type: 'event' | 'task';
-    date: Date;
-    title: string;
-    event?: Event;
-    task?: Task;
+  id: string;
+  type: 'event' | 'task';
+  date: Date;
+  title: string;
+  task?: Task;
 };
 
+/* ------------------------------------------------------------------ */
+/* Component                                                          */
+/* ------------------------------------------------------------------ */
+
 export function EventCalendar() {
-    const firestore = useFirestore();
-    const { user } = useUser();
-    const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const firestore = useFirestore();
+  const { user } = useUser();
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    new Date()
+  );
 
-    const eventsQuery = useMemoFirebase(() => {
-        if (!firestore || !user) return null;
-        return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
-    }, [firestore, user]);
+  /* ---------------------------------------------------------------- */
+  /* Events (auth-safe)                                               */
+  /* ---------------------------------------------------------------- */
 
-    const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
-    
-    // This is a simplified approach. A more robust solution might involve a more complex query strategy.
-    const firstEventId = events?.[0]?.id;
-    const tasksQuery = useMemoFirebase(() => {
-        if (!firestore || !firstEventId) return null;
-        return query(collection(firestore, 'events', firstEventId, 'tasks'));
-    }, [firestore, firstEventId]);
+  const eventsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(
+      collection(firestore, 'events'),
+      where('ownerId', '==', user.uid)
+    );
+  }, [firestore, user?.uid]);
 
+  const { data: events, isLoading: isLoadingEvents } =
+    useCollection<Event>(eventsQuery);
 
-    // useCollection doesn't support an array of queries, so we'd need a custom hook or multiple calls.
-    // For simplicity, we'll fetch tasks for the first event as a placeholder for the logic.
-    const { data: tasks, isLoading: isLoadingTasks } = useCollection<Task>(tasksQuery);
+  /* ---------------------------------------------------------------- */
+  /* Tasks (simplified: first event only)                              */
+  /* ---------------------------------------------------------------- */
 
-    const isLoading = isLoadingEvents || isLoadingTasks;
+  const firstEventId = events?.[0]?.id;
 
-    const calendarItems = useMemo(() => {
-        const items: CalendarItem[] = [];
-        if (events) {
-            events.forEach(event => {
-                items.push({
-                    id: event.id,
-                    type: 'event',
-                    date: event.eventDate.toDate(),
-                    title: event.name,
-                    event: event,
-                });
-            });
-        }
-        if (tasks) {
-            tasks.forEach(task => {
-                items.push({
-                    id: task.id,
-                    type: 'task',
-                    date: task.dueDate.toDate(),
-                    title: task.title,
-                    task: task,
-                });
-            });
-        }
-        return items;
-    }, [events, tasks]);
+  const tasksQuery = useMemoFirebase(() => {
+    if (!firestore || !firstEventId) return null;
+    return query(
+      collection(firestore, 'events', firstEventId, 'tasks')
+    );
+  }, [firestore, firstEventId]);
 
-    const datesWithItems = useMemo(() => calendarItems.map(item => item.date), [calendarItems]);
+  const { data: tasks, isLoading: isLoadingTasks } =
+    useCollection<Task>(tasksQuery);
 
-    const selectedDayItems = useMemo(() => {
-        if (!selectedDate) return [];
-        return calendarItems
-            .filter(item => isSameDay(item.date, selectedDate))
-            .sort((a, b) => a.date.getTime() - b.date.getTime());
-    }, [calendarItems, selectedDate]);
-    
-    const DayWithDot = (props: DayProps) => {
-        const { date } = props;
-        const hasItem = datesWithItems.some(itemDate => isSameDay(date, itemDate));
+  const isLoading = isLoadingEvents || isLoadingTasks;
 
-        return (
-            <div className="relative h-full w-full flex items-center justify-center">
-                 {date.getDate()}
-                 {hasItem && (
-                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
-                 )}
-            </div>
-        );
-    };
+  /* ---------------------------------------------------------------- */
+  /* Build calendar items safely                                      */
+  /* ---------------------------------------------------------------- */
+
+  const calendarItems = useMemo<CalendarItem[]>(() => {
+    const items: CalendarItem[] = [];
+
+    events?.forEach((event) => {
+      if (!event.eventDate) return;
+      items.push({
+        id: event.id,
+        type: 'event',
+        date: event.eventDate.toDate(),
+        title: event.name,
+      });
+    });
+
+    tasks?.forEach((task) => {
+      if (!task.dueDate) return;
+      items.push({
+        id: task.id,
+        type: 'task',
+        date: task.dueDate.toDate(),
+        title: task.title,
+        task,
+      });
+    });
+
+    return items;
+  }, [events, tasks]);
+
+  const datesWithItems = useMemo(
+    () => calendarItems.map((item) => item.date),
+    [calendarItems]
+  );
+
+  const selectedDayItems = useMemo(() => {
+    if (!selectedDate) return [];
+    return calendarItems.filter((item) =>
+      isSameDay(item.date, selectedDate)
+    );
+  }, [calendarItems, selectedDate]);
+
+  /* ---------------------------------------------------------------- */
+  /* Custom Day Renderer (react-day-picker v8+)                        */
+  /* ---------------------------------------------------------------- */
+
+  function DayWithDot({ date }: { date: Date }) {
+    const hasItem = datesWithItems.some((d) =>
+      isSameDay(d, date)
+    );
 
     return (
-        <div className="grid md:grid-cols-3 gap-8 h-full">
-            <Card className="md:col-span-2">
-                <CardContent className="p-2 md:p-4">
-                     <DayPicker
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={setSelectedDate}
-                        className="p-0 w-full"
-                        classNames={{
-                            months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0 w-full",
-                            month: "space-y-4 w-full",
-                            table: "w-full border-collapse space-y-1",
-                            row: "flex w-full mt-2",
-                            head_cell: "text-muted-foreground rounded-md w-full font-normal text-[0.8rem]",
-                            cell: "h-9 w-full text-center text-sm p-0 relative [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                        }}
-                        components={{
-                            Day: (props) => {
-                                if (!props.date || props.displayMonth.getMonth() !== props.date.getMonth()) {
-                                    return <></>;
-                                }
-                                return <DayWithDot {...props}/>;
-                            }
-                        }}
-                    />
-                </CardContent>
-            </Card>
-            <div className="md:col-span-1">
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>
-                            Agenda for {selectedDate ? format(selectedDate, 'PPP') : '...'}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {isLoading && <Loader2 className="h-6 w-6 animate-spin mx-auto" />}
-                        {!isLoading && selectedDayItems.length > 0 ? (
-                             <ul className="space-y-4">
-                                {selectedDayItems.map(item => (
-                                    <li key={`${item.type}-${item.id}`} className="flex items-start gap-3">
-                                        {item.type === 'event' ? (
-                                            <CalendarCheck className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
-                                        ) : (
-                                            <CheckSquare className="h-5 w-5 text-blue-400 flex-shrink-0 mt-1" />
-                                        )}
-                                        <div>
-                                            <p className="font-semibold">{item.title}</p>
-                                            <div className="flex items-center gap-2">
-                                                <Badge variant={item.type === 'event' ? 'default' : 'secondary'}>{item.type}</Badge>
-                                                 {item.task && <Badge variant="outline">{item.task.status}</Badge>}
-                                            </div>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                        ) : !isLoading && (
-                            <p className="text-muted-foreground text-center py-8">No events or tasks for this day.</p>
-                        )}
-                    </CardContent>
-                </Card>
-            </div>
-        </div>
+      <div className="relative flex items-center justify-center h-full w-full">
+        {date.getDate()}
+        {hasItem && (
+          <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
+        )}
+      </div>
     );
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Loading state                                                    */
+  /* ---------------------------------------------------------------- */
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[400px]">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* Render                                                          */
+  /* ---------------------------------------------------------------- */
+
+  return (
+    <div className="grid md:grid-cols-3 gap-8 min-h-[600px]">
+      {/* Calendar */}
+      <Card className="md:col-span-2">
+        <CardContent className="p-4">
+          <DayPicker
+            mode="single"
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            className="w-full"
+            components={{
+              Day: (props) => {
+                const { day } = props;
+
+                if (!day?.date || !day?.displayMonth) {
+                  return <div />;
+                }
+
+                if (
+                  day.displayMonth.getMonth() !==
+                  day.date.getMonth()
+                ) {
+                  return <div />;
+                }
+
+                return <DayWithDot date={day.date} />;
+              },
+            }}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Agenda */}
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            Agenda for{' '}
+            {selectedDate ? format(selectedDate, 'PPP') : '—'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {selectedDayItems.length === 0 ? (
+            <p className="text-muted-foreground text-center py-6">
+              No events or tasks for this day.
+            </p>
+          ) : (
+            <ul className="space-y-4">
+              {selectedDayItems.map((item) => (
+                <li
+                  key={`${item.type}-${item.id}`}
+                  className="flex gap-3"
+                >
+                  {item.type === 'event' ? (
+                    <CalendarCheck className="h-5 w-5 text-primary mt-1" />
+                  ) : (
+                    <CheckSquare className="h-5 w-5 text-blue-500 mt-1" />
+                  )}
+                  <div>
+                    <p className="font-semibold">{item.title}</p>
+                    <div className="flex gap-2 mt-1">
+                      <Badge
+                        variant={
+                          item.type === 'event'
+                            ? 'default'
+                            : 'secondary'
+                        }
+                      >
+                        {item.type}
+                      </Badge>
+                      {item.task && (
+                        <Badge variant="outline">
+                          {item.task.status}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

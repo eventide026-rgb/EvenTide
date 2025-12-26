@@ -11,15 +11,15 @@ export default function OwnerDashboardLayout({ children }: { children: React.Rea
 
   return (
     <SidebarProvider>
-        <div className="flex h-screen w-full flex-row bg-muted/40 overflow-hidden">
-            <OwnerDashboardSidebar />
-            <div className="flex flex-col flex-1">
-                <DashboardHeader />
-                <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-                {children}
-                </main>
-            </div>
+      <div className="flex h-screen w-full flex-row bg-muted/40 overflow-hidden">
+        <OwnerDashboardSidebar />
+        <div className="flex flex-col flex-1">
+          <DashboardHeader />
+          <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+            {children}
+          </main>
         </div>
+      </div>
     </SidebarProvider>
   );
 }
