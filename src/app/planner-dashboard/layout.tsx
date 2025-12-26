@@ -57,6 +57,7 @@ const sidebarNav = [
             { href: "/planner-dashboard/calendar", label: "Calendar", icon: Calendar },
             { href: "/planner-dashboard/events", label: "My Events", icon: Briefcase },
             { href: "/planner-dashboard/analytics", label: "Analytics", icon: Percent },
+            { href: "/planner-dashboard/my-network", label: "My Network", icon: Contact },
         ]
     },
     {
