@@ -3,8 +3,9 @@
 
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Auth, onAuthStateChanged } from 'firebase/auth';
+import { Auth, onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc, Firestore } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 const ROLE_DASHBOARD_MAP: Record<string, string> = {
   Owner: '/owner-dashboard',
@@ -31,9 +32,10 @@ const ADMIN_LOGIN_PATHS: Record<string, string> = {
 export function useAuthHandler(auth: Auth, firestore: Firestore) {
   const router = useRouter();
   const pathname = usePathname();
+  const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
       const isNewLogin = sessionStorage.getItem('isNewLogin') === 'true';
       const loginType = sessionStorage.getItem('loginType');
 
@@ -49,18 +51,26 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
           if (userDoc.exists()) {
             const userData = userDoc.data();
             const role = userData.role;
+            const fullName = `${userData.firstName} ${userData.lastName}`;
+
+            // Store name for logout message
+            sessionStorage.setItem('userName', fullName);
 
             // Security check for admin logins
             if (loginType && loginType.includes('Admin')) {
                 if (role !== loginType) {
-                    // If roles don't match for an admin login attempt, sign out and stay
                     await auth.signOut();
                     console.warn(`Role mismatch: Expected ${loginType}, got ${role}.`);
-                    return; // Stop further processing
+                    return; 
                 }
             }
+            
+            toast({
+              title: "Login Successful!",
+              description: `Welcome back, ${fullName}! Redirecting...`,
+            });
 
-            const destination = ROLE_DASHBOARD_MAP[role] || '/owner-dashboard'; // Default to owner dashboard
+            const destination = ROLE_DASHBOARD_MAP[role] || '/owner-dashboard';
             router.push(destination);
           } else {
             console.warn("User document not found for new login. Redirecting to default dashboard.");
@@ -73,7 +83,6 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
       }
     });
 
-    // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [auth, firestore, router]);
+  }, [auth, firestore, router, toast]);
 }

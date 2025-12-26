@@ -27,8 +27,6 @@ import {
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Logo } from '@/components/layout/logo';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import {
   Popover,
   PopoverContent,
@@ -45,6 +43,9 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
 import { NotificationBell } from '@/components/layout/notification-bell';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { useToast } from '@/hooks/use-toast';
+
 
 const sidebarNav = [
     {
@@ -136,84 +137,77 @@ export default function OwnerDashboardLayout({ children }: { children: React.Rea
   const pathname = usePathname();
   const auth = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleSignOut = async () => {
     if (auth) {
+      const userName = sessionStorage.getItem('userName') || 'User';
       await signOut(auth);
+      sessionStorage.clear();
+      toast({
+        title: "Goodbye!",
+        description: `You have been successfully signed out, ${userName}.`,
+      });
       router.push('/');
     }
   };
 
   return (
-    <TooltipProvider>
-      <div className="flex min-h-screen bg-background text-foreground">
-        <aside className="sticky top-0 h-screen w-16 flex flex-col items-center py-4 border-r bg-background z-20">
-          <Link href="/owner-dashboard">
-            <Logo />
-          </Link>
-          <Separator className="my-4" />
-          <nav className="flex-1">
-            <ul className="space-y-2">
-              {sidebarNav.map(group => (
-                <li key={group.title}>
-                  <Popover>
-                    <Tooltip>
-                      <PopoverTrigger asChild>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className={cn(
-                                "h-10 w-10 rounded-lg",
-                                group.links.some(l => pathname.startsWith(l.href)) ? "bg-accent text-accent-foreground" : ""
-                            )}
-                          >
-                            <group.icon className="h-5 w-5" />
-                          </Button>
-                        </TooltipTrigger>
-                      </PopoverTrigger>
-                      <TooltipContent side="right" className="md:hidden">
-                        {group.title}
-                      </TooltipContent>
-                    </Tooltip>
-                    <PopoverContent side="right" align="start" className="ml-2 w-56 p-2 hidden md:block">
+    <SidebarProvider>
+      <Sidebar>
+        <SidebarHeader>
+          <Logo />
+          <SidebarTrigger />
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarMenu>
+            {sidebarNav.map(group => (
+              <SidebarMenuItem key={group.title}>
+                 <Popover>
+                    <PopoverTrigger asChild>
+                      <SidebarMenuButton
+                        tooltip={{ children: group.title }}
+                        isActive={group.links.some(l => pathname.startsWith(l.href))}
+                      >
+                        <group.icon />
+                        <span>{group.title}</span>
+                      </SidebarMenuButton>
+                    </PopoverTrigger>
+                    <PopoverContent side="right" align="start" className="ml-2 w-56 p-0">
                        <FlyoutMenu navGroup={group} />
                     </PopoverContent>
                   </Popover>
-                </li>
-              ))}
-            </ul>
-          </nav>
-           <div className="mt-auto flex flex-col items-center gap-4">
-                 <NotificationBell />
-                 <Tooltip>
-                    <TooltipTrigger asChild>
-                       <Link href="/owner-dashboard/account">
-                           <Button variant="ghost" size="icon" className="h-9 w-9">
-                            <CreditCard className="h-5 w-5" />
-                           </Button>
-                       </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                        Account & Billing
-                    </TooltipContent>
-                </Tooltip>
-                 <Tooltip>
-                    <TooltipTrigger asChild>
-                       <Button variant="ghost" size="icon" onClick={handleSignOut}>
-                          <LogOut className="h-5 w-5" />
-                       </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                        Logout
-                    </TooltipContent>
-                </Tooltip>
-           </div>
-        </aside>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter>
+           <SidebarMenu>
+                 <SidebarMenuItem>
+                    <NotificationBell />
+                 </SidebarMenuItem>
+                 <SidebarMenuItem>
+                    <Link href="/owner-dashboard/account">
+                      <SidebarMenuButton tooltip={{ children: 'Account & Billing' }} isActive={pathname === "/owner-dashboard/account"}>
+                          <CreditCard />
+                          <span>Account & Billing</span>
+                      </SidebarMenuButton>
+                    </Link>
+                 </SidebarMenuItem>
+                 <SidebarMenuItem>
+                    <SidebarMenuButton tooltip={{ children: 'Logout' }} onClick={handleSignOut}>
+                        <LogOut />
+                        <span>Logout</span>
+                    </SidebarMenuButton>
+                 </SidebarMenuItem>
+           </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset>
+        <main className="min-h-svh bg-secondary p-4 sm:p-6 lg:p-8">
           {children}
         </main>
-      </div>
-    </TooltipProvider>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
