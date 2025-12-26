@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
@@ -36,6 +37,7 @@ type Guest = {
     category: string;
     rsvpStatus: 'Pending' | 'Accepted' | 'Declined';
     hasCheckedIn: boolean;
+    serialNumber?: number;
 };
 
 const guestFormSchema = z.object({
@@ -81,7 +83,6 @@ function GuestManagementComponent() {
   const isWalkthrough = searchParams.get('walkthrough') === 'true';
 
   useEffect(() => {
-    // If there's only one event, auto-select it.
     if (events && events.length === 1 && !selectedEventId) {
       setSelectedEventId(events[0].id);
     }
@@ -99,11 +100,15 @@ function GuestManagementComponent() {
         
         const eventData = eventDoc.data() as Event;
         const currentGuestCount = eventData.guestCount || 0;
-        const guestLimit = eventData.guestLimit || 20; // Default to 20 if no limit set
+        const guestLimit = eventData.guestLimit || 20;
 
         if (currentGuestCount >= guestLimit) {
           throw new Error("Guest limit for this event has been reached.");
         }
+        
+        // This logic should be handled by a server-side Cloud Function for data integrity.
+        // It's implemented here on the client for demonstration purposes.
+        const serialNumber = currentGuestCount + 1;
 
         const newGuestRef = doc(collection(firestore, 'events', selectedEventId, 'guests'));
         const guestId = `gst-${newGuestRef.id.substring(0, 8)}`;
@@ -115,7 +120,8 @@ function GuestManagementComponent() {
             phoneNumber: values.phoneNumber,
             category: values.category,
             rsvpStatus: 'Pending',
-            hasCheckedIn: false
+            hasCheckedIn: false,
+            serialNumber: serialNumber,
         };
 
         transaction.set(newGuestRef, newGuestData);
