@@ -22,6 +22,7 @@ import {
   ClipboardList,
   Percent,
   PartyPopper,
+  Mail,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -51,7 +52,7 @@ const sidebarNav = [
         links: [
             { href: "/planner-dashboard", label: "Dashboard", icon: LayoutDashboard },
             { href: "/planner-dashboard/calendar", label: "Calendar", icon: Calendar },
-            { href: "/planner-dashboard/invitations", label: "Job Invitations", icon: FileText },
+            { href: "/planner-dashboard/invitations", label: "Job Invitations", icon: Mail },
             { href: "/planner-dashboard/analytics", label: "Analytics", icon: Percent },
         ]
     },
