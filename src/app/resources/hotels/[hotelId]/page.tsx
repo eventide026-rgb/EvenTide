@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { use, useMemo } from 'react';
 import { doc } from 'firebase/firestore';
 import { useFirestore, useDoc, useUser, useMemoFirebase } from '@/firebase';
 import { notFound } from 'next/navigation';
@@ -16,14 +16,15 @@ import { CheckCircle, Loader2 } from 'lucide-react';
 import { type Hotel } from '@/components/hotel-listing-card';
 import { BookingDialog } from '@/components/booking-dialog';
 
-export default function HotelDetailsPage({ params }: { params: { hotelId: string } }) {
+export default function HotelDetailsPage({ params }: { params: Promise<{ hotelId: string }> }) {
+    const { hotelId } = use(params);
     const firestore = useFirestore();
     const { user, isUserLoading } = useUser();
 
     const hotelRef = useMemoFirebase(() => {
-        if (!firestore || !params.hotelId) return null;
-        return doc(firestore, 'hotels', params.hotelId);
-    }, [firestore, params.hotelId]);
+        if (!firestore || !hotelId) return null;
+        return doc(firestore, 'hotels', hotelId);
+    }, [firestore, hotelId]);
 
     const { data: hotel, isLoading: isLoadingHotel, error } = useDoc<Hotel>(hotelRef);
 

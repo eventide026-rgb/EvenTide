@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { use, useMemo } from 'react';
 import { doc, collection, query, where } from 'firebase/firestore';
 import { useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
 import { notFound } from 'next/navigation';
@@ -20,22 +20,23 @@ type TicketierProfile = {
     avatarUrl: string;
 };
 
-export default function TicketierPublicPage({ params }: { params: { ticketierId: string } }) {
+export default function TicketierPublicPage({ params }: { params: Promise<{ ticketierId: string }> }) {
+    const { ticketierId } = use(params);
     const firestore = useFirestore();
 
     const ticketierRef = useMemoFirebase(() => {
-        if (!firestore || !params.ticketierId) return null;
-        return doc(firestore, 'ticketiers', params.ticketierId);
-    }, [firestore, params.ticketierId]);
+        if (!firestore || !ticketierId) return null;
+        return doc(firestore, 'ticketiers', ticketierId);
+    }, [firestore, ticketierId]);
 
     const showsQuery = useMemoFirebase(() => {
-        if (!firestore || !params.ticketierId) return null;
+        if (!firestore || !ticketierId) return null;
         return query(
             collection(firestore, 'shows'), 
-            where('ownerId', '==', params.ticketierId),
+            where('ownerId', '==', ticketierId),
             where('isPublic', '==', true)
         );
-    }, [firestore, params.ticketierId]);
+    }, [firestore, ticketierId]);
 
     const { data: ticketier, isLoading: isLoadingTicketier } = useDoc<TicketierProfile>(ticketierRef);
     const { data: shows, isLoading: isLoadingShows } = useCollection<Show>(showsQuery);

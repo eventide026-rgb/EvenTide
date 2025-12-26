@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { collection, writeBatch, doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
@@ -32,7 +32,8 @@ const formSchema = z.object({
   ticketTiers: z.array(ticketTierSchema).min(1, "At least one ticket tier is required."),
 });
 
-export default function TicketTiersPage({ params }: { params: { showId: string } }) {
+export default function TicketTiersPage({ params }: { params: Promise<{ showId: string }> }) {
+    const { showId } = use(params);
     const { toast } = useToast();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -41,8 +42,8 @@ export default function TicketTiersPage({ params }: { params: { showId: string }
     
     const showRef = useMemoFirebase(() => {
         if (!firestore) return null;
-        return doc(firestore, 'shows', params.showId);
-    }, [firestore, params.showId]);
+        return doc(firestore, 'shows', showId);
+    }, [firestore, showId]);
 
     const { data: show, isLoading: isLoadingShow } = useDoc(showRef);
 
@@ -66,14 +67,14 @@ export default function TicketTiersPage({ params }: { params: { showId: string }
         setIsLoading(true);
 
         const batch = writeBatch(firestore);
-        const tiersCollection = collection(firestore, 'shows', params.showId, 'ticketTiers');
+        const tiersCollection = collection(firestore, 'shows', showId, 'ticketTiers');
 
         values.ticketTiers.forEach(tier => {
             const tierRef = doc(tiersCollection); // Create a new doc with a random ID
             batch.set(tierRef, {
                 ...tier,
                 sold: 0,
-                showId: params.showId
+                showId: showId
             });
         });
 

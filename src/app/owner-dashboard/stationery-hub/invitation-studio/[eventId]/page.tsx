@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
@@ -22,12 +22,13 @@ export type EventColors = {
     accent: string;
 };
 
-export default function InvitationStudioPage({ params }: { params: { eventId: string } }) {
+export default function InvitationStudioPage({ params }: { params: Promise<{ eventId: string }> }) {
+    const { eventId } = use(params);
     const firestore = useFirestore();
     const eventRef = useMemoFirebase(() => {
         if (!firestore) return null;
-        return doc(firestore, 'events', params.eventId);
-    }, [firestore, params.eventId]);
+        return doc(firestore, 'events', eventId);
+    }, [firestore, eventId]);
 
     const { data: event, isLoading } = useDoc(eventRef);
 
@@ -56,7 +57,7 @@ export default function InvitationStudioPage({ params }: { params: { eventId: st
         <div className="grid lg:grid-cols-3 gap-8 h-full">
             <div className="lg:col-span-1">
                 <ControlPanel
-                    eventId={params.eventId}
+                    eventId={eventId}
                     initialStationery={stationery}
                     setStationery={setStationery}
                     initialColors={colors}

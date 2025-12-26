@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -30,7 +30,8 @@ const formSchema = z.object({
   securityCode: z.string().min(4, { message: 'Code must be at least 4 characters.' }),
 });
 
-export default function ActivateScannerPage({ params }: { params: { eventId: string } }) {
+export default function ActivateScannerPage({ params }: { params: Promise<{ eventId: string }> }) {
+    const { eventId } = use(params);
     const { toast } = useToast();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -60,7 +61,7 @@ export default function ActivateScannerPage({ params }: { params: { eventId: str
                 title: 'Code Accepted',
                 description: 'Activating scanner...',
             });
-            router.push(`/security-dashboard/${params.eventId}/scanner`);
+            router.push(`/security-dashboard/${eventId}/scanner`);
         } else {
             toast({
                 variant: 'destructive',

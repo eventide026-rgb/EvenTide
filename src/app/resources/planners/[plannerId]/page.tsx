@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { use, useMemo } from 'react';
 import { doc, collection, query, where } from 'firebase/firestore';
 import { useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
 import { notFound } from 'next/navigation';
@@ -13,13 +13,14 @@ import { Loader2, MapPin } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { type PlannerProfile } from '@/components/planner-card';
 
-export default function PlannerPublicPage({ params }: { params: { plannerId: string } }) {
+export default function PlannerPublicPage({ params }: { params: Promise<{ plannerId: string }> }) {
+    const { plannerId } = use(params);
     const firestore = useFirestore();
 
     const plannerRef = useMemoFirebase(() => {
-        if (!firestore || !params.plannerId) return null;
-        return doc(firestore, 'plannerProfiles', params.plannerId);
-    }, [firestore, params.plannerId]);
+        if (!firestore || !plannerId) return null;
+        return doc(firestore, 'plannerProfiles', plannerId);
+    }, [firestore, plannerId]);
 
     const { data: planner, isLoading } = useDoc<PlannerProfile>(plannerRef);
 

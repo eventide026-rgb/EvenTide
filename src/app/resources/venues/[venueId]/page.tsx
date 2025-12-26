@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { use, useMemo } from 'react';
 import { doc } from 'firebase/firestore';
 import { useFirestore, useDoc, useUser, useMemoFirebase } from '@/firebase';
 import { notFound } from 'next/navigation';
@@ -15,14 +15,15 @@ import { CheckCircle, Loader2, Users } from 'lucide-react';
 import { type Venue } from '@/components/venue-listing-card';
 import { VenueBookingDialog } from '@/components/venue-booking-dialog';
 
-export default function VenueDetailsPage({ params }: { params: { venueId: string } }) {
+export default function VenueDetailsPage({ params }: { params: Promise<{ venueId: string }> }) {
+    const { venueId } = use(params);
     const firestore = useFirestore();
     const { user, isUserLoading } = useUser();
 
     const venueRef = useMemoFirebase(() => {
-        if (!firestore || !params.venueId) return null;
-        return doc(firestore, 'venues', params.venueId);
-    }, [firestore, params.venueId]);
+        if (!firestore || !venueId) return null;
+        return doc(firestore, 'venues', venueId);
+    }, [firestore, venueId]);
 
     const { data: venue, isLoading: isLoadingVenue } = useDoc<Venue>(venueRef);
 

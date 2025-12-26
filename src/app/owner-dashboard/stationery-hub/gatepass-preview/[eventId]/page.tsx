@@ -1,6 +1,7 @@
 
 'use client';
 
+import { use } from 'react';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Loader2, ArrowLeft } from 'lucide-react';
@@ -9,12 +10,13 @@ import { GatepassPreviewCard } from '@/components/stationery/previews/gatepass-p
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-export default function GatepassPreviewPage({ params }: { params: { eventId: string } }) {
+export default function GatepassPreviewPage({ params }: { params: Promise<{ eventId: string }> }) {
+    const { eventId } = use(params);
     const firestore = useFirestore();
     const eventRef = useMemoFirebase(() => {
         if (!firestore) return null;
-        return doc(firestore, 'events', params.eventId);
-    }, [firestore, params.eventId]);
+        return doc(firestore, 'events', eventId);
+    }, [firestore, eventId]);
 
     const { data: event, isLoading } = useDoc(eventRef);
 
@@ -29,7 +31,7 @@ export default function GatepassPreviewPage({ params }: { params: { eventId: str
     return (
         <div className="max-w-2xl mx-auto">
              <Button variant="outline" asChild className="mb-4">
-                <Link href={`/owner-dashboard/stationery-hub/invitation-studio/${params.eventId}`}>
+                <Link href={`/owner-dashboard/stationery-hub/invitation-studio/${eventId}`}>
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to Invitation Studio
                 </Link>

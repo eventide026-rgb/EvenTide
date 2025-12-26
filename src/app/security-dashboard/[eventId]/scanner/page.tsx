@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, use } from 'react';
 import { QrCode, ScanLine, CheckCircle, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,7 +10,8 @@ import { useToast } from '@/hooks/use-toast';
 
 type ScanStatus = 'scanning' | 'success' | 'failure';
 
-export default function ScannerPage({ params }: { params: { eventId: string } }) {
+export default function ScannerPage({ params }: { params: Promise<{ eventId: string }> }) {
+  const { eventId } = use(params);
   const [scanStatus, setScanStatus] = useState<ScanStatus>('scanning');
   const [scannedData, setScannedData] = useState<string | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);

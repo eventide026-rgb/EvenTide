@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { use, useMemo } from 'react';
 import { doc } from 'firebase/firestore';
 import { useFirestore, useDoc, useUser, useMemoFirebase } from '@/firebase';
 import { notFound } from 'next/navigation';
@@ -31,14 +31,15 @@ export type Car = {
 };
 
 
-export default function CarDetailsPage({ params }: { params: { carId: string } }) {
+export default function CarDetailsPage({ params }: { params: Promise<{ carId: string }> }) {
+    const { carId } = use(params);
     const firestore = useFirestore();
     const { user, isUserLoading } = useUser();
 
     const carRef = useMemoFirebase(() => {
-        if (!firestore || !params.carId) return null;
-        return doc(firestore, 'cars', params.carId);
-    }, [firestore, params.carId]);
+        if (!firestore || !carId) return null;
+        return doc(firestore, 'cars', carId);
+    }, [firestore, carId]);
 
     const { data: car, isLoading: isLoadingCar } = useDoc<Car>(carRef);
 
