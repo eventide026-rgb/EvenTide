@@ -5,7 +5,7 @@ import { useState, useMemo } from 'react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Search, Shirt } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from 'use-debounce';
 import { type Vendor } from '@/lib/types';
@@ -54,7 +54,9 @@ export default function FindDesignerPage() {
             {isLoading && (
                 [...Array(4)].map((_, i) => (
                     <div key={i} className="space-y-2">
-                    <Skeleton className="h-80 w-full" />
+                        <Skeleton className="aspect-square w-full" />
+                        <Skeleton className="h-6 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
                     </div>
                 ))
             )}
@@ -66,7 +68,8 @@ export default function FindDesignerPage() {
 
         {!isLoading && filteredDesigners.length === 0 && (
             <div className="col-span-full text-center py-16">
-                <h2 className="text-2xl font-bold font-headline">No Designers Found</h2>
+                 <Shirt className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h2 className="text-2xl font-bold font-headline mt-4">No Designers Found</h2>
                 <p className="text-muted-foreground mt-2">
                     {debouncedSearchTerm ? "Try adjusting your search term." : "There are no fashion designers listed yet."}
                 </p>

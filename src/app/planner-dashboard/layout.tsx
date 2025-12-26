@@ -23,6 +23,7 @@ import {
   Percent,
   PartyPopper,
   Mail,
+  Shirt,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -73,7 +74,7 @@ const sidebarNav = [
         icon: Briefcase,
         links: [
             { href: "/planner-dashboard/vendor-hub", label: "Vendor Hub", icon: Search },
-            { href: "/planner-dashboard/fashion-designers", label: "Fashion Designers", icon: Search },
+            { href: "/planner-dashboard/fashion-designers", label: "Fashion Designers", icon: Shirt },
         ]
     },
     {
@@ -142,7 +143,7 @@ export default function PlannerDashboardLayout({ children }: { children: React.R
   const isGroupActive = (groupLinks: typeof sidebarNav[0]['links']) => {
     return groupLinks.some(link => {
         if (link.href === "/planner-dashboard") {
-            return pathname === link.href;
+            return pathname === href;
         }
         return pathname.startsWith(link.href);
     });
