@@ -1,8 +1,9 @@
+
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, getDoc, documentId } from 'firebase/firestore';
+import { collection, query, where, doc, getDocs, documentId } from 'firebase/firestore';
 import { DayPicker, Day, type DayProps } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { isSameDay, format } from 'date-fns';
@@ -81,7 +82,7 @@ export default function PlannerCalendarPage() {
 
       // Fetch all assigned events in one query
       const eventsQuery = query(collection(firestore, 'events'), where(documentId(), 'in', eventIds));
-      const eventsSnapshot = await getDoc(eventsQuery);
+      const eventsSnapshot = await getDocs(eventsQuery);
       
       const eventsData = new Map<string, Event>();
       eventsSnapshot.forEach(doc => {
