@@ -586,6 +586,10 @@
             "state": { "type": "string" },
             "bio": { "type": "string", "description": "A professional biography." },
             "avatarUrl": { "type": "string", "format": "uri" },
+            "websiteUrl": { "type": "string", "format": "uri" },
+            "instagramUrl": { "type": "string", "format": "uri" },
+            "tiktokUrl": { "type": "string", "format": "uri" },
+            "facebookUrl": { "type": "string", "format": "uri" },
             "portfolio": {
                 "type": "array",
                 "items": {
