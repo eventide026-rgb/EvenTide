@@ -80,7 +80,7 @@ export function PrivateEventForm() {
         }
         setIsLoading(true);
 
-        const eventCode = `${values.eventType.substring(0, 2).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        const eventCode = `${values.eventType.substring(0, 2).toUpperCase()}O-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
         const eventData = {
             ...values,
