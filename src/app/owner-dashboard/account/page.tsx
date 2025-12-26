@@ -67,7 +67,7 @@ const seedPricePlansData: Omit<PricePlan, 'id'>[] = [
         cohostLimit: 4,
         securityPersonnelLimit: 2,
         features: ["Guest Management", "Team Collaboration"],
-        isPopular: true,
+        isPopular: false,
     },
     {
         name: "Gold",
@@ -78,7 +78,7 @@ const seedPricePlansData: Omit<PricePlan, 'id'>[] = [
         cohostLimit: 8,
         securityPersonnelLimit: 4,
         features: ["Advanced Analytics", "Budget Tracking"],
-        isPopular: false,
+        isPopular: true,
     },
     {
         name: "Platinum",
