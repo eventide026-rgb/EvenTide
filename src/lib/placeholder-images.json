@@ -69,5 +69,43 @@
     "Makeup Artist",
     "Hairstylist",
     "Fashion Designer"
+  ],
+  "stationeryDesigns": [
+    {
+      "id": "template-1",
+      "name": "Golden Damask",
+      "category": "Traditional",
+      "imageUrl": "https://picsum.photos/seed/damask/400/600"
+    },
+    {
+      "id": "template-2",
+      "name": "Royal Blue Aso-Oke",
+      "category": "Cultural",
+      "imageUrl": "https://picsum.photos/seed/asooke/400/600"
+    },
+    {
+      "id": "template-3",
+      "name": "Modern Marble",
+      "category": "Modern",
+      "imageUrl": "https://picsum.photos/seed/marble/400/600"
+    },
+    {
+      "id": "template-4",
+      "name": "Floral Watercolor",
+      "category": "Romantic",
+      "imageUrl": "https://picsum.photos/seed/floral/400/600"
+    },
+    {
+      "id": "template-5",
+      "name": "Minimalist Lines",
+      "category": "Modern",
+      "imageUrl": "https://picsum.photos/seed/lines/400/600"
+    },
+    {
+      "id": "template-6",
+      "name": "Emerald Green",
+      "category": "Elegant",
+      "imageUrl": "https://picsum.photos/seed/emerald/400/600"
+    }
   ]
 }

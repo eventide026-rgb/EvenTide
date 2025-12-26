@@ -19,6 +19,9 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { Loader2, Sparkles, Upload } from "lucide-react";
 import type { Stationery, EventColors } from '@/app/owner-dashboard/stationery-hub/invitation-studio/[eventId]/page';
 import { generateInvitationCard } from '@/ai/flows/invitation-card-design';
+import { StationeryDesigns } from '@/lib/placeholder-images';
+import Image from 'next/image';
+import { ScrollArea } from '../ui/scroll-area';
 
 type ControlPanelProps = {
     eventId: string;
@@ -90,13 +93,18 @@ export function ControlPanel({ eventId, eventType, initialStationery, setStation
                     <AccordionItem value="item-1">
                         <AccordionTrigger>Background Control</AccordionTrigger>
                         <AccordionContent className="space-y-4">
-                            <div className="space-y-2">
-                                <Label>Template Gallery (Coming Soon)</Label>
-                                <div className="grid grid-cols-3 gap-2">
-                                    <div className="h-16 bg-muted rounded-md border-dashed border-2"></div>
-                                    <div className="h-16 bg-muted rounded-md border-dashed border-2"></div>
-                                    <div className="h-16 bg-muted rounded-md border-dashed border-2"></div>
-                                </div>
+                             <div className="space-y-2">
+                                <Label>Template Gallery</Label>
+                                <ScrollArea className="h-48">
+                                    <div className="grid grid-cols-3 gap-2">
+                                    {StationeryDesigns.map(design => (
+                                        <button key={design.id} className="aspect-[2/3] relative rounded-md overflow-hidden group border-2 border-transparent hover:border-primary" onClick={() => setStationery(prev => ({ ...prev, background: design.imageUrl }))}>
+                                            <Image src={design.imageUrl} alt={design.name} fill className="object-cover"/>
+                                            <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
+                                        </button>
+                                    ))}
+                                    </div>
+                                </ScrollArea>
                             </div>
                              <div className="space-y-2">
                                 <Label htmlFor='ai-prompt'>AI Generation</Label>
