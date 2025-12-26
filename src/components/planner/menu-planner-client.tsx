@@ -112,7 +112,7 @@ export function MenuPlannerClient({ eventId, isReadOnly = false }: MenuPlannerCl
   }, [initialMenuData, form]);
 
   useEffect(() => {
-    if (form.isDirty && menuDocRef && !isReadOnly) {
+    if (form.isDirty && !isReadOnly && menuDocRef) {
       const saveChanges = async () => {
         setSaveStatus('saving');
         try {
@@ -126,7 +126,7 @@ export function MenuPlannerClient({ eventId, isReadOnly = false }: MenuPlannerCl
       };
       saveChanges();
     }
-  }, [debouncedFormValues, form, menuDocRef, isReadOnly]);
+  }, [debouncedFormValues, form, isReadOnly, menuDocRef]);
   
   const handleGenerateMenu = async (values: z.infer<typeof aiFormSchema>) => {
       setIsGenerating(true);
