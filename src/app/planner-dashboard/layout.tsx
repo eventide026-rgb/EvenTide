@@ -55,6 +55,7 @@ const sidebarNav = [
         icon: Home,
         links: [
             { href: "/planner-dashboard", label: "Dashboard", icon: LayoutDashboard },
+            { href: "/planner-dashboard/notifications", label: "Notifications", icon: Bell },
             { href: "/planner-dashboard/calendar", label: "Calendar", icon: Calendar },
             { href: "/planner-dashboard/events", label: "My Events", icon: Briefcase },
             { href: "/planner-dashboard/analytics", label: "Analytics", icon: Percent },
@@ -188,7 +189,7 @@ export default function PlannerDashboardLayout({ children }: { children: React.R
                             <span>{group.title}</span>
                         </SidebarMenuButton>
                         </PopoverTrigger>
-                        <PopoverContent side="right" align="start" className="ml-2 w-56 p-0">
+                        <PopoverContent side="right" align="start" className="ml-2 w-56 p-0 hidden md:block">
                             <FlyoutMenu navGroup={group} />
                         </PopoverContent>
                     </Popover>
