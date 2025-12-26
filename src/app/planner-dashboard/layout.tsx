@@ -27,7 +27,6 @@ import {
   Hotel,
   Building,
   Search,
-  Settings,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -192,7 +191,7 @@ export default function PlannerDashboardLayout({ children }: { children: React.R
                             <span>{group.title}</span>
                         </SidebarMenuButton>
                         </PopoverTrigger>
-                        <PopoverContent side="right" align="start" className="ml-2 w-56 p-0 hidden md:block">
+                        <PopoverContent side="right" align="start" className="ml-2 w-56 p-0">
                             <FlyoutMenu navGroup={group} />
                         </PopoverContent>
                     </Popover>

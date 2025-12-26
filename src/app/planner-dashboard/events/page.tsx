@@ -76,10 +76,10 @@ export default function PlannerEventsPage() {
   // 1. Get all event assignments for the current planner
   const assignmentsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
-    return query(
-      collection(firestore, 'planners'),
-      where('plannerId', '==', user.uid)
-    );
+    // We fetch from the top-level /planners collection to find all assignments
+    // In a more complex app, this could be a collectionGroup query
+    const plannerDocRef = doc(firestore, 'planners', user.uid);
+    return query(collection(plannerDocRef, 'assignments'));
   }, [firestore, user?.uid]);
 
   const { data: assignments, isLoading: isLoadingAssignments } =
@@ -151,11 +151,11 @@ export default function PlannerEventsPage() {
     if (!firestore || !user) return;
     const batch = writeBatch(firestore);
 
-    // Update status in /planners collection
-    const assignmentRef = doc(firestore, 'planners', assignment.id);
+    // Update status in /planners/{plannerId}/assignments/{assignmentId}
+    const assignmentRef = doc(firestore, 'planners', user.uid, 'assignments', assignment.id);
     batch.update(assignmentRef, { status });
 
-    // Update status in /events/{eventId}/planners subcollection
+    // Update status in /events/{eventId}/planners/{plannerId}
     const eventPlannerRef = doc(
       firestore,
       'events',
