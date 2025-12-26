@@ -55,65 +55,40 @@ export default function CoHostDashboardLayout({ children }: { children: React.Re
   };
 
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader>
-          <Link href="/">
-            <Logo />
-          </Link>
-          <SidebarTrigger />
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            {navItems.map((item) => (
-              <SidebarMenuItem key={item.href}>
-                <Link href={item.href} legacyBehavior passHref>
-                  <SidebarMenuButton
-                    isActive={isNavItemActive(item.href)}
-                    tooltip={{ children: item.label }}
-                  >
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter>
-           <SidebarMenu>
-            <SidebarMenuItem>
-                <Link href="/cohost-dashboard/profile" legacyBehavior passHref>
-                    <SidebarMenuButton 
-                        isActive={pathname === "/cohost-dashboard/profile"}
-                        tooltip={{ children: 'Profile' }}
+    <div className="flex min-h-screen w-full flex-row bg-muted/40">
+        <SidebarProvider>
+        <Sidebar>
+            <SidebarHeader>
+            <Link href="/">
+                <Logo />
+            </Link>
+            <SidebarTrigger />
+            </SidebarHeader>
+            <SidebarContent>
+            <SidebarMenu>
+                {navItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                    <Link href={item.href} legacyBehavior passHref>
+                    <SidebarMenuButton
+                        isActive={isNavItemActive(item.href)}
+                        tooltip={{ children: item.label }}
                     >
-                        <Avatar className="h-8 w-8">
-                            <AvatarImage src="https://picsum.photos/seed/cohost/100/100" alt="Co-host" />
-                            <AvatarFallback>C</AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col text-left">
-                            <span className="font-semibold">Co-host</span>
-                            <span className="text-xs text-muted-foreground">cohost@eventide.app</span>
-                        </div>
+                        <item.icon />
+                        <span>{item.label}</span>
                     </SidebarMenuButton>
-                </Link>
-            </SidebarMenuItem>
-             <SidebarMenuItem>
-                <SidebarMenuButton tooltip={{ children: 'Logout' }} onClick={handleSignOut}>
-                    <LogOut />
-                    <span>Logout</span>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
-           </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-       <div className="flex flex-col flex-1 h-full">
-        <DashboardHeader />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-            {children}
-        </main>
-      </div>
-    </SidebarProvider>
+                    </Link>
+                </SidebarMenuItem>
+                ))}
+            </SidebarMenu>
+            </SidebarContent>
+        </Sidebar>
+        <div className="flex flex-col flex-1 h-full">
+            <DashboardHeader />
+            <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+                {children}
+            </main>
+        </div>
+        </SidebarProvider>
+    </div>
   );
 }

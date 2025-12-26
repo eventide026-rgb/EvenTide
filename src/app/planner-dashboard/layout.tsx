@@ -22,26 +22,25 @@ import {
   ClipboardList,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Logo } from '@/components/layout/logo';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Separator } from '@/components/ui/separator';
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarProvider,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/firebase';
-import { signOut } from 'firebase/auth';
-import { NotificationBell } from '@/components/layout/notification-bell';
+import { DashboardHeader } from '@/components/layout/dashboard-header';
 
 const sidebarNav = [
     {
@@ -50,7 +49,7 @@ const sidebarNav = [
         links: [
             { href: "/planner-dashboard", label: "Dashboard", icon: LayoutDashboard },
             { href: "/planner-dashboard/calendar", label: "Calendar", icon: Calendar },
-            { href: "/planner-dashboard/profile", label: "My Profile", icon: User },
+            { href: "/planner-dashboard/invitations", label: "Job Invitations", icon: FileText },
         ]
     },
     {
@@ -134,15 +133,6 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
 
 export default function PlannerDashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const auth = useAuth();
-  const router = useRouter();
-
-  const handleSignOut = async () => {
-    if (auth) {
-      await signOut(auth);
-      router.push('/');
-    }
-  };
 
   const isGroupActive = (groupLinks: typeof sidebarNav[0]['links']) => {
     return groupLinks.some(link => {
@@ -155,76 +145,45 @@ export default function PlannerDashboardLayout({ children }: { children: React.R
 
 
   return (
-    <TooltipProvider>
-      <div className="flex min-h-screen bg-background text-foreground">
-        <aside className="sticky top-0 h-screen w-16 flex flex-col items-center py-4 border-r bg-background z-20">
-          <Link href="/planner-dashboard">
-            <Logo />
-          </Link>
-          <Separator className="my-4" />
-          <nav className="flex-1">
-            <ul className="space-y-2">
-              {sidebarNav.map(group => (
-                <li key={group.title}>
-                  <Popover>
-                    <Tooltip>
-                      <PopoverTrigger asChild>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className={cn(
-                                "h-10 w-10 rounded-lg",
-                                isGroupActive(group.links) ? "bg-accent text-accent-foreground" : ""
-                            )}
-                          >
-                            <group.icon className="h-5 w-5" />
-                          </Button>
-                        </TooltipTrigger>
-                      </PopoverTrigger>
-                      <TooltipContent side="right" className="md:hidden">
-                        {group.title}
-                      </TooltipContent>
-                    </Tooltip>
-                    <PopoverContent side="right" align="start" className="ml-2 w-56 p-2 hidden md:block">
-                       <FlyoutMenu navGroup={group} />
-                    </PopoverContent>
-                  </Popover>
-                </li>
-              ))}
-            </ul>
-          </nav>
-           <div className="mt-auto flex flex-col items-center gap-4">
-                 <NotificationBell />
-                 <Tooltip>
-                    <TooltipTrigger asChild>
-                       <Link href="/planner-dashboard/profile">
-                           <Avatar className="h-9 w-9">
-                                <AvatarImage src="https://picsum.photos/seed/planner-avatar/100" alt="Planner" />
-                                <AvatarFallback>P</AvatarFallback>
-                           </Avatar>
-                       </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                        My Profile
-                    </TooltipContent>
-                </Tooltip>
-                 <Tooltip>
-                    <TooltipTrigger asChild>
-                       <Button variant="ghost" size="icon" onClick={handleSignOut}>
-                          <LogOut className="h-5 w-5" />
-                       </Button>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                        Logout
-                    </TooltipContent>
-                </Tooltip>
-           </div>
-        </aside>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-          {children}
-        </main>
-      </div>
-    </TooltipProvider>
+    <div className="flex min-h-screen w-full flex-row bg-muted/40">
+        <SidebarProvider>
+            <Sidebar>
+                <SidebarHeader>
+                <Link href="/">
+                    <Logo />
+                </Link>
+                <SidebarTrigger />
+                </SidebarHeader>
+                <SidebarContent>
+                <SidebarMenu>
+                    {sidebarNav.map(group => (
+                    <SidebarMenuItem key={group.title}>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                            <SidebarMenuButton
+                                tooltip={{ children: group.title }}
+                                isActive={isGroupActive(group.links)}
+                            >
+                                <group.icon />
+                                <span>{group.title}</span>
+                            </SidebarMenuButton>
+                            </PopoverTrigger>
+                            <PopoverContent side="right" align="start" className="ml-2 w-56 p-0">
+                                <FlyoutMenu navGroup={group} />
+                            </PopoverContent>
+                        </Popover>
+                    </SidebarMenuItem>
+                    ))}
+                </SidebarMenu>
+                </SidebarContent>
+            </Sidebar>
+             <div className="flex flex-col flex-1 h-full">
+                <DashboardHeader />
+                <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+                {children}
+                </main>
+            </div>
+        </SidebarProvider>
+    </div>
   );
 }

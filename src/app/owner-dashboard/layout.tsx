@@ -27,7 +27,7 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Logo } from '@/components/layout/logo';
 import {
   Popover,
@@ -39,9 +39,8 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
   SidebarMenuItem,
+  SidebarMenu,
   SidebarMenuButton,
   SidebarProvider,
   SidebarTrigger,
@@ -159,57 +158,57 @@ export default function OwnerDashboardLayout({ children }: { children: React.Rea
   }
 
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader>
-          <Link href="/">
-            <Logo />
-          </Link>
-          <SidebarTrigger />
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            {sidebarNav.map(group => (
-              <SidebarMenuItem key={group.title}>
-                 <Popover>
-                    <PopoverTrigger asChild>
-                      <SidebarMenuButton
-                        tooltip={{ children: group.title }}
-                        isActive={isGroupActive(group.links)}
-                      >
-                        <group.icon />
-                        <span>{group.title}</span>
-                      </SidebarMenuButton>
-                    </PopoverTrigger>
-                    <PopoverContent side="right" align="start" className="ml-2 w-56 p-0">
-                       <FlyoutMenu navGroup={group} />
-                    </PopoverContent>
-                  </Popover>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter>
-           <SidebarMenu>
-                 <SidebarMenuItem>
-                    <Link href="/owner-dashboard/account">
-                      <SidebarMenuButton tooltip={{ children: 'Account & Billing' }} isActive={pathname === "/owner-dashboard/account"}>
-                          <CreditCard />
-                          <span>Account & Billing</span>
-                      </SidebarMenuButton>
-                    </Link>
-                 </SidebarMenuItem>
-           </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-      <div className="flex flex-col flex-1 h-full">
-        <DashboardHeader />
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-          {children}
-        </main>
-      </div>
-    </SidebarProvider>
+    <div className="flex min-h-screen w-full flex-row bg-muted/40">
+      <SidebarProvider>
+        <Sidebar>
+            <SidebarHeader>
+                <Link href="/">
+                    <Logo />
+                </Link>
+                <SidebarTrigger />
+            </SidebarHeader>
+            <SidebarContent>
+            <SidebarMenu>
+                {sidebarNav.map(group => (
+                <SidebarMenuItem key={group.title}>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                        <SidebarMenuButton
+                            tooltip={{ children: group.title }}
+                            isActive={isGroupActive(group.links)}
+                        >
+                            <group.icon />
+                            <span>{group.title}</span>
+                        </SidebarMenuButton>
+                        </PopoverTrigger>
+                        <PopoverContent side="right" align="start" className="ml-2 w-56 p-0">
+                            <FlyoutMenu navGroup={group} />
+                        </PopoverContent>
+                    </Popover>
+                </SidebarMenuItem>
+                ))}
+            </SidebarMenu>
+            </SidebarContent>
+            <SidebarFooter>
+            <SidebarMenu>
+                    <SidebarMenuItem>
+                        <Link href="/owner-dashboard/account">
+                        <SidebarMenuButton tooltip={{ children: 'Account & Billing' }} isActive={pathname === "/owner-dashboard/account"}>
+                            <CreditCard />
+                            <span>Account & Billing</span>
+                        </SidebarMenuButton>
+                        </Link>
+                    </SidebarMenuItem>
+            </SidebarMenu>
+            </SidebarFooter>
+        </Sidebar>
+        <div className="flex flex-col flex-1 h-full">
+            <DashboardHeader />
+            <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+            {children}
+            </main>
+        </div>
+      </SidebarProvider>
+    </div>
   );
 }
-
-    
