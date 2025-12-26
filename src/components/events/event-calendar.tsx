@@ -9,7 +9,7 @@ import {
   useMemoFirebase,
 } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
-import { DayPicker, DayProps } from 'react-day-picker';
+import { DayPicker, DayProps, Day } from 'react-day-picker';
 import { isSameDay, format } from 'date-fns';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -140,7 +140,7 @@ export function EventCalendar() {
     );
     return (
         <div className="relative flex items-center justify-center h-full w-full">
-            <DayPicker.Day {...props} />
+            <Day {...props} />
             {hasItem && (
             <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
             )}
