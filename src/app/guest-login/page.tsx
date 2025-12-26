@@ -9,12 +9,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { GuestLoginForm } from "@/components/auth/guest-login-form";
+import { Logo } from "@/components/layout/logo";
 
 export default function GuestLoginPage() {
   return (
     <Card className="mx-auto max-w-sm w-full">
-      <CardHeader>
-        <CardTitle className="text-2xl font-headline">Guest Access</CardTitle>
+      <CardHeader className="items-center">
+        <Link href="/">
+            <Logo />
+        </Link>
+        <CardTitle className="text-2xl font-headline pt-4">Guest Access</CardTitle>
         <CardDescription>
           Enter your event and guest codes to view the event details.
         </CardDescription>
