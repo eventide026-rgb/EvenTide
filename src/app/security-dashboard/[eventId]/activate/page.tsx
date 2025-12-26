@@ -30,7 +30,7 @@ const formSchema = z.object({
   securityCode: z.string().min(4, { message: 'Code must be at least 4 characters.' }),
 });
 
-export default function ActivateScannerPage({ params }: { params: Promise<{ eventId: string }> }) {
+export default function ActivateScannerPage({ params }: { params: { eventId: string } }) {
     const { eventId } = use(params);
     const { toast } = useToast();
     const router = useRouter();
@@ -46,6 +46,7 @@ export default function ActivateScannerPage({ params }: { params: Promise<{ even
     // In a real app, this would query Firestore to validate the code
     const validateCode = async (code: string) => {
         await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network latency
+        // This is a placeholder. A real implementation would fetch the code from the event document.
         if (code.toUpperCase() === 'SECURE123') {
             return true;
         }

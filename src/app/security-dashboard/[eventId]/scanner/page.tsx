@@ -2,15 +2,15 @@
 'use client';
 
 import { useState, useRef, useEffect, use } from 'react';
-import { QrCode, ScanLine, CheckCircle, XCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ScanLine, CheckCircle, XCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 
 type ScanStatus = 'scanning' | 'success' | 'failure';
 
-export default function ScannerPage({ params }: { params: Promise<{ eventId: string }> }) {
+export default function ScannerPage({ params }: { params: { eventId: string } }) {
   const { eventId } = use(params);
   const [scanStatus, setScanStatus] = useState<ScanStatus>('scanning');
   const [scannedData, setScannedData] = useState<string | null>(null);
@@ -21,11 +21,20 @@ export default function ScannerPage({ params }: { params: Promise<{ eventId: str
   useEffect(() => {
     const getCameraPermission = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        setHasCameraPermission(true);
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+            setHasCameraPermission(true);
 
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+            if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            }
+        } else {
+            setHasCameraPermission(false);
+            toast({
+                variant: 'destructive',
+                title: 'Camera Not Supported',
+                description: 'Your device does not support camera access.',
+            });
         }
       } catch (error) {
         console.error('Error accessing camera:', error);
@@ -63,7 +72,7 @@ export default function ScannerPage({ params }: { params: Promise<{ eventId: str
   // This would be replaced with a real QR code scanning library
   const handleMockScan = (result: 'success' | 'failure') => {
     if (result === 'success') {
-      setScannedData('Guest: Adebayo Tunde');
+      setScannedData('Welcome, Tola Ojo!');
       setScanStatus('success');
     } else {
       setScannedData('Reason: Already Checked In');
@@ -96,7 +105,7 @@ export default function ScannerPage({ params }: { params: Promise<{ eventId: str
              {/* No Camera Permission Overlay */}
             {hasCameraPermission === false && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 text-white p-4">
-                    <Alert variant="destructive" className='text-center'>
+                    <Alert variant="destructive" className='text-center border-0 bg-transparent text-destructive-foreground'>
                         <AlertTitle>Camera Access Required</AlertTitle>
                         <AlertDescription>
                             Please grant camera permissions in your browser settings to activate the scanner.
@@ -107,7 +116,7 @@ export default function ScannerPage({ params }: { params: Promise<{ eventId: str
 
             {/* Success Overlay */}
             {scanStatus === 'success' && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-green-500/90 text-white">
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-green-500/90 text-white p-4 text-center">
                 <CheckCircle className="h-32 w-32" />
                 <h2 className="text-4xl font-bold mt-4">Access Granted</h2>
                 <p className="text-xl mt-2">{scannedData}</p>
@@ -116,7 +125,7 @@ export default function ScannerPage({ params }: { params: Promise<{ eventId: str
 
             {/* Failure Overlay */}
             {scanStatus === 'failure' && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-destructive/90 text-white">
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-destructive/90 text-white p-4 text-center">
                 <XCircle className="h-32 w-32" />
                 <h2 className="text-4xl font-bold mt-4">Access Denied</h2>
                 <p className="text-xl mt-2">{scannedData}</p>
@@ -126,7 +135,6 @@ export default function ScannerPage({ params }: { params: Promise<{ eventId: str
         </CardContent>
       </Card>
 
-      {/* Mock controls for demo */}
       <div className="mt-4 flex gap-4">
         <Button onClick={() => handleMockScan('success')}>Simulate Success</Button>
         <Button variant="destructive" onClick={() => handleMockScan('failure')}>Simulate Failure</Button>
