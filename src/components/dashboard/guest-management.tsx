@@ -4,7 +4,7 @@
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, writeBatch, runTransaction, serverTimestamp, orderBy } from 'firebase/firestore';
+import { collection, query, where, doc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -19,6 +19,8 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, PlusCircle, UserPlus, Info, Trash2, Edit, Send } from 'lucide-react';
 import { Label } from '../ui/label';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 type Event = {
   id: string;
@@ -89,55 +91,36 @@ function GuestManagementComponent() {
   }, [events, selectedEventId]);
 
   const handleAddGuest = async (values: z.infer<typeof guestFormSchema>) => {
-    if (!firestore || !selectedEventId || !selectedEventRef) return;
+    if (!firestore || !selectedEventId) return;
 
-    try {
-      await runTransaction(firestore, async (transaction) => {
-        const eventDoc = await transaction.get(selectedEventRef);
-        if (!eventDoc.exists()) {
-          throw new Error("Event does not exist.");
-        }
-        
-        const eventData = eventDoc.data() as Event;
-        const currentGuestCount = eventData.guestCount || 0;
-        const guestLimit = eventData.guestLimit || 20;
+    const newGuestRef = doc(collection(firestore, 'events', selectedEventId, 'guests'));
+    const guestId = `gst-${newGuestRef.id.substring(0, 8)}`;
 
-        if (currentGuestCount >= guestLimit) {
-          throw new Error("Guest limit for this event has been reached.");
-        }
-        
-        // This logic should be handled by a server-side Cloud Function for data integrity.
-        // It's implemented here on the client for demonstration purposes.
-        const serialNumber = currentGuestCount + 1;
+    const newGuestData = {
+        guestId: guestId,
+        name: values.name,
+        email: values.email,
+        phoneNumber: values.phoneNumber,
+        category: values.category,
+        rsvpStatus: 'Pending' as const,
+        hasCheckedIn: false,
+        createdAt: serverTimestamp(),
+    };
 
-        const newGuestRef = doc(collection(firestore, 'events', selectedEventId, 'guests'));
-        const guestId = `gst-${newGuestRef.id.substring(0, 8)}`;
-        
-        const newGuestData: Omit<Guest, 'id'> = {
-            guestId: guestId,
-            name: values.name,
-            email: values.email,
-            phoneNumber: values.phoneNumber,
-            category: values.category,
-            rsvpStatus: 'Pending',
-            hasCheckedIn: false,
-            serialNumber: serialNumber,
-        };
-
-        transaction.set(newGuestRef, newGuestData);
-        transaction.update(selectedEventRef, { guestCount: currentGuestCount + 1 });
-      });
-
-      toast({ title: 'Guest Added', description: `${values.name} has been added to your guest list.` });
-      guestForm.reset();
-    } catch (error: any) {
-      console.error("Error adding guest:", error);
-      toast({
-        variant: 'destructive',
-        title: 'Failed to Add Guest',
-        description: error.message || 'An unexpected error occurred.',
-      });
-    }
+    addDoc(collection(firestore, 'events', selectedEventId, 'guests'), newGuestData)
+        .then(() => {
+            toast({ title: 'Guest Added', description: `${values.name} has been added to your guest list.` });
+            guestForm.reset();
+        })
+        .catch(error => {
+            console.error('Error adding guest:', error);
+            const contextualError = new FirestorePermissionError({
+                path: `events/${selectedEventId}/guests`,
+                operation: 'create',
+                requestResourceData: newGuestData
+            });
+            errorEmitter.emit('permission-error', contextualError);
+        });
   };
 
   const isLoading = isUserLoading || isLoadingEvents;

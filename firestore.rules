@@ -36,8 +36,6 @@ service cloud.firestore {
     }
 
     function getEvent(eventId) {
-      // Corrected: Read from the owner's private event document, not the public mirror.
-      // We must construct the path using the owner's UID from the request.
       return get(/databases/$(database)/documents/events/$(eventId));
     }
 
@@ -59,6 +57,7 @@ service cloud.firestore {
     }
 
     function isEventStaff(eventId) {
+      // For read operations, this is fine. For writes, be more specific.
       return isEventOwner(eventId) || isEventPlanner(eventId) || isEventCohost(eventId);
     }
     
@@ -143,7 +142,7 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow list: if false;
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow update: if isEventOwner(eventId) && isExistingDoc() && request.resource.data.ownerId == resource.data.ownerId;
+      allow update: if (isEventOwner(eventId) || isEventPlanner(eventId)) && isExistingDoc() && request.resource.data.ownerId == resource.data.ownerId;
       allow delete: if isEventOwner(eventId) && isExistingDoc();
 
       match /tasks/{taskId} {
@@ -168,7 +167,7 @@ service cloud.firestore {
       match /gifts/{giftId} {
         allow read: if true; // Guests need to be able to read this
         allow create, delete: if isEventStaff(eventId);
-        allow update: if isSignedIn() && isEventOwner(eventId) || exists(/databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid));
+        allow update: if isSignedIn() && (isEventOwner(eventId) || isEventGuest(eventId));
       }
       
       match /songRequests/{requestId} {
@@ -202,29 +201,29 @@ service cloud.firestore {
       }
 
       match /menu/{docId} {
-        allow read: if isEventStaff(eventId);
+        allow read: if isEventStaff(eventId) || isEventGuest(eventId) || isEventVendor(eventId, 'Caterer');
         allow write: if isEventPlanner(eventId);
       }
       
       match /shotLists/{shotListId} {
         allow read: if isEventStaff(eventId) || isEventVendor(eventId, 'Photographer') || isEventVendor(eventId, 'Videographer');
         allow write: if isEventStaff(eventId); // Owner/Planner can add/remove
-        // More granular update rules would be needed for photographer status updates
+      }
+
+       match /guests/{guestId} {
+        allow get: if canReadEventData(eventId) || isOwner(guestId);
+        allow list: if isEventStaff(eventId);
+        allow create: if (isEventOwner(eventId) || isEventPlanner(eventId)) && 
+                       (get(/databases/$(database)/documents/events/$(eventId)).data.guestCount || 0) < 
+                       (get(/databases/$(database)/documents/events/$(eventId)).data.guestLimit || 20);
+        allow update: if (isEventStaff(eventId) || isOwner(guestId)) && isExistingDoc();
+        allow delete: if isEventStaff(eventId) && isExistingDoc();
       }
     }
     
      match /events/{eventId}/moodboard/{moodboardId} {
       allow get, list: if isEventStaff(eventId) || isEventVendor(eventId, 'Decorator');
       allow create, update, delete: if isEventStaff(eventId);
-    }
-
-
-    match /events/{eventId}/guests/{guestId} {
-      allow get: if canReadEventData(eventId) || isOwner(guestId);
-      allow list: if isEventStaff(eventId);
-      allow create: if isEventOwner(eventId);
-      allow update: if (isEventStaff(eventId) || isOwner(guestId)) && isExistingDoc();
-      allow delete: if isEventStaff(eventId) && isExistingDoc();
     }
 
     match /events/{eventId}/planners/{plannerId} {
@@ -243,7 +242,7 @@ service cloud.firestore {
 
     match /events/{eventId}/chat_messages/{messageId} {
       allow get, list: if canReadEventData(eventId);
-      allow create: if isEventStaff(eventId) && request.resource.data.senderId == request.auth.uid && request.resource.data.eventId == eventId;
+      allow create: if (isEventStaff(eventId) || isEventGuest(eventId)) && request.resource.data.senderId == request.auth.uid && request.resource.data.eventId == eventId;
       allow update: if false; 
       allow delete: if (isEventStaff(eventId) || isOwner(resource.data.senderId)) && isExistingDoc();
     }
@@ -355,5 +354,3 @@ service cloud.firestore {
 
   }
 }
-
-    
