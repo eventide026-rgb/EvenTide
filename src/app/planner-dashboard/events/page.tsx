@@ -38,6 +38,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Calendar, Check, X } from 'lucide-react';
 import { format, isSameDay } from 'date-fns';
+import Link from 'next/link';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -305,4 +306,3 @@ export default function PlannerEventsPage() {
     </div>
   );
 }
-
