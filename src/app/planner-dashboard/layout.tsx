@@ -143,7 +143,7 @@ export default function PlannerDashboardLayout({ children }: { children: React.R
   const isGroupActive = (groupLinks: typeof sidebarNav[0]['links']) => {
     return groupLinks.some(link => {
         if (link.href === "/planner-dashboard") {
-            return pathname === href;
+            return pathname === link.href;
         }
         return pathname.startsWith(link.href);
     });
