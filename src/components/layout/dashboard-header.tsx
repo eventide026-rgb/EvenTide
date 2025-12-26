@@ -11,14 +11,15 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth, useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import { signOut } from 'firebase/auth';
-import { CreditCard, LogOut, Settings, User as UserIcon } from 'lucide-react';
+import { CreditCard, LogOut, Search, Settings, User as UserIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { NotificationBell } from './notification-bell';
 
 export function DashboardHeader() {
   const { user, isUserLoading } = useUser();
@@ -52,55 +53,63 @@ export function DashboardHeader() {
   const role = getRoleFromPath(pathname);
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-      <div className="flex-1">
-        {/* Search bar can be added here */}
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
+       <div className="relative flex-1 md:grow-0">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search..."
+            className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
+          />
+        </div>
+      <div className="flex flex-1 items-center justify-end gap-2">
+        <NotificationBell />
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+            <Button
+                variant="outline"
+                className="relative h-10 w-auto justify-start gap-2 rounded-full px-3"
+            >
+                <Avatar className="h-8 w-8">
+                <AvatarImage
+                    src={user?.photoURL ?? `https://picsum.photos/seed/${user?.uid}/100`}
+                    alt={user?.displayName ?? 'User'}
+                />
+                <AvatarFallback>
+                    {user?.email?.[0].toUpperCase()}
+                </AvatarFallback>
+                </Avatar>
+                <div className="hidden md:flex flex-col text-left">
+                <span className="font-semibold text-sm truncate">
+                    {isUserLoading ? 'Loading...' : user?.displayName || user?.email}
+                </span>
+                <Badge variant="secondary" className="w-fit">{role}</Badge>
+                </div>
+            </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+                <Link href="/account">
+                <UserIcon className="mr-2 h-4 w-4" />
+                <span>Profile</span>
+                </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+                <Link href="/owner-dashboard/account">
+                <CreditCard className="mr-2 h-4 w-4" />
+                <span>Billing</span>
+                </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSignOut}>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+            </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            className="relative h-10 w-auto justify-start gap-2 rounded-full px-3"
-          >
-            <Avatar className="h-8 w-8">
-              <AvatarImage
-                src={user?.photoURL ?? `https://picsum.photos/seed/${user?.uid}/100`}
-                alt={user?.displayName ?? 'User'}
-              />
-              <AvatarFallback>
-                {user?.email?.[0].toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col text-left">
-              <span className="font-semibold text-sm truncate">
-                {isUserLoading ? 'Loading...' : user?.displayName || user?.email}
-              </span>
-              <Badge variant="secondary" className="w-fit">{role}</Badge>
-            </div>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link href="/account">
-              <UserIcon className="mr-2 h-4 w-4" />
-              <span>Profile</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/owner-dashboard/account">
-              <CreditCard className="mr-2 h-4 w-4" />
-              <span>Billing</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleSignOut}>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Log out</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </header>
   );
 }

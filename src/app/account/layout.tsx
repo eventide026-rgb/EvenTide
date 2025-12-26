@@ -1,6 +1,6 @@
 
 'use client';
-import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Sidebar } from "@/components/ui/sidebar";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { usePathname } from "next/navigation";
 import { OwnerDashboardSidebar } from "../owner-dashboard/sidebar"; // Assuming you extract it
@@ -17,13 +17,13 @@ export default function AccountLayout({
     const isOwnerDashboard = pathname.startsWith('/owner-dashboard');
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-muted/40">
+    <div className="flex min-h-screen w-full flex-row bg-muted/40">
         {/* For simplicity, we assume an owner context for the sidebar,
             a real app might need a more dynamic sidebar based on user role */}
         {isOwnerDashboard ? <OwnerDashboardSidebar /> : null}
-      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+      <div className="flex flex-col flex-1 h-full">
         <DashboardHeader />
-        <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+        <main className="flex-1 p-4 sm:px-6 sm:py-0 md:gap-8 overflow-y-auto">
             {children}
         </main>
       </div>

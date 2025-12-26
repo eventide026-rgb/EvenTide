@@ -27,7 +27,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/layout/logo";
 import { useAuth } from "@/firebase";
 import { signOut } from "firebase/auth";
-import { NotificationBell } from "@/components/layout/notification-bell";
+import { DashboardHeader } from "@/components/layout/dashboard-header";
 
 const navItems = [
   { href: "/ticketier-dashboard", icon: Home, label: "Dashboard" },
@@ -82,9 +82,6 @@ export default function TicketierDashboardLayout({ children }: { children: React
         </SidebarContent>
         <SidebarFooter>
            <SidebarMenu>
-             <SidebarMenuItem>
-                <NotificationBell />
-            </SidebarMenuItem>
             <SidebarMenuItem>
                 <Link href="/ticketier-dashboard/profile" legacyBehavior passHref>
                     <SidebarMenuButton 
@@ -111,11 +108,12 @@ export default function TicketierDashboardLayout({ children }: { children: React
            </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset>
-        <main className="min-h-svh bg-background p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col flex-1 h-full">
+        <DashboardHeader />
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
             {children}
         </main>
-      </SidebarInset>
+      </div>
     </SidebarProvider>
   );
 }

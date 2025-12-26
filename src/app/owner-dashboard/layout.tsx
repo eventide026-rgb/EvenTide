@@ -33,19 +33,19 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarProvider,
+  SidebarTrigger,
+} from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
-import { useAuth, useUser } from '@/firebase';
-import { signOut } from 'firebase/auth';
-import { NotificationBell } from '@/components/layout/notification-bell';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { useToast } from '@/hooks/use-toast';
 import { DashboardHeader } from '@/components/layout/dashboard-header';
-
 
 const sidebarNav = [
     {
@@ -188,9 +188,6 @@ export default function OwnerDashboardLayout({ children }: { children: React.Rea
         <SidebarFooter>
            <SidebarMenu>
                  <SidebarMenuItem>
-                    <NotificationBell />
-                 </SidebarMenuItem>
-                 <SidebarMenuItem>
                     <Link href="/owner-dashboard/account">
                       <SidebarMenuButton tooltip={{ children: 'Account & Billing' }} isActive={pathname === "/owner-dashboard/account"}>
                           <CreditCard />
@@ -201,12 +198,12 @@ export default function OwnerDashboardLayout({ children }: { children: React.Rea
            </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset>
+      <div className="flex flex-col flex-1 h-full">
         <DashboardHeader />
-        <main className="p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
           {children}
         </main>
-      </SidebarInset>
+      </div>
     </SidebarProvider>
   );
 }
