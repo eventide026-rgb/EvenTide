@@ -17,7 +17,7 @@ export default function PlannersPage() {
 
   const plannersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'plannerProfiles'));
+    return query(collection(firestore, "events"));
   }, [firestore]);
 
   const { data: allPlanners, isLoading } = useCollection<PlannerProfile>(plannersQuery);

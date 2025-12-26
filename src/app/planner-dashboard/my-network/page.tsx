@@ -23,7 +23,7 @@ export default function MyNetworkPage() {
   const contactsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     // This assumes contacts are stored in a subcollection under the user's document
-    return query(collection(firestore, 'users', user.uid, 'contacts'));
+    return query(collection(firestore, "events"));
   }, [firestore, user]);
 
   const { data: contacts, isLoading } = useCollection<Contact>(contactsQuery);

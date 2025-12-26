@@ -61,7 +61,7 @@ export function ContactForm() {
             createdAt: new Date(),
         };
 
-        const supportTicketsCol = collection(firestore, "supportTickets");
+        const supportTicketsCol = collection(firestore, "events");
 
         try {
             const docRef = await addDoc(supportTicketsCol, ticketData);

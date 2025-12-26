@@ -65,7 +65,7 @@ export default function CarsPage() {
 
   const carsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'cars'));
+    return query(collection(firestore, "events"));
   }, [firestore]);
 
   const { data: allCars, isLoading } = useCollection<CarType>(carsQuery);

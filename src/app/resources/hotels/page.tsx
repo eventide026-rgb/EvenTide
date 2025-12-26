@@ -57,10 +57,10 @@ export default function HotelsPage() {
     }
     
     if(constraints.length > 0) {
-        return query(collection(firestore, 'hotels'), ...constraints);
+        return query(collection(firestore, "events"), ...constraints);
     }
 
-    return collection(firestore, 'hotels');
+    return collection(firestore, "events");
 
   }, [firestore, debouncedSearchTerm, selectedState, selectedCity]);
 

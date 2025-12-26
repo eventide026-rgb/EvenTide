@@ -49,7 +49,7 @@ export function UserManagementTable() {
 
   const usersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'users'));
+    return query(collection(firestore, "events"));
   }, [firestore]);
 
   const { data: users, isLoading } = useCollection<UserProfile>(usersQuery);
@@ -68,7 +68,7 @@ export function UserManagementTable() {
 
   const handleRoleChange = async (userId: string, newRole: string) => {
     if (!firestore) return;
-    const userDocRef = doc(firestore, 'users', userId);
+    const userDocRef = doc(firestore, "events", userId);
     try {
       await updateDoc(userDocRef, { role: newRole });
       toast({

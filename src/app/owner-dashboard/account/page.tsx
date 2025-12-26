@@ -114,14 +114,14 @@ export default function AccountPage() {
   // 1. Fetch the owner's events
   const eventsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
-    return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
+    return query(collection(firestore, "events"), where('ownerId', '==', user.uid));
   }, [firestore, user?.uid]);
   const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
 
   // 2. Fetch all available pricing plans
   const plansQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, 'price_plans'));
+    return query(collection(firestore, "events"));
   }, [firestore]);
   const { data: pricePlans, isLoading: isLoadingPlans } = useCollection<PricePlan>(plansQuery);
   
@@ -131,7 +131,7 @@ export default function AccountPage() {
       if (firestore && !isLoadingPlans && pricePlans?.length === 0) {
         console.log("No pricing plans found. Seeding database...");
         const batch = writeBatch(firestore);
-        const plansCollection = collection(firestore, 'price_plans');
+        const plansCollection = collection(firestore, "events");
         seedPricePlansData.forEach(plan => {
           const docRef = doc(plansCollection);
           batch.set(docRef, plan);
@@ -169,7 +169,7 @@ export default function AccountPage() {
     };
 
     try {
-      const eventPricingCol = collection(firestore, 'events', selectedEventId, 'event_pricing');
+      const eventPricingCol = collection(firestore, "events", selectedEventId, 'event_pricing');
       await addDoc(eventPricingCol, eventPricingData);
       
       const planName = pricePlans?.find(p => p.id === planId)?.name || 'Plan';

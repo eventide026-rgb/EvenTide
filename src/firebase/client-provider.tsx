@@ -51,7 +51,7 @@ const sampleMagazineIssues = [
 
 async function seedAdminUsers(auth: any, firestore: any) {
   const defaultPassword = 'password123';
-  const usersCollection = collection(firestore, 'users');
+  const usersCollection = collection(firestore, "events");
 
   for (const admin of adminUsers) {
     // Check if user already exists in Firestore
@@ -63,7 +63,7 @@ async function seedAdminUsers(auth: any, firestore: any) {
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, admin.email, defaultPassword);
         const user = userCredential.user;
-        const userDocRef = doc(firestore, 'users', user.uid);
+        const userDocRef = doc(firestore, "events", user.uid);
         await setDoc(userDocRef, {
           id: user.uid,
           email: admin.email,
@@ -84,7 +84,7 @@ async function seedAdminUsers(auth: any, firestore: any) {
 }
 
 async function seedMagazineIssues(firestore: any) {
-    const issuesCollection = collection(firestore, 'magazineIssues');
+    const issuesCollection = collection(firestore, "events");
     const snapshot = await getDocs(query(issuesCollection));
     
     if (snapshot.empty) {

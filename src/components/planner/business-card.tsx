@@ -36,7 +36,7 @@ function BusinessCardComponent({ contactId, searchTerm }: BusinessCardProps) {
 
   const vendorRef = useMemoFirebase(() => {
     if (!firestore || !contactId) return null;
-    return doc(firestore, 'vendors', contactId);
+    return doc(firestore, "events", contactId);
   }, [firestore, contactId]);
 
   const { data: vendor, isLoading } = useDoc<Vendor>(vendorRef);
@@ -53,7 +53,7 @@ function BusinessCardComponent({ contactId, searchTerm }: BusinessCardProps) {
   const handleRemove = async () => {
     if (!firestore || !user) return;
     // The contact document ID is often the same as the vendorId in this design
-    const contactRef = doc(firestore, 'users', user.uid, 'contacts', contactId);
+    const contactRef = doc(firestore, "events", user.uid, 'contacts', contactId);
     try {
       await deleteDoc(contactRef);
       toast({

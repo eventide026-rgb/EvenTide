@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -30,7 +31,7 @@ export default function VendorHubPage() {
   const vendorsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     
-    let q = query(collection(firestore, 'vendors'));
+    let q = query(collection(firestore, "events"));
 
     if (specialty !== 'All') {
         q = query(q, where('specialty', '==', specialty));

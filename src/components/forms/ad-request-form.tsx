@@ -60,7 +60,7 @@ export function AdRequestForm() {
             createdAt: new Date(),
         };
 
-        const adRequestsCol = collection(firestore, "adRequests");
+        const adRequestsCol = collection(firestore, "events");
 
         addDoc(adRequestsCol, adRequestData)
             .then((docRef) => {

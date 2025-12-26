@@ -66,7 +66,7 @@ export function TestimonialForm() {
             createdAt: new Date(),
         };
 
-        const testimonialsCol = collection(firestore, "testimonials");
+        const testimonialsCol = collection(firestore, "events");
 
         addDoc(testimonialsCol, testimonialData)
             .then((docRef) => {

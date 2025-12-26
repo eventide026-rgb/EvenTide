@@ -13,10 +13,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function SuperAdminDashboardPage() {
   const firestore = useFirestore();
 
-  const usersQuery = useMemoFirebase(() => firestore ? collection(firestore, 'users') : null, [firestore]);
-  const eventsQuery = useMemoFirebase(() => firestore ? collection(firestore, 'events') : null, [firestore]);
-  const publicEventsQuery = useMemoFirebase(() => firestore ? query(collection(firestore, 'events'), where('isPublic', '==', true)) : null, [firestore]);
-  const plansQuery = useMemoFirebase(() => firestore ? collection(firestore, 'pricePlans') : null, [firestore]);
+  const usersQuery = useMemoFirebase(() => firestore ? collection(firestore, "events") : null, [firestore]);
+  const eventsQuery = useMemoFirebase(() => firestore ? collection(firestore, "events") : null, [firestore]);
+  const publicEventsQuery = useMemoFirebase(() => firestore ? query(collection(firestore, "events"), where('isPublic', '==', true)) : null, [firestore]);
+  const plansQuery = useMemoFirebase(() => firestore ? collection(firestore, "events") : null, [firestore]);
 
   const { data: users, isLoading: loadingUsers } = useCollection(usersQuery);
   const { data: events, isLoading: loadingEvents } = useCollection(eventsQuery);

@@ -58,10 +58,10 @@ export default function VenuesPage() {
     }
     
     if(constraints.length > 0) {
-        return query(collection(firestore, 'venues'), ...constraints);
+        return query(collection(firestore, "events"), ...constraints);
     }
 
-    return collection(firestore, 'venues');
+    return collection(firestore, "events");
 
   }, [firestore, debouncedSearchTerm, selectedState, selectedCity]);
 
