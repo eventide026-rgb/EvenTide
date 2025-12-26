@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, CheckCircle, Crown, Info } from 'lucide-react';
+import { Loader2, CheckCircle, Crown, Info, UserCheck, ShieldCheck, Users } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -111,7 +111,7 @@ export default function AccountPage() {
     }
   };
 
-  const isLoading = isUserLoading || isLoadingEvents || isLoadingPlans;
+  const isLoading = isUserLoading || isLoadingEvents;
 
   return (
     <div className="space-y-8">
@@ -166,7 +166,7 @@ export default function AccountPage() {
             <h2 className="text-2xl font-bold font-headline mb-4">Step 2: Choose Your Plan</h2>
             {isLoadingPlans ? (
                  <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 items-start">
-                     {[...Array(4)].map((_, i) => <Loader2 key={i} className='h-8 w-8 animate-spin' />)}
+                     {[...Array(4)].map((_, i) => <Card key={i} className="min-h-[300px] flex justify-center items-center"><Loader2 key={i} className='h-8 w-8 animate-spin' /></Card>)}
                  </div>
             ) : (
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 items-start">
@@ -186,8 +186,20 @@ export default function AccountPage() {
                         <CardContent className="flex-1">
                             <ul className="space-y-3">
                             <li className="flex items-start gap-2 text-sm">
-                                <CheckCircle className="h-4 w-4 text-primary flex-shrink-0 mt-1" />
-                                <span>Adds <span className='font-bold'>{plan.guestLimit}</span> guests to capacity</span>
+                                <Users className="h-4 w-4 text-primary flex-shrink-0 mt-1" />
+                                <span>Up to <span className='font-bold'>{plan.guestLimit.toLocaleString()}</span> Guests</span>
+                            </li>
+                             <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                                <UserCheck className="h-4 w-4 text-green-500 flex-shrink-0 mt-1" />
+                                <span><span className='font-bold'>{plan.plannerLimit}</span> Planner(s)</span>
+                            </li>
+                             <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                                <UserCheck className="h-4 w-4 text-green-500 flex-shrink-0 mt-1" />
+                                <span><span className='font-bold'>{plan.cohostLimit}</span> Co-host(s)</span>
+                            </li>
+                             <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                                <ShieldCheck className="h-4 w-4 text-green-500 flex-shrink-0 mt-1" />
+                                <span><span className='font-bold'>{plan.securityPersonnelLimit}</span> Security</span>
                             </li>
                             {plan.features?.map((feature, i) => (
                                 <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
