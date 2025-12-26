@@ -19,8 +19,9 @@ import { useState, use } from 'react';
 import { useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { collection, writeBatch, doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { Loader2, PlusCircle, Trash2 } from 'lucide-react';
+import { Loader2, PlusCircle, Trash2, ArrowLeft } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import Link from 'next/link';
 
 const ticketTierSchema = z.object({
   name: z.string().min(2, "Tier name is required (e.g., VIP)."),
@@ -103,69 +104,80 @@ export default function TicketTiersPage({ params }: { params: Promise<{ showId: 
     }
 
     return (
-        <Card className="max-w-4xl mx-auto w-full">
-            <CardHeader>
-                <CardTitle className="text-3xl font-headline">Manage Ticket Tiers</CardTitle>
-                <CardDescription>
-                    Define the pricing structure for &quot;{show?.name}&quot;. You can add multiple tiers like VIP, Early Bird, etc.
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                         <div className="space-y-4">
-                            {fields.map((field, index) => (
-                               <div key={field.id} className="grid md:grid-cols-8 gap-4 items-start border p-4 rounded-lg relative">
-                                    <FormField
-                                        control={form.control}
-                                        name={`ticketTiers.${index}.name`}
-                                        render={({ field }) => (
-                                            <FormItem className="col-span-8 md:col-span-3">
-                                                <FormLabel>Tier Name</FormLabel>
-                                                <FormControl><Input placeholder="e.g., General Admission" {...field} /></FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name={`ticketTiers.${index}.price`}
-                                        render={({ field }) => (
-                                            <FormItem className="col-span-4 md:col-span-2">
-                                                <FormLabel>Price (₦)</FormLabel>
-                                                <FormControl><Input type="number" placeholder="5000" {...field} /></FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name={`ticketTiers.${index}.quantity`}
-                                        render={({ field }) => (
-                                            <FormItem className="col-span-4 md:col-span-2">
-                                                <FormLabel>Quantity</FormLabel>
-                                                <FormControl><Input type="number" placeholder="100" {...field} /></FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <Button type="button" variant="ghost" size="icon" className="col-span-8 md:col-span-1 md:place-self-end" onClick={() => remove(index)} disabled={fields.length <= 1}>
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                               </div>
-                            ))}
-                             <Button type="button" variant="outline" size="sm" onClick={() => append({ name: "", price: 0, quantity: 0 })}>
-                                <PlusCircle className="mr-2 h-4 w-4" /> Add Another Tier
-                            </Button>
-                        </div>
+        <div className="flex flex-col gap-4">
+             <div className="flex items-center gap-4">
+                <Button variant="outline" size="icon" asChild>
+                    <Link href="/ticketier-dashboard/shows/new">
+                        <ArrowLeft className="h-4 w-4" />
+                        <span className="sr-only">Back to Show Creation</span>
+                    </Link>
+                </Button>
+                <h1 className="text-xl font-semibold">Manage Ticket Tiers</h1>
+            </div>
+            <Card className="max-w-4xl mx-auto w-full">
+                <CardHeader>
+                    <CardTitle className="text-3xl font-headline">Ticket Tiers</CardTitle>
+                    <CardDescription>
+                        Define the pricing structure for &quot;{show?.name}&quot;. You can add multiple tiers like VIP, Early Bird, etc.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                            <div className="space-y-4">
+                                {fields.map((field, index) => (
+                                <div key={field.id} className="grid md:grid-cols-8 gap-4 items-start border p-4 rounded-lg relative">
+                                        <FormField
+                                            control={form.control}
+                                            name={`ticketTiers.${index}.name`}
+                                            render={({ field }) => (
+                                                <FormItem className="col-span-8 md:col-span-3">
+                                                    <FormLabel>Tier Name</FormLabel>
+                                                    <FormControl><Input placeholder="e.g., General Admission" {...field} /></FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name={`ticketTiers.${index}.price`}
+                                            render={({ field }) => (
+                                                <FormItem className="col-span-4 md:col-span-2">
+                                                    <FormLabel>Price (₦)</FormLabel>
+                                                    <FormControl><Input type="number" placeholder="5000" {...field} /></FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name={`ticketTiers.${index}.quantity`}
+                                            render={({ field }) => (
+                                                <FormItem className="col-span-4 md:col-span-2">
+                                                    <FormLabel>Quantity</FormLabel>
+                                                    <FormControl><Input type="number" placeholder="100" {...field} /></FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <Button type="button" variant="ghost" size="icon" className="col-span-8 md:col-span-1 md:place-self-end" onClick={() => remove(index)} disabled={fields.length <= 1}>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                </div>
+                                ))}
+                                <Button type="button" variant="outline" size="sm" onClick={() => append({ name: "", price: 0, quantity: 0 })}>
+                                    <PlusCircle className="mr-2 h-4 w-4" /> Add Another Tier
+                                </Button>
+                            </div>
 
-                        <Button type="submit" className="w-full" disabled={isLoading}>
-                            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            {isLoading ? "Saving Tiers..." : "Save and Publish Show"}
-                        </Button>
-                    </form>
-                </Form>
-            </CardContent>
-        </Card>
+                            <Button type="submit" className="w-full" disabled={isLoading}>
+                                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                {isLoading ? "Saving Tiers..." : "Save and Publish Show"}
+                            </Button>
+                        </form>
+                    </Form>
+                </CardContent>
+            </Card>
+        </div>
     );
 }
