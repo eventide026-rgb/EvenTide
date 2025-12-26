@@ -148,13 +148,13 @@ export function EventCalendar() {
     const hasItem = calendarItems.some((item) => isSameDay(item.date, date));
     
     return (
-      <div className="relative flex items-center justify-center h-full w-full">
-        <Day {...props} />
-        {hasItem && (
-          <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
-        )}
-      </div>
-    );
+        <Day {...props}>
+          {props.day.getDate()}
+          {hasItem && (
+            <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
+          )}
+        </Day>
+      );
   }
 
   /* ---------------------------------------------------------------- */
@@ -246,3 +246,4 @@ export function EventCalendar() {
     </div>
   );
 }
+
