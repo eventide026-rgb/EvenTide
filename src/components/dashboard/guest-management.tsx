@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
@@ -20,7 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, PlusCircle, UserPlus, Info, Trash2, Edit, Send } from 'lucide-react';
 import { Label } from '../ui/label';
 import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
+import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 
 type Event = {
   id: string;
@@ -93,7 +94,8 @@ function GuestManagementComponent() {
   const handleAddGuest = async (values: z.infer<typeof guestFormSchema>) => {
     if (!firestore || !selectedEventId) return;
 
-    const newGuestRef = doc(collection(firestore, 'events', selectedEventId, 'guests'));
+    const guestCollectionRef = collection(firestore, 'events', selectedEventId, 'guests');
+    const newGuestRef = doc(guestCollectionRef);
     const guestId = `gst-${newGuestRef.id.substring(0, 8)}`;
 
     const newGuestData = {
@@ -107,19 +109,19 @@ function GuestManagementComponent() {
         createdAt: serverTimestamp(),
     };
 
-    addDoc(collection(firestore, 'events', selectedEventId, 'guests'), newGuestData)
+    addDoc(guestCollectionRef, newGuestData)
         .then(() => {
             toast({ title: 'Guest Added', description: `${values.name} has been added to your guest list.` });
             guestForm.reset();
         })
-        .catch(error => {
-            console.error('Error adding guest:', error);
-            const contextualError = new FirestorePermissionError({
-                path: `events/${selectedEventId}/guests`,
-                operation: 'create',
-                requestResourceData: newGuestData
-            });
-            errorEmitter.emit('permission-error', contextualError);
+        .catch(async (serverError) => {
+            console.error("Error adding guest:", serverError);
+            const permissionError = new FirestorePermissionError({
+              path: guestCollectionRef.path,
+              operation: 'create',
+              requestResourceData: newGuestData,
+            } satisfies SecurityRuleContext);
+            errorEmitter.emit('permission-error', permissionError);
         });
   };
 
@@ -208,9 +210,7 @@ function GuestManagementComponent() {
                             </SelectTrigger>
                             <SelectContent>
                                 {events && events.length > 0 ? (
-                                events.map((event) => (
-                                    <SelectItem key={event.id} value={event.id}>{event.name}</SelectItem>
-                                ))
+                                events.map((event) => (<SelectItem key={event.id} value={event.id}>{event.name}</SelectItem>))
                                 ) : (
                                 <SelectItem value="no-events" disabled>Create an event first</SelectItem>
                                 )}
