@@ -1,13 +1,19 @@
+'use client';
 
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { TaskBoard } from '@/components/dashboard/planner/TaskBoard';
 
 export default function TasksPage() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Tasks Management</CardTitle>
-        <CardDescription>Create and assign tasks, set deadlines, and track progress.</CardDescription>
-      </CardHeader>
-    </Card>
+    <div className="flex flex-col gap-8 h-full">
+      <div>
+        <h1 className="text-3xl font-bold font-headline">Task Management</h1>
+        <p className="text-muted-foreground">
+          Your command center for all event to-do items. Select an event to get started.
+        </p>
+      </div>
+      <div className="flex-1">
+        <TaskBoard isReadOnly={false} />
+      </div>
+    </div>
   );
 }
