@@ -53,7 +53,7 @@ export default function UserAdminLayout({ children }: { children: React.ReactNod
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full flex-row bg-muted/40">
+      <div className="flex h-screen w-full flex-row bg-muted/40 overflow-hidden">
         <Sidebar>
           <SidebarHeader>
             <div className="flex items-center gap-2">
@@ -103,7 +103,7 @@ export default function UserAdminLayout({ children }: { children: React.ReactNod
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <div className="flex flex-col flex-1 h-screen">
+        <div className="flex flex-col flex-1">
             <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
                 {children}
             </main>

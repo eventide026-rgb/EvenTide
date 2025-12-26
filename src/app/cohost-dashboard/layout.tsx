@@ -55,7 +55,7 @@ export default function CoHostDashboardLayout({ children }: { children: React.Re
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-row bg-muted/40">
+    <div className="flex h-screen w-full flex-row bg-muted/40 overflow-hidden">
         <SidebarProvider>
         <Sidebar>
             <SidebarHeader>
@@ -82,7 +82,7 @@ export default function CoHostDashboardLayout({ children }: { children: React.Re
             </SidebarMenu>
             </SidebarContent>
         </Sidebar>
-        <div className="flex flex-col flex-1 h-screen">
+        <div className="flex flex-col flex-1">
             <DashboardHeader />
             <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
                 {children}

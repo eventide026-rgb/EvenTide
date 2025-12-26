@@ -58,7 +58,7 @@ export default function HallOwnerDashboardLayout({ children }: { children: React
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full flex-row bg-muted/40">
+      <div className="flex h-screen w-full flex-row bg-muted/40 overflow-hidden">
         <Sidebar>
           <SidebarHeader>
             <Link href="/">
@@ -111,7 +111,7 @@ export default function HallOwnerDashboardLayout({ children }: { children: React
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <div className="flex flex-col flex-1 h-full">
+        <div className="flex flex-col flex-1">
           <DashboardHeader />
           <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
               {children}
