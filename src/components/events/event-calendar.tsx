@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -8,7 +9,7 @@ import {
   useMemoFirebase,
 } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
-import { DayPicker } from 'react-day-picker';
+import { DayPicker, DayProps } from 'react-day-picker';
 import { isSameDay, format } from 'date-fns';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -133,18 +134,17 @@ export function EventCalendar() {
   /* Custom Day Renderer (react-day-picker v8+)                        */
   /* ---------------------------------------------------------------- */
 
-  function DayWithDot({ date }: { date: Date }) {
+  function DayWithDot(props: DayProps) {
     const hasItem = datesWithItems.some((d) =>
-      isSameDay(d, date)
+      isSameDay(d, props.date)
     );
-
     return (
-      <div className="relative flex items-center justify-center h-full w-full">
-        {date.getDate()}
-        {hasItem && (
-          <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
-        )}
-      </div>
+        <div className="relative flex items-center justify-center h-full w-full">
+            <DayPicker.Day {...props} />
+            {hasItem && (
+            <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
+            )}
+        </div>
     );
   }
 
@@ -175,22 +175,7 @@ export function EventCalendar() {
             onSelect={setSelectedDate}
             className="w-full"
             components={{
-              Day: (props) => {
-                const { day } = props;
-
-                if (!day?.date || !day?.displayMonth) {
-                  return <div />;
-                }
-
-                if (
-                  day.displayMonth.getMonth() !==
-                  day.date.getMonth()
-                ) {
-                  return <div />;
-                }
-
-                return <DayWithDot date={day.date} />;
-              },
+              Day: DayWithDot
             }}
           />
         </CardContent>
