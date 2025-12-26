@@ -24,16 +24,16 @@ type ControlPanelProps = {
     eventId: string;
     eventType: string;
     initialStationery: Stationery;
+    setStationery: React.Dispatch<React.SetStateAction<Stationery>>;
     initialColors: EventColors;
+    setColors: React.Dispatch<React.SetStateAction<EventColors>>;
 };
 
-export function ControlPanel({ eventId, eventType, initialStationery, initialColors }: ControlPanelProps) {
+export function ControlPanel({ eventId, eventType, initialStationery, setStationery, initialColors, setColors }: ControlPanelProps) {
     const { toast } = useToast();
     const router = useRouter();
     const firestore = useFirestore();
 
-    const [stationery, setStationery] = useState<Stationery>(initialStationery);
-    const [colors, setColors] = useState<EventColors>(initialColors);
     const [aiPrompt, setAiPrompt] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -43,9 +43,9 @@ export function ControlPanel({ eventId, eventType, initialStationery, initialCol
         const eventRef = doc(firestore, 'events', eventId);
         try {
             await updateDoc(eventRef, {
-                stationery: stationery,
-                primaryColor: colors.primary,
-                secondaryColor: colors.accent,
+                stationery: initialStationery,
+                primaryColor: initialColors.primary,
+                secondaryColor: initialColors.accent,
             });
             toast({
                 title: 'Theme Saved!',
@@ -64,13 +64,13 @@ export function ControlPanel({ eventId, eventType, initialStationery, initialCol
         setIsGenerating(true);
         try {
             const result = await generateInvitationCard({
-                eventName: stationery.invitationDetails?.title || 'Our Event',
+                eventName: initialStationery.invitationDetails?.title || 'Our Event',
                 eventDate: 'To be announced',
                 eventTime: '',
                 eventVenue: '',
-                primaryColor: colors.primary,
-                secondaryColor: colors.accent,
-                eventDescription: stationery.invitationDetails?.description || 'A grand celebration',
+                primaryColor: initialColors.primary,
+                secondaryColor: initialColors.accent,
+                eventDescription: initialStationery.invitationDetails?.description || 'A grand celebration',
                 theme: aiPrompt,
             });
             setStationery(prev => ({...prev, background: result.invitationCardDesign }));
@@ -118,11 +118,11 @@ export function ControlPanel({ eventId, eventType, initialStationery, initialCol
                          <AccordionContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor='inv-title'>Invitation Title</Label>
-                                <Input id="inv-title" value={stationery.invitationDetails?.title} onChange={e => setStationery(s => ({...s, invitationDetails: {...s.invitationDetails, title: e.target.value}}))} />
+                                <Input id="inv-title" value={initialStationery.invitationDetails?.title} onChange={e => setStationery(s => ({...s, invitationDetails: {...s.invitationDetails, title: e.target.value}}))} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor='inv-desc'>Invitation Description</Label>
-                                <Textarea id="inv-desc" value={stationery.invitationDetails?.description} onChange={e => setStationery(s => ({...s, invitationDetails: {...s.invitationDetails, description: e.target.value}}))} />
+                                <Textarea id="inv-desc" value={initialStationery.invitationDetails?.description} onChange={e => setStationery(s => ({...s, invitationDetails: {...s.invitationDetails, description: e.target.value}}))} />
                             </div>
                          </AccordionContent>
                     </AccordionItem>
@@ -136,11 +136,11 @@ export function ControlPanel({ eventId, eventType, initialStationery, initialCol
                              <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor='primary-color'>Primary Color</Label>
-                                    <Input id="primary-color" type="color" value={colors.primary} onChange={e => setColors(c => ({...c, primary: e.target.value}))} />
+                                    <Input id="primary-color" type="color" value={initialColors.primary} onChange={e => setColors(c => ({...c, primary: e.target.value}))} />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor='accent-color'>Accent Color</Label>
-                                    <Input id="accent-color" type="color" value={colors.accent} onChange={e => setColors(c => ({...c, accent: e.target.value}))} />
+                                    <Input id="accent-color" type="color" value={initialColors.accent} onChange={e => setColors(c => ({...c, accent: e.target.value}))} />
                                 </div>
                              </div>
                          </AccordionContent>

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
@@ -14,7 +14,6 @@ export type Stationery = {
     invitationDetails?: {
         title: string;
         description: string;
-        rsvpContact: string;
     };
 };
 
@@ -35,7 +34,7 @@ export default function InvitationStudioPage({ params }: { params: { eventId: st
     const [stationery, setStationery] = useState<Stationery>({});
     const [colors, setColors] = useState<EventColors>({ primary: '#000000', accent: '#FFFFFF' });
     
-    useState(() => {
+    useEffect(() => {
         if (event) {
             setStationery(event.stationery || {});
             setColors({
@@ -43,7 +42,7 @@ export default function InvitationStudioPage({ params }: { params: { eventId: st
                 accent: event.secondaryColor || '#FFFFFF',
             });
         }
-    });
+    }, [event]);
 
     if (isLoading || !event) {
         return (
@@ -59,7 +58,9 @@ export default function InvitationStudioPage({ params }: { params: { eventId: st
                 <ControlPanel
                     eventId={params.eventId}
                     initialStationery={stationery}
+                    setStationery={setStationery}
                     initialColors={colors}
+                    setColors={setColors}
                     eventType={event.eventType}
                 />
             </div>
