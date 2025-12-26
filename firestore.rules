@@ -110,10 +110,16 @@ service cloud.firestore {
     
     match /planners/{plannerId} {
         allow read, write: if isOwner(plannerId);
+        allow list: if isSignedIn();
+        allow get: if isSignedIn();
+        allow create: if request.auth.uid == plannerId;
+        allow update, delete: if request.auth.uid == plannerId;
+     
     }
 
     match /plannerProfiles/{plannerId} {
         allow get, list: if true;
+        allow read, write: if request.auth != null && request.auth.uid == plannerId;
         allow create: if request.auth.uid == plannerId;
         allow update, delete: if isOwner(plannerId);
     }
@@ -231,6 +237,13 @@ service cloud.firestore {
                        (get(/databases/$(database)/documents/events/$(eventId)).data.guestLimit || 20);
         allow update: if (isEventStaff(eventId) || isOwner(guestId)) && isExistingDoc();
         allow delete: if isEventStaff(eventId) && isExistingDoc();
+      }
+      
+      match /invitations/{invitationId} {
+        allow read, update: if isEventStaff(eventId) || isOwner(resource.data.userId);
+        allow list: if isEventStaff(eventId);
+        allow create: if isEventStaff(eventId);
+        allow delete: if isEventStaff(eventId);
       }
     }
     
