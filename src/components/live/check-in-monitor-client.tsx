@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -48,7 +49,7 @@ type Guest = {
 };
 
 const categoryPriority: Record<string, number> = {
-  'Chairman': 1,
+  'Chairperson': 1,
   'VVIP': 2,
   'VIP': 3,
   'Family': 4,
@@ -57,7 +58,7 @@ const categoryPriority: Record<string, number> = {
 };
 
 const categoryIcons: Record<string, React.ElementType> = {
-    'Chairman': Crown,
+    'Chairperson': Crown,
     'VVIP': Crown,
     'VIP': Star,
     'Family': User,

@@ -226,9 +226,7 @@ function GuestManagementComponent() {
                             <SelectContent>
                                 {events && events.length > 0 ? (
                                 events.map((event) => (
-                                    <SelectItem key={event.id} value={event.id}>
-                                    {event.name}
-                                    </SelectItem>
+                                    <SelectItem key={event.id} value={event.id}>{event.name}</SelectItem>
                                 ))
                                 ) : (
                                 <SelectItem value="no-events" disabled>Create an event first</SelectItem>
@@ -252,6 +250,7 @@ function GuestManagementComponent() {
                                         <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
+                                        <SelectItem value="Chairperson">Chairperson</SelectItem>
                                         <SelectItem value="General">General</SelectItem>
                                         <SelectItem value="VIP">VIP</SelectItem>
                                         <SelectItem value="VVIP">VVIP</SelectItem>
