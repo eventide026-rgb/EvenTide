@@ -125,7 +125,7 @@ export function ProgramPlannerClient({ eventId, isReadOnly = false }: ProgramPla
       const saveChanges = async () => {
         setSaveStatus('saving');
         try {
-          await setDoc(programDocRef, debouncedFormValues);
+          await setDoc(programDocRef, debouncedFormValues, { merge: true });
           setSaveStatus('saved');
           form.reset(debouncedFormValues); // Mark form as not dirty
         } catch (error) {
@@ -250,5 +250,9 @@ export function ProgramPlannerClient({ eventId, isReadOnly = false }: ProgramPla
     </div>
   );
 
+  if (isLoading && !isReadOnly) {
+    return <div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin"/></div>
+  }
+  
   return isReadOnly ? <MainContent /> : <PlannerView />;
 }
