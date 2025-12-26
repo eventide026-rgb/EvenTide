@@ -81,7 +81,6 @@ const SidebarProvider = React.forwardRef<
 
     // This is the internal state of the sidebar.
     // We use openProp and setOpenProp for control from outside the component.
-    const [isInitialized, setIsInitialized] = React.useState(false);
     const [_open, _setOpen] = React.useState(defaultOpen);
 
     React.useEffect(() => {
@@ -89,7 +88,6 @@ const SidebarProvider = React.forwardRef<
         if (cookieValue) {
             _setOpen(cookieValue === 'true');
         }
-        setIsInitialized(true);
     }, []);
     
 
@@ -162,7 +160,6 @@ const SidebarProvider = React.forwardRef<
             }
             className={cn(
               "group/sidebar-wrapper flex min-h-svh w-full",
-              !isInitialized && "invisible",
               className
             )}
             ref={ref}
