@@ -142,11 +142,13 @@ export function EventCalendar() {
   /* ---------------------------------------------------------------- */
 
   function DayWithDot(props: DayProps) {
-    const hasItem = calendarItems.some((item) => isSameDay(item.date, props.date));
+    const hasItem = useMemo(() => 
+        props.date && calendarItems.some((item) => isSameDay(item.date, props.date))
+    , [calendarItems, props.date]);
     
     return (
         <Day {...props}>
-          {props.date.getDate()}
+          {props.date ? props.date.getDate() : ''}
           {hasItem && (
             <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
           )}
