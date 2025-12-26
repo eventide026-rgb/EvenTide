@@ -121,7 +121,7 @@ export default function AccountPage() {
   // 2. Fetch all available pricing plans
   const plansQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, "events"));
+    return query(collection(firestore, "price_plans"));
   }, [firestore]);
   const { data: pricePlans, isLoading: isLoadingPlans } = useCollection<PricePlan>(plansQuery);
   
@@ -131,7 +131,7 @@ export default function AccountPage() {
       if (firestore && !isLoadingPlans && pricePlans?.length === 0) {
         console.log("No pricing plans found. Seeding database...");
         const batch = writeBatch(firestore);
-        const plansCollection = collection(firestore, "events");
+        const plansCollection = collection(firestore, "price_plans");
         seedPricePlansData.forEach(plan => {
           const docRef = doc(plansCollection);
           batch.set(docRef, plan);
@@ -302,3 +302,5 @@ export default function AccountPage() {
     </div>
   );
 }
+
+    

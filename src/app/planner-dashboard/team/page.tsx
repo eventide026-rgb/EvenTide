@@ -52,7 +52,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, UserPlus, Search, Trash2 } from 'lucide-react';
-import { Label } from '@/components/ui/label';
+import { Label } from '../ui/label';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -73,6 +73,7 @@ type UserProfile = {
     email: string;
     firstName: string;
     lastName: string;
+    role: string;
 };
 
 type TeamMember = {
@@ -122,7 +123,7 @@ export default function TeamManagementPage() {
   const eventIds = useMemo(() => assignments?.map(a => a.eventId) || [], [assignments]);
 
   const eventsQuery = useMemoFirebase(() => {
-    if (!firestore || eventIds.length === 0) return null;
+    if (!firestore || !eventIds || eventIds.length === 0) return null;
     return query(collection(firestore, 'events'), where(documentId(), 'in', eventIds));
   }, [firestore, eventIds]);
 
@@ -311,3 +312,5 @@ export default function TeamManagementPage() {
     </div>
   );
 }
+
+    
