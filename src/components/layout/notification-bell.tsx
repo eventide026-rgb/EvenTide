@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { usePathname } from 'next/navigation';
 
 type Notification = {
     id: string;
@@ -31,6 +32,7 @@ export function NotificationBell() {
     const [isOpen, setIsOpen] = useState(false);
     const firestore = useFirestore();
     const { user, isUserLoading } = useUser();
+    const pathname = usePathname();
 
     const notificationsQuery = useMemoFirebase(() => {
         if (!firestore || !user) return null;
@@ -59,6 +61,22 @@ export function NotificationBell() {
         });
         await batch.commit();
     };
+
+    const getDashboardPrefix = () => {
+        const parts = pathname.split('/');
+        if (parts.length > 1 && parts[1].endsWith('-dashboard')) {
+            return `/${parts[1]}`;
+        }
+        // Fallback for account pages or other nested routes
+        if(pathname.startsWith('/owner-dashboard') || pathname.startsWith('/account')) return '/owner-dashboard';
+        if(pathname.startsWith('/planner-dashboard')) return '/planner-dashboard';
+        if(pathname.startsWith('/vendor-dashboard')) return '/vendor-dashboard';
+        if(pathname.startsWith('/cohost-dashboard')) return '/cohost-dashboard';
+        if(pathname.startsWith('/ticketier-dashboard')) return '/ticketier-dashboard';
+        return '/owner-dashboard'; // Default fallback
+    }
+
+    const inboxLink = `${getDashboardPrefix()}/notifications`;
 
     const NotificationItem = ({ notif }: { notif: Notification }) => (
         <Link href={notif.link} className="block rounded-md p-2 hover:bg-accent -mx-2" onClick={() => setIsOpen(false)}>
@@ -119,7 +137,7 @@ export function NotificationBell() {
                 <Separator />
                 <div className="p-2">
                     <Button variant="ghost" size="sm" className="w-full" asChild>
-                        <Link href="notifications" onClick={() => setIsOpen(false)}>View all in Inbox</Link>
+                        <Link href={inboxLink} onClick={() => setIsOpen(false)}>View all in Inbox</Link>
                     </Button>
                 </div>
             </PopoverContent>
