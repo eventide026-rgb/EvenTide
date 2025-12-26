@@ -39,14 +39,14 @@ const eventTypes = [
     "Funeral / Memorial",
     "Retirement",
     "General Event"
-];
+] as const;
 
 const formSchema = z.object({
     name: z.string().min(3, "Event name must be at least 3 characters."),
     description: z.string().min(20, "Description must be at least 20 characters."),
     location: z.string().min(5, "Location is required."),
     eventDate: z.date({ required_error: "Please select a date and time." }),
-    eventType: z.enum(eventTypes as [string, ...string[]], {
+    eventType: z.enum(eventTypes, {
         required_error: "You need to select an event type.",
     }),
     primaryColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Must be a valid hex color."),
