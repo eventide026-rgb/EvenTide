@@ -98,6 +98,14 @@ const sidebarNav = [
         ]
     },
     {
+        title: "Communication",
+        icon: MessageCircle,
+        links: [
+            { href: "/planner-dashboard/announcements", label: "Announcements", icon: Bell },
+            { href: "/planner-dashboard/chat", label: "Chat", icon: MessageCircle },
+        ]
+    },
+    {
         title: "Live Operations",
         icon: CheckSquare,
         links: [
