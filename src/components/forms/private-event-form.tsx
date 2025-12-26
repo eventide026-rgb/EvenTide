@@ -26,13 +26,29 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Calendar } from '../ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+
+const eventTypes = [
+    "Wedding",
+    "Birthday",
+    "Anniversary",
+    "Gala / Dinner",
+    "Conference / Summit",
+    "Reunion",
+    "Charity Event",
+    "Funeral / Memorial",
+    "Retirement",
+    "General Event"
+];
 
 const formSchema = z.object({
     name: z.string().min(3, "Event name must be at least 3 characters."),
     description: z.string().min(20, "Description must be at least 20 characters."),
     location: z.string().min(5, "Location is required."),
     eventDate: z.date({ required_error: "Please select a date and time." }),
-    eventType: z.string().min(2, "Event type is required."),
+    eventType: z.enum(eventTypes as [string, ...string[]], {
+        required_error: "You need to select an event type.",
+    }),
     primaryColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Must be a valid hex color."),
     secondaryColor: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, "Must be a valid hex color."),
 });
@@ -64,7 +80,7 @@ export function PrivateEventForm() {
         }
         setIsLoading(true);
 
-        const eventCode = `EVT-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        const eventCode = `${values.eventType.substring(0, 2).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
         const eventData = {
             ...values,
@@ -192,7 +208,18 @@ export function PrivateEventForm() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Event Type</FormLabel>
-                                <FormControl><Input placeholder="e.g., Wedding" {...field} /></FormControl>
+                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select an event type" />
+                                    </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                    {eventTypes.map(type => (
+                                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                                    ))}
+                                    </SelectContent>
+                                </Select>
                                 <FormMessage />
                             </FormItem>
                         )}
