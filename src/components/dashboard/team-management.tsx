@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -12,7 +11,8 @@ import {
   writeBatch,
   getDocs,
   limit,
-  serverTimestamp
+  serverTimestamp,
+  documentId
 } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -123,7 +123,8 @@ export function TeamManagement() {
 
   const teamMembersQuery = useMemoFirebase(() => {
       if(!firestore || !selectedEventId) return null;
-      return collection(firestore, 'events', selectedEventId, 'teamMembers');
+      // This path needs to be updated if you store all team members in one subcollection
+      return query(collection(firestore, 'events', selectedEventId, 'teamMembers'));
   }, [firestore, selectedEventId]);
 
   const {data: teamMembers, isLoading: isLoadingTeam} = useCollection<TeamMember>(teamMembersQuery);
@@ -158,19 +159,21 @@ export function TeamManagement() {
     const role = foundUser.role;
     const batch = writeBatch(firestore);
     
-    // Use foundUser.id as the document ID for the team member
+    // Use foundUser.id as the document ID for the team member for easy lookup
     const teamMemberRef = doc(firestore, 'events', selectedEventId, 'teamMembers', foundUser.id);
     
+    // This is the data contract that MUST be fulfilled
     const teamMemberData = {
-        userId: foundUser.id, // Ensure userId is stored in the document
+        userId: foundUser.id,
         name: `${foundUser.firstName} ${foundUser.lastName}`,
         email: foundUser.email,
         role: role,
-        status: 'pending',
-        invitedAt: new Date(),
+        status: 'pending' as const,
+        invitedAt: serverTimestamp(),
+        // Critical fields for the invitation inbox
+        eventId: selectedEventId,
         eventName: currentEvent.name,
         eventDate: currentEvent.eventDate,
-        eventId: selectedEventId,
     };
     batch.set(teamMemberRef, teamMemberData);
 
@@ -179,7 +182,7 @@ export function TeamManagement() {
         message: `You've been invited to be a ${role} for ${currentEvent.name}.`,
         link: `/planner-dashboard/invitations`, // Correct link for planners/vendors
         read: false,
-        createdAt: new Date(),
+        createdAt: serverTimestamp(),
         userId: foundUser.id,
         eventId: selectedEventId
     });
@@ -192,7 +195,7 @@ export function TeamManagement() {
       })
       .catch((serverError) => {
         const contextualError = new FirestorePermissionError({
-          path: teamMemberRef.path, // Simplified path for clearer error
+          path: teamMemberRef.path,
           operation: 'create',
           requestResourceData: {
             teamMember: teamMemberData,
