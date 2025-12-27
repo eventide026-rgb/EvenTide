@@ -397,10 +397,14 @@ service cloud.firestore {
         allow create: if isSignedIn();
         allow update, delete: if false; // Should be handled by admin roles
     }
-     match /supportTickets/{ticketId} {
+    match /testimonials/{docId} {
+        allow read: if true;
+    }
+
+    match /supportTickets/{ticketId} {
         allow create: if true;
         allow read, update, delete: if false; // Should be handled by admin roles
-      }
+    }
 			
    }
   

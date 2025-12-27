@@ -28,11 +28,12 @@ import { useAuth, useFirestore } from "@/firebase";
 import { 
   createUserWithEmailAndPassword,
 } from 'firebase/auth';
-import { setDoc, doc, serverTimestamp, writeBatch } from "firebase/firestore";
+import { setDoc, doc, serverTimestamp, writeBatch, collection } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
 import { errorEmitter } from "@/firebase/error-emitter";
 import { FirestorePermissionError } from "@/firebase/errors";
 import { VendorSpecialties } from "@/lib/placeholder-images";
+import { ROLE_DASHBOARD_MAP } from "@/constants/role-dashboard-map";
 
 
 const formSchema = z.object({
@@ -156,18 +157,8 @@ export function SignUpForm() {
                 description: "Welcome to EvenTide! Redirecting you now...",
             });
             
-            const roleDashboardMap: Record<string, string> = {
-                "Owner": "/owner-dashboard",
-                "Planner": "/planner-dashboard",
-                "Hotelier": "/hotelier-dashboard",
-                "Hall Owner": "/hall-owner-dashboard",
-                "Car Hire Service": "/car-hire-dashboard",
-                "Ticketier": "/ticketier-dashboard",
-                "Vendor": "/vendor-dashboard",
-                "Fashion Designer": "/vendor-dashboard",
-                "Security": "/security-dashboard",
-            };
-            router.push(roleDashboardMap[values.role] || "/owner-dashboard");
+            const destination = ROLE_DASHBOARD_MAP[values.role] || "/owner-dashboard";
+            router.push(destination);
 
         }
 
