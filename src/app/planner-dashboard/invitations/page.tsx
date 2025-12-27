@@ -4,7 +4,7 @@
 
 import { useState, useMemo } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collectionGroup, query, where, doc, writeBatch, getDocs, Timestamp, collection } from 'firebase/firestore';
+import { collectionGroup, query, where, doc, writeBatch, Timestamp } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -22,16 +22,16 @@ import {
 } from '@/components/ui/alert-dialog';
 
 type TeamMemberInvitation = {
-  id: string; // This will be the event ID
+  id: string; 
   eventId: string;
   eventName: string;
   eventDate: Timestamp;
   status: 'pending';
-  teamMemberId: string; // The doc ID within the subcollection
+  userId: string;
 };
 
 type AcceptedGig = {
-    id: string; // The doc ID of the teamMembers document
+    id: string;
     eventId: string;
     eventDate: Timestamp;
     eventName: string;
@@ -59,7 +59,6 @@ export default function InvitationsPage() {
 
   const { data: invitations, isLoading: isLoadingInvitations } = useCollection<TeamMemberInvitation>(pendingInvitationsQuery);
   
-  // Query for all accepted gigs to perform clash detection
   const acceptedGigsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
     return query(
@@ -68,14 +67,7 @@ export default function InvitationsPage() {
         where('status', '==', 'accepted')
     );
   }, [firestore, user?.uid]);
-  const { data: acceptedGigsData, isLoading: isLoadingGigs } = useCollection<any>(acceptedGigsQuery);
-
-  const acceptedGigs = useMemo(() => {
-    if (!acceptedGigsData) return [];
-    // The query is on 'teamMembers', so we need to get event details separately if not stored on the member doc
-    // Assuming for now eventName and eventDate are on the teamMembers doc after acceptance
-    return acceptedGigsData;
-  }, [acceptedGigsData]);
+  const { data: acceptedGigs, isLoading: isLoadingGigs } = useCollection<AcceptedGig>(acceptedGigsQuery);
 
 
   const handleResponse = async (invitation: TeamMemberInvitation, status: 'accepted' | 'declined') => {
