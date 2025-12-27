@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Auth, onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc, Firestore } from 'firebase/firestore';
@@ -12,24 +12,25 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
+  const isHandlingAuth = useRef(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
-      const isNewLogin = sessionStorage.getItem('isNewLogin') === 'true';
-
-      // If there's no user, we don't need to do anything here.
-      // Protected routes will handle redirection to the login page.
-      if (!user) {
+      // If auth state is being handled, or no user, exit early.
+      if (isHandlingAuth.current || !user) {
         return;
       }
-      
-      // If a user is logged in but it's not a new login event, we can skip the logic.
-      // This prevents re-running logic on every page refresh for an already authenticated user.
-      if(!isNewLogin) {
-          return;
+
+      const isNewLogin = sessionStorage.getItem('isNewLogin') === 'true';
+
+      // This is the crucial check: If it's not a new login, we don't need to do anything.
+      // The user is just loading a page and is already authenticated.
+      if (!isNewLogin) {
+        return;
       }
 
-      // It's a new login, so clear the flag immediately.
+      // We have a new login event, so we start the handling process.
+      isHandlingAuth.current = true;
       sessionStorage.removeItem('isNewLogin');
       const loginType = sessionStorage.getItem('loginType');
       sessionStorage.removeItem('loginType');
@@ -41,6 +42,7 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
         if (!userDoc.exists()) {
           console.warn('User document not found. Signing out.');
           await auth.signOut();
+          isHandlingAuth.current = false;
           return;
         }
 
@@ -50,7 +52,6 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
 
         sessionStorage.setItem('userName', fullName);
 
-        // Security check for admin logins
         if (loginType && loginType.includes('Admin') && role !== loginType) {
           console.warn(`Role mismatch: Expected ${loginType}, got ${role}. Signing out.`);
           await auth.signOut();
@@ -59,6 +60,7 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
             title: 'Access Denied',
             description: 'Your account does not have the required admin privileges.',
           });
+          isHandlingAuth.current = false;
           return;
         }
 
@@ -69,7 +71,6 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
         
         const destination = ROLE_DASHBOARD_MAP[role] || '/owner-dashboard';
 
-        // Prevent redirect loops
         if (pathname !== destination) {
           router.replace(destination);
         }
@@ -82,6 +83,9 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
             description: 'Could not verify user role. Please try logging in again.',
         });
         await auth.signOut();
+      } finally {
+        // Ensure we always reset the flag, even if errors occur.
+        isHandlingAuth.current = false;
       }
     });
 
