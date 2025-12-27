@@ -61,6 +61,7 @@ type Event = {
   id: string;
   name: string;
   ownerId: string;
+  eventDate: any;
 };
 
 type UserProfile = {
@@ -157,9 +158,11 @@ export function TeamManagement() {
     const role = foundUser.role;
     const batch = writeBatch(firestore);
     
+    // Use foundUser.id as the document ID for the team member
     const teamMemberRef = doc(firestore, 'events', selectedEventId, 'teamMembers', foundUser.id);
+    
     const teamMemberData = {
-        userId: foundUser.id,
+        userId: foundUser.id, // Ensure userId is stored in the document
         name: `${foundUser.firstName} ${foundUser.lastName}`,
         email: foundUser.email,
         role: role,
@@ -173,8 +176,8 @@ export function TeamManagement() {
 
     const notificationRef = doc(collection(firestore, 'users', foundUser.id, 'notifications'));
     batch.set(notificationRef, {
-        message: `You've been invited by ${user.displayName} to be a ${role} for ${currentEvent.name}.`,
-        link: `/planner-dashboard/invitations`, // Direct link to invitations page
+        message: `You've been invited to be a ${role} for ${currentEvent.name}.`,
+        link: `/planner-dashboard/invitations`, // Correct link for planners/vendors
         read: false,
         createdAt: new Date(),
         userId: foundUser.id,
