@@ -28,74 +28,72 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
-      // If there's no user, we don't need to do anything.
+      // If there's no user, clear session and do nothing else.
       if (!user) {
-        hasRedirected.current = false; // Reset on logout
+        hasRedirected.current = false;
+        sessionStorage.removeItem('userRole');
+        sessionStorage.removeItem('userName');
         return;
       }
 
-      // If we have already redirected in this session, do nothing.
-      if (hasRedirected.current) {
-        return;
-      }
-      
-      const isOnAuthPage = AUTH_PATHS.some(path =>
-        pathname === path || pathname.startsWith(path)
-      );
+      const isNewLogin = sessionStorage.getItem('isNewLogin') === 'true';
+      const isOnAuthPage = AUTH_PATHS.some(path => pathname.startsWith(path));
 
-      // Only proceed if the user is on an authentication page.
-      if (isOnAuthPage) {
-        hasRedirected.current = true; // Set the flag to prevent further redirects
+      // This is the core logic that runs for every authenticated user on every page load.
+      try {
+        const userDocRef = doc(firestore, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
 
-        try {
-          const userDocRef = doc(firestore, 'users', user.uid);
-          const userDoc = await getDoc(userDocRef);
+        if (!userDoc.exists()) {
+          console.warn('User document not found for UID:', user.uid, 'Signing out.');
+          await auth.signOut();
+          return;
+        }
 
-          if (!userDoc.exists()) {
-            console.warn('User document not found. Signing out.');
-            await auth.signOut();
-            hasRedirected.current = false; // Reset on error
-            return;
-          }
+        const userData = userDoc.data();
+        const role = userData.role;
+        const correctDashboard = ROLE_DASHBOARD_MAP[role];
 
-          const userData = userDoc.data();
-          const role = userData.role;
+        // Store role in session storage for immediate access on subsequent renders.
+        sessionStorage.setItem('userRole', role);
+
+        // 1. Handle new logins from an auth page
+        if (isNewLogin && isOnAuthPage) {
+          sessionStorage.removeItem('isNewLogin');
           const fullName = `${userData.firstName} ${userData.lastName}`;
-
-          sessionStorage.setItem('userName', fullName);
-          
-          const loginType = sessionStorage.getItem('loginType');
-          sessionStorage.removeItem('loginType');
-
-          if (loginType && loginType.includes('Admin') && role !== loginType) {
-            console.warn(`Role mismatch: Expected ${loginType}, got ${role}. Signing out.`);
-            await auth.signOut();
-            toast({
-              variant: 'destructive',
-              title: 'Access Denied',
-              description: 'Your account does not have the required admin privileges.',
-            });
-            hasRedirected.current = false; // Reset on error
-            return;
-          }
-
           toast({
-            title: 'Login Successful!',
+            title: "Login Successful!",
             description: `Welcome back, ${fullName}! Redirecting...`,
           });
-          
-          const destination = ROLE_DASHBOARD_MAP[role] || '/owner-dashboard';
-          router.replace(destination);
-
-        } catch (error) {
-          console.error('Error in auth handler:', error);
-          toast({
-              variant: 'destructive',
-              title: 'Authentication Error',
-              description: 'Could not verify user role. Please try logging in again.',
-          });
-          await auth.signOut();
+          if (correctDashboard) {
+            router.replace(correctDashboard);
+          }
+          return;
         }
+
+        // 2. If an authenticated user lands on an auth page, redirect them away.
+        if (isOnAuthPage && correctDashboard) {
+            router.replace(correctDashboard);
+            return;
+        }
+
+        // 3. If an authenticated user is on the WRONG dashboard, redirect them to the correct one.
+        const currentDashboardBase = `/${pathname.split('/')[1]}`;
+        const isWrongDashboard = correctDashboard && !pathname.startsWith(correctDashboard) && !AUTH_PATHS.includes(currentDashboardBase);
+
+        if (isWrongDashboard) {
+            console.warn(`Role/path mismatch. Role: ${role}, Path: ${pathname}. Redirecting to ${correctDashboard}.`);
+            router.replace(correctDashboard);
+        }
+
+      } catch (error) {
+        console.error('Error in auth handler:', error);
+        toast({
+            variant: 'destructive',
+            title: 'Authentication Error',
+            description: 'Could not verify user data. Please try logging in again.',
+        });
+        await auth.signOut();
       }
     });
 
