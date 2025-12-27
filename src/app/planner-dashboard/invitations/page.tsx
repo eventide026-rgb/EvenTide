@@ -48,25 +48,25 @@ export default function InvitationsPage() {
   }>({ show: false });
 
   // Query for all pending invitations across all events
-  const pendingInvitationsQuery =
-    firestore && user?.uid
-      ? query(
-          collectionGroup(firestore, 'teamMembers'),
-          where('userId', '==', user.uid),
-          where('status', '==', 'pending')
-        )
-      : undefined;
+  const pendingInvitationsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return undefined;
+    return query(
+        collectionGroup(firestore, 'teamMembers'),
+        where('userId', '==', user.uid),
+        where('status', '==', 'pending')
+    );
+  }, [firestore, user?.uid]);
 
   const { data: invitations, isLoading: isLoadingInvitations, error: invitationsError } = useCollection<TeamMemberInvitation>(pendingInvitationsQuery);
   
-  const acceptedGigsQuery =
-    firestore && user?.uid
-      ? query(
-          collectionGroup(firestore, 'teamMembers'),
-          where('userId', '==', user.uid),
-          where('status', '==', 'accepted')
-        )
-      : undefined;
+  const acceptedGigsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return undefined;
+    return query(
+        collectionGroup(firestore, 'teamMembers'),
+        where('userId', '==', user.uid),
+        where('status', '==', 'accepted')
+    );
+  }, [firestore, user?.uid]);
       
   const { data: acceptedGigs, isLoading: isLoadingGigs } = useCollection<AcceptedGig>(acceptedGigsQuery);
 
