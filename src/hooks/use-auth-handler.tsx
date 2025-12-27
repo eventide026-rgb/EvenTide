@@ -8,84 +8,94 @@ import { doc, getDoc, Firestore } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { ROLE_DASHBOARD_MAP } from '@/constants/role-dashboard-map';
 
+const AUTH_PATHS = [
+  '/login',
+  '/signup',
+  '/guest-login',
+  '/security-login',
+  '/Super-Admin-login',
+  '/User-Admin-login',
+  '/Content-Admin-login',
+  '/editorial-admin-login',
+];
+
+
 export function useAuthHandler(auth: Auth, firestore: Firestore) {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
-  const isHandlingAuth = useRef(false);
+  const hasRedirected = useRef(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
-      // If auth state is being handled, or no user, exit early.
-      if (isHandlingAuth.current || !user) {
+      // If there's no user, we don't need to do anything.
+      if (!user) {
+        hasRedirected.current = false; // Reset on logout
         return;
       }
 
-      const isNewLogin = sessionStorage.getItem('isNewLogin') === 'true';
-
-      // This is the crucial check: If it's not a new login, we don't need to do anything.
-      // The user is just loading a page and is already authenticated.
-      if (!isNewLogin) {
+      // If we have already redirected in this session, do nothing.
+      if (hasRedirected.current) {
         return;
       }
+      
+      const isOnAuthPage = AUTH_PATHS.some(path =>
+        pathname === path || pathname.startsWith(path)
+      );
 
-      // We have a new login event, so we start the handling process.
-      isHandlingAuth.current = true;
-      sessionStorage.removeItem('isNewLogin');
-      const loginType = sessionStorage.getItem('loginType');
-      sessionStorage.removeItem('loginType');
+      // Only proceed if the user is on an authentication page.
+      if (isOnAuthPage) {
+        hasRedirected.current = true; // Set the flag to prevent further redirects
 
-      try {
-        const userDocRef = doc(firestore, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
+        try {
+          const userDocRef = doc(firestore, 'users', user.uid);
+          const userDoc = await getDoc(userDocRef);
 
-        if (!userDoc.exists()) {
-          console.warn('User document not found. Signing out.');
-          await auth.signOut();
-          isHandlingAuth.current = false;
-          return;
-        }
+          if (!userDoc.exists()) {
+            console.warn('User document not found. Signing out.');
+            await auth.signOut();
+            hasRedirected.current = false; // Reset on error
+            return;
+          }
 
-        const userData = userDoc.data();
-        const role = userData.role;
-        const fullName = `${userData.firstName} ${userData.lastName}`;
+          const userData = userDoc.data();
+          const role = userData.role;
+          const fullName = `${userData.firstName} ${userData.lastName}`;
 
-        sessionStorage.setItem('userName', fullName);
+          sessionStorage.setItem('userName', fullName);
+          
+          const loginType = sessionStorage.getItem('loginType');
+          sessionStorage.removeItem('loginType');
 
-        if (loginType && loginType.includes('Admin') && role !== loginType) {
-          console.warn(`Role mismatch: Expected ${loginType}, got ${role}. Signing out.`);
-          await auth.signOut();
+          if (loginType && loginType.includes('Admin') && role !== loginType) {
+            console.warn(`Role mismatch: Expected ${loginType}, got ${role}. Signing out.`);
+            await auth.signOut();
+            toast({
+              variant: 'destructive',
+              title: 'Access Denied',
+              description: 'Your account does not have the required admin privileges.',
+            });
+            hasRedirected.current = false; // Reset on error
+            return;
+          }
+
           toast({
-            variant: 'destructive',
-            title: 'Access Denied',
-            description: 'Your account does not have the required admin privileges.',
+            title: 'Login Successful!',
+            description: `Welcome back, ${fullName}! Redirecting...`,
           });
-          isHandlingAuth.current = false;
-          return;
-        }
-
-        toast({
-          title: 'Login Successful!',
-          description: `Welcome back, ${fullName}! Redirecting...`,
-        });
-        
-        const destination = ROLE_DASHBOARD_MAP[role] || '/owner-dashboard';
-
-        if (pathname !== destination) {
+          
+          const destination = ROLE_DASHBOARD_MAP[role] || '/owner-dashboard';
           router.replace(destination);
-        }
 
-      } catch (error) {
-        console.error('Error in auth handler:', error);
-        toast({
-            variant: 'destructive',
-            title: 'Authentication Error',
-            description: 'Could not verify user role. Please try logging in again.',
-        });
-        await auth.signOut();
-      } finally {
-        // Ensure we always reset the flag, even if errors occur.
-        isHandlingAuth.current = false;
+        } catch (error) {
+          console.error('Error in auth handler:', error);
+          toast({
+              variant: 'destructive',
+              title: 'Authentication Error',
+              description: 'Could not verify user role. Please try logging in again.',
+          });
+          await auth.signOut();
+        }
       }
     });
 
