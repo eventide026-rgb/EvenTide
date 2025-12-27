@@ -127,6 +127,12 @@ service cloud.firestore {
             request.auth.uid in get(/databases/$(database)/documents/planners/$(plannerId)).data.managers
           );
     }
+    match /planners/{plannerId}/invitations/{invitationId} {
+      allow read, list: if request.auth != null && request.auth.uid == plannerId;
+      allow create: if request.auth.uid == plannerId;
+      allow update, delete: if request.auth.uid == plannerId;
+    }
+  
 		
     match /planners/{plannerId}/assignments/{assignmentId} {
          allow read, write: if request.auth != null && request.auth.uid == plannerId;
@@ -276,12 +282,8 @@ service cloud.firestore {
       allow update: if isEventOwner(eventId) && isExistingDoc();
       allow delete: if isEventOwner(eventId) && isExistingDoc();
     
-    
-    
-    
-    
-    
     }
+    
 
     match /events/{eventId}/cohosts/{cohostId} {
       allow get, list: if canReadEventData(eventId);

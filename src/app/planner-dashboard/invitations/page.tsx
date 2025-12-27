@@ -26,7 +26,7 @@ type TeamMemberInvitation = {
   eventId: string;
   eventName: string;
   eventDate: Timestamp;
-  status: 'pending';
+  status: 'pending' | 'accepted' | 'declined';
   userId: string;
 };
 
