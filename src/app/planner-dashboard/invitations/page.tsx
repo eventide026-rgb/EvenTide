@@ -1,14 +1,13 @@
 
-
 'use client';
 
 import { useState, useMemo } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collectionGroup, query, where, doc, writeBatch, Timestamp, updateDoc } from 'firebase/firestore';
+import { collectionGroup, query, where, doc, updateDoc, Timestamp } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Mail, Check, X, Calendar } from 'lucide-react';
+import { Loader2, Mail, Check, X, Calendar, AlertTriangle } from 'lucide-react';
 import { format, isSameDay } from 'date-fns';
 import {
   AlertDialog,
@@ -20,6 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 type TeamMemberInvitation = {
   id: string; 
@@ -57,7 +57,7 @@ export default function InvitationsPage() {
     );
   }, [firestore, user?.uid]);
 
-  const { data: invitations, isLoading: isLoadingInvitations } = useCollection<TeamMemberInvitation>(pendingInvitationsQuery);
+  const { data: invitations, isLoading: isLoadingInvitations, error: invitationsError } = useCollection<TeamMemberInvitation>(pendingInvitationsQuery);
   
   const acceptedGigsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
@@ -128,7 +128,18 @@ export default function InvitationsPage() {
         </CardHeader>
         <CardContent>
           {isLoading && <Loader2 className="animate-spin" />}
-          {!isLoading && (!invitations || invitations.length === 0) && (
+          {invitationsError && (
+            <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Error Loading Invitations</AlertTitle>
+                <AlertDescription>
+                    <pre className="mt-2 rounded-md bg-slate-950 p-4">
+                        <code className="text-white">{invitationsError.message}</code>
+                    </pre>
+                </AlertDescription>
+            </Alert>
+          )}
+          {!isLoading && !invitationsError && (!invitations || invitations.length === 0) && (
             <div className="text-center py-16 border-dashed border-2 rounded-lg">
                 <Mail className="mx-auto h-12 w-12 text-muted-foreground" />
                 <h3 className="mt-4 text-xl font-semibold">Your inbox is clear!</h3>

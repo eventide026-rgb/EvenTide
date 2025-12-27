@@ -8,7 +8,7 @@ import { Loader2, Mail } from 'lucide-react';
 export default function ProfilePage() {
   const { user, isUserLoading, userError } = useUser();
 
-  // 🔒 Hard guard: auth not ready yet
+  // Hard guard: auth not ready yet
   if (isUserLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -17,7 +17,7 @@ export default function ProfilePage() {
     );
   }
 
-  // ❌ Auth failed
+  // Auth failed
   if (userError) {
     return (
       <div className="text-center text-destructive">
@@ -26,7 +26,7 @@ export default function ProfilePage() {
     );
   }
 
-  // ❌ Not signed in
+  // Not signed in
   if (!user) {
     return (
       <div className="text-center text-muted-foreground">
@@ -35,7 +35,7 @@ export default function ProfilePage() {
     );
   }
 
-  // ✅ Auth confirmed
+  // Auth confirmed
   return (
     <div className="max-w-xl mx-auto mt-10">
       <Card>
