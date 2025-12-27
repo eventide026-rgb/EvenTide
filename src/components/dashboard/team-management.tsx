@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -120,23 +121,25 @@ export function TeamManagement() {
 
   /* ---------------------------- events list ---------------------------- */
 
-  const eventsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
-    return query(
-      collection(firestore, 'events'),
-      where('ownerId', '==', user.uid)
-    );
-  }, [firestore, user?.uid]);
+  const eventsQuery =
+    firestore && user?.uid
+      ? query(
+          collection(firestore, 'events'),
+          where('ownerId', '==', user.uid)
+        )
+      : undefined;
 
   const { data: events, isLoading: isLoadingEvents } =
     useCollection<Event>(eventsQuery);
 
   /* --------------------------- team members --------------------------- */
 
-  const teamMembersQuery = useMemoFirebase(() => {
-    if (!firestore || !selectedEventId) return null;
-    return query(collection(firestore, 'events', selectedEventId, 'teamMembers'));
-  }, [firestore, selectedEventId]);
+  const teamMembersQuery =
+    firestore && selectedEventId
+      ? query(
+          collection(firestore, 'events', selectedEventId, 'teamMembers')
+        )
+      : undefined;
 
   const { data: teamMembers, isLoading: isLoadingTeam } =
     useCollection<TeamMember>(teamMembersQuery);
@@ -187,11 +190,9 @@ export function TeamManagement() {
       userId: foundUser.id,
       name: `${foundUser.firstName} ${foundUser.lastName}`,
       email: foundUser.email,
-      role, // ✅ CORRECT ROLE
+      role,
       status: 'pending',
       invitedAt: serverTimestamp(),
-
-      // inbox-critical
       eventId: selectedEventId,
       eventName: event.name,
       eventDate: event.eventDate,

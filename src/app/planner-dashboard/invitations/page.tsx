@@ -48,25 +48,26 @@ export default function InvitationsPage() {
   }>({ show: false });
 
   // Query for all pending invitations across all events
-  const pendingInvitationsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
-    return query(
-      collectionGroup(firestore, 'teamMembers'),
-      where('userId', '==', user.uid),
-      where('status', '==', 'pending')
-    );
-  }, [firestore, user?.uid]);
+  const pendingInvitationsQuery =
+    firestore && user?.uid
+      ? query(
+          collectionGroup(firestore, 'teamMembers'),
+          where('userId', '==', user.uid),
+          where('status', '==', 'pending')
+        )
+      : undefined;
 
   const { data: invitations, isLoading: isLoadingInvitations, error: invitationsError } = useCollection<TeamMemberInvitation>(pendingInvitationsQuery);
   
-  const acceptedGigsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
-    return query(
-        collectionGroup(firestore, 'teamMembers'),
-        where('userId', '==', user.uid),
-        where('status', '==', 'accepted')
-    );
-  }, [firestore, user?.uid]);
+  const acceptedGigsQuery =
+    firestore && user?.uid
+      ? query(
+          collectionGroup(firestore, 'teamMembers'),
+          where('userId', '==', user.uid),
+          where('status', '==', 'accepted')
+        )
+      : undefined;
+      
   const { data: acceptedGigs, isLoading: isLoadingGigs } = useCollection<AcceptedGig>(acceptedGigsQuery);
 
 
@@ -133,6 +134,7 @@ export default function InvitationsPage() {
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Error Loading Invitations</AlertTitle>
                 <AlertDescription>
+                    There was an issue fetching your invitations. This is often due to a permissions issue.
                     <pre className="mt-2 rounded-md bg-slate-950 p-4">
                         <code className="text-white">{invitationsError.message}</code>
                     </pre>
