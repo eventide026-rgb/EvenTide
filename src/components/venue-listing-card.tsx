@@ -23,11 +23,13 @@ export type Venue = {
 
 type VenueListingCardProps = {
   venue: Venue;
+  isDashboard?: boolean;
 };
 
-export function VenueListingCard({ venue }: VenueListingCardProps) {
+export function VenueListingCard({ venue, isDashboard = false }: VenueListingCardProps) {
+  const linkHref = isDashboard ? `/hall-owner-dashboard/my-venues/${venue.id}/edit` : `/resources/venues/${venue.id}`;
   return (
-    <Link href={`/resources/venues/${venue.id}`} className="group block">
+    <Link href={linkHref} className="group block">
       <Card className="overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl">
         <CardHeader className="p-0">
           <div className="aspect-video relative overflow-hidden">

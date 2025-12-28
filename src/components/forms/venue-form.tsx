@@ -26,8 +26,8 @@ import {
 import { NigerianStatesAndCities } from '@/lib/nigerian-states';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
-import { useFirestore, useUser } from '@/firebase';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
+import { addDoc, collection, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { Loader2, PlusCircle, Trash2, X, Upload } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
@@ -47,16 +47,28 @@ const formSchema = z.object({
     features: z.array(z.string()).min(1, "Select at least one feature."),
 });
 
+type VenueFormProps = {
+    venueId?: string;
+};
 
-export function VenueForm() {
+export function VenueForm({ venueId }: VenueFormProps) {
     const { toast } = useToast();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const firestore = useFirestore();
     const { user } = useUser();
 
+    const isEditMode = !!venueId;
+
     const [amenityInput, setAmenityInput] = useState("");
     const [featureInput, setFeatureInput] = useState("");
+
+    const venueDocRef = useMemoFirebase(() => {
+        if (!firestore || !venueId) return null;
+        return doc(firestore, 'venues', venueId);
+    }, [firestore, venueId]);
+
+    const { data: existingVenueData, isLoading: isLoadingVenue } = useDoc(venueDocRef);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -70,6 +82,12 @@ export function VenueForm() {
             features: [],
         },
     });
+
+    useEffect(() => {
+        if (existingVenueData) {
+            form.reset(existingVenueData);
+        }
+    }, [existingVenueData, form]);
 
     const { fields: imageUrlFields, append: appendImageUrl, remove: removeImageUrl, replace: replaceImageUrls } = useFieldArray({
         control: form.control,
@@ -100,36 +118,44 @@ export function VenueForm() {
         : [];
 
     useEffect(() => {
-        form.setValue('city', '');
+        if (form.formState.isDirty) {
+            form.setValue('city', '');
+        }
     }, [selectedState, form]);
         
     async function onSubmit(values: z.infer<typeof formSchema>) {
         if (!firestore || !user) {
-            toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to create a venue." });
+            toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in." });
             return;
         }
         setIsLoading(true);
 
-        const venueData = {
-            ...values,
-            ownerId: user.uid,
-            createdAt: serverTimestamp(),
-        };
-
         try {
-            const venuesCol = collection(firestore, "venues");
-            await addDoc(venuesCol, venueData);
-            toast({
-                title: "Venue Created!",
-                description: `${values.name} has been successfully listed.`,
-            });
+            if (isEditMode && venueDocRef) {
+                await updateDoc(venueDocRef, { ...values, updatedAt: serverTimestamp() });
+                toast({
+                    title: "Venue Updated!",
+                    description: `${values.name} has been successfully updated.`,
+                });
+            } else {
+                const venueData = {
+                    ...values,
+                    ownerId: user.uid,
+                    createdAt: serverTimestamp(),
+                };
+                await addDoc(collection(firestore, "venues"), venueData);
+                toast({
+                    title: "Venue Created!",
+                    description: `${values.name} has been successfully listed.`,
+                });
+            }
             router.push('/hall-owner-dashboard/my-venues');
         } catch (error) {
-            console.error("Error creating venue:", error);
+            console.error("Error saving venue:", error);
             toast({
                 variant: "destructive",
                 title: "Submission Failed",
-                description: "There was a problem creating your venue. Please try again.",
+                description: "There was a problem saving your venue. Please try again.",
             });
         } finally {
             setIsLoading(false);
@@ -148,7 +174,6 @@ export function VenueForm() {
                  if (typeof e.target?.result === 'string') {
                     newImageUrls.push(e.target.result);
                     if(newImageUrls.length === files.length) {
-                        replaceImageUrls(newImageUrls.map(url => ({ value: url })));
                         form.setValue('imageUrls', newImageUrls);
                     }
                 }
@@ -156,6 +181,10 @@ export function VenueForm() {
             reader.readAsDataURL(file);
         }
     };
+
+    if (isLoadingVenue && isEditMode) {
+        return <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
+    }
 
     return (
         <Form {...form}>
@@ -200,7 +229,7 @@ export function VenueForm() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>State</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl><SelectTrigger><SelectValue placeholder="Select State" /></SelectTrigger></FormControl>
                                     <SelectContent>
                                         {NigerianStatesAndCities.map(s => <SelectItem key={s.state} value={s.state}>{s.state}</SelectItem>)}
@@ -352,7 +381,7 @@ export function VenueForm() {
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {isLoading ? "Creating Listing..." : "Create Venue Listing"}
+                    {isLoading ? (isEditMode ? "Saving..." : "Creating...") : (isEditMode ? "Save Changes" : "Create Venue Listing")}
                 </Button>
             </form>
         </Form>
