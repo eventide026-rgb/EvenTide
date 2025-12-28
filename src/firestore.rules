@@ -101,6 +101,7 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow get: if isSignedIn();
+      allow list: if isSignedIn();
       allow create: if request.auth.uid == userId;
       allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.id == resource.data.id;
       allow delete: if isOwner(userId) && isExistingDoc();
@@ -340,7 +341,7 @@ service cloud.firestore {
         }
     }
      match /venueBookings/{bookingId} {
-        allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.venueOwnerId == request.auth.uid);
+        allow list, get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.venueOwnerId == request.auth.uid);
         allow create: if isSignedIn();
         allow update: if isSignedIn() && resource.data.venueOwnerId == request.auth.uid;
     }
