@@ -69,7 +69,7 @@ export default function CarHireDashboardLayout({ children }: { children: React.R
             <SidebarMenu>
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <Link href={item.href} legacyBehavior passHref>
+                  <Link href={item.href}>
                     <SidebarMenuButton
                       isActive={isNavItemActive(item.href)}
                       tooltip={{ children: item.label }}
@@ -85,7 +85,7 @@ export default function CarHireDashboardLayout({ children }: { children: React.R
           <SidebarFooter>
             <SidebarMenu>
               <SidebarMenuItem>
-                  <Link href="/car-hire-dashboard/profile" legacyBehavior passHref>
+                  <Link href="/car-hire-dashboard/profile">
                       <SidebarMenuButton
                           isActive={pathname === "/car-hire-dashboard/profile"}
                           tooltip={{ children: 'Profile' }}
