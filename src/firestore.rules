@@ -376,7 +376,8 @@ service cloud.firestore {
     
     // Administrative Rules
     match /adRequests/{requestId} {
-        allow read, write: if false; // Should be handled by admin roles
+        allow create: if isSignedIn();
+        allow read, update, delete: if isAdmin();
     }
 
     match /testimonials/{testimonialId} {
