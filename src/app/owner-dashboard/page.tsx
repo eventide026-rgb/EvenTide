@@ -19,10 +19,12 @@ type Event = {
     eventDate: any; // Firestore Timestamp
     eventCode?: string;
     status: "Upcoming" | "Completed";
-    guests?: number;
     guestCapacity?: number;
-    rsvpRate?: number;
 };
+
+type Guest = {
+    id: string;
+}
 
 
 const Countdown = ({ date }: { date?: string }) => {
@@ -41,6 +43,14 @@ const Countdown = ({ date }: { date?: string }) => {
     };
 
     const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+    React.useEffect(() => {
+        const timer = setInterval(() => {
+            setTimeLeft(calculateTimeLeft());
+        }, 60000);
+        return () => clearInterval(timer);
+    }, [date]);
+
 
     return (
         <div className="flex space-x-4">
@@ -64,6 +74,8 @@ export default function OwnerDashboardPage() {
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
 
+    const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+
     const eventsQuery = useMemoFirebase(() => {
         if (!firestore || !user) return null;
         return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
@@ -76,29 +88,31 @@ export default function OwnerDashboardPage() {
             ...e,
             date: e.eventDate.toDate().toISOString(),
             status: e.eventDate.toDate() > new Date() ? 'Upcoming' : 'Completed',
-            // Mocking some stats for display
-            guests: e.guestCount || 0,
-            guestCapacity: e.guestLimit || 20,
-            rsvpRate: e.guestCount ? Math.round((e.guestCount / (e.guestLimit || 20)) * 100) : 0,
+            guestCapacity: e.guestCapacity || 20,
         })) || [];
     }, [eventsData]);
 
-    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const selectedEvent = useMemo(() => {
+        return events.find(e => e.id === selectedEventId) || null;
+    }, [events, selectedEventId]);
+    
+    // New query for guests of the selected event
+    const guestsQuery = useMemoFirebase(() => {
+        if (!firestore || !selectedEventId) return null;
+        return query(collection(firestore, 'events', selectedEventId, 'guests'));
+    }, [firestore, selectedEventId]);
+
+    const { data: guests, isLoading: isLoadingGuests } = useCollection<Guest>(guestsQuery);
+    const guestCount = guests?.length ?? 0;
+    const rsvpRate = selectedEvent?.guestCapacity ? Math.round((guestCount / selectedEvent.guestCapacity) * 100) : 0;
+
 
     // Effect to set the selected event once data loads
     React.useEffect(() => {
-        if (!selectedEvent && eventsData && eventsData.length > 0) {
-            const firstEvent = {
-                ...eventsData[0],
-                date: eventsData[0].eventDate.toDate().toISOString(),
-                status: eventsData[0].eventDate.toDate() > new Date() ? 'Upcoming' : 'Completed',
-                guests: eventsData[0].guestCount || 0,
-                guestCapacity: eventsData[0].guestLimit || 20,
-                rsvpRate: eventsData[0].guestCount ? Math.round((eventsData[0].guestCount / (eventsData[0].guestLimit || 20)) * 100) : 0,
-            };
-            setSelectedEvent(firstEvent);
+        if (!selectedEventId && events.length > 0) {
+            setSelectedEventId(events[0].id);
         }
-    }, [eventsData, selectedEvent]);
+    }, [events, selectedEventId]);
     
     const isLoading = isUserLoading || isLoadingEvents;
 
@@ -140,7 +154,7 @@ export default function OwnerDashboardPage() {
                                                     "w-full text-left p-3 rounded-lg border transition-all",
                                                     selectedEvent?.id === event.id ? "bg-accent border-primary" : "hover:bg-accent/50"
                                                 )}
-                                                onClick={() => setSelectedEvent(event)}
+                                                onClick={() => setSelectedEventId(event.id)}
                                             >
                                                 <p className="font-semibold truncate">{event.name}</p>
                                                 <p className="text-sm text-muted-foreground">{event.status}</p>
@@ -191,7 +205,9 @@ export default function OwnerDashboardPage() {
                                     <CardTitle className="text-sm font-medium flex items-center gap-2"><Users className="h-4 w-4" /> Total Guests</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold">{selectedEvent.guests} / {selectedEvent.guestCapacity}</div>
+                                    <div className="text-2xl font-bold">
+                                        {isLoadingGuests ? <Loader2 className="h-6 w-6 animate-spin"/> : `${guestCount} / ${selectedEvent.guestCapacity}`}
+                                    </div>
                                 </CardContent>
                             </Card>
                             <Card>
@@ -199,7 +215,9 @@ export default function OwnerDashboardPage() {
                                     <CardTitle className="text-sm font-medium flex items-center gap-2"><Percent className="h-4 w-4" /> RSVP Rate</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold">{selectedEvent.rsvpRate}%</div>
+                                    <div className="text-2xl font-bold">
+                                        {isLoadingGuests ? <Loader2 className="h-6 w-6 animate-spin"/> : `${rsvpRate}%`}
+                                    </div>
                                 </CardContent>
                             </Card>
                             <Card>
@@ -207,7 +225,7 @@ export default function OwnerDashboardPage() {
                                     <CardTitle className="text-sm font-medium flex items-center gap-2"><CheckCircle className="h-4 w-4" /> Check-ins</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold">0 / {selectedEvent.guests}</div>
+                                    <div className="text-2xl font-bold">0 / {guestCount}</div>
                                 </CardContent>
                             </Card>
                         </div>
