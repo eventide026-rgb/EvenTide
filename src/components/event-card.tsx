@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Calendar, MapPin, Hash } from 'lucide-react';
+import { Calendar, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from './ui/badge';
 
@@ -24,13 +24,14 @@ export type Event = {
 
 type EventCardProps = {
   event: Event;
+  isDashboard?: boolean;
 };
 
-export function EventCard({ event }: EventCardProps) {
-  const eventPath = event.isTicketed ? 'shows' : 'events';
+export function EventCard({ event, isDashboard = false }: EventCardProps) {
+  const eventPath = isDashboard ? `/ticketier-dashboard/shows/${event.id}/edit` : `/shows/${event.id}`;
 
   return (
-    <Link href={`/${eventPath}/${event.id}`} className="group block">
+    <Link href={eventPath} className="group block">
       <Card className="overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl">
         <CardHeader className="p-0">
           <div className="aspect-video relative overflow-hidden">

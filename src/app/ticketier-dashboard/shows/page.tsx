@@ -56,7 +56,7 @@ export default function MyShowsPage() {
           {!isLoading && myShows && myShows.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {myShows.map((show) => (
-                <EventCard key={show.id} event={show} />
+                <EventCard key={show.id} event={show} isDashboard={true} />
               ))}
             </div>
           )}

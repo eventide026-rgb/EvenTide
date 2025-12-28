@@ -17,9 +17,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
-import { useFirestore, useUser } from '@/firebase';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
+import { useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
+import { addDoc, collection, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { Loader2, PlusCircle, Trash2, Calendar as CalendarIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
@@ -39,13 +39,25 @@ const formSchema = z.object({
     eventType: z.string().min(2, "Show type is required."),
 });
 
+type EventFormProps = {
+    showId?: string;
+};
 
-export function EventForm() {
+export function EventForm({ showId }: EventFormProps) {
     const { toast } = useToast();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const firestore = useFirestore();
     const { user } = useUser();
+    
+    const isEditMode = !!showId;
+
+    const showDocRef = useMemoFirebase(() => {
+        if (!firestore || !showId) return null;
+        return doc(firestore, 'shows', showId);
+    }, [firestore, showId]);
+
+    const { data: existingShowData, isLoading: isLoadingShow } = useDoc(showDocRef);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -60,6 +72,15 @@ export function EventForm() {
         },
     });
 
+    useEffect(() => {
+        if (existingShowData) {
+            form.reset({
+                ...existingShowData,
+                eventDate: existingShowData.eventDate.toDate(),
+            });
+        }
+    }, [existingShowData, form]);
+
     const { fields: imageUrlFields, append: appendImageUrl, remove: removeImageUrl } = useFieldArray({
         control: form.control,
         name: "imageUrls",
@@ -67,42 +88,56 @@ export function EventForm() {
         
     async function onSubmit(values: z.infer<typeof formSchema>) {
         if (!firestore || !user) {
-            toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to create a show." });
+            toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to create or edit a show." });
             return;
         }
         setIsLoading(true);
 
-        const eventCode = `SHOW-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-
         const showData = {
             ...values,
             ownerId: user.uid,
-            eventCode: eventCode,
-            createdAt: serverTimestamp(),
             eventDate: values.eventDate,
         };
 
         try {
-            const showsCol = collection(firestore, "shows");
-            const docRef = await addDoc(showsCol, showData);
-            
-            toast({
-                title: "Show Created!",
-                description: `Basics for ${values.name} have been saved.`,
-            });
-            // Redirect to the ticket tier creation step for this new show
-            router.push(`/ticketier-dashboard/shows/${docRef.id}/tiers`);
-
+            if (isEditMode && showDocRef) {
+                await updateDoc(showDocRef, {
+                    ...showData,
+                    updatedAt: serverTimestamp(),
+                });
+                toast({
+                    title: "Show Updated!",
+                    description: `Your show "${values.name}" has been successfully updated.`,
+                });
+                router.push('/ticketier-dashboard/shows');
+            } else {
+                const eventCode = `SHOW-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+                const docRef = await addDoc(collection(firestore, "shows"), {
+                    ...showData,
+                    eventCode,
+                    createdAt: serverTimestamp(),
+                });
+                
+                toast({
+                    title: "Show Created!",
+                    description: `Basics for ${values.name} have been saved.`,
+                });
+                router.push(`/ticketier-dashboard/shows/${docRef.id}/tiers`);
+            }
         } catch (error) {
-            console.error("Error creating show:", error);
+            console.error("Error saving show:", error);
             toast({
                 variant: "destructive",
                 title: "Submission Failed",
-                description: "There was a problem creating your show. Please try again.",
+                description: "There was a problem saving your show. Please try again.",
             });
         } finally {
             setIsLoading(false);
         }
+    }
+
+    if (isLoadingShow && isEditMode) {
+        return <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
     }
 
     return (
@@ -179,9 +214,9 @@ export function EventForm() {
                                         />
                                         {/* Simple time picker - can be improved */}
                                         <div className="p-2 border-t">
-                                            <Input type="time" defaultValue={format(field.value || new Date(), 'HH:mm')} onChange={(e) => {
+                                            <Input type="time" defaultValue={field.value ? format(field.value, 'HH:mm') : '12:00'} onChange={(e) => {
                                                 const [hours, minutes] = e.target.value.split(':');
-                                                const newDate = new Date(field.value);
+                                                const newDate = new Date(field.value || new Date());
                                                 newDate.setHours(parseInt(hours), parseInt(minutes));
                                                 field.onChange(newDate);
                                             }} />
@@ -265,7 +300,7 @@ export function EventForm() {
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {isLoading ? "Saving..." : "Save and Add Ticket Tiers"}
+                    {isLoading ? "Saving..." : (isEditMode ? "Save Changes" : "Save and Add Ticket Tiers")}
                 </Button>
             </form>
         </Form>
