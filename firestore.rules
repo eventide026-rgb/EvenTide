@@ -323,6 +323,8 @@ service cloud.firestore {
     }
 
     match /carBookings/{bookingId} {
+        allow list, get: if request.auth != null
+            && request.query.where.userId == request.auth.uid;
         allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.carOwnerId == request.auth.uid);
         allow create: if isSignedIn();
         allow update: if isSignedIn() && resource.data.carOwnerId == request.auth.uid;

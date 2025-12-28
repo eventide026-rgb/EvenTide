@@ -2,7 +2,7 @@
 'use client';
 
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, updateDoc, getDocs } from 'firebase/firestore';
+import { collection, query, where, doc, updateDoc } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -41,28 +41,13 @@ export default function BookingsPage() {
 
   const { data: bookings, isLoading: isLoadingBookings, error } = useCollection<CarBooking>(bookingsQuery);
 
-  const handleUpdateStatus = async (bookingId: string, carId: string, newStatus: 'confirmed' | 'declined') => {
+  const handleUpdateStatus = async (bookingId: string, newStatus: 'confirmed' | 'declined') => {
     if (!firestore) return;
     
-    // This is a simplified approach to find the original booking document ID in the root collection.
-    // A more robust way might be to store the root doc ID in the subcollection doc, or vice versa.
-    const rootBookingQuery = query(collection(firestore, 'carBookings'), where('id', '==', bookingId));
-    const subCollectionBookingQuery = query(collection(firestore, 'cars', carId, 'bookings'), where('id', '==', bookingId));
-
+    const bookingRef = doc(firestore, 'carBookings', bookingId);
+    
     try {
-      // Find and update the document in the root collection
-      const rootQuerySnapshot = await getDocs(rootBookingQuery);
-      if (!rootQuerySnapshot.empty) {
-        const rootDocId = rootQuerySnapshot.docs[0].id;
-        await updateDoc(doc(firestore, 'carBookings', rootDocId), { status: newStatus });
-      }
-
-      // Find and update the document in the subcollection
-      const subCollectionQuerySnapshot = await getDocs(subCollectionBookingQuery);
-      if (!subCollectionQuerySnapshot.empty) {
-        const subCollectionDocId = subCollectionQuerySnapshot.docs[0].id;
-        await updateDoc(doc(firestore, 'cars', carId, 'bookings', subCollectionDocId), { status: newStatus });
-      }
+      await updateDoc(bookingRef, { status: newStatus });
 
       toast({
         title: 'Booking Updated',
@@ -126,8 +111,8 @@ export default function BookingsPage() {
                   <TableCell className="text-right">
                     {booking.status === 'pending' && (
                       <div className="flex gap-2 justify-end">
-                        <Button size="sm" onClick={() => handleUpdateStatus(booking.id, booking.carId, 'confirmed')}>Confirm</Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleUpdateStatus(booking.id, booking.carId, 'declined')}>Decline</Button>
+                        <Button size="sm" onClick={() => handleUpdateStatus(booking.id, 'confirmed')}>Confirm</Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleUpdateStatus(booking.id, 'declined')}>Decline</Button>
                       </div>
                     )}
                   </TableCell>
