@@ -67,7 +67,7 @@ export default function TicketierDashboardLayout({ children }: { children: React
             <SidebarMenu>
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <Link href={item.href} legacyBehavior passHref>
+                  <Link href={item.href}>
                     <SidebarMenuButton
                       isActive={isNavItemActive(item.href)}
                       tooltip={{ children: item.label }}
@@ -83,7 +83,7 @@ export default function TicketierDashboardLayout({ children }: { children: React
           <SidebarFooter>
             <SidebarMenu>
               <SidebarMenuItem>
-                  <Link href="/ticketier-dashboard/profile" legacyBehavior passHref>
+                  <Link href="/ticketier-dashboard/profile">
                       <SidebarMenuButton
                           isActive={pathname === "/ticketier-dashboard/profile"}
                           tooltip={{ children: 'Profile' }}
