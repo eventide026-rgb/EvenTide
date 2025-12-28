@@ -47,9 +47,8 @@ export function PlannerCard({ planner }: PlannerCardProps) {
           </div>
         )}
         <div className="mt-4 flex-grow flex items-end">
-            {/* In a future step, this could link to a public profile page */}
             <Button variant="outline" className="w-full" asChild>
-                <Link href="#">View Profile</Link>
+                <Link href={`/resources/planners/${planner.id}`}>View Profile</Link>
             </Button>
         </div>
       </CardContent>
