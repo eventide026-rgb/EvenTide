@@ -69,7 +69,7 @@ export default function HallOwnerDashboardLayout({ children }: { children: React
             <SidebarMenu>
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <Link href={item.href} legacyBehavior passHref>
+                  <Link href={item.href}>
                     <SidebarMenuButton
                       isActive={isNavItemActive(item.href)}
                       tooltip={{ children: item.label }}
@@ -85,7 +85,7 @@ export default function HallOwnerDashboardLayout({ children }: { children: React
           <SidebarFooter>
             <SidebarMenu>
               <SidebarMenuItem>
-                  <Link href="/hall-owner-dashboard/profile" legacyBehavior passHref>
+                  <Link href="/hall-owner-dashboard/profile">
                       <SidebarMenuButton
                           isActive={pathname === "/hall-owner-dashboard/profile"}
                           tooltip={{ children: 'Profile' }}
