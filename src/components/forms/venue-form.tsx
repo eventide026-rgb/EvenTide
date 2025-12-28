@@ -33,6 +33,7 @@ import { Loader2, PlusCircle, Trash2, X, Upload } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import Image from 'next/image';
+import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
     name: z.string().min(3, "Venue name must be at least 3 characters."),
