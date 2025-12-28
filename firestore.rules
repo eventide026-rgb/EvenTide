@@ -75,12 +75,13 @@ service cloud.firestore {
       return isEventStaff(eventId) || isEventGuest(eventId);
     }
     
-    // Security rule for the 'planners' collection group query
-    match /{path=**}/planners/{plannerId} {
-      allow list: if request.query.where.size() == 1 &&
-                   request.query.where[0][0] == 'userId' &&
-                   request.query.where[0][2] == request.auth.uid;
-      allow read, write: if isOwner(plannerId) || isEventOwner(path.split('/')[1]);
+    // Security rule for the 'teamMembers' collection group query
+    match /{path=**}/teamMembers/{memberId} {
+      // Allow user to read invitations where their UID is in the `userId` field.
+      allow list, get: if isSignedIn() && request.auth.uid == resource.data.userId;
+      
+      // Allow user to update their own invitation status.
+      allow update: if isSignedIn() && request.auth.uid == resource.data.userId && request.resource.data.status in ['accepted', 'declined'];
     }
 
     // Begin Collection Rules
@@ -90,6 +91,10 @@ service cloud.firestore {
 
         match /events/{eventId} {
             allow read, write: if isOwner(hostId);
+
+            match /teamMembers/{memberId} {
+              allow read, write: if isOwner(hostId);
+            }
         }
     }
 
@@ -102,8 +107,7 @@ service cloud.firestore {
       
       // Notifications can only be accessed by the user they belong to.
       match /notifications/{notificationId} {
-        allow read: if isOwner(userId);
-        allow write: if isOwner(userId) || isEventOwner(request.resource.data.eventId);
+        allow read, write: if isOwner(userId);
       }
     }
     
@@ -113,16 +117,15 @@ service cloud.firestore {
     
     match /planners/{plannerId} {
         allow read, write: if isOwner(plannerId);
-        allow list: if isSignedIn();
-        allow get: if isSignedIn();
-        allow create: if request.auth.uid == plannerId;
-        allow update, delete: if request.auth.uid == plannerId;
-     
+        
+        match /assignments/{assignmentId} {
+            allow read, list: if isOwner(plannerId);
+            allow update: if isOwner(plannerId); // Planner can accept/decline
+        }
     }
 
     match /plannerProfiles/{plannerId} {
         allow get, list: if true;
-        allow read, write: if request.auth != null && request.auth.uid == plannerId;
         allow create: if request.auth.uid == plannerId;
         allow update, delete: if isOwner(plannerId);
     }
@@ -235,7 +238,9 @@ service cloud.firestore {
        match /guests/{guestId} {
         allow get: if canReadEventData(eventId) || isOwner(guestId);
         allow list: if isEventStaff(eventId);
-        allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
+        allow create: if (isEventOwner(eventId) || isEventPlanner(eventId)) && 
+                       (request.resource.data.category != 'Chairperson' || 
+                        getAfter(/databases/$(database)/documents/events/$(eventId)/guests?where("category", "==", "Chairperson")).size() <= 1);
         allow update: if (isEventStaff(eventId) || isOwner(guestId)) && isExistingDoc();
         allow delete: if isEventStaff(eventId) && isExistingDoc();
       }
@@ -381,5 +386,3 @@ service cloud.firestore {
 
   }
 }
-
-    
