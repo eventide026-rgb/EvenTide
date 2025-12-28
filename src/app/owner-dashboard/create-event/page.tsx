@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -107,6 +108,8 @@ export default function CreateEventWizardPage() {
             ownerId: user.uid,
             eventCode: eventCode,
             createdAt: serverTimestamp(),
+            guestCount: 0,
+            guestLimit: 20, // Default free tier limit
             imageUrls: [`https://picsum.photos/seed/${eventCode}/1200/800`]
         };
 

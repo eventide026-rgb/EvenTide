@@ -1,10 +1,11 @@
 
+
 'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, addDoc, serverTimestamp, orderBy, documentId } from 'firebase/firestore';
+import { collection, query, where, doc, addDoc, serverTimestamp, orderBy, documentId, updateDoc } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -17,7 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, PlusCircle, UserPlus, Info, Trash2, Edit, Send, Contact } from 'lucide-react';
+import { Loader2, PlusCircle, UserPlus, Info, Trash2, Edit, Send, Contact, CreditCard } from 'lucide-react';
 import { Label } from '../ui/label';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
@@ -82,7 +83,7 @@ function GuestManagementComponent() {
     if (!firestore || !user?.uid || eventIds.length === 0) return null;
     return query(collection(firestore, 'events'), where(documentId(), 'in', eventIds));
   }, [firestore, user?.uid, eventIds]);
-  const { data: plannerEvents } = useCollection<Event>(plannerManagedEventsQuery);
+  const { data: plannerEvents } = useCollection<Event>(plannerEventsQuery);
 
   const events = useMemo(() => {
     const allEvents = [...(ownerEvents || []), ...(plannerEvents || [])];
@@ -112,8 +113,21 @@ function GuestManagementComponent() {
     }
   }, [events, selectedEventId]);
 
+  const guestCount = guests?.length || 0;
+  const guestLimit = selectedEvent?.guestLimit || 20;
+  const atCapacity = guestCount >= guestLimit;
+
   const handleAddGuest = async (values: z.infer<typeof guestFormSchema>) => {
-    if (!firestore || !selectedEventId) return;
+    if (!firestore || !selectedEventId || !selectedEventRef) return;
+    
+    if (atCapacity) {
+        toast({
+            variant: "destructive",
+            title: "Guest Limit Reached",
+            description: "Please upgrade your plan to add more guests."
+        });
+        return;
+    }
 
     const guestCollectionRef = collection(firestore, 'events', selectedEventId, 'guests');
     
@@ -132,25 +146,24 @@ function GuestManagementComponent() {
 
     addDoc(guestCollectionRef, newGuestData)
         .then(() => {
+            // Update guest count on the event document
+            updateDoc(selectedEventRef, { guestCount: guestCount + 1 });
             toast({ title: 'Guest Added', description: `${values.name} has been added to your guest list.` });
             guestForm.reset();
         })
         .catch(async (serverError) => {
             console.error("Error adding guest:", serverError);
-            const permissionError = new FirestorePermissionError({
-              path: guestCollectionRef.path,
-              operation: 'create',
-              requestResourceData: newGuestData,
-            } satisfies SecurityRuleContext);
-            errorEmitter.emit('permission-error', permissionError);
+            toast({
+                variant: 'destructive',
+                title: "Failed to Add Guest",
+                description: "You may have reached your plan's guest limit or lack permissions."
+            })
         });
   };
 
   const isLoading = isUserLoading;
   const isFormSubmitting = guestForm.formState.isSubmitting;
   
-  const guestCount = guests?.length || 0;
-  const guestLimit = selectedEvent?.guestLimit || 20;
   const capacityPercentage = guestLimit > 0 ? (guestCount / guestLimit) * 100 : 0;
 
   return (
@@ -227,7 +240,7 @@ function GuestManagementComponent() {
                 <Info className="h-4 w-4" />
                 <AlertTitle>Next Step: Build Your Guest List!</AlertTitle>
                 <AlertDescription>
-                    Now that you've created your event, it's time to invite your attendees.
+                    Now that you've created your event, it's time to invite your attendees. The first 20 guests are free!
                 </AlertDescription>
             </Alert>
         )}
@@ -259,37 +272,49 @@ function GuestManagementComponent() {
                             </Select>
                         )}
                     </div>
-                    <Form {...guestForm}>
-                        <form onSubmit={guestForm.handleSubmit(handleAddGuest)} className="space-y-4 pt-4 border-t">
-                            <FormField control={guestForm.control} name="name" render={({ field }) => (
-                                <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="e.g., Jane Doe" {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                             <FormField control={guestForm.control} name="email" render={({ field }) => (
-                                <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="jane.doe@example.com" {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={guestForm.control} name="category" render={({ field }) => (
-                                <FormItem><FormLabel>Category</FormLabel>
-                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                    <FormControl>
-                                        <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                        <SelectItem value="Chairperson">Chairperson</SelectItem>
-                                        <SelectItem value="General">General</SelectItem>
-                                        <SelectItem value="VIP">VIP</SelectItem>
-                                        <SelectItem value="VVIP">VVIP</SelectItem>
-                                        <SelectItem value="Family">Family</SelectItem>
-                                        <SelectItem value="Staff">Staff</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage /></FormItem>
-                            )}/>
-                            <Button type="submit" className="w-full" disabled={!selectedEventId || isFormSubmitting}>
-                                {isFormSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
-                                {isFormSubmitting ? "Adding Guest..." : "Add Guest"}
+                    {atCapacity ? (
+                        <div className="pt-4 border-t text-center">
+                            <h3 className="font-semibold text-destructive">Guest Limit Reached</h3>
+                            <p className="text-sm text-muted-foreground mt-1 mb-4">Upgrade your plan to add more than {guestLimit} guests.</p>
+                            <Button asChild>
+                                <Link href="/owner-dashboard/account">
+                                    <CreditCard className="mr-2 h-4 w-4" /> Upgrade Plan
+                                </Link>
                             </Button>
-                        </form>
-                    </Form>
+                        </div>
+                    ) : (
+                        <Form {...guestForm}>
+                            <form onSubmit={guestForm.handleSubmit(handleAddGuest)} className="space-y-4 pt-4 border-t">
+                                <FormField control={guestForm.control} name="name" render={({ field }) => (
+                                    <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="e.g., Jane Doe" {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={guestForm.control} name="email" render={({ field }) => (
+                                    <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="jane.doe@example.com" {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={guestForm.control} name="category" render={({ field }) => (
+                                    <FormItem><FormLabel>Category</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                            <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="Chairperson">Chairperson</SelectItem>
+                                            <SelectItem value="General">General</SelectItem>
+                                            <SelectItem value="VIP">VIP</SelectItem>
+                                            <SelectItem value="VVIP">VVIP</SelectItem>
+                                            <SelectItem value="Family">Family</SelectItem>
+                                            <SelectItem value="Staff">Staff</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage /></FormItem>
+                                )}/>
+                                <Button type="submit" className="w-full" disabled={!selectedEventId || isFormSubmitting}>
+                                    {isFormSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+                                    {isFormSubmitting ? "Adding Guest..." : "Add Guest"}
+                                </Button>
+                            </form>
+                        </Form>
+                    )}
                  </div>
             </CardContent>
         </Card>
@@ -323,5 +348,3 @@ export function GuestManagement() {
         </Suspense>
     )
 }
-
-    

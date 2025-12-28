@@ -238,9 +238,9 @@ service cloud.firestore {
        match /guests/{guestId} {
         allow get: if canReadEventData(eventId) || isOwner(guestId);
         allow list: if isEventStaff(eventId);
-        allow create: if (isEventOwner(eventId) || isEventPlanner(eventId)) && 
-                       (request.resource.data.category != 'Chairperson' || 
-                        getAfter(/databases/$(database)/documents/events/$(eventId)/guests?where("category", "==", "Chairperson")).size() <= 1);
+        allow create: if (isEventOwner(eventId) || isEventPlanner(eventId)) &&
+                       (request.resource.data.category != 'Chairperson' || getAfter(/databases/$(database)/documents/events/$(eventId)/guests?where("category", "==", "Chairperson")).size() == 0) &&
+                       size(get(/databases/$(database)/documents/events/$(eventId)/guests)) < (get(/databases/$(database)/documents/events/$(eventId)).data.guestLimit || 20);
         allow update: if (isEventStaff(eventId) || isOwner(guestId)) && isExistingDoc();
         allow delete: if isEventStaff(eventId) && isExistingDoc();
       }
