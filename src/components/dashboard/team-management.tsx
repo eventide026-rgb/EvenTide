@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -83,6 +82,7 @@ type TeamMember = {
     role: 'Planner' | 'Co-host' | 'Security';
     status: 'Pending' | 'Accepted' | 'Declined';
     user: UserProfile;
+    userId: string;
 }
 
 const inviteFormSchema = z.object({
@@ -125,16 +125,41 @@ export function TeamManagement() {
   const { data: events, isLoading: isLoadingEvents } =
     useCollection<Event>(eventsQuery);
 
+  const plannersQuery = useMemoFirebase(() => {
+    if (!firestore || !selectedEventId) return null;
+    return collection(firestore, 'events', selectedEventId, 'planners');
+  }, [firestore, selectedEventId]);
+
   const cohostsQuery = useMemoFirebase(() => {
       if(!firestore || !selectedEventId) return null;
       return collection(firestore, 'events', selectedEventId, 'cohosts');
   }, [firestore, selectedEventId]);
-
-  const {data: cohosts, isLoading: isLoadingTeam } = useCollection(cohostsQuery);
   
+  const securityQuery = useMemoFirebase(() => {
+      if (!firestore || !selectedEventId) return null;
+      // Assuming security members are stored in a 'security' subcollection
+      return collection(firestore, 'events', selectedEventId, 'security');
+  }, [firestore, selectedEventId]);
+
+  const { data: planners, isLoading: isLoadingPlanners } = useCollection(plannersQuery);
+  const { data: cohosts, isLoading: isLoadingCohosts } = useCollection(cohostsQuery);
+  const { data: security, isLoading: isLoadingSecurity } = useCollection(securityQuery);
+
+  const isLoadingTeam = isLoadingPlanners || isLoadingCohosts || isLoadingSecurity;
+
   const teamMembers = useMemo(() => {
-      return cohosts?.map(c => ({...c, role: 'Co-host'})) || [];
-  }, [cohosts]);
+    const allMembers: TeamMember[] = [];
+    if (planners) {
+        allMembers.push(...planners.map((p: any) => ({ ...p, role: 'Planner' })));
+    }
+    if (cohosts) {
+        allMembers.push(...cohosts.map((c: any) => ({ ...c, role: 'Co-host' })));
+    }
+    if (security) {
+        allMembers.push(...security.map((s: any) => ({ ...s, role: 'Security' })));
+    }
+    return allMembers;
+  }, [planners, cohosts, security]);
 
   const handleSearchUser = async () => {
       if (!firestore) return;
@@ -158,7 +183,7 @@ export function TeamManagement() {
     if (!firestore || !user || !selectedEventId || !foundUser) return;
 
     const role = form.getValues('role');
-    const collectionName = 'cohosts'; // Simplified for now
+    const collectionName = role === 'Co-host' ? 'cohosts' : 'security';
     const batch = writeBatch(firestore);
     
     const teamMemberRef = doc(firestore, 'events', selectedEventId, collectionName, foundUser.id);
@@ -172,7 +197,7 @@ export function TeamManagement() {
     const notificationRef = doc(collection(firestore, 'users', foundUser.id, 'notifications'));
     const notificationData = {
         message: `You have been invited to be a ${role} for an event.`,
-        link: `/cohost-dashboard/invitations`,
+        link: role === 'Co-host' ? `/cohost-dashboard/invitations` : '/security-dashboard',
         read: false,
         createdAt: new Date(),
         userId: foundUser.id,
@@ -313,3 +338,5 @@ export function TeamManagement() {
     </div>
   );
 }
+
+    
