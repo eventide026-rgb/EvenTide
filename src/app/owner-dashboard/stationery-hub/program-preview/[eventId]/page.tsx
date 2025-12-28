@@ -4,7 +4,7 @@
 import { use, Suspense } from 'react';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -37,12 +37,20 @@ function ProgramPreviewPageContent({ eventId }: { eventId: string }) {
 
     return (
         <div className="max-w-2xl mx-auto">
-             <Button variant="outline" asChild className="mb-4">
-                <Link href={`/owner-dashboard/stationery-hub`}>
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Stationery Hub
-                </Link>
-            </Button>
+             <div className="flex justify-between items-center mb-4">
+                 <Button variant="outline" asChild>
+                    <Link href={`/owner-dashboard/stationery-hub/gatepass-preview/${eventId}`}>
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to Gatepass
+                    </Link>
+                </Button>
+                <Button asChild>
+                    <Link href={`/owner-dashboard/stationery-hub/thank-you-notes/${eventId}`}>
+                        Next: Thank You Notes
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
+            </div>
             <Card>
                 <CardHeader>
                     <CardTitle>Program Card Preview</CardTitle>
