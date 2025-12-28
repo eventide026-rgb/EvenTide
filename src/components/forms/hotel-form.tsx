@@ -25,16 +25,14 @@ import {
 } from '@/components/ui/select';
 import { NigerianStatesAndCities } from '@/lib/nigerian-states';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useEffect, useRef, DragEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { addDoc, collection, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { Loader2, PlusCircle, Trash2, X, UploadCloud, Image as ImageIcon } from 'lucide-react';
+import { Loader2, PlusCircle, Trash2, X } from 'lucide-react';
 import { Checkbox } from '../ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
-import Image from 'next/image';
-import { cn } from '@/lib/utils';
 
 const amenityOptions = ["Wi-Fi", "Pool", "Gym", "Parking", "Restaurant", "Room Service", "Air Conditioning"];
 
@@ -50,7 +48,7 @@ const formSchema = z.object({
     address: z.string().min(5, "Address is required."),
     state: z.string({ required_error: "Please select a state."}),
     city: z.string({ required_error: "Please select a city."}),
-    imageUrls: z.array(z.string().url("Must be a valid URL.")).min(1, "At least one image is required."),
+    imageUrls: z.array(z.string().url("Must be a valid URL.")).min(1, "At least one image URL is required."),
     amenities: z.array(z.string()).min(1, "Select at least one amenity."),
     roomTypes: z.array(roomTypeSchema).min(1, "At least one room type is required."),
 });
@@ -65,10 +63,6 @@ export function HotelForm({ hotelId }: HotelFormProps) {
     const [isLoading, setIsLoading] = useState(false);
     const firestore = useFirestore();
     const { user } = useUser();
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
-    const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
 
     const isEditMode = !!hotelId;
 
@@ -85,12 +79,12 @@ export function HotelForm({ hotelId }: HotelFormProps) {
             name: "",
             description: "",
             address: "",
-            imageUrls: [],
+            imageUrls: [""],
             amenities: [],
             roomTypes: [{ name: "Standard Room", price: 25000, capacity: 2 }],
         },
     });
-
+    
     useEffect(() => {
         if (existingHotelData) {
             form.reset(existingHotelData);
@@ -102,67 +96,10 @@ export function HotelForm({ hotelId }: HotelFormProps) {
         name: "roomTypes",
     });
 
-    const imageUrls = form.watch('imageUrls');
-
-    useEffect(() => {
-        return () => {
-            imageUrls.forEach(url => {
-                if (url.startsWith('blob:')) {
-                    URL.revokeObjectURL(url);
-                }
-            });
-        };
-    }, []);
-
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const files = event.target.files;
-        if (files) {
-            const newImageUrls = Array.from(files).map(file => URL.createObjectURL(file));
-            form.setValue('imageUrls', [...imageUrls, ...newImageUrls]);
-        }
-    };
-    
-    const removeImage = (index: number) => {
-        const newImageUrls = [...imageUrls];
-        const urlToRemove = newImageUrls[index];
-        if (urlToRemove.startsWith('blob:')) {
-            URL.revokeObjectURL(urlToRemove);
-        }
-        newImageUrls.splice(index, 1);
-        form.setValue('imageUrls', newImageUrls);
-    }
-    
-    const handleDragStart = (index: number) => {
-        setDraggedImageIndex(index);
-    };
-
-    const handleDragEnter = (index: number) => {
-        setDropTargetIndex(index);
-    };
-
-    const handleDragEnd = () => {
-        if (draggedImageIndex === null || dropTargetIndex === null || draggedImageIndex === dropTargetIndex) {
-            resetDragState();
-            return;
-        }
-        
-        const newImageUrls = [...imageUrls];
-        const [draggedImage] = newImageUrls.splice(draggedImageIndex, 1);
-        newImageUrls.splice(dropTargetIndex, 0, draggedImage);
-        
-        form.setValue('imageUrls', newImageUrls, { shouldDirty: true });
-        resetDragState();
-    };
-
-    const resetDragState = () => {
-        setDraggedImageIndex(null);
-        setDropTargetIndex(null);
-    }
-    
-    const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-    };
-
+     const { fields: imageUrlFields, append: appendImageUrl, remove: removeImageUrl } = useFieldArray({
+        control: form.control,
+        name: "imageUrls",
+    });
 
     const selectedState = form.watch('state');
     const cities = selectedState
@@ -336,65 +273,30 @@ export function HotelForm({ hotelId }: HotelFormProps) {
                     )}
                 />
                 
-                 <div className="space-y-4">
-                    <FormLabel>Hotel Images</FormLabel>
-                    <FormDescription>Upload at least one high-quality image of your property. Click and drag to reorder images.</FormDescription>
-                    <div
-                        className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-accent"
-                        onClick={() => fileInputRef.current?.click()}
-                    >
-                        <UploadCloud className="mx-auto h-12 w-12 text-muted-foreground" />
-                        <p className="mt-2 text-muted-foreground">Click to browse or drag & drop files</p>
-                        <Input
-                            ref={fileInputRef}
-                            type="file"
-                            className="hidden"
-                            multiple
-                            onChange={handleFileChange}
-                            accept="image/*"
-                        />
-                    </div>
-                     <Controller
-                        control={form.control}
-                        name="imageUrls"
-                        render={({ field }) => <FormMessage>{form.formState.errors.imageUrls?.message}</FormMessage>}
-                     />
-                    {imageUrls.length > 0 && (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                            {imageUrls.map((url, index) => (
-                                <div 
-                                    key={url} 
-                                    className="relative group cursor-grab"
-                                    draggable
-                                    onDragStart={() => handleDragStart(index)}
-                                    onDragEnter={() => handleDragEnter(index)}
-                                    onDragEnd={handleDragEnd}
-                                    onDragOver={handleDragOver}
-                                >
-                                    <div className={cn("aspect-video relative rounded-md overflow-hidden border-2 transition-all", 
-                                        draggedImageIndex === index && "opacity-50",
-                                        dropTargetIndex === index && "border-primary scale-105"
-                                    )}>
-                                        <Image
-                                            src={url}
-                                            alt={`Preview ${index + 1}`}
-                                            fill
-                                            className="object-cover"
-                                        />
+                 <div className="space-y-2">
+                    <FormLabel>Image URLs</FormLabel>
+                    <FormDescription>Add at least one link to a high-quality image of your property.</FormDescription>
+                     {imageUrlFields.map((field, index) => (
+                        <FormField
+                            key={field.id}
+                            control={form.control}
+                            name={`imageUrls.${index}`}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <div className="flex items-center gap-2">
+                                        <FormControl><Input placeholder="https://example.com/image.jpg" {...field} /></FormControl>
+                                        <Button type="button" variant="ghost" size="icon" onClick={() => removeImageUrl(index)} disabled={imageUrlFields.length <= 1}>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
                                     </div>
-                                    <Button
-                                        type="button"
-                                        variant="destructive"
-                                        size="icon"
-                                        className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                                        onClick={() => removeImage(index)}
-                                    >
-                                        <X className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    ))}
+                    <Button type="button" variant="outline" size="sm" onClick={() => appendImageUrl("")}>
+                        <PlusCircle className="mr-2 h-4 w-4" /> Add Image URL
+                    </Button>
                 </div>
 
                 <Card>
@@ -457,3 +359,5 @@ export function HotelForm({ hotelId }: HotelFormProps) {
         </Form>
     );
 }
+
+    
