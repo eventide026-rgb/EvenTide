@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -25,13 +25,15 @@ import {
 } from '@/components/ui/select';
 import { NigerianStatesAndCities } from '@/lib/nigerian-states';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useFirestore, useUser } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { Loader2, PlusCircle, Trash2 } from 'lucide-react';
+import { Loader2, PlusCircle, Trash2, X, UploadCloud, Image as ImageIcon } from 'lucide-react';
 import { Checkbox } from '../ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Badge } from '../ui/badge';
+import Image from 'next/image';
 
 const amenityOptions = ["Wi-Fi", "Pool", "Gym", "Parking", "Restaurant", "Room Service", "Air Conditioning"];
 
@@ -47,7 +49,7 @@ const formSchema = z.object({
     address: z.string().min(5, "Address is required."),
     state: z.string({ required_error: "Please select a state."}),
     city: z.string({ required_error: "Please select a city."}),
-    imageUrls: z.array(z.string().url("Must be a valid URL.")).min(1, "At least one image URL is required."),
+    imageUrls: z.array(z.string().url("Must be a valid URL.")).min(1, "At least one image is required."),
     amenities: z.array(z.string()).min(1, "Select at least one amenity."),
     roomTypes: z.array(roomTypeSchema).min(1, "At least one room type is required."),
 });
@@ -59,6 +61,7 @@ export function HotelForm() {
     const [isLoading, setIsLoading] = useState(false);
     const firestore = useFirestore();
     const { user } = useUser();
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -66,21 +69,37 @@ export function HotelForm() {
             name: "",
             description: "",
             address: "",
-            imageUrls: [""],
+            imageUrls: [],
             amenities: [],
-            roomTypes: [{ name: "", price: 10000, capacity: 2 }],
+            roomTypes: [{ name: "Standard Room", price: 25000, capacity: 2 }],
         },
-    });
-
-    const { fields: imageUrlFields, append: appendImageUrl, remove: removeImageUrl } = useFieldArray({
-        control: form.control,
-        name: "imageUrls",
     });
 
     const { fields: roomTypeFields, append: appendRoomType, remove: removeRoomType } = useFieldArray({
         control: form.control,
         name: "roomTypes",
     });
+
+    const imageUrls = form.watch('imageUrls');
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (files) {
+            const newImageUrls = Array.from(files).map((file, index) => {
+                // In a real app, you would upload the file and get a URL.
+                // Here, we simulate it with a placeholder URL.
+                return `https://picsum.photos/seed/${file.name}-${index}/${800}/${600}`;
+            });
+            form.setValue('imageUrls', [...imageUrls, ...newImageUrls]);
+        }
+    };
+    
+    const removeImage = (index: number) => {
+        const newImageUrls = [...imageUrls];
+        newImageUrls.splice(index, 1);
+        form.setValue('imageUrls', newImageUrls);
+    }
+
 
     const selectedState = form.watch('state');
     const cities = selectedState
@@ -242,30 +261,53 @@ export function HotelForm() {
                     )}
                 />
                 
-                <div className="space-y-2">
-                    <FormLabel>Image URLs</FormLabel>
-                    <FormDescription>Add at least one link to an image of your hotel.</FormDescription>
-                     {imageUrlFields.map((field, index) => (
-                        <FormField
-                            key={field.id}
-                            control={form.control}
-                            name={`imageUrls.${index}`}
-                            render={({ field }) => (
-                                <FormItem>
-                                    <div className="flex items-center gap-2">
-                                        <FormControl><Input placeholder="https://example.com/image.jpg" {...field} /></FormControl>
-                                        <Button type="button" variant="ghost" size="icon" onClick={() => removeImageUrl(index)} disabled={imageUrlFields.length <= 1}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
+                 <div className="space-y-4">
+                    <FormLabel>Hotel Images</FormLabel>
+                    <FormDescription>Upload at least one high-quality image of your property.</FormDescription>
+                    <div
+                        className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-accent"
+                        onClick={() => fileInputRef.current?.click()}
+                    >
+                        <UploadCloud className="mx-auto h-12 w-12 text-muted-foreground" />
+                        <p className="mt-2 text-muted-foreground">Click to browse or drag & drop files</p>
+                        <Input
+                            ref={fileInputRef}
+                            type="file"
+                            className="hidden"
+                            multiple
+                            onChange={handleFileChange}
+                            accept="image/*"
                         />
-                    ))}
-                    <Button type="button" variant="outline" size="sm" onClick={() => appendImageUrl("")}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add Image URL
-                    </Button>
+                    </div>
+                     <Controller
+                        control={form.control}
+                        name="imageUrls"
+                        render={({ field }) => <FormMessage>{form.formState.errors.imageUrls?.message}</FormMessage>}
+                     />
+                    {imageUrls.length > 0 && (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                            {imageUrls.map((url, index) => (
+                                <div key={index} className="relative group">
+                                    <Image
+                                        src={url}
+                                        alt={`Preview ${index + 1}`}
+                                        width={200}
+                                        height={150}
+                                        className="rounded-md object-cover aspect-video"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="icon"
+                                        className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        onClick={() => removeImage(index)}
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 <Card>
