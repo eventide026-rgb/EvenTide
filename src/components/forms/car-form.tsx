@@ -28,8 +28,10 @@ import { useState, useEffect } from 'react';
 import { useFirestore, useUser } from '@/firebase';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { Loader2, PlusCircle, Trash2, X } from 'lucide-react';
+import { Loader2, PlusCircle, Trash2, X, Upload } from 'lucide-react';
 import { Badge } from '../ui/badge';
+import Image from 'next/image';
+import { Label } from '../ui/label';
 
 const formSchema = z.object({
     make: z.string().min(2, "Car make is required."),
@@ -62,16 +64,12 @@ export function CarForm() {
             year: new Date().getFullYear(),
             pricePerDay: 50000,
             location: { state: '', city: ''},
-            imageUrls: [""],
+            imageUrls: [],
             features: [],
         },
     });
 
-    const { fields: imageUrlFields, append: appendImageUrl, remove: removeImageUrl } = useFieldArray({
-        control: form.control,
-        name: "imageUrls",
-    });
-
+    const imageUrls = form.watch('imageUrls');
     const features = form.watch('features');
 
     const handleAddTag = (value: string) => {
@@ -96,6 +94,30 @@ export function CarForm() {
     useEffect(() => {
         form.setValue('location.city', '');
     }, [selectedState, form]);
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (!files) return;
+
+        const newImageUrls: string[] = [];
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                 if (typeof e.target?.result === 'string') {
+                    newImageUrls.push(e.target.result);
+                    if(newImageUrls.length === files.length) {
+                        form.setValue('imageUrls', [...form.getValues('imageUrls'), ...newImageUrls]);
+                    }
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const removeImageUrl = (indexToRemove: number) => {
+        const currentImages = form.getValues('imageUrls');
+        form.setValue('imageUrls', currentImages.filter((_, index) => index !== indexToRemove));
+    }
         
     async function onSubmit(values: z.infer<typeof formSchema>) {
         if (!firestore || !user) {
@@ -214,30 +236,44 @@ export function CarForm() {
                     />
                 </div>
 
-                 <div className="space-y-2">
-                    <FormLabel>Image URLs</FormLabel>
-                    <FormDescription>Add at least one link to an image of the vehicle.</FormDescription>
-                     {imageUrlFields.map((field, index) => (
-                        <FormField
-                            key={field.id}
-                            control={form.control}
-                            name={`imageUrls.${index}`}
-                            render={({ field }) => (
-                                <FormItem>
-                                    <div className="flex items-center gap-2">
-                                        <FormControl><Input placeholder="https://example.com/image.jpg" {...field} /></FormControl>
-                                        <Button type="button" variant="ghost" size="icon" onClick={() => removeImageUrl(index)} disabled={imageUrlFields.length <= 1}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    ))}
-                    <Button type="button" variant="outline" size="sm" onClick={() => appendImageUrl("")}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add Image URL
+                <div className="space-y-4">
+                    <FormLabel>Vehicle Images</FormLabel>
+                    <FormDescription>Upload at least one high-quality image of your vehicle.</FormDescription>
+                    <FormControl>
+                        <Input id="image-upload" type="file" multiple accept="image/*" className="hidden" onChange={handleFileChange} />
+                    </FormControl>
+                    <Button type="button" variant="outline" asChild>
+                        <Label htmlFor="image-upload" className="cursor-pointer">
+                            <Upload className="mr-2 h-4 w-4" />
+                            Choose Images
+                        </Label>
                     </Button>
+                     <FormField
+                        control={form.control}
+                        name="imageUrls"
+                        render={() => <FormMessage />}
+                    />
+                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {imageUrls.map((url, index) => (
+                            <div key={index} className="relative group aspect-video">
+                                <Image
+                                    src={url}
+                                    alt={`Vehicle image ${index + 1}`}
+                                    fill
+                                    className="object-cover rounded-md border"
+                                />
+                                <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => removeImageUrl(index)}
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
                 </div>
                 
                  <div className="space-y-2">
