@@ -31,8 +31,8 @@ service cloud.firestore {
     }
     
     function isShowOwner(showId) {
-        let showData = getShow(showId).data;
-        return isSignedIn() && showData.ownerId == request.auth.uid;
+        // Use `resource.data` for existing documents
+        return isSignedIn() && resource.data.ownerId == request.auth.uid;
     }
 
     function getEvent(eventId) {
@@ -148,8 +148,8 @@ service cloud.firestore {
     match /shows/{showId} {
       allow get, list: if true; // Shows are public
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow update: if isShowOwner(showId) && isExistingDoc();
-      allow delete: if isShowOwner(showId) && isExistingDoc();
+      allow update: if isShowOwner(showId);
+      allow delete: if isShowOwner(showId);
     }
 
     match /shows/{showId}/ticketTiers/{tierId} {
@@ -323,6 +323,8 @@ service cloud.firestore {
     }
 
     match /carBookings/{bookingId} {
+        allow list, get: if request.auth != null
+            && request.query.where.userId == request.auth.uid;
         allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.carOwnerId == request.auth.uid);
         allow create: if isSignedIn();
         allow update: if isSignedIn() && resource.data.carOwnerId == request.auth.uid;
@@ -341,8 +343,9 @@ service cloud.firestore {
         }
     }
      match /venueBookings/{bookingId} {
+     		allow list, get: if request.auth != null
+    					&& request.auth.uid == resource.data.userId;
         allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.venueOwnerId == request.auth.uid);
-        allow list: if isSignedIn() && request.query.where.venueOwnerId == request.auth.uid;
         allow create: if isSignedIn();
         allow update: if isSignedIn() && resource.data.venueOwnerId == request.auth.uid;
     }
