@@ -121,12 +121,12 @@ export default function CreateEventWizardPage() {
             localStorage.removeItem('event-wizard-form');
             router.push(`/owner-dashboard/guests?walkthrough=true`);
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error creating event:", error);
             toast({
                 variant: "destructive",
                 title: "Submission Failed",
-                description: "There was a problem creating your event. Please try again.",
+                description: error.message || "There was a problem creating your event. Please try again.",
             });
         } finally {
             setIsSubmitting(false);
