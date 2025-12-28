@@ -14,7 +14,7 @@ import { AssignPlannerStep, assignPlannerSchema } from '@/components/wizards/cre
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useUser } from '@/firebase';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, doc, writeBatch } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -90,7 +90,7 @@ export default function CreateEventWizardPage() {
 
     const handlePrev = () => {
         if (currentStep > 0) {
-            setCurrentStep(step => step - 1);
+            setCurrentStep(step => step + 1);
         }
     };
     
@@ -101,21 +101,37 @@ export default function CreateEventWizardPage() {
         }
         setIsSubmitting(true);
 
-        const eventCode = `${data.eventType.substring(0, 2).toUpperCase()}O-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-        
-        const eventData = {
-            ...data,
-            ownerId: user.uid,
-            eventCode: eventCode,
-            createdAt: serverTimestamp(),
-            guestCount: 0,
-            guestLimit: 20, // Default free tier limit
-            imageUrls: [`https://picsum.photos/seed/${eventCode}/1200/800`]
-        };
-
         try {
-            const eventsCol = collection(firestore, "events");
-            await addDoc(eventsCol, eventData);
+            const batch = writeBatch(firestore);
+
+            const eventCode = `${data.eventType.substring(0, 2).toUpperCase()}O-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+            
+            const newEventRef = doc(collection(firestore, "events"));
+
+            const eventData = {
+                ...data,
+                id: newEventRef.id,
+                ownerId: user.uid,
+                eventCode: eventCode,
+                createdAt: serverTimestamp(),
+                guestCount: 0,
+                guestLimit: 20, // Default free tier limit
+                imageUrls: [`https://picsum.photos/seed/${eventCode}/1200/800`]
+            };
+            batch.set(newEventRef, eventData);
+
+            // If a planner was assigned, create the necessary documents
+            if (data.plannerId) {
+                // Create the planner document in the event's subcollection
+                const plannerRef = doc(firestore, "events", newEventRef.id, "planners", data.plannerId);
+                batch.set(plannerRef, { status: 'pending', addedAt: serverTimestamp() });
+
+                // Create the assignment document in the planner's top-level collection
+                const plannerAssignmentRef = doc(firestore, "planners", data.plannerId, "assignments", newEventRef.id);
+                batch.set(plannerAssignmentRef, { eventId: newEventRef.id, status: 'pending' });
+            }
+
+            await batch.commit();
             
             toast({
                 title: "Event Created!",
