@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { User } from 'firebase/auth';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, writeBatch, doc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
@@ -65,18 +65,29 @@ export function BookingDialog({ hotel, roomType, user, isUserLoading }: BookingD
       checkOutDate: serverTimestamp.call(null, dateRange.to),
       numberOfGuests: guests,
       totalPrice,
-      status: 'pending',
+      status: 'pending' as const,
       createdAt: serverTimestamp(),
     };
     
     try {
-      const bookingsCol = collection(firestore, 'hotels', hotel.id, 'bookings');
-      await addDoc(bookingsCol, bookingData);
+      const batch = writeBatch(firestore);
+
+      // Write to the top-level bookings collection
+      const topLevelBookingRef = doc(collection(firestore, 'bookings'));
+      batch.set(topLevelBookingRef, bookingData);
+
+      // Write to the hotel's subcollection for per-hotel queries
+      const subCollectionBookingRef = doc(collection(firestore, 'hotels', hotel.id, 'bookings'));
+      batch.set(subCollectionBookingRef, bookingData);
+
+      await batch.commit();
+
       toast({
         title: 'Booking Request Sent!',
         description: 'The hotelier has been notified. You will receive an update on your request shortly.',
       });
       setIsOpen(false);
+      form.reset();
     } catch (error) {
       console.error('Error creating booking:', error);
       toast({
@@ -99,6 +110,13 @@ export function BookingDialog({ hotel, roomType, user, isUserLoading }: BookingD
         Login to Book
       </Button>
     );
+  }
+
+  const form = {
+      reset: () => {
+          setDateRange(undefined);
+          setGuests(1);
+      }
   }
 
   return (

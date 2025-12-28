@@ -3,7 +3,7 @@
 
 import { useMemo } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, doc, updateDoc, getDocs, writeBatch } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -23,6 +23,7 @@ type Booking = {
   id: string;
   userId: string;
   hotelId: string;
+  hotelName: string;
   roomTypeName: string;
   checkInDate: any;
   checkOutDate: any;
@@ -38,23 +39,43 @@ export default function BookingsPage() {
 
   const bookingsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    // Query for bookings where the hotelOwnerId matches the current user's UID
     return query(collection(firestore, 'bookings'), where('hotelOwnerId', '==', user.uid));
   }, [firestore, user]);
 
-  const { data: bookings, isLoading: isLoadingBookings } = useCollection<Booking>(bookingsQuery);
+  const { data: bookings, isLoading: isLoadingBookings, error } = useCollection<Booking>(bookingsQuery);
 
-  const handleUpdateStatus = async (bookingId: string, newStatus: 'confirmed' | 'declined') => {
+  const handleUpdateStatus = async (booking: Booking, newStatus: 'confirmed' | 'declined') => {
     if (!firestore) return;
-    const bookingRef = doc(firestore, 'bookings', bookingId);
+    
+    const batch = writeBatch(firestore);
+
+    // Update the top-level booking document
+    const topLevelBookingRef = doc(firestore, 'bookings', booking.id);
+    batch.update(topLevelBookingRef, { status: newStatus });
+    
     try {
-      await updateDoc(bookingRef, { status: newStatus });
+      // Since we don't know the ID of the document in the subcollection, we query for it.
+      // This is a trade-off for denormalization.
+      const subcollectionQuery = query(
+        collection(firestore, 'hotels', booking.hotelId, 'bookings'),
+        where('userId', '==', booking.userId),
+        where('checkInDate', '==', booking.checkInDate)
+      );
+      const subcollectionSnapshot = await getDocs(subcollectionQuery);
+      if (!subcollectionSnapshot.empty) {
+        const subcollectionDocRef = subcollectionSnapshot.docs[0].ref;
+        batch.update(subcollectionDocRef, { status: newStatus });
+      } else {
+        console.warn(`Could not find corresponding booking in subcollection for hotel ${booking.hotelId}`);
+      }
+
+      await batch.commit();
       toast({
         title: 'Booking Updated',
         description: `The booking has been ${newStatus}.`,
       });
-    } catch (error) {
-      console.error('Error updating booking status:', error);
+    } catch (err) {
+      console.error('Error updating booking status:', err);
       toast({
         variant: 'destructive',
         title: 'Update Failed',
@@ -64,6 +85,10 @@ export default function BookingsPage() {
   };
 
   const isLoading = isUserLoading || isLoadingBookings;
+
+  if (error) {
+    console.error("Firestore Error:", error);
+  }
 
   return (
     <Card>
@@ -91,7 +116,7 @@ export default function BookingsPage() {
             <TableBody>
               {bookings.map((booking) => (
                 <TableRow key={booking.id}>
-                  <TableCell>{booking.hotelId}</TableCell>
+                  <TableCell>{booking.hotelName}</TableCell>
                   <TableCell>{booking.roomTypeName}</TableCell>
                   <TableCell>
                     {format(booking.checkInDate.toDate(), 'PPP')} - {format(booking.checkOutDate.toDate(), 'PPP')}
@@ -107,8 +132,8 @@ export default function BookingsPage() {
                   <TableCell className="text-right">
                     {booking.status === 'pending' && (
                       <div className="flex gap-2 justify-end">
-                        <Button size="sm" onClick={() => handleUpdateStatus(booking.id, 'confirmed')}>Confirm</Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleUpdateStatus(booking.id, 'declined')}>Decline</Button>
+                        <Button size="sm" onClick={() => handleUpdateStatus(booking, 'confirmed')}>Confirm</Button>
+                        <Button size="sm" variant="destructive" onClick={() => handleUpdateStatus(booking, 'declined')}>Decline</Button>
                       </div>
                     )}
                   </TableCell>

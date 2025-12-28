@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -280,6 +281,27 @@
         "purchasedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "showId", "buyerId", "ticketCode", "tierName", "price", "purchasedAt"]
+    },
+     "Booking": {
+      "title": "Booking",
+      "type": "object",
+      "description": "Represents a booking for a hotel room.",
+      "properties": {
+        "id": { "type": "string" },
+        "hotelId": { "type": "string" },
+        "hotelOwnerId": { "type": "string" },
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string", "format": "email" },
+        "hotelName": { "type": "string" },
+        "roomTypeName": { "type": "string" },
+        "checkInDate": { "type": "string", "format": "date-time" },
+        "checkOutDate": { "type": "string", "format": "date-time" },
+        "numberOfGuests": { "type": "number" },
+        "totalPrice": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "declined"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["hotelId", "hotelOwnerId", "userId", "roomTypeName", "checkInDate", "checkOutDate", "status"]
     },
     "Guest": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -814,6 +836,15 @@
             ]
         }
       },
+       {
+        "path": "/bookings/{bookingId}",
+        "definition": {
+            "entityName": "Booking",
+            "schema": { "$ref": "#/backend/entities/Booking" },
+            "description": "Top-level collection for all bookings, allowing owners to easily query for bookings across all their properties.",
+            "params": [{ "name": "bookingId", "description": "The unique identifier of the booking." }]
+        }
+      },
       {
         "path": "/events/{eventId}",
         "definition": {
@@ -1046,4 +1077,3 @@
     "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging. Public, ticketed shows created by Ticketiers are stored in a top-level `/shows` collection, separating them from private events created by Hosts, which are stored in the `/events` collection. This structural segregation improves query performance and simplifies security rules. User data is kept in a separate `/users` collection, and public Ticketier profiles are in `/ticketiers`, both secured by path-based ownership. Subcollections for shows (like `ticketTiers` and `tickets`) and events (like `guests` and `planners`) are nested under their parent documents, ensuring data locality and enabling targeted queries and security. A dedicated `notifications` subcollection under each user provides a private, real-time channel for alerts."
   }
 }
-    
