@@ -6,18 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { MapPin } from 'lucide-react';
 import { Button } from './ui/button';
-
-export type PlannerProfile = {
-  id: string;
-  name: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  city?: string;
-  state?: string;
-  bio?: string;
-  avatarUrl?: string;
-};
+import { type PlannerProfile } from '@/lib/types';
 
 type PlannerCardProps = {
   planner: PlannerProfile;

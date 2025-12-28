@@ -1,4 +1,5 @@
 
+
 export type Vendor = {
   id: string;
   name: string;
@@ -12,4 +13,16 @@ export type Vendor = {
     imageUrl: string;
     description: string;
   }[];
+};
+
+export type PlannerProfile = {
+  id: string;
+  name?: string; // Kept for compatibility if some profiles still use it
+  firstName: string;
+  lastName: string;
+  email: string;
+  city?: string;
+  state?: string;
+  bio?: string;
+  avatarUrl?: string;
 };

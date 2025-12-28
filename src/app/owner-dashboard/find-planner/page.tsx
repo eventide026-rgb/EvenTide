@@ -8,9 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Search, UserSearch } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDebounce } from 'use-debounce';
-import { PlannerCard, type PlannerProfile } from '@/components/planner-card';
+import { PlannerCard } from '@/components/planner-card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { NigerianStatesAndCities } from '@/lib/nigerian-states';
+import { type PlannerProfile } from '@/lib/types';
+
 
 export default function FindPlannerPage() {
   const firestore = useFirestore();
@@ -21,10 +23,8 @@ export default function FindPlannerPage() {
 
   const plannersQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    
-    let q = query(collection(firestore, 'plannerProfiles'));
-    
-    return q;
+    // Correctly query the 'users' collection for planners
+    return query(collection(firestore, 'users'), where('role', '==', 'Planner'));
   }, [firestore]);
 
   const { data: allPlanners, isLoading } = useCollection<PlannerProfile>(plannersQuery);
@@ -33,7 +33,8 @@ export default function FindPlannerPage() {
     if (!allPlanners) return [];
 
     return allPlanners.filter(planner => {
-      const nameMatch = debouncedSearchTerm ? (planner.name?.toLowerCase() || '').includes(debouncedSearchTerm.toLowerCase()) : true;
+      const name = `${planner.firstName} ${planner.lastName}`;
+      const nameMatch = debouncedSearchTerm ? name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) : true;
       const stateMatch = selectedState !== 'All' ? planner.state === selectedState : true;
       const cityMatch = selectedCity !== 'All' ? planner.city === selectedCity : true;
       return nameMatch && stateMatch && cityMatch;
