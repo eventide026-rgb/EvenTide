@@ -29,10 +29,12 @@ import { useState, useEffect } from 'react';
 import { useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { addDoc, collection, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { Loader2, PlusCircle, Trash2, X } from 'lucide-react';
+import { Loader2, PlusCircle, Trash2, X, Upload } from 'lucide-react';
 import { Checkbox } from '../ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
+import Image from 'next/image';
+import { Label } from '@/components/ui/label';
 
 const amenityOptions = ["Wi-Fi", "Pool", "Gym", "Parking", "Restaurant", "Room Service", "Air Conditioning"];
 
@@ -79,7 +81,7 @@ export function HotelForm({ hotelId }: HotelFormProps) {
             name: "",
             description: "",
             address: "",
-            imageUrls: [""],
+            imageUrls: [],
             amenities: [],
             roomTypes: [{ name: "Standard Room", price: 25000, capacity: 2 }],
         },
@@ -101,6 +103,8 @@ export function HotelForm({ hotelId }: HotelFormProps) {
         name: "imageUrls",
     });
 
+    const imageUrls = form.watch('imageUrls');
+
     const selectedState = form.watch('state');
     const cities = selectedState
         ? NigerianStatesAndCities.find((s) => s.state === selectedState)?.cities || []
@@ -111,6 +115,25 @@ export function HotelForm({ hotelId }: HotelFormProps) {
             form.setValue('city', '');
         }
     }, [selectedState, form]);
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (!files) return;
+
+        const newImageUrls: string[] = [];
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                 if (typeof e.target?.result === 'string') {
+                    newImageUrls.push(e.target.result);
+                    if(newImageUrls.length === files.length) {
+                        form.setValue('imageUrls', [...form.getValues('imageUrls'), ...newImageUrls]);
+                    }
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    };
         
     async function onSubmit(values: z.infer<typeof formSchema>) {
         if (!firestore || !user) {
@@ -273,31 +296,55 @@ export function HotelForm({ hotelId }: HotelFormProps) {
                     )}
                 />
                 
-                 <div className="space-y-2">
-                    <FormLabel>Image URLs</FormLabel>
-                    <FormDescription>Add at least one link to a high-quality image of your property.</FormDescription>
-                     {imageUrlFields.map((field, index) => (
-                        <FormField
-                            key={field.id}
-                            control={form.control}
-                            name={`imageUrls.${index}`}
-                            render={({ field }) => (
-                                <FormItem>
-                                    <div className="flex items-center gap-2">
-                                        <FormControl><Input placeholder="https://example.com/image.jpg" {...field} /></FormControl>
-                                        <Button type="button" variant="ghost" size="icon" onClick={() => removeImageUrl(index)} disabled={imageUrlFields.length <= 1}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    ))}
-                    <Button type="button" variant="outline" size="sm" onClick={() => appendImageUrl("")}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add Image URL
-                    </Button>
+                 <div className="space-y-4">
+                    <FormLabel>Hotel Images</FormLabel>
+                    <FormDescription>Upload or add links to images of your property.</FormDescription>
+                    
+                    <div className='flex gap-2'>
+                        <Button type="button" variant="outline" asChild>
+                            <Label htmlFor="image-upload" className="cursor-pointer">
+                                <Upload className="mr-2 h-4 w-4" />
+                                Choose Images
+                            </Label>
+                        </Button>
+                        <Button type="button" variant="outline" size="sm" onClick={() => appendImageUrl("")}>
+                            <PlusCircle className="mr-2 h-4 w-4" /> Add by URL
+                        </Button>
+                        <FormControl>
+                            <Input id="image-upload" type="file" multiple accept="image/*" className="hidden" onChange={handleFileChange} />
+                        </FormControl>
+                    </div>
+
+                    <div className="space-y-2">
+                        {imageUrlFields.map((field, index) => (
+                            <FormField
+                                key={field.id}
+                                control={form.control}
+                                name={`imageUrls.${index}`}
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <div className="flex items-center gap-2">
+                                            {field.value.startsWith('data:image') ? (
+                                                <div className="flex items-center gap-2 w-full">
+                                                    <Image src={field.value} alt={`Preview ${index}`} width={40} height={40} className="rounded-md h-10 w-10 object-cover"/>
+                                                    <Input value="Uploaded Image" readOnly className="flex-1" />
+                                                </div>
+                                            ) : (
+                                                <FormControl><Input placeholder="https://example.com/image.jpg" {...field} /></FormControl>
+                                            )}
+                                            <Button type="button" variant="ghost" size="icon" onClick={() => removeImageUrl(index)}>
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        ))}
+                    </div>
+                     <FormField control={form.control} name="imageUrls" render={() => (<FormMessage />)} />
                 </div>
+
 
                 <Card>
                     <CardHeader>
@@ -359,5 +406,3 @@ export function HotelForm({ hotelId }: HotelFormProps) {
         </Form>
     );
 }
-
-    
