@@ -10,7 +10,6 @@ import { PublicHeader } from '@/components/layout/public-header';
 import { PublicFooter } from '@/components/layout/public-footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { CheckCircle, Loader2, MapPin, Users, Wifi, Wind, Coffee, Dumbbell, Car, Star } from 'lucide-react';
 import { type Hotel } from '@/components/hotel-listing-card';
@@ -191,3 +190,5 @@ export default function HotelDetailsPage({ params }: { params: Promise<{ hotelId
         </div>
     )
 }
+
+    
