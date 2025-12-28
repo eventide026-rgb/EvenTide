@@ -31,32 +31,24 @@ export default function VendorHubPage() {
   const vendorsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     
-    let q = query(collection(firestore, "events"));
-
-    if (specialty !== 'All') {
-        q = query(q, where('specialty', '==', specialty));
-    }
-    if (selectedState !== 'All') {
-        q = query(q, where('state', '==', selectedState));
-    }
-     if (selectedCity !== 'All') {
-        q = query(q, where('city', '==', selectedCity));
-    }
+    let q = query(collection(firestore, "vendors"));
 
     return q;
-  }, [firestore, specialty, selectedState, selectedCity]);
+  }, [firestore]);
 
   const { data: allVendors, isLoading } = useCollection<Vendor>(vendorsQuery);
 
   const filteredVendors = useMemo(() => {
     if (!allVendors) return [];
-    if (!debouncedSearchTerm) return allVendors;
 
-    const lowercasedFilter = debouncedSearchTerm.toLowerCase();
-    return allVendors.filter(vendor => 
-        vendor.name.toLowerCase().includes(lowercasedFilter)
-    );
-  }, [allVendors, debouncedSearchTerm]);
+    return allVendors.filter(vendor => {
+        const nameMatch = debouncedSearchTerm ? vendor.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) : true;
+        const specialtyMatch = specialty !== 'All' ? vendor.specialty === specialty : true;
+        const stateMatch = selectedState !== 'All' ? vendor.state === selectedState : true;
+        const cityMatch = selectedCity !== 'All' ? vendor.city === selectedCity : true;
+        return nameMatch && specialtyMatch && stateMatch && cityMatch;
+    });
+  }, [allVendors, debouncedSearchTerm, specialty, selectedState, selectedCity]);
 
   const cities = selectedState !== 'All' 
     ? NigerianStatesAndCities.find(s => s.state === selectedState)?.cities || []

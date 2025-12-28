@@ -23,28 +23,22 @@ export default function FindPlannerPage() {
     if (!firestore) return null;
     
     let q = query(collection(firestore, 'plannerProfiles'));
-
-    if (selectedState !== 'All') {
-        q = query(q, where('state', '==', selectedState));
-    }
-     if (selectedCity !== 'All') {
-        q = query(q, where('city', '==', selectedCity));
-    }
     
     return q;
-  }, [firestore, selectedState, selectedCity]);
+  }, [firestore]);
 
   const { data: allPlanners, isLoading } = useCollection<PlannerProfile>(plannersQuery);
 
   const filteredPlanners = useMemo(() => {
     if (!allPlanners) return [];
-    if (!debouncedSearchTerm) return allPlanners;
 
-    const lowercasedFilter = debouncedSearchTerm.toLowerCase();
-    return allPlanners.filter(planner => 
-        (planner.name?.toLowerCase() || '').includes(lowercasedFilter)
-    );
-  }, [allPlanners, debouncedSearchTerm]);
+    return allPlanners.filter(planner => {
+      const nameMatch = debouncedSearchTerm ? (planner.name?.toLowerCase() || '').includes(debouncedSearchTerm.toLowerCase()) : true;
+      const stateMatch = selectedState !== 'All' ? planner.state === selectedState : true;
+      const cityMatch = selectedCity !== 'All' ? planner.city === selectedCity : true;
+      return nameMatch && stateMatch && cityMatch;
+    });
+  }, [allPlanners, debouncedSearchTerm, selectedState, selectedCity]);
   
   const cities = selectedState !== 'All' 
     ? NigerianStatesAndCities.find(s => s.state === selectedState)?.cities || []

@@ -5,12 +5,6 @@ import { useState, useEffect, useMemo } from 'react';
 import {
   collection,
   query,
-  where,
-  getDocs,
-  Firestore,
-  Query,
-  DocumentData,
-  or,
 } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { NigerianStatesAndCities } from '@/lib/nigerian-states';
@@ -22,56 +16,45 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Hotel, Search, SlidersHorizontal } from 'lucide-react';
+import { Hotel, Search } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { HotelListingCard, type Hotel as HotelType } from '@/components/hotel-listing-card';
-import { Button } from '@/components/ui/button';
 import { useDebounce } from 'use-debounce';
 
 
 export default function HotelsPage() {
   const firestore = useFirestore();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedState, setSelectedState] = useState('');
-  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedState, setSelectedState] = useState('All');
+  const [selectedCity, setSelectedCity] = useState('All');
 
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
 
   const hotelsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
+    return query(collection(firestore, "hotels"));
+  }, [firestore]);
 
-    const constraints = [];
-    if (debouncedSearchTerm) {
-         constraints.push(
-            or(
-                where('name', '>=', debouncedSearchTerm),
-                where('name', '<=', debouncedSearchTerm + '\uf8ff')
-            )
-        );
-    }
-    if (selectedState) {
-      constraints.push(where('state', '==', selectedState));
-    }
-    if (selectedCity) {
-      constraints.push(where('city', '==', selectedState));
-    }
+  const { data: allHotels, isLoading, error } = useCollection<HotelType>(hotelsQuery);
+
+  const filteredHotels = useMemo(() => {
+    if (!allHotels) return [];
     
-    if(constraints.length > 0) {
-        return query(collection(firestore, "events"), ...constraints);
-    }
+    return allHotels.filter(hotel => {
+        const nameMatch = debouncedSearchTerm ? hotel.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) : true;
+        const stateMatch = selectedState !== 'All' ? hotel.state === selectedState : true;
+        const cityMatch = selectedCity !== 'All' ? hotel.city === selectedCity : true;
+        return nameMatch && stateMatch && cityMatch;
+    });
 
-    return collection(firestore, "events");
+  }, [allHotels, debouncedSearchTerm, selectedState, selectedCity]);
 
-  }, [firestore, debouncedSearchTerm, selectedState, selectedCity]);
-
-  const { data: hotels, isLoading, error } = useCollection<HotelType>(hotelsQuery);
-
-  const cities = selectedState
+  const cities = selectedState !== 'All'
     ? NigerianStatesAndCities.find((s) => s.state === selectedState)?.cities || []
     : [];
 
   useEffect(() => {
-    setSelectedCity('');
+    setSelectedCity('All');
   }, [selectedState]);
 
   return (
@@ -99,6 +82,7 @@ export default function HotelsPage() {
                         <SelectValue placeholder="Select State" />
                     </SelectTrigger>
                     <SelectContent>
+                         <SelectItem value="All">All States</SelectItem>
                         {NigerianStatesAndCities.map((s) => (
                         <SelectItem key={s.state} value={s.state}>
                             {s.state}
@@ -106,11 +90,12 @@ export default function HotelsPage() {
                         ))}
                     </SelectContent>
                 </Select>
-                 <Select value={selectedCity} onValueChange={setSelectedCity} disabled={!selectedState}>
+                 <Select value={selectedCity} onValueChange={setSelectedCity} disabled={selectedState === 'All'}>
                     <SelectTrigger className="h-12 text-base">
                         <SelectValue placeholder="Select City" />
                     </SelectTrigger>
                     <SelectContent>
+                        <SelectItem value="All">All Cities</SelectItem>
                         {cities.map((city) => (
                         <SelectItem key={city} value={city}>
                             {city}
@@ -135,15 +120,15 @@ export default function HotelsPage() {
             </div>
           )}
 
-          {!isLoading && hotels && hotels.length > 0 && (
+          {!isLoading && filteredHotels && filteredHotels.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
-              {hotels.map((hotel) => (
+              {filteredHotels.map((hotel) => (
                 <HotelListingCard key={hotel.id} hotel={hotel} />
               ))}
             </div>
           )}
 
-          {!isLoading && (!hotels || hotels.length === 0) && (
+          {!isLoading && (!filteredHotels || filteredHotels.length === 0) && (
             <div className="text-center py-16">
               <div className="inline-block bg-muted p-6 rounded-full mb-4">
                 <Hotel className="h-16 w-16 text-muted-foreground" />

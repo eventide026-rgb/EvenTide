@@ -6,10 +6,6 @@ import {
   collection,
   query,
   where,
-  getDocs,
-  Firestore,
-  Query,
-  DocumentData,
   or,
 } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -36,47 +32,37 @@ import { cn } from '@/lib/utils';
 export default function VenuesPage() {
   const firestore = useFirestore();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedState, setSelectedState] = useState('');
-  const [selectedCity, setSelectedCity] = useState('');
+  const [selectedState, setSelectedState] = useState('All');
+  const [selectedCity, setSelectedCity] = useState('All');
   const [selectedDate, setSelectedDate] = useState<Date>();
 
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
 
   const venuesQuery = useMemoFirebase(() => {
     if (!firestore) return null;
+    return query(collection(firestore, "venues"));
 
-    const constraints = [];
-    if (debouncedSearchTerm) {
-         constraints.push(
-            or(
-                where('name', '>=', debouncedSearchTerm),
-                where('name', '<=', debouncedSearchTerm + '\uf8ff')
-            )
-        );
-    }
-    if (selectedState) {
-      constraints.push(where('state', '==', selectedState));
-    }
-    if (selectedCity) {
-      constraints.push(where('city', '==', selectedCity));
-    }
-    
-    if(constraints.length > 0) {
-        return query(collection(firestore, "events"), ...constraints);
-    }
+  }, [firestore]);
 
-    return collection(firestore, "events");
+  const { data: allVenues, isLoading, error } = useCollection<Venue>(venuesQuery);
 
-  }, [firestore, debouncedSearchTerm, selectedState, selectedCity]);
+  const filteredVenues = useMemo(() => {
+    if (!allVenues) return [];
 
-  const { data: venues, isLoading, error } = useCollection<Venue>(venuesQuery);
+    return allVenues.filter(venue => {
+        const nameMatch = debouncedSearchTerm ? venue.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) : true;
+        const stateMatch = selectedState !== 'All' ? venue.state === selectedState : true;
+        const cityMatch = selectedCity !== 'All' ? venue.city === selectedCity : true;
+        return nameMatch && stateMatch && cityMatch;
+    });
+  }, [allVenues, debouncedSearchTerm, selectedState, selectedCity]);
 
-  const cities = selectedState
+  const cities = selectedState !== 'All'
     ? NigerianStatesAndCities.find((s) => s.state === selectedState)?.cities || []
     : [];
 
   useEffect(() => {
-    setSelectedCity('');
+    setSelectedCity('All');
   }, [selectedState]);
 
   return (
@@ -104,6 +90,7 @@ export default function VenuesPage() {
                         <SelectValue placeholder="Select State" />
                     </SelectTrigger>
                     <SelectContent>
+                        <SelectItem value="All">All States</SelectItem>
                         {NigerianStatesAndCities.map((s) => (
                         <SelectItem key={s.state} value={s.state}>
                             {s.state}
@@ -111,11 +98,12 @@ export default function VenuesPage() {
                         ))}
                     </SelectContent>
                 </Select>
-                 <Select value={selectedCity} onValueChange={setSelectedCity} disabled={!selectedState}>
+                 <Select value={selectedCity} onValueChange={setSelectedCity} disabled={selectedState === 'All'}>
                     <SelectTrigger className="h-12 text-base">
                         <SelectValue placeholder="Select City" />
                     </SelectTrigger>
                     <SelectContent>
+                        <SelectItem value="All">All Cities</SelectItem>
                         {cities.map((city) => (
                         <SelectItem key={city} value={city}>
                             {city}
@@ -123,28 +111,6 @@ export default function VenuesPage() {
                         ))}
                     </SelectContent>
                 </Select>
-                 <Popover>
-                    <PopoverTrigger asChild>
-                        <Button
-                        variant={"outline"}
-                        className={cn(
-                            "w-full h-12 text-base justify-start text-left font-normal",
-                            !selectedDate && "text-muted-foreground"
-                        )}
-                        >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                        <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={setSelectedDate}
-                        initialFocus
-                        />
-                    </PopoverContent>
-                </Popover>
             </div>
           </div>
         </section>
@@ -162,15 +128,15 @@ export default function VenuesPage() {
             </div>
           )}
 
-          {!isLoading && venues && venues.length > 0 && (
+          {!isLoading && filteredVenues && filteredVenues.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
-              {venues.map((venue) => (
+              {filteredVenues.map((venue) => (
                 <VenueListingCard key={venue.id} venue={venue} />
               ))}
             </div>
           )}
 
-          {!isLoading && (!venues || venues.length === 0) && (
+          {!isLoading && (!filteredVenues || filteredVenues.length === 0) && (
             <div className="text-center py-16">
               <div className="inline-block bg-muted p-6 rounded-full mb-4">
                 <Building className="h-16 w-16 text-muted-foreground" />

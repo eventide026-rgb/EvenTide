@@ -24,28 +24,23 @@ export default function FindDesignerPage() {
     if (!firestore) return null;
     
     let q = query(collection(firestore, 'vendors'), where('specialty', '==', 'Fashion Designer'));
-
-    if (selectedState !== 'All') {
-        q = query(q, where('state', '==', selectedState));
-    }
-     if (selectedCity !== 'All') {
-        q = query(q, where('city', '==', selectedCity));
-    }
     
     return q;
-  }, [firestore, selectedState, selectedCity]);
+  }, [firestore]);
 
   const { data: allDesigners, isLoading } = useCollection<Vendor>(designersQuery);
 
   const filteredDesigners = useMemo(() => {
     if (!allDesigners) return [];
-    if (!debouncedSearchTerm) return allDesigners;
+    
+    return allDesigners.filter(designer => {
+        const nameMatch = debouncedSearchTerm ? designer.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) : true;
+        const stateMatch = selectedState !== 'All' ? designer.state === selectedState : true;
+        const cityMatch = selectedCity !== 'All' ? designer.city === selectedCity : true;
+        return nameMatch && stateMatch && cityMatch;
+    });
 
-    const lowercasedFilter = debouncedSearchTerm.toLowerCase();
-    return allDesigners.filter(designer => 
-        designer.name.toLowerCase().includes(lowercasedFilter)
-    );
-  }, [allDesigners, debouncedSearchTerm]);
+  }, [allDesigners, debouncedSearchTerm, selectedState, selectedCity]);
 
   const cities = selectedState !== 'All' 
     ? NigerianStatesAndCities.find(s => s.state === selectedState)?.cities || []
