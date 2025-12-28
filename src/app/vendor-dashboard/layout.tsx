@@ -165,7 +165,7 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
 
   return (
     <TooltipProvider>
-      <div className="flex min-h-screen bg-background text-foreground">
+      <div className="flex min-h-screen bg-background text-foreground" style={{'--sidebar-width': '25.8rem', '--sidebar-width-mobile': '29rem'} as React.CSSProperties}>
         <aside className="sticky top-0 h-screen w-16 flex flex-col items-center py-4 border-r bg-background z-20">
           <Link href="/vendor-dashboard">
             <Logo />
