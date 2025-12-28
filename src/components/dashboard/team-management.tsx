@@ -121,25 +121,27 @@ export function TeamManagement() {
 
   /* ---------------------------- events list ---------------------------- */
 
-  const eventsQuery =
+  const eventsQuery = useMemoFirebase(() => 
     firestore && user?.uid
       ? query(
           collection(firestore, 'events'),
           where('ownerId', '==', user.uid)
         )
-      : undefined;
+      : undefined
+  , [firestore, user?.uid]);
 
   const { data: events, isLoading: isLoadingEvents } =
     useCollection<Event>(eventsQuery);
 
   /* --------------------------- team members --------------------------- */
 
-  const teamMembersQuery =
+  const teamMembersQuery = useMemoFirebase(() =>
     firestore && selectedEventId
       ? query(
           collection(firestore, 'events', selectedEventId, 'teamMembers')
         )
-      : undefined;
+      : undefined
+  , [firestore, selectedEventId]);
 
   const { data: teamMembers, isLoading: isLoadingTeam } =
     useCollection<TeamMember>(teamMembersQuery);
