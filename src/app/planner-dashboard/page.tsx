@@ -13,14 +13,14 @@ const sampleEvents = [
         id: "evt-1",
         name: "Adebayo & Funke's Wedding",
         date: "2024-12-15T14:00:00.000Z",
-        code: "WE-O-A4F8K2",
+        eventCode: "WEO-O-A4F8K2",
         status: "Upcoming",
     },
     {
         id: "evt-2",
         name: "Lagos Tech Summit 2024",
         date: "2024-11-02T09:00:00.000Z",
-        code: "CN-P-L9S3T1",
+        eventCode: "CN-P-L9S3T1",
         status: "Upcoming",
     },
 ];
@@ -108,7 +108,7 @@ export default function PlannerDashboardPage() {
                         <CardHeader className="flex flex-row items-start justify-between">
                             <div>
                                 <CardTitle className="text-2xl">{selectedEvent.name}</CardTitle>
-                                <CardDescription>Event Code: <span className="font-mono bg-muted px-2 py-1 rounded-md">{selectedEvent.code}</span></CardDescription>
+                                <CardDescription>Event Code: <span className="font-mono bg-muted px-2 py-1 rounded-md">{selectedEvent.eventCode}</span></CardDescription>
                             </div>
                             <Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button>
                         </CardHeader>

@@ -17,7 +17,7 @@ type Event = {
     name: string;
     date?: string; // Kept for compatibility with Countdown, will be populated from eventDate
     eventDate: any; // Firestore Timestamp
-    code?: string;
+    eventCode?: string;
     status: "Upcoming" | "Completed";
     guests?: number;
     guestCapacity?: number;
@@ -169,7 +169,7 @@ export default function OwnerDashboardPage() {
                                 <CardHeader className="flex flex-row items-start justify-between">
                                     <div>
                                         <CardTitle className="text-2xl">{selectedEvent.name}</CardTitle>
-                                        <CardDescription>Event Code: <span className="font-mono bg-muted px-2 py-1 rounded-md">{selectedEvent.code}</span></CardDescription>
+                                        <CardDescription>Event Code: <span className="font-mono bg-muted px-2 py-1 rounded-md">{selectedEvent.eventCode}</span></CardDescription>
                                     </div>
                                     <Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button>
                                 </CardHeader>

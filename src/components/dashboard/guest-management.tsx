@@ -32,6 +32,7 @@ type Event = {
   ownerId: string;
   guestCount?: number;
   guestLimit?: number;
+  eventCode?: string;
 };
 
 type Guest = {
@@ -174,6 +175,7 @@ function GuestManagementComponent() {
             <CardTitle>Guest Roster</CardTitle>
             <CardDescription>
                 {selectedEvent ? `Showing guests for "${selectedEvent.name}"` : "Select an event to see the guest list."}
+                 {selectedEvent?.eventCode && <Badge variant="outline" className="ml-2">{selectedEvent.eventCode}</Badge>}
             </CardDescription>
             </CardHeader>
             <CardContent>

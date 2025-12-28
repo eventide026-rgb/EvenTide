@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Calendar, MapPin } from 'lucide-react';
+import { Calendar, MapPin, Hash } from 'lucide-react';
 import { format } from 'date-fns';
 import { Badge } from './ui/badge';
 
@@ -17,6 +17,7 @@ export type Event = {
   imageUrls: string[];
   imageHint?: string;
   ownerId: string;
+  eventCode?: string;
   isPublic: boolean;
   isTicketed: boolean;
 };
@@ -49,6 +50,7 @@ export function EventCard({ event }: EventCardProps) {
         </CardHeader>
         <CardContent className="p-4">
           <h3 className="font-bold font-headline text-lg truncate">{event.name}</h3>
+          {event.eventCode && <Badge variant="outline">{event.eventCode}</Badge>}
           <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
             <Calendar className="h-4 w-4 flex-shrink-0" />
             <span className="truncate">{format(event.eventDate.toDate(), 'PPP')}</span>

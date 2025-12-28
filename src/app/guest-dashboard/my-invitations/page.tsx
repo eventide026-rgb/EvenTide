@@ -26,6 +26,7 @@ type Announcement = {
 // This is a placeholder. In a real application, the guest's context (including their ID and the event ID)
 // would be managed through a secure session or context provider after they log in.
 const MOCK_EVENT_ID = 'wTeoD2ZOGxVjHYaKodJS'; // Mock event ID
+const MOCK_EVENT_CODE = 'WDO-A8C4F6';
 const MOCK_GUEST_ID = 'YOUR_MOCK_GUEST_ID';   // Mock guest document ID
 const MOCK_GUEST_CATEGORY = 'VIP';            // Mock guest category for filtering announcements
 const MOCK_RSVP_STATUS: 'Pending' | 'Accepted' | 'Declined' = 'Pending'; // Mock initial RSVP status
@@ -86,6 +87,7 @@ export default function MyInvitationsPage() {
                     <QrCode className='h-48 w-48 text-black' />
                 </div>
                  <p className='text-sm text-muted-foreground pt-2'>Show this QR code at the entrance for check-in.</p>
+                 <Badge variant="outline" className="mt-2">Event Code: {MOCK_EVENT_CODE}</Badge>
             </CardHeader>
             <CardContent>
                 <div className='flex gap-4'>

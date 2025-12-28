@@ -67,6 +67,7 @@ type Event = {
   id: string;
   name: string;
   ownerId: string;
+  eventCode?: string;
 };
 
 type UserProfile = {
@@ -115,13 +116,6 @@ export function TeamManagement() {
     resolver: zodResolver(inviteFormSchema),
     defaultValues: { email: '', role: 'Co-host' },
   });
-
-  const plannerAssignmentsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
-    return query(collection(firestore, 'planners'), where('plannerId', '==', user.uid));
-  }, [firestore, user?.uid]);
-  const { data: assignments, isLoading: isLoadingAssignments } = useCollection<EventPlannerAssignment>(plannerAssignmentsQuery);
-  const eventIds = useMemo(() => assignments?.map(a => a.eventId) || [], [assignments]);
 
   const eventsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return undefined;
@@ -203,6 +197,8 @@ export function TeamManagement() {
   }
 
   const isLoading = isUserLoading || isLoadingEvents;
+  
+  const selectedEvent = events?.find(e => e.id === selectedEventId);
 
   return (
     <div className="grid md:grid-cols-3 gap-8 items-start h-full">
@@ -210,7 +206,8 @@ export function TeamManagement() {
         <CardHeader>
           <CardTitle>Team Roster</CardTitle>
            <CardDescription>
-            {selectedEventId ? `Showing team for your selected event.` : "Select an event to see the team list."}
+            {selectedEvent ? `Showing team for "${selectedEvent.name}"` : "Select an event to see the team list."}
+            {selectedEvent?.eventCode && <Badge variant="outline" className="ml-2">{selectedEvent.eventCode}</Badge>}
           </CardDescription>
         </CardHeader>
         <CardContent>
