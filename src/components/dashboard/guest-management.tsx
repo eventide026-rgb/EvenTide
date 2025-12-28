@@ -83,7 +83,7 @@ function GuestManagementComponent() {
     if (!firestore || !user?.uid || eventIds.length === 0) return null;
     return query(collection(firestore, 'events'), where(documentId(), 'in', eventIds));
   }, [firestore, user?.uid, eventIds]);
-  const { data: plannerEvents } = useCollection<Event>(plannerEventsQuery);
+  const { data: plannerEvents } = useCollection<Event>(plannerManagedEventsQuery);
 
   const events = useMemo(() => {
     const allEvents = [...(ownerEvents || []), ...(plannerEvents || [])];
