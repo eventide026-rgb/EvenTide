@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { User } from 'firebase/auth';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, doc, writeBatch } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
@@ -59,16 +59,24 @@ export function VenueBookingDialog({ venue, user, isUserLoading }: VenueBookingD
       eventName,
       eventDate: serverTimestamp.call(null, eventDate),
       numberOfGuests,
-      status: 'pending',
+      status: 'pending' as const,
       createdAt: serverTimestamp(),
     };
     
     try {
-      const bookingsCol = collection(firestore, 'venues', venue.id, 'bookings');
+      const batch = writeBatch(firestore);
+
+      // Write to top-level collection
       const venueBookingsCol = collection(firestore, 'venueBookings');
-      
-      await addDoc(bookingsCol, bookingData);
-      await addDoc(venueBookingsCol, bookingData);
+      const topLevelBookingRef = doc(venueBookingsCol);
+      batch.set(topLevelBookingRef, {...bookingData, id: topLevelBookingRef.id});
+
+      // Write to subcollection
+      const bookingsCol = collection(firestore, 'venues', venue.id, 'bookings');
+      const subBookingRef = doc(bookingsCol);
+      batch.set(subBookingRef, {...bookingData, id: subBookingRef.id});
+
+      await batch.commit();
 
       toast({
         title: 'Booking Request Sent!',

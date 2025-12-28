@@ -303,6 +303,25 @@
       },
       "required": ["hotelId", "hotelOwnerId", "userId", "roomTypeName", "checkInDate", "checkOutDate", "status"]
     },
+    "VenueBooking": {
+        "title": "VenueBooking",
+        "type": "object",
+        "description": "Represents a booking for a venue.",
+        "properties": {
+            "id": { "type": "string" },
+            "venueId": { "type": "string" },
+            "venueOwnerId": { "type": "string" },
+            "userId": { "type": "string" },
+            "userEmail": { "type": "string", "format": "email" },
+            "venueName": { "type": "string" },
+            "eventName": { "type": "string" },
+            "eventDate": { "type": "string", "format": "date-time" },
+            "numberOfGuests": { "type": "number" },
+            "status": { "type": "string", "enum": ["pending", "confirmed", "declined"] },
+            "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["venueId", "venueOwnerId", "userId", "eventName", "eventDate", "status"]
+    },
     "Guest": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Guest",
@@ -843,6 +862,15 @@
             "schema": { "$ref": "#/backend/entities/Booking" },
             "description": "Top-level collection for all bookings, allowing owners to easily query for bookings across all their properties.",
             "params": [{ "name": "bookingId", "description": "The unique identifier of the booking." }]
+        }
+      },
+       {
+        "path": "/venueBookings/{bookingId}",
+        "definition": {
+            "entityName": "VenueBooking",
+            "schema": { "$ref": "#/backend/entities/VenueBooking" },
+            "description": "Top-level collection for all venue bookings, allowing owners to easily query for bookings across all their properties.",
+            "params": [{ "name": "bookingId", "description": "The unique identifier of the venue booking." }]
         }
       },
       {

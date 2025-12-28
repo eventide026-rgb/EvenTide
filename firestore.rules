@@ -148,8 +148,8 @@ service cloud.firestore {
     match /shows/{showId} {
       allow get, list: if true; // Shows are public
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow update: if isShowOwner(showId) && isExistingDoc();
-      allow delete: if isShowOwner(showId) && isExistingDoc();
+      allow update: if isShowOwner(showId);
+      allow delete: if isShowOwner(showId);
     }
 
     match /shows/{showId}/ticketTiers/{tierId} {
@@ -376,7 +376,8 @@ service cloud.firestore {
     
     // Administrative Rules
     match /adRequests/{requestId} {
-        allow read, write: if false; // Should be handled by admin roles
+        allow create: if isSignedIn();
+        allow read, update, delete: if isAdmin();
     }
 
     match /testimonials/{testimonialId} {
