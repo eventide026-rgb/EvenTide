@@ -113,7 +113,7 @@ export function SignUpForm() {
                 userProfileData.specialty = values.role === 'Fashion Designer' ? 'Fashion Designer' : values.vendorSpecialty;
             }
             
-            const userDocRef = doc(firestore, "events", user.uid);
+            const userDocRef = doc(firestore, "users", user.uid);
             batch.set(userDocRef, userProfileData);
 
             if (values.role === 'Ticketier') {
@@ -124,7 +124,7 @@ export function SignUpForm() {
                     avatarUrl: `https://picsum.photos/seed/${user.uid}/200`,
                     createdAt: serverTimestamp(),
                 };
-                const ticketierDocRef = doc(firestore, "events", user.uid);
+                const ticketierDocRef = doc(firestore, "ticketiers", user.uid);
                 batch.set(ticketierDocRef, ticketierProfileData);
             }
             
@@ -136,7 +136,7 @@ export function SignUpForm() {
                     specialty: userProfileData.specialty,
                     createdAt: serverTimestamp(),
                 };
-                const vendorDocRef = doc(firestore, 'events', user.uid);
+                const vendorDocRef = doc(firestore, 'vendors', user.uid);
                 batch.set(vendorDocRef, vendorData);
             }
 
