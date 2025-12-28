@@ -1,9 +1,10 @@
 
+
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, Suspense } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collectionGroup, query, where, doc, updateDoc, Timestamp } from 'firebase/firestore';
+import { collectionGroup, query, where, doc, updateDoc, Timestamp, writeBatch } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -30,51 +31,42 @@ type TeamMemberInvitation = {
   userId: string;
 };
 
-type AcceptedGig = {
-    id: string;
-    eventId: string;
-    eventDate: Timestamp;
-    eventName: string;
-}
 
 export default function InvitationsPage() {
   const firestore = useFirestore();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const { toast } = useToast();
   const [clashWarning, setClashWarning] = useState<{
     show: boolean;
     invitation?: TeamMemberInvitation;
-    clashingEvent?: AcceptedGig;
+    clashingEvent?: TeamMemberInvitation;
   }>({ show: false });
 
-  // Query for all pending invitations across all events
-  const pendingInvitationsQuery = useMemoFirebase(() => {
+  // Query for all team member invitations (pending and accepted) for this user.
+  const teamMembershipsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return undefined;
     return query(
         collectionGroup(firestore, 'teamMembers'),
-        where('userId', '==', user.uid),
-        where('status', '==', 'pending')
+        where('userId', '==', user.uid)
     );
   }, [firestore, user?.uid]);
 
-  const { data: invitations, isLoading: isLoadingInvitations, error: invitationsError } = useCollection<TeamMemberInvitation>(pendingInvitationsQuery);
+  const { data: memberships, isLoading, error } = useCollection<TeamMemberInvitation>(teamMembershipsQuery);
   
-  const acceptedGigsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return undefined;
-    return query(
-        collectionGroup(firestore, 'teamMembers'),
-        where('userId', '==', user.uid),
-        where('status', '==', 'accepted')
-    );
-  }, [firestore, user?.uid]);
-      
-  const { data: acceptedGigs, isLoading: isLoadingGigs } = useCollection<AcceptedGig>(acceptedGigsQuery);
+  // Filter the fetched memberships on the client-side
+  const pendingInvitations = useMemo(() => {
+      return memberships?.filter(m => m.status === 'pending') || [];
+  }, [memberships]);
+
+  const acceptedGigs = useMemo(() => {
+    return memberships?.filter(m => m.status === 'accepted') || [];
+  }, [memberships]);
 
 
   const handleResponse = async (invitation: TeamMemberInvitation, status: 'accepted' | 'declined') => {
     if (!firestore || !user) return;
 
-    if (status === 'accepted' && acceptedGigs) {
+    if (status === 'accepted') {
         const newEventDate = invitation.eventDate.toDate();
         const clashingEvent = acceptedGigs.find(gig => 
             gig.eventDate && isSameDay(gig.eventDate.toDate(), newEventDate)
@@ -92,6 +84,7 @@ export default function InvitationsPage() {
   const updateInvitationStatus = async (invitation: TeamMemberInvitation, status: 'accepted' | 'declined') => {
     if (!firestore || !user) return;
 
+    // Use the full path to the document for updating.
     const teamMemberRef = doc(firestore, 'events', invitation.eventId, 'teamMembers', invitation.id);
     
     try {
@@ -111,8 +104,6 @@ export default function InvitationsPage() {
     setClashWarning({ show: false });
   }
 
-  const isLoading = isLoadingInvitations || isLoadingGigs;
-
   return (
     <div className="space-y-8">
       <div>
@@ -125,23 +116,23 @@ export default function InvitationsPage() {
       <Card>
         <CardHeader>
           <CardTitle>New Event Proposals</CardTitle>
-          <CardDescription>You have {invitations?.length || 0} pending invitations.</CardDescription>
+          <CardDescription>You have {pendingInvitations?.length || 0} pending invitations.</CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoading && <Loader2 className="animate-spin" />}
-          {invitationsError && (
+          {isLoading || isUserLoading ? <Loader2 className="animate-spin" /> : null}
+          {error && (
             <Alert variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Error Loading Invitations</AlertTitle>
                 <AlertDescription>
-                    There was an issue fetching your invitations. This is often due to a permissions issue.
+                    There was an issue fetching your invitations. This could be due to a permissions issue.
                     <pre className="mt-2 rounded-md bg-slate-950 p-4">
-                        <code className="text-white">{invitationsError.message}</code>
+                        <code className="text-white">{error.message}</code>
                     </pre>
                 </AlertDescription>
             </Alert>
           )}
-          {!isLoading && !invitationsError && (!invitations || invitations.length === 0) && (
+          {!isLoading && !error && (!pendingInvitations || pendingInvitations.length === 0) && (
             <div className="text-center py-16 border-dashed border-2 rounded-lg">
                 <Mail className="mx-auto h-12 w-12 text-muted-foreground" />
                 <h3 className="mt-4 text-xl font-semibold">Your inbox is clear!</h3>
@@ -149,7 +140,7 @@ export default function InvitationsPage() {
             </div>
           )}
           <div className="space-y-4">
-            {invitations?.map((invitation) => (
+            {pendingInvitations?.map((invitation) => (
                 <div
                   key={invitation.id}
                   className="flex items-center justify-between rounded-lg border p-4"
@@ -211,4 +202,3 @@ export default function InvitationsPage() {
   );
 }
 
-    
