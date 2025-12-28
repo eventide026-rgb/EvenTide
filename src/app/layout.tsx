@@ -7,6 +7,7 @@ import { AuthRedirector } from '@/components/auth/auth-redirector';
 export const metadata: Metadata = {
   title: 'EvenTide',
   description: 'Your Event, Reimagined.',
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
