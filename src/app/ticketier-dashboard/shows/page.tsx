@@ -16,7 +16,7 @@ export default function MyShowsPage() {
 
   const myShowsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    return query(collection(firestore, "events"), where('ownerId', '==', user.uid));
+    return query(collection(firestore, "shows"), where('ownerId', '==', user.uid));
   }, [firestore, user]);
 
   const { data: myShows, isLoading: isLoadingEvents } = useCollection<Show>(myShowsQuery);
