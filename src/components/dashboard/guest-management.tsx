@@ -18,11 +18,13 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, PlusCircle, UserPlus, Info, Trash2, Edit, Send } from 'lucide-react';
+import { Loader2, PlusCircle, UserPlus, Info, Trash2, Edit, Send, Contact } from 'lucide-react';
 import { Label } from '../ui/label';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 import { Progress } from '../ui/progress';
+import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 type Event = {
   id: string;
@@ -288,6 +290,24 @@ function GuestManagementComponent() {
                         </form>
                     </Form>
                  </div>
+            </CardContent>
+        </Card>
+
+         <Card className={cn(
+            "transition-opacity",
+            (!guests || guests.length === 0) && "opacity-40 pointer-events-none"
+        )}>
+            <CardHeader>
+                <CardTitle>Next Step</CardTitle>
+                <CardDescription>Now that you have guests, assemble your team.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Button asChild className="w-full">
+                    <Link href="/owner-dashboard/team">
+                        <Contact className="mr-2 h-4 w-4" />
+                        Assemble Your Team
+                    </Link>
+                </Button>
             </CardContent>
         </Card>
       </div>
