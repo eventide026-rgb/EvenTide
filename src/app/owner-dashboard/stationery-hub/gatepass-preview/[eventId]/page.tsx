@@ -1,11 +1,11 @@
 
 'use client';
 
-import { use } from 'react';
+import { use, useMemo } from 'react';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { Loader2, ArrowLeft } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { GatepassPreviewCard } from '@/components/stationery/previews/gatepass-preview';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -30,12 +30,20 @@ export default function GatepassPreviewPage({ params }: { params: Promise<{ even
 
     return (
         <div className="max-w-2xl mx-auto">
-             <Button variant="outline" asChild className="mb-4">
-                <Link href={`/owner-dashboard/stationery-hub/invitation-studio/${eventId}`}>
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Invitation Studio
-                </Link>
-            </Button>
+             <div className="flex justify-between items-center mb-4">
+                <Button variant="outline" asChild>
+                    <Link href={`/owner-dashboard/stationery-hub/invitation-studio/${eventId}`}>
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to Invitation Studio
+                    </Link>
+                </Button>
+                 <Button asChild>
+                    <Link href={`/owner-dashboard/stationery-hub/program-preview/${eventId}`}>
+                        Next: Program Preview
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
+            </div>
             <Card>
                 <CardHeader>
                     <CardTitle>Gate Pass Preview</CardTitle>
