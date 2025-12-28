@@ -58,7 +58,7 @@ export default function ShowsPage() {
 
   const showsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, "events"), where('isPublic', '==', true));
+    return query(collection(firestore, "shows"), where('isPublic', '==', true));
   }, [firestore]);
 
   const { data: allShows, isLoading } = useCollection<Show>(showsQuery);
