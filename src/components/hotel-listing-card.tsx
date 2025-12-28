@@ -28,11 +28,13 @@ export type Hotel = {
 
 type HotelListingCardProps = {
   hotel: Hotel;
+  isDashboard?: boolean;
 };
 
-export function HotelListingCard({ hotel }: HotelListingCardProps) {
+export function HotelListingCard({ hotel, isDashboard = false }: HotelListingCardProps) {
+  const linkHref = isDashboard ? `/hotelier-dashboard/my-hotels/${hotel.id}/edit` : `/resources/hotels/${hotel.id}`;
   return (
-    <Link href={`/resources/hotels/${hotel.id}`} className="group block">
+    <Link href={linkHref} className="group block">
       <Card className="overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl">
         <CardHeader className="p-0">
           <div className="aspect-video relative overflow-hidden">

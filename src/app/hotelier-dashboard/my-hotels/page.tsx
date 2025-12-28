@@ -58,7 +58,7 @@ export default function MyHotelsPage() {
           {!isLoading && myHotels && myHotels.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {myHotels.map((hotel) => (
-                <HotelListingCard key={hotel.id} hotel={hotel} />
+                <HotelListingCard key={hotel.id} hotel={hotel} isDashboard={true} />
               ))}
             </div>
           )}

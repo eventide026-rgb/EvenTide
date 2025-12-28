@@ -26,8 +26,8 @@ import {
 import { NigerianStatesAndCities } from '@/lib/nigerian-states';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect, useRef } from 'react';
-import { useFirestore, useUser } from '@/firebase';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
+import { addDoc, collection, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { Loader2, PlusCircle, Trash2, X, UploadCloud, Image as ImageIcon } from 'lucide-react';
 import { Checkbox } from '../ui/checkbox';
@@ -54,14 +54,26 @@ const formSchema = z.object({
     roomTypes: z.array(roomTypeSchema).min(1, "At least one room type is required."),
 });
 
+type HotelFormProps = {
+    hotelId?: string;
+};
 
-export function HotelForm() {
+export function HotelForm({ hotelId }: HotelFormProps) {
     const { toast } = useToast();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const firestore = useFirestore();
     const { user } = useUser();
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const isEditMode = !!hotelId;
+
+    const hotelDocRef = useMemoFirebase(() => {
+        if (!firestore || !hotelId) return null;
+        return doc(firestore, 'hotels', hotelId);
+    }, [firestore, hotelId]);
+
+    const { data: existingHotelData, isLoading: isLoadingHotel } = useDoc(hotelDocRef);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -75,6 +87,12 @@ export function HotelForm() {
         },
     });
 
+    useEffect(() => {
+        if (existingHotelData) {
+            form.reset(existingHotelData);
+        }
+    }, [existingHotelData, form]);
+
     const { fields: roomTypeFields, append: appendRoomType, remove: removeRoomType } = useFieldArray({
         control: form.control,
         name: "roomTypes",
@@ -83,7 +101,6 @@ export function HotelForm() {
     const imageUrls = form.watch('imageUrls');
 
     useEffect(() => {
-        // Cleanup object URLs to avoid memory leaks
         return () => {
             imageUrls.forEach(url => {
                 if (url.startsWith('blob:')) {
@@ -96,13 +113,7 @@ export function HotelForm() {
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
         if (files) {
-            // In a real app, you would handle the upload process here.
-            // For this UI-only fix, we'll create blob URLs for preview.
             const newImageUrls = Array.from(files).map(file => URL.createObjectURL(file));
-            // When submitting, these blob URLs would need to be replaced with actual uploaded file URLs.
-            // For now, we'll just use them for preview. A real implementation would be more complex.
-            // For simplicity of this fix, we're assuming the blob URL is what gets "saved",
-            // which is not correct for production but fixes the preview issue.
             form.setValue('imageUrls', [...imageUrls, ...newImageUrls]);
         }
     };
@@ -124,45 +135,52 @@ export function HotelForm() {
         : [];
 
     useEffect(() => {
-        if (form.getValues('state')) {
-          form.setValue('city', '');
+        if (form.formState.isDirty) {
+            form.setValue('city', '');
         }
     }, [selectedState, form]);
         
     async function onSubmit(values: z.infer<typeof formSchema>) {
         if (!firestore || !user) {
-            toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to create a hotel." });
+            toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in." });
             return;
         }
         setIsLoading(true);
 
-        // In a real-world scenario, you would upload the files corresponding to blob URLs
-        // and replace them with the final storage URLs before saving to Firestore.
-        // For this example, we'll proceed with potentially broken blob URLs.
-        const hotelData = {
-            ...values,
-            ownerId: user.uid,
-            createdAt: serverTimestamp(),
-        };
-
         try {
-            const hotelsCol = collection(firestore, "hotels");
-            await addDoc(hotelsCol, hotelData);
-            toast({
-                title: "Hotel Created!",
-                description: `${values.name} has been successfully listed.`,
-            });
+            if (isEditMode && hotelDocRef) {
+                await updateDoc(hotelDocRef, { ...values, updatedAt: serverTimestamp() });
+                toast({
+                    title: "Hotel Updated!",
+                    description: `${values.name} has been successfully updated.`,
+                });
+            } else {
+                const hotelData = {
+                    ...values,
+                    ownerId: user.uid,
+                    createdAt: serverTimestamp(),
+                };
+                await addDoc(collection(firestore, "hotels"), hotelData);
+                toast({
+                    title: "Hotel Created!",
+                    description: `${values.name} has been successfully listed.`,
+                });
+            }
             router.push('/hotelier-dashboard/my-hotels');
         } catch (error) {
-            console.error("Error creating hotel:", error);
+            console.error("Error saving hotel:", error);
             toast({
                 variant: "destructive",
                 title: "Submission Failed",
-                description: "There was a problem creating your hotel. Please try again.",
+                description: "There was a problem saving your hotel. Please try again.",
             });
         } finally {
             setIsLoading(false);
         }
+    }
+    
+    if (isLoadingHotel && isEditMode) {
+        return <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
     }
 
     return (
@@ -208,7 +226,7 @@ export function HotelForm() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>State</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl><SelectTrigger><SelectValue placeholder="Select State" /></SelectTrigger></FormControl>
                                     <SelectContent>
                                         {NigerianStatesAndCities.map(s => <SelectItem key={s.state} value={s.state}>{s.state}</SelectItem>)}
@@ -386,7 +404,7 @@ export function HotelForm() {
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {isLoading ? "Creating Listing..." : "Create Hotel Listing"}
+                    {isLoading ? (isEditMode ? "Saving Changes..." : "Creating Listing...") : (isEditMode ? "Save Changes" : "Create Hotel Listing")}
                 </Button>
             </form>
         </Form>
