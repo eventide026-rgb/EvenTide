@@ -8,6 +8,7 @@ import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { ProgramPreviewCard } from '@/components/stationery/previews/program-preview';
 
 function ProgramPreviewPageContent({ eventId }: { eventId: string }) {
     const firestore = useFirestore();
@@ -19,15 +20,7 @@ function ProgramPreviewPageContent({ eventId }: { eventId: string }) {
 
     const { data: event, isLoading: isLoadingEvent } = useDoc(eventRef);
     
-    const programRef = useMemoFirebase(() => {
-        if (!firestore) return null;
-        return doc(firestore, 'events', eventId, 'program', 'main');
-    }, [firestore, eventId]);
-
-    const { data: program, isLoading: isLoadingProgram } = useDoc(programRef);
-
-
-    if (isLoadingEvent || isLoadingProgram) {
+    if (isLoadingEvent || !event) {
         return (
             <div className="flex h-full items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin" />
@@ -45,8 +38,8 @@ function ProgramPreviewPageContent({ eventId }: { eventId: string }) {
                     </Link>
                 </Button>
                 <Button asChild>
-                    <Link href={`/owner-dashboard/stationery-hub/thank-you-notes/${eventId}`}>
-                        Next: Thank You Notes
+                    <Link href={`/owner-dashboard/stationery-hub/menu-preview/${eventId}`}>
+                        Next: Menu Preview
                         <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                 </Button>
@@ -57,10 +50,7 @@ function ProgramPreviewPageContent({ eventId }: { eventId: string }) {
                     <CardDescription>This is a read-only preview of how your event program will appear to guests.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className='text-center py-16 border-dashed border-2 rounded-lg'>
-                        <p className='text-muted-foreground'>Program Card Preview will be implemented here.</p>
-                        {program && <p className='text-xs text-muted-foreground mt-2'>Loaded {program.program?.length || 0} items.</p>}
-                    </div>
+                    <ProgramPreviewCard event={event} />
                 </CardContent>
             </Card>
         </div>

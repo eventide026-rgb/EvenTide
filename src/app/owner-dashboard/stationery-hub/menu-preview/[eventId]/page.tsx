@@ -8,8 +8,9 @@ import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { MenuPreviewCard } from '@/components/stationery/previews/menu-preview';
 
-function ThankYouNotesPageContent({ eventId }: { eventId: string }) {
+function MenuPreviewPageContent({ eventId }: { eventId: string }) {
     const firestore = useFirestore();
 
     const eventRef = useMemoFirebase(() => {
@@ -19,7 +20,7 @@ function ThankYouNotesPageContent({ eventId }: { eventId: string }) {
 
     const { data: event, isLoading } = useDoc(eventRef);
 
-    if (isLoading) {
+    if (isLoading || !event) {
         return (
             <div className="flex h-full items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin" />
@@ -31,39 +32,37 @@ function ThankYouNotesPageContent({ eventId }: { eventId: string }) {
         <div className="max-w-2xl mx-auto">
              <div className="flex justify-between items-center mb-4">
                  <Button variant="outline" asChild>
-                    <Link href={`/owner-dashboard/stationery-hub/menu-preview/${eventId}`}>
+                    <Link href={`/owner-dashboard/stationery-hub/program-preview/${eventId}`}>
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to Menu
+                        Back to Program
                     </Link>
                 </Button>
                 <Button asChild>
-                    <Link href={`/owner-dashboard/stationery-hub/complete/${eventId}`}>
-                        Finish Setup
+                    <Link href={`/owner-dashboard/stationery-hub/thank-you-notes/${eventId}`}>
+                        Next: Thank-You Notes
                         <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                 </Button>
             </div>
             <Card>
                 <CardHeader>
-                    <CardTitle>AI Thank-You Note Generator</CardTitle>
-                    <CardDescription>Generate personalized thank-you notes for your guests post-event.</CardDescription>
+                    <CardTitle>Menu Card Preview</CardTitle>
+                    <CardDescription>This is a read-only preview of how your event menu will appear to guests.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className='text-center py-16 border-dashed border-2 rounded-lg'>
-                        <p className='text-muted-foreground'>AI Thank-You Note generator will be implemented here.</p>
-                    </div>
+                   <MenuPreviewCard event={event} />
                 </CardContent>
             </Card>
         </div>
     );
 }
 
-export default function ThankYouNotesPage({ params }: { params: Promise<{ eventId: string }> }) {
+export default function MenuPreviewPage({ params }: { params: Promise<{ eventId: string }> }) {
     const { eventId } = use(params);
 
     return (
         <Suspense fallback={<div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin"/></div>}>
-            <ThankYouNotesPageContent eventId={eventId} />
+            <MenuPreviewPageContent eventId={eventId} />
         </Suspense>
     );
 }
