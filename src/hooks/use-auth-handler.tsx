@@ -53,14 +53,16 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
         const userData = userDoc.data();
         const role = userData.role;
         const correctDashboard = ROLE_DASHBOARD_MAP[role];
+        const fullName = `${userData.firstName} ${userData.lastName}`;
 
-        // Store role in session storage for immediate access on subsequent renders.
+        // Store role and name in session storage for immediate access.
         sessionStorage.setItem('userRole', role);
+        sessionStorage.setItem('userName', fullName);
+
 
         // 1. Handle new logins from an auth page
         if (isNewLogin && isOnAuthPage) {
           sessionStorage.removeItem('isNewLogin');
-          const fullName = `${userData.firstName} ${userData.lastName}`;
           toast({
             title: "Login Successful!",
             description: `Welcome back, ${fullName}! Redirecting...`,

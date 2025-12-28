@@ -55,7 +55,7 @@ export function LoginForm({ loginType }: { loginType?: string }) {
       if (loginType) {
         sessionStorage.setItem('loginType', loginType);
       }
-      await initiateEmailSignIn(auth, values.email, values.password);
+      initiateEmailSignIn(auth, values.email, values.password);
     } catch (error: any) {
       console.error('Sign In Error:', error);
       toast({
