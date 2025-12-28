@@ -77,10 +77,11 @@ service cloud.firestore {
     
     // Security rule for the 'teamMembers' collection group query
     match /{path=**}/teamMembers/{memberId} {
-      // Allow planner to read their own pending invitations across all events
-      allow get, list: if isOwner(memberId) && resource.data.status == 'pending';
-      // Allow planner to update their own invitation status
-      allow update: if isOwner(memberId) && request.resource.data.status in ['accepted', 'declined'];
+      // Allow user to read invitations where their UID is in the `userId` field.
+      allow list, get: if isSignedIn() && request.auth.uid == resource.data.userId;
+      
+      // Allow user to update their own invitation status.
+      allow update: if isSignedIn() && request.auth.uid == resource.data.userId && request.resource.data.status in ['accepted', 'declined'];
     }
 
     // Begin Collection Rules

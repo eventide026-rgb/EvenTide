@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useMemo, Suspense } from 'react';
@@ -42,8 +41,8 @@ export default function InvitationsPage() {
     clashingEvent?: TeamMemberInvitation;
   }>({ show: false });
 
-  // Query for all team member invitations (pending and accepted) for this user.
-  const teamMembershipsQuery = useMemoFirebase(() => {
+  // ✅ CORRECT PATTERN: The query is only defined when dependencies are ready.
+  const membershipsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return undefined;
     return query(
         collectionGroup(firestore, 'teamMembers'),
@@ -51,9 +50,8 @@ export default function InvitationsPage() {
     );
   }, [firestore, user?.uid]);
 
-  const { data: memberships, isLoading, error } = useCollection<TeamMemberInvitation>(teamMembershipsQuery);
+  const { data: memberships, isLoading, error } = useCollection<TeamMemberInvitation>(membershipsQuery);
   
-  // Filter the fetched memberships on the client-side
   const pendingInvitations = useMemo(() => {
       return memberships?.filter(m => m.status === 'pending') || [];
   }, [memberships]);
@@ -84,7 +82,6 @@ export default function InvitationsPage() {
   const updateInvitationStatus = async (invitation: TeamMemberInvitation, status: 'accepted' | 'declined') => {
     if (!firestore || !user) return;
 
-    // Use the full path to the document for updating.
     const teamMemberRef = doc(firestore, 'events', invitation.eventId, 'teamMembers', invitation.id);
     
     try {
