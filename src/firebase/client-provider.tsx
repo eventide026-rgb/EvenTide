@@ -51,7 +51,7 @@ const sampleMagazineIssues = [
 
 async function seedAdminUsers(auth: any, firestore: any) {
   const defaultPassword = 'password123';
-  const usersCollection = collection(firestore, "events");
+  const usersCollection = collection(firestore, "users");
 
   for (const admin of adminUsers) {
     // Check if user already exists in Firestore
@@ -59,11 +59,11 @@ async function seedAdminUsers(auth: any, firestore: any) {
     const userSnapshot = await getDocs(userQuery);
 
     if (userSnapshot.empty) {
-      // User does not exist, so create them
+      // User does not exist in Firestore, so attempt to create in Auth and Firestore
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, admin.email, defaultPassword);
         const user = userCredential.user;
-        const userDocRef = doc(firestore, "events", user.uid);
+        const userDocRef = doc(firestore, "users", user.uid);
         await setDoc(userDocRef, {
           id: user.uid,
           email: admin.email,
@@ -74,18 +74,20 @@ async function seedAdminUsers(auth: any, firestore: any) {
         });
         console.log(`Created admin user: ${admin.email}`);
       } catch (error: any) {
-        // This catch block is for createUserWithEmailAndPassword errors, though less likely now
-        console.error(`Error seeding admin user ${admin.email}:`, error);
+        if (error.code === 'auth/email-already-in-use') {
+            console.log(`Admin user ${admin.email} already exists in Auth. Skipping Auth creation.`);
+        } else {
+            // Handle other errors during creation
+            console.error(`Error seeding admin user ${admin.email}:`, error);
+        }
       }
-    } else {
-      console.log(`Admin user ${admin.email} already exists. Skipping creation.`);
     }
   }
 }
 
 async function seedMagazineIssues(firestore: any) {
-    const issuesCollection = collection(firestore, "events");
-    const snapshot = await getDocs(query(issuesCollection));
+    const issuesCollection = collection(firestore, "magazineIssues");
+    const snapshot = await getDocs(query(issuesCollection, limit(1)));
     
     if (snapshot.empty) {
         console.log("No magazine issues found. Seeding database...");
@@ -96,8 +98,6 @@ async function seedMagazineIssues(firestore: any) {
         });
         await batch.commit();
         console.log("Magazine issues seeded successfully.");
-    } else {
-        console.log("Magazine issues already exist. Skipping seed.");
     }
 }
 
