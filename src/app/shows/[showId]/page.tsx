@@ -41,7 +41,7 @@ type Show = {
   name: string;
   description: string;
   location: string;
-  eventDate: string | Date;
+  eventDate: any; // Can be Firestore Timestamp or string
   imageUrls?: string[];
 };
 
@@ -133,6 +133,15 @@ export default function ShowDetailPage({
 
     router.push(`/shows/${showId}/purchase?${queryParams.toString()}`);
   };
+  
+  const getFormattedDate = (date: any): string => {
+    if (!date) return 'Date not available';
+    if (date.toDate) return format(date.toDate(), 'PPP p'); // Firestore Timestamp
+    if (date instanceof Date) return format(date, 'PPP p'); // JavaScript Date
+    const parsedDate = new Date(date);
+    if (!isNaN(parsedDate.getTime())) return format(parsedDate, 'PPP p');
+    return 'Invalid Date';
+  }
 
   if (isLoading) {
     return (
@@ -188,7 +197,7 @@ export default function ShowDetailPage({
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
                       <span>
-                        {format(new Date(show.eventDate), 'PPP p')}
+                        {getFormattedDate(show.eventDate)}
                       </span>
                     </div>
 
