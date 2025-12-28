@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
@@ -80,9 +79,9 @@ function GuestManagementComponent() {
   const { data: ownerEvents } = useCollection<Event>(ownerEventsQuery);
 
   const plannerManagedEventsQuery = useMemoFirebase(() => {
-    if (!firestore || eventIds.length === 0) return null;
+    if (!firestore || !user?.uid || eventIds.length === 0) return null;
     return query(collection(firestore, 'events'), where(documentId(), 'in', eventIds));
-  }, [firestore, eventIds]);
+  }, [firestore, user?.uid, eventIds]);
   const { data: plannerEvents } = useCollection<Event>(plannerManagedEventsQuery);
 
   const events = useMemo(() => {
@@ -324,3 +323,5 @@ export function GuestManagement() {
         </Suspense>
     )
 }
+
+    
