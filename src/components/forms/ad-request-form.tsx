@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -24,6 +25,7 @@ import { errorEmitter } from "@/firebase/error-emitter";
 const formSchema = z.object({
   name: z.string().min(2, { message: "Please enter your name or business name." }),
   email: z.string().email({ message: "Please enter a valid contact email." }),
+  phoneNumber: z.string().optional(),
   subject: z.string().min(5, { message: "Subject must be at least 5 characters." }),
   concept: z.string().min(20, { message: "Concept must be at least 20 characters." }),
 });
@@ -38,6 +40,7 @@ export function AdRequestForm() {
         defaultValues: {
             name: "",
             email: "",
+            phoneNumber: "",
             subject: "",
             concept: "",
         },
@@ -60,7 +63,7 @@ export function AdRequestForm() {
             createdAt: new Date(),
         };
 
-        const adRequestsCol = collection(firestore, "events");
+        const adRequestsCol = collection(firestore, "adRequests");
 
         addDoc(adRequestsCol, adRequestData)
             .then((docRef) => {
@@ -106,19 +109,34 @@ export function AdRequestForm() {
                         </FormItem>
                     )}
                 />
-                <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Contact Email</FormLabel>
-                            <FormControl>
-                                <Input placeholder="name@example.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                 <div className="grid md:grid-cols-2 gap-6">
+                    <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Contact Email</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="name@example.com" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="phoneNumber"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Contact Telephone Number (Optional)</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="+234..." {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
                 <FormField
                     control={form.control}
                     name="subject"
