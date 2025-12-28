@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/select';
 import { NigerianStatesAndCities } from '@/lib/nigerian-states';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, DragEvent } from 'react';
 import { useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { addDoc, collection, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
@@ -34,6 +34,7 @@ import { Checkbox } from '../ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
 const amenityOptions = ["Wi-Fi", "Pool", "Gym", "Parking", "Restaurant", "Room Service", "Air Conditioning"];
 
@@ -65,6 +66,9 @@ export function HotelForm({ hotelId }: HotelFormProps) {
     const firestore = useFirestore();
     const { user } = useUser();
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [draggedImageIndex, setDraggedImageIndex] = useState<number | null>(null);
+    const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
 
     const isEditMode = !!hotelId;
 
@@ -108,7 +112,7 @@ export function HotelForm({ hotelId }: HotelFormProps) {
                 }
             });
         };
-    }, [imageUrls]);
+    }, []);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
@@ -127,6 +131,37 @@ export function HotelForm({ hotelId }: HotelFormProps) {
         newImageUrls.splice(index, 1);
         form.setValue('imageUrls', newImageUrls);
     }
+    
+    const handleDragStart = (index: number) => {
+        setDraggedImageIndex(index);
+    };
+
+    const handleDragEnter = (index: number) => {
+        setDropTargetIndex(index);
+    };
+
+    const handleDragEnd = () => {
+        if (draggedImageIndex === null || dropTargetIndex === null || draggedImageIndex === dropTargetIndex) {
+            resetDragState();
+            return;
+        }
+        
+        const newImageUrls = [...imageUrls];
+        const [draggedImage] = newImageUrls.splice(draggedImageIndex, 1);
+        newImageUrls.splice(dropTargetIndex, 0, draggedImage);
+        
+        form.setValue('imageUrls', newImageUrls, { shouldDirty: true });
+        resetDragState();
+    };
+
+    const resetDragState = () => {
+        setDraggedImageIndex(null);
+        setDropTargetIndex(null);
+    }
+    
+    const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+    };
 
 
     const selectedState = form.watch('state');
@@ -303,7 +338,7 @@ export function HotelForm({ hotelId }: HotelFormProps) {
                 
                  <div className="space-y-4">
                     <FormLabel>Hotel Images</FormLabel>
-                    <FormDescription>Upload at least one high-quality image of your property.</FormDescription>
+                    <FormDescription>Upload at least one high-quality image of your property. Click and drag to reorder images.</FormDescription>
                     <div
                         className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-accent"
                         onClick={() => fileInputRef.current?.click()}
@@ -327,19 +362,31 @@ export function HotelForm({ hotelId }: HotelFormProps) {
                     {imageUrls.length > 0 && (
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                             {imageUrls.map((url, index) => (
-                                <div key={index} className="relative group">
-                                    <Image
-                                        src={url}
-                                        alt={`Preview ${index + 1}`}
-                                        width={200}
-                                        height={150}
-                                        className="rounded-md object-cover aspect-video"
-                                    />
+                                <div 
+                                    key={url} 
+                                    className="relative group cursor-grab"
+                                    draggable
+                                    onDragStart={() => handleDragStart(index)}
+                                    onDragEnter={() => handleDragEnter(index)}
+                                    onDragEnd={handleDragEnd}
+                                    onDragOver={handleDragOver}
+                                >
+                                    <div className={cn("aspect-video relative rounded-md overflow-hidden border-2 transition-all", 
+                                        draggedImageIndex === index && "opacity-50",
+                                        dropTargetIndex === index && "border-primary scale-105"
+                                    )}>
+                                        <Image
+                                            src={url}
+                                            alt={`Preview ${index + 1}`}
+                                            fill
+                                            className="object-cover"
+                                        />
+                                    </div>
                                     <Button
                                         type="button"
                                         variant="destructive"
                                         size="icon"
-                                        className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                         onClick={() => removeImage(index)}
                                     >
                                         <X className="h-4 w-4" />
