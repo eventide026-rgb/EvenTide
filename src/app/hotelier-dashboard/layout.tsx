@@ -48,6 +48,13 @@ export default function HotelierDashboardLayout({ children }: { children: React.
     }
   };
 
+  const isNavItemActive = (href: string) => {
+    if (href === "/hotelier-dashboard") {
+      return pathname === href;
+    }
+    return pathname.startsWith(href);
+  };
+
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full flex-row bg-muted/40 overflow-hidden">
@@ -62,9 +69,9 @@ export default function HotelierDashboardLayout({ children }: { children: React.
             <SidebarMenu>
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <Link href={item.href} legacyBehavior passHref>
+                  <Link href={item.href}>
                     <SidebarMenuButton
-                      isActive={pathname === item.href}
+                      isActive={isNavItemActive(item.href)}
                       tooltip={{ children: item.label }}
                     >
                       <item.icon />
@@ -78,7 +85,7 @@ export default function HotelierDashboardLayout({ children }: { children: React.
           <SidebarFooter>
             <SidebarMenu>
               <SidebarMenuItem>
-                  <Link href="/hotelier-dashboard/profile" legacyBehavior passHref>
+                  <Link href="/hotelier-dashboard/profile">
                       <SidebarMenuButton
                           isActive={pathname === "/hotelier-dashboard/profile"}
                           tooltip={{ children: 'Profile' }}
