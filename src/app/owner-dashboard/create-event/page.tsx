@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -144,7 +145,7 @@ export default function CreateEventWizardPage() {
                 status: 'pending',
                 invitedAt: serverTimestamp(),
                 eventName: data.name,
-                eventDate: data.eventDate,
+                eventDate: serverTimestamp(),
                 ownerId: user.uid,
             };
             batch.set(plannerAssignmentRef, plannerInvitationData);
