@@ -45,6 +45,7 @@ type Guest = {
     rsvpStatus: 'Pending' | 'Accepted' | 'Declined';
     hasCheckedIn: boolean;
     serialNumber?: number;
+    guestCode: string;
 };
 
 const guestFormSchema = z.object({
@@ -150,9 +151,12 @@ function GuestManagementComponent() {
     const guestCollectionRef = collection(firestore, 'events', selectedEventId, 'guests');
     
     const guestId = `gst-${doc(guestCollectionRef).id.substring(0, 8)}`;
+    const guestCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
 
     const newGuestData = {
         guestId: guestId,
+        guestCode: guestCode,
         name: values.name,
         email: values.email,
         phoneNumber: values.phoneNumber,
@@ -192,7 +196,7 @@ function GuestManagementComponent() {
     const guestRef = doc(firestore, 'events', selectedEventId, 'guests', editingGuest.id);
     
     try {
-        await updateDoc(guestRef, values);
+        await updateDoc(guestRef, { ...values });
         toast({ title: "Guest Updated", description: `${values.name}'s information has been saved.` });
         setEditingGuest(null);
     } catch (error) {
@@ -238,6 +242,7 @@ function GuestManagementComponent() {
   const isFormSubmitting = guestForm.formState.isSubmitting;
   
   const capacityPercentage = guestLimit > 0 ? (guestCount / guestLimit) * 100 : 0;
+  const isOwner = user?.uid === selectedEvent?.ownerId;
 
   return (
     <div className="grid md:grid-cols-3 gap-8 items-start h-full">
@@ -274,6 +279,7 @@ function GuestManagementComponent() {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Name</TableHead>
+                                    {isOwner && <TableHead>Guest Code</TableHead>}
                                     <TableHead>Category</TableHead>
                                     <TableHead>RSVP</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
@@ -283,6 +289,7 @@ function GuestManagementComponent() {
                                 {guests.map(guest => (
                                     <TableRow key={guest.id}>
                                         <TableCell className="font-medium">{guest.name}</TableCell>
+                                        {isOwner && <TableCell><Badge variant="secondary">{guest.guestCode}</Badge></TableCell>}
                                         <TableCell><Badge variant="outline">{guest.category}</Badge></TableCell>
                                         <TableCell>{guest.rsvpStatus}</TableCell>
                                         <TableCell className="text-right">
