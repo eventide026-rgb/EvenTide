@@ -247,9 +247,7 @@ service cloud.firestore {
        match /guests/{guestId} {
         allow get: if canReadEventData(eventId) || isOwner(guestId);
         allow list: if isEventStaff(eventId);
-        allow create: if (isEventOwner(eventId) || isEventPlanner(eventId)) && 
-                       (get(/databases/$(database)/documents/events/$(eventId)).data.guestCount || 0) < 
-                       (get(/databases/$(database)/documents/events/$(eventId)).data.guestLimit || 20);
+        allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
         allow update: if (isEventStaff(eventId) || isOwner(guestId)) && isExistingDoc();
         allow delete: if isEventStaff(eventId) && isExistingDoc();
       }
@@ -405,3 +403,5 @@ service cloud.firestore {
 
   }
 }
+
+    
