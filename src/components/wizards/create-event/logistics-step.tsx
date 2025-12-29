@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { CalendarIcon, Clock } from 'lucide-react';
+import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 
@@ -41,62 +41,49 @@ export function LogisticsStep() {
         render={({ field }) => (
           <FormItem className="flex flex-col">
             <FormLabel>Event Date & Time</FormLabel>
-            <div className="flex flex-col sm:flex-row gap-2">
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <FormControl>
-                        <Button
-                            variant={"outline"}
-                            className={cn(
-                                "flex-1 pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                            )}
-                        >
-                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                        </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
-                            initialFocus
-                        />
-                    </PopoverContent>
-                </Popover>
-
-                 <Popover>
-                    <PopoverTrigger asChild>
-                        <FormControl>
-                        <Button
-                            variant={"outline"}
-                            className={cn(
-                                "flex-1 pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                            )}
-                        >
-                            {field.value ? format(field.value, "p") : <span>Set time</span>}
-                            <Clock className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                        </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                         <div className="p-2">
-                            <Input type="time" defaultValue={field.value ? format(field.value, 'HH:mm') : '12:00'} onChange={(e) => {
-                                const [hours, minutes] = e.target.value.split(':');
-                                const newDate = new Date(field.value || new Date());
-                                newDate.setHours(parseInt(hours), parseInt(minutes));
-                                field.onChange(newDate);
-                            }} />
-                        </div>
-                    </PopoverContent>
-                </Popover>
-            </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <FormControl>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "pl-3 text-left font-normal",
+                      !field.value && "text-muted-foreground"
+                    )}
+                  >
+                    {field.value ? (
+                      format(field.value, "PPP p")
+                    ) : (
+                      <span>Pick a date and time</span>
+                    )}
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={field.value}
+                  onSelect={field.onChange}
+                  disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                  initialFocus
+                />
+                <div className="p-2 border-t border-border">
+                    <Input 
+                        type="time" 
+                        defaultValue={field.value ? format(field.value, 'HH:mm') : '12:00'}
+                        onChange={(e) => {
+                            const [hours, minutes] = e.target.value.split(':');
+                            const newDate = new Date(field.value || new Date());
+                            newDate.setHours(parseInt(hours, 10), parseInt(minutes, 10));
+                            field.onChange(newDate);
+                        }}
+                    />
+                </div>
+              </PopoverContent>
+            </Popover>
             <FormDescription>
-              Select the date first, then set the time.
+              Select the date and time for your event.
             </FormDescription>
             <FormMessage />
           </FormItem>
