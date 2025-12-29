@@ -138,6 +138,15 @@ function GuestManagementComponent() {
         return;
     }
 
+    if (values.category === 'Chairperson' && guests?.some(g => g.category === 'Chairperson')) {
+        toast({
+            variant: "destructive",
+            title: "Chairperson Already Exists",
+            description: "An event can only have one chairperson.",
+        });
+        return;
+    }
+
     const guestCollectionRef = collection(firestore, 'events', selectedEventId, 'guests');
     
     const guestId = `gst-${doc(guestCollectionRef).id.substring(0, 8)}`;
@@ -153,25 +162,32 @@ function GuestManagementComponent() {
         createdAt: serverTimestamp(),
     };
 
-    addDoc(guestCollectionRef, newGuestData)
-        .then(() => {
-            // Update guest count on the event document
-            updateDoc(selectedEventRef, { guestCount: guestCount + 1 });
-            toast({ title: 'Guest Added', description: `${values.name} has been added to your guest list.` });
-            guestForm.reset();
-        })
-        .catch(async (serverError) => {
-            console.error("Error adding guest:", serverError);
-            toast({
-                variant: 'destructive',
-                title: "Failed to Add Guest",
-                description: "You may have reached your plan's guest limit or lack permissions."
-            })
+    try {
+        await addDoc(guestCollectionRef, newGuestData);
+        await updateDoc(selectedEventRef, { guestCount: guestCount + 1 });
+        toast({ title: 'Guest Added', description: `${values.name} has been added to your guest list.` });
+        guestForm.reset();
+    } catch (error) {
+        console.error("Error adding guest:", error);
+        toast({
+            variant: 'destructive',
+            title: "Failed to Add Guest",
+            description: "You may have reached your plan's guest limit or lack permissions."
         });
+    }
   };
 
   const handleUpdateGuest = async (values: z.infer<typeof guestFormSchema>) => {
     if (!firestore || !selectedEventId || !editingGuest) return;
+
+    if (values.category === 'Chairperson' && guests?.some(g => g.category === 'Chairperson' && g.id !== editingGuest.id)) {
+        toast({
+            variant: "destructive",
+            title: "Chairperson Already Exists",
+            description: "An event can only have one chairperson.",
+        });
+        return;
+    }
     
     const guestRef = doc(firestore, 'events', selectedEventId, 'guests', editingGuest.id);
     
