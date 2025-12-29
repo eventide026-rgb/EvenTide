@@ -111,6 +111,7 @@ export function TeamManagement() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [foundUser, setFoundUser] = useState<UserProfile | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [teamMemberProfiles, setTeamMemberProfiles] = useState<UserProfile[]>([]);
 
   const form = useForm<z.infer<typeof inviteFormSchema>>({
     resolver: zodResolver(inviteFormSchema),
@@ -148,7 +149,7 @@ export function TeamManagement() {
   const isLoadingTeam = isLoadingPlanners || isLoadingCohosts || isLoadingSecurity;
 
   const teamMembers = useMemo(() => {
-    const allMembers: TeamMember[] = [];
+    const allMembers: Omit<TeamMember, 'user'>[] = [];
     if (planners) {
         allMembers.push(...planners.map((p: any) => ({ ...p, role: 'Planner' })));
     }
@@ -160,6 +161,45 @@ export function TeamManagement() {
     }
     return allMembers;
   }, [planners, cohosts, security]);
+
+  useEffect(() => {
+    const fetchTeamProfiles = async () => {
+        if (!firestore || teamMembers.length === 0) {
+            setTeamMemberProfiles([]);
+            return;
+        }
+
+        const userIds = [...new Set(teamMembers.map(m => m.userId || m.id))];
+        if (userIds.length === 0) return;
+
+        try {
+            const usersRef = collection(firestore, 'users');
+            const q = query(usersRef, where(documentId(), 'in', userIds));
+            const querySnapshot = await getDocs(q);
+            const profiles = querySnapshot.docs.map(d => ({id: d.id, ...d.data()} as UserProfile));
+            setTeamMemberProfiles(profiles);
+        } catch (error) {
+            console.error("Error fetching team profiles: ", error);
+        }
+    };
+    fetchTeamProfiles();
+  }, [teamMembers, firestore]);
+
+  const teamMembersWithProfiles = useMemo(() => {
+    return teamMembers.map(member => {
+        const profile = teamMemberProfiles.find(p => p.id === (member.userId || member.id));
+        return {
+            ...member,
+            user: profile || {
+                id: member.userId,
+                firstName: 'Unknown',
+                lastName: 'User',
+                email: '',
+                role: ''
+            }
+        }
+    })
+  }, [teamMembers, teamMemberProfiles])
 
   const handleSearchUser = async () => {
       if (!firestore) return;
@@ -238,7 +278,7 @@ export function TeamManagement() {
         <CardContent>
             {isLoadingTeam ? (
                  <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
-            ) : teamMembers && teamMembers.length > 0 ? (
+            ) : teamMembersWithProfiles && teamMembersWithProfiles.length > 0 ? (
                  <div className="rounded-md border">
                     <Table>
                         <TableHeader><TableRow>
@@ -248,9 +288,9 @@ export function TeamManagement() {
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow></TableHeader>
                         <TableBody>
-                            {teamMembers.map(member => (
+                            {teamMembersWithProfiles.map(member => (
                                 <TableRow key={member.id}>
-                                    <TableCell>{member.userId}</TableCell>
+                                    <TableCell>{member.user.firstName} {member.user.lastName}</TableCell>
                                     <TableCell><Badge variant="secondary">{member.role}</Badge></TableCell>
                                     <TableCell>{member.status || 'Accepted'}</TableCell>
                                     <TableCell className="text-right">
@@ -338,5 +378,3 @@ export function TeamManagement() {
     </div>
   );
 }
-
-    
