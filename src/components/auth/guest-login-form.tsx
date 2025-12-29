@@ -55,7 +55,11 @@ export function GuestLoginForm() {
             <FormItem>
               <FormLabel>Event Code</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., WEO-O2CAP5" {...field} />
+                <Input
+                  placeholder="e.g., WEO-O2CAP5"
+                  {...field}
+                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -68,7 +72,11 @@ export function GuestLoginForm() {
             <FormItem>
               <FormLabel>Guest Code</FormLabel>
               <FormControl>
-                <Input placeholder="Your unique guest code" {...field} />
+                <Input
+                  placeholder="Your unique guest code"
+                  {...field}
+                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
