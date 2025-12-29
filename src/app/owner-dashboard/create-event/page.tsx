@@ -18,6 +18,7 @@ import { addDoc, collection, serverTimestamp, doc, writeBatch } from 'firebase/f
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 const steps: Step[] = [
   { id: '01', name: 'Core Details', fields: ['name', 'description'] },
@@ -59,6 +60,7 @@ const getInitialValues = () => {
 export default function CreateEventWizardPage() {
     const [currentStep, setCurrentStep] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [eventCode, setEventCode] = useState('');
     const { toast } = useToast();
     const firestore = useFirestore();
     const { user } = useUser();
@@ -70,6 +72,15 @@ export default function CreateEventWizardPage() {
     });
 
     const { trigger, watch } = methods;
+
+    const eventType = watch('eventType');
+
+    useEffect(() => {
+        if (eventType) {
+            const code = `${eventType.substring(0, 3).toUpperCase()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+            setEventCode(code);
+        }
+    }, [eventType]);
 
     useEffect(() => {
         const subscription = watch((value) => {
@@ -103,8 +114,6 @@ export default function CreateEventWizardPage() {
 
         try {
             const batch = writeBatch(firestore);
-
-            const eventCode = `${data.eventType.substring(0, 2).toUpperCase()}O-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
             
             const newEventRef = doc(collection(firestore, "events"));
 
@@ -159,9 +168,14 @@ export default function CreateEventWizardPage() {
                 <Stepper steps={steps} currentStep={currentStep} />
                 <Card>
                     <CardHeader>
-                        <h2 className="text-xl font-semibold text-foreground">
-                            Step {currentStep + 1}: {steps[currentStep].name}
-                        </h2>
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-xl font-semibold text-foreground">
+                                Step {currentStep + 1}: {steps[currentStep].name}
+                            </h2>
+                            {currentStep === 1 && eventCode && (
+                                <Badge variant="outline">Event Code: {eventCode}</Badge>
+                            )}
+                        </div>
                     </CardHeader>
                      <CardContent>
                         <form onSubmit={methods.handleSubmit(onFinalSubmit)}>
