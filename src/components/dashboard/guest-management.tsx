@@ -60,6 +60,7 @@ function GuestManagementComponent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
 
   const guestForm = useForm<z.infer<typeof guestFormSchema>>({
     resolver: zodResolver(guestFormSchema),
@@ -112,6 +113,14 @@ function GuestManagementComponent() {
       setSelectedEventId(events[0].id);
     }
   }, [events, selectedEventId]);
+  
+  useEffect(() => {
+    if (editingGuest) {
+      guestForm.reset(editingGuest);
+    } else {
+      guestForm.reset({ name: '', email: '', phoneNumber: '', category: 'General' });
+    }
+  }, [editingGuest, guestForm]);
 
   const guestCount = guests?.length || 0;
   const guestLimit = selectedEvent?.guestLimit || 20;
@@ -161,6 +170,29 @@ function GuestManagementComponent() {
         });
   };
 
+  const handleUpdateGuest = async (values: z.infer<typeof guestFormSchema>) => {
+    if (!firestore || !selectedEventId || !editingGuest) return;
+    
+    const guestRef = doc(firestore, 'events', selectedEventId, 'guests', editingGuest.id);
+    
+    try {
+        await updateDoc(guestRef, values);
+        toast({ title: "Guest Updated", description: `${values.name}'s information has been saved.` });
+        setEditingGuest(null);
+    } catch (error) {
+        console.error("Error updating guest:", error);
+        toast({ variant: 'destructive', title: "Update Failed", description: "Could not save guest information." });
+    }
+  };
+  
+  const handleFormSubmit = (values: z.infer<typeof guestFormSchema>) => {
+    if (editingGuest) {
+      handleUpdateGuest(values);
+    } else {
+      handleAddGuest(values);
+    }
+  };
+
   const handleSendInvitation = (guestName: string) => {
     toast({
         title: "Invitation Sent!",
@@ -173,14 +205,17 @@ function GuestManagementComponent() {
       
       const guestRef = doc(firestore, 'events', selectedEventId, 'guests', guest.id);
       
-      await deleteDoc(guestRef);
-      
-      await updateDoc(selectedEventRef, { guestCount: guestCount - 1 });
-      
-      toast({
-          title: "Guest Removed",
-          description: `${guest.name} has been removed from the list.`
-      });
+      try {
+        await deleteDoc(guestRef);
+        await updateDoc(selectedEventRef, { guestCount: guestCount - 1 });
+        toast({
+            title: "Guest Removed",
+            description: `${guest.name} has been removed from the list.`
+        });
+      } catch (error) {
+          console.error("Error deleting guest:", error);
+          toast({ variant: 'destructive', title: 'Deletion Failed' });
+      }
   }
 
   const isLoading = isUserLoading;
@@ -236,7 +271,7 @@ function GuestManagementComponent() {
                                         <TableCell>{guest.rsvpStatus}</TableCell>
                                         <TableCell className="text-right">
                                             <Button variant="ghost" size="icon" onClick={() => handleSendInvitation(guest.name)}><Send className="h-4 w-4" /></Button>
-                                            <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
+                                            <Button variant="ghost" size="icon" onClick={() => setEditingGuest(guest)}><Edit className="h-4 w-4" /></Button>
                                             <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteGuest(guest)}><Trash2 className="h-4 w-4" /></Button>
                                         </TableCell>
                                     </TableRow>
@@ -268,7 +303,7 @@ function GuestManagementComponent() {
         )}
         <Card>
             <CardHeader>
-                <CardTitle>Add New Guest</CardTitle>
+                <CardTitle>{editingGuest ? 'Edit Guest' : 'Add New Guest'}</CardTitle>
             </CardHeader>
             <CardContent>
                  <div className="space-y-4">
@@ -294,7 +329,7 @@ function GuestManagementComponent() {
                             </Select>
                         )}
                     </div>
-                    {atCapacity ? (
+                    {atCapacity && !editingGuest ? (
                         <div className="pt-4 border-t text-center">
                             <h3 className="font-semibold text-destructive">Guest Limit Reached</h3>
                             <p className="text-sm text-muted-foreground mt-1 mb-4">Upgrade your plan to add more than {guestLimit} guests.</p>
@@ -306,7 +341,7 @@ function GuestManagementComponent() {
                         </div>
                     ) : (
                         <Form {...guestForm}>
-                            <form onSubmit={guestForm.handleSubmit(handleAddGuest)} className="space-y-4 pt-4 border-t">
+                            <form onSubmit={guestForm.handleSubmit(handleFormSubmit)} className="space-y-4 pt-4 border-t">
                                 <FormField control={guestForm.control} name="name" render={({ field }) => (
                                     <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="e.g., Jane Doe" {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
@@ -315,7 +350,7 @@ function GuestManagementComponent() {
                                 )}/>
                                 <FormField control={guestForm.control} name="category" render={({ field }) => (
                                     <FormItem><FormLabel>Category</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
                                             <SelectTrigger><SelectValue placeholder="Select a category" /></SelectTrigger>
                                         </FormControl>
@@ -330,10 +365,17 @@ function GuestManagementComponent() {
                                     </Select>
                                     <FormMessage /></FormItem>
                                 )}/>
-                                <Button type="submit" className="w-full" disabled={!selectedEventId || isFormSubmitting}>
-                                    {isFormSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
-                                    {isFormSubmitting ? "Adding Guest..." : "Add Guest"}
-                                </Button>
+                                <div className="flex gap-2">
+                                  {editingGuest && (
+                                    <Button type="button" variant="outline" onClick={() => setEditingGuest(null)} className="w-full">
+                                      Cancel
+                                    </Button>
+                                  )}
+                                  <Button type="submit" className="w-full" disabled={!selectedEventId || isFormSubmitting}>
+                                      {isFormSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : editingGuest ? null : <PlusCircle className="mr-2 h-4 w-4" />}
+                                      {isFormSubmitting ? "Saving..." : editingGuest ? "Save Changes" : "Add Guest"}
+                                  </Button>
+                                </div>
                             </form>
                         </Form>
                     )}
