@@ -174,7 +174,7 @@ service cloud.firestore {
     
     match /events/{eventId} {
       // Planner can read events they are assigned to.
-      allow get: if isEventOwner(eventId) || isEventPlanner(eventId) || isEventPlannerByAssignment();
+      allow get: if isEventStaff(eventId) || isEventPlannerByAssignment();
       // Only allow listing events if the query is constrained by planner's assigned event IDs.
       allow list: if isSignedIn() && request.query.keys.size() > 0;
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
@@ -249,9 +249,7 @@ service cloud.firestore {
        match /guests/{guestId} {
         allow get: if canReadEventData(eventId) || isOwner(guestId);
         allow list: if isEventStaff(eventId);
-        allow create: if (isEventOwner(eventId) || isEventPlanner(eventId)) && 
-                       (get(/databases/$(database)/documents/events/$(eventId)).data.guestCount || 0) < 
-                       (get(/databases/$(database)/documents/events/$(eventId)).data.guestLimit || 20);
+        allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
         allow update: if (isEventStaff(eventId) || isOwner(guestId)) && isExistingDoc();
         allow delete: if isEventStaff(eventId) && isExistingDoc();
       }
@@ -271,15 +269,10 @@ service cloud.firestore {
 
    match /events/{eventId}/planners/{plannerId} {
       allow get, list: if canReadEventData(eventId);
-
-      allow create: if
-        isEventOwner(eventId) ||
-        isEventOwnerOnCreate();
-
+      allow create: if isEventOwnerOnCreate();
       allow update: if isEventOwner(eventId) && isExistingDoc();
       allow delete: if isEventOwner(eventId) && isExistingDoc();
-
-    }
+   }
 
     match /events/{eventId}/cohosts/{cohostId} {
       allow get, list: if canReadEventData(eventId);
