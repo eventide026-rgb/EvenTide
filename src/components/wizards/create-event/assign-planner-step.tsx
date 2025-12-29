@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useFormContext } from 'react-hook-form';
@@ -68,7 +69,7 @@ export function AssignPlannerStep() {
   const handleAssign = () => {
       if (foundPlanner) {
           setValue('plannerId', foundPlanner.id);
-          toast({ title: "Planner Assigned!", description: `${foundPlanner.firstName} ${foundPlanner.lastName} is now assigned to this event.`});
+          toast({ title: "Planner Assigned!", description: `${foundPlanner.firstName} ${foundPlanner.lastName} will be invited to plan this event upon creation.`});
       }
   }
 

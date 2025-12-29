@@ -129,15 +129,28 @@ export default function CreateEventWizardPage() {
             };
             batch.set(newEventRef, eventData);
 
-            // If a planner was assigned, create the necessary documents
+            // If a planner was assigned, create the necessary documents and a notification
             if (data.plannerId) {
-                // Create the planner document in the event's subcollection
-                const plannerRef = doc(firestore, "events", newEventRef.id, "planners", data.plannerId);
-                batch.set(plannerRef, { status: 'pending', addedAt: serverTimestamp() });
+                // Add planner to the event's team
+                const teamMemberRef = doc(firestore, "events", newEventRef.id, "teamMembers", data.plannerId);
+                batch.set(teamMemberRef, {
+                    userId: data.plannerId,
+                    role: 'Planner',
+                    status: 'pending',
+                    invitedAt: serverTimestamp(),
+                    eventName: data.name,
+                    eventDate: data.eventDate
+                });
 
-                // Create the assignment document in the planner's top-level collection
-                const plannerAssignmentRef = doc(firestore, "planners", data.plannerId, "assignments", newEventRef.id);
-                batch.set(plannerAssignmentRef, { eventId: newEventRef.id, status: 'pending' });
+                // Create a notification for the planner
+                const notificationRef = doc(collection(firestore, 'users', data.plannerId, 'notifications'));
+                batch.set(notificationRef, {
+                    message: `You've been invited by ${user.displayName || user.email} to plan the event: "${data.name}".`,
+                    link: '/planner-dashboard/invitations',
+                    read: false,
+                    createdAt: serverTimestamp(),
+                    userId: data.plannerId
+                });
             }
 
             await batch.commit();
