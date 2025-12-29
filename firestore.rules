@@ -31,8 +31,8 @@ service cloud.firestore {
     }
     
     function isShowOwner(showId) {
-        let showData = getShow(showId).data;
-        return isSignedIn() && showData.ownerId == request.auth.uid;
+        // Use `resource.data` for existing documents
+        return isSignedIn() && resource.data.ownerId == request.auth.uid;
     }
 
     function getEvent(eventId) {
