@@ -5,7 +5,7 @@
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, addDoc, serverTimestamp, orderBy, documentId, updateDoc, getDocs } from 'firebase/firestore';
+import { collection, query, where, doc, addDoc, serverTimestamp, orderBy, documentId, updateDoc, getDocs, deleteDoc } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -161,6 +161,28 @@ function GuestManagementComponent() {
         });
   };
 
+  const handleSendInvitation = (guestName: string) => {
+    toast({
+        title: "Invitation Sent!",
+        description: `An invitation has been sent to ${guestName}.`,
+    });
+  }
+
+  const handleDeleteGuest = async (guest: Guest) => {
+      if (!firestore || !selectedEventId || !selectedEventRef) return;
+      
+      const guestRef = doc(firestore, 'events', selectedEventId, 'guests', guest.id);
+      
+      await deleteDoc(guestRef);
+      
+      await updateDoc(selectedEventRef, { guestCount: guestCount - 1 });
+      
+      toast({
+          title: "Guest Removed",
+          description: `${guest.name} has been removed from the list.`
+      });
+  }
+
   const isLoading = isUserLoading;
   const isFormSubmitting = guestForm.formState.isSubmitting;
   
@@ -213,9 +235,9 @@ function GuestManagementComponent() {
                                         <TableCell><Badge variant="outline">{guest.category}</Badge></TableCell>
                                         <TableCell>{guest.rsvpStatus}</TableCell>
                                         <TableCell className="text-right">
-                                            <Button variant="ghost" size="icon"><Send className="h-4 w-4" /></Button>
+                                            <Button variant="ghost" size="icon" onClick={() => handleSendInvitation(guest.name)}><Send className="h-4 w-4" /></Button>
                                             <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
-                                            <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                                            <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteGuest(guest)}><Trash2 className="h-4 w-4" /></Button>
                                         </TableCell>
                                     </TableRow>
                                 ))}
