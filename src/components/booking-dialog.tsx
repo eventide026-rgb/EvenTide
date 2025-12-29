@@ -61,8 +61,8 @@ export function BookingDialog({ hotel, roomType, user, isUserLoading }: BookingD
       userEmail: user.email,
       hotelName: hotel.name,
       roomTypeName: roomType.name,
-      checkInDate: serverTimestamp.call(null, dateRange.from),
-      checkOutDate: serverTimestamp.call(null, dateRange.to),
+      checkInDate: dateRange.from,
+      checkOutDate: dateRange.to,
       numberOfGuests: guests,
       totalPrice,
       status: 'pending' as const,
@@ -75,10 +75,6 @@ export function BookingDialog({ hotel, roomType, user, isUserLoading }: BookingD
       // Write to the top-level bookings collection
       const topLevelBookingRef = doc(collection(firestore, 'bookings'));
       batch.set(topLevelBookingRef, bookingData);
-
-      // Write to the hotel's subcollection for per-hotel queries
-      const subCollectionBookingRef = doc(collection(firestore, 'hotels', hotel.id, 'bookings'));
-      batch.set(subCollectionBookingRef, bookingData);
 
       await batch.commit();
 

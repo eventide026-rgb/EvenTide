@@ -54,21 +54,6 @@ export default function BookingsPage() {
     batch.update(topLevelBookingRef, { status: newStatus });
     
     try {
-      // Since we don't know the ID of the document in the subcollection, we query for it.
-      // This is a trade-off for denormalization.
-      const subcollectionQuery = query(
-        collection(firestore, 'hotels', booking.hotelId, 'bookings'),
-        where('userId', '==', booking.userId),
-        where('checkInDate', '==', booking.checkInDate)
-      );
-      const subcollectionSnapshot = await getDocs(subcollectionQuery);
-      if (!subcollectionSnapshot.empty) {
-        const subcollectionDocRef = subcollectionSnapshot.docs[0].ref;
-        batch.update(subcollectionDocRef, { status: newStatus });
-      } else {
-        console.warn(`Could not find corresponding booking in subcollection for hotel ${booking.hotelId}`);
-      }
-
       await batch.commit();
       toast({
         title: 'Booking Updated',
