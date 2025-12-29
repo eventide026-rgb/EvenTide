@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Countdown } from '@/components/countdown';
+import { Label } from '@/components/ui/label';
 
 export const logisticsSchema = z.object({
   location: z.string().min(5, "Location is required."),
