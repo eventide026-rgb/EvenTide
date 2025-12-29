@@ -105,7 +105,7 @@ export default function GuestDashboardLayout({ children }: { children: React.Rea
                                     <group.icon className="h-5 w-5" />
                                     </Button>
                                 </TooltipTrigger>
-                                </TooltipTrigger>
+                                </PopoverTrigger>
                                 <TooltipContent side="right">
                                     <p>{group.title}</p>
                                 </TooltipContent>
