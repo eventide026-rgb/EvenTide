@@ -257,14 +257,14 @@ service cloud.firestore {
        
        
        
-       // 🔓 COLLECTION-LEVEL RULE (THIS IS WHAT WAS MISSING)
+       // COLLECTION-LEVEL RULE (THIS IS WHAT WAS MISSING)
 match /events/{eventId}/guests {
   allow list: if
     request.auth == null &&
     request.query.limit == 1;
 }
 
-// 📄 DOCUMENT-LEVEL RULE
+// DOCUMENT-LEVEL RULE
 match /events/{eventId}/guests/{guestId} {
 
   // Staff full access
@@ -279,7 +279,7 @@ match /events/{eventId}/guests/{guestId} {
   allow create: if
     isEventOwner(eventId) || isEventPlanner(eventId);
 
-  // 🔐 One-time UID linking
+  // One-time UID linking
   allow update: if
     request.auth != null &&
     resource.data.userProfileId == null &&
