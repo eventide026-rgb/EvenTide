@@ -4,24 +4,16 @@
  * @fileOverview An AI agent to generate a personalized thank-you note from a guest to a host.
  *
  * - generateThankYouNote - A function that generates a thank-you note draft.
- * - ThankYouNoteInput - The input type for the function.
- * - ThankYouNoteOutput - The return type for the function.
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
+import { 
+  ThankYouNoteInputSchema, 
+  ThankYouNoteOutputSchema,
+  type ThankYouNoteInput,
+  type ThankYouNoteOutput,
+} from '@/ai/schemas/thank-you-note-schema';
 
-export const ThankYouNoteInputSchema = z.object({
-  guestName: z.string().describe('The name of the guest sending the note.'),
-  eventName: z.string().describe('The name of the event they attended.'),
-  eventType: z.string().describe('The type of event (e.g., Wedding, Birthday).'),
-});
-export type ThankYouNoteInput = z.infer<typeof ThankYouNoteInputSchema>;
-
-export const ThankYouNoteOutputSchema = z.object({
-  note: z.string().describe('The generated thank-you note text.'),
-});
-export type ThankYouNoteOutput = z.infer<typeof ThankYouNoteOutputSchema>;
 
 export async function generateThankYouNote(input: ThankYouNoteInput): Promise<ThankYouNoteOutput> {
   return generateThankYouNoteFlow(input);
