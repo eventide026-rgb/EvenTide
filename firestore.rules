@@ -181,7 +181,34 @@ service cloud.firestore {
 
       match /tasks/{taskId} {
         allow read, create, update, delete: if isEventStaff(eventId);
+        		
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+
       }
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       
       match /expenses/{expenseId} {
         allow read: if isEventStaff(eventId);
@@ -245,30 +272,12 @@ service cloud.firestore {
       }
 
        match /guests/{guestId} {
-        // Allow staff and guests with event-level read rights, or allow get if the doc has a guestCode
-        allow get: if canReadEventData(eventId) ||
-                    resource.data.guestCode != null ||
-                    (isSignedIn() && (isOwner(guestId) || request.auth.token.email == resource.data.email));
-
-        // Allow listing only for staff or when the client queries by guestCode
-        allow list: if isEventStaff(eventId) || request.query.where.guestCode != null;
-
-        // Creation restricted to owner/planner
+        allow get: if canReadEventData(eventId) || isOwner(guestId);
+        // Allow querying by guestCode for unauthenticated users, otherwise require staff role
+        allow list: if (request.query.keys().hasAll(['guestCode']) && request.query.limit <= 1) || isEventStaff(eventId);
         allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
-
-        // Update rules:
-        // - Staff can update any guest doc
-        // - A signed-in user can set userProfileId to their own UID only if the field is currently null
-        //   and the request only changes that single field
-        allow update: if isEventStaff(eventId) ||
-                      (
-                        isSignedIn() &&
-                        resource.data.userProfileId == null &&
-                        request.resource.data.userProfileId == request.auth.uid &&
-                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['userProfileId'])
-                      );
-
-        // Delete only for staff
+        // Allow a user to link their anonymous UID to their guest profile
+        allow update: if (isEventStaff(eventId) || isOwner(guestId)) || (request.auth.uid == request.resource.data.userProfileId);
         allow delete: if isEventStaff(eventId) && isExistingDoc();
       }
       
@@ -424,3 +433,5 @@ service cloud.firestore {
 
   }
 }
+
+    

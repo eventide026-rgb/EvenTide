@@ -1,10 +1,17 @@
-
-
 "use client";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { collection, query, where, getDocs, limit } from "firebase/firestore";
+import { format } from "date-fns";
+import { Loader2 } from "lucide-react";
+
+import { useFirestore } from "@/firebase";
+import { useToast } from "@/hooks/use-toast";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,47 +22,43 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
-import { useFirestore, useAuth, useMemoFirebase } from "@/firebase";
-import { collection, query, where, getDocs, limit, doc, updateDoc } from "firebase/firestore";
-import { useState } from "react";
-import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { format } from "date-fns";
-import { Loader2 } from "lucide-react";
-import { signInAnonymously } from "firebase/auth";
-import { errorEmitter } from "@/firebase/error-emitter";
-import { FirestorePermissionError } from "@/firebase/errors";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
+/* ---------------------------- Types ---------------------------- */
 
 type Event = {
   id: string;
   name: string;
-  eventDate: any;
+  eventDate?: any;
 };
 
-type Guest = {
-    id: string; // The document ID
-    guestId: string;
-    // ... other guest properties
-}
+/* ---------------------------- Schemas ---------------------------- */
 
 const eventCodeSchema = z.object({
-  eventCode: z.string().min(1, { message: "Event code is required." }),
+  eventCode: z.string().min(1, "Event code is required"),
 });
 
 const guestCodeSchema = z.object({
-  guestCode: z.string().min(1, { message: "Guest code is required." }),
+  guestCode: z.string().min(1, "Guest code is required"),
 });
 
+/* ---------------------------- Component ---------------------------- */
+
 export function GuestLoginForm() {
-  const { toast } = useToast();
-  const router = useRouter();
   const firestore = useFirestore();
-  const auth = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+
   const [foundEvent, setFoundEvent] = useState<Event | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
+  const [isSearchingEvent, setIsSearchingEvent] = useState(false);
   const [isVerifyingGuest, setIsVerifyingGuest] = useState(false);
+
+  /* ---------------------------- Forms ---------------------------- */
 
   const eventCodeForm = useForm<z.infer<typeof eventCodeSchema>>({
     resolver: zodResolver(eventCodeSchema),
@@ -67,178 +70,166 @@ export function GuestLoginForm() {
     defaultValues: { guestCode: "" },
   });
 
+  /* ---------------------------- Event Lookup ---------------------------- */
+
   async function onEventCodeSubmit(values: z.infer<typeof eventCodeSchema>) {
     if (!firestore) return;
-    setIsSearching(true);
-    setFoundEvent(null);
 
-    const collectionsToSearch = ['events', 'shows'];
-    let eventFound = false;
-    let collectionPath = '';
+    setIsSearchingEvent(true);
 
     try {
-        for (const col of collectionsToSearch) {
-            collectionPath = col;
-            const collectionRef = collection(firestore, col);
-            const q = query(collectionRef, where("eventCode", "==", values.eventCode.trim()), limit(1));
-            const querySnapshot = await getDocs(q);
+      const q = query(
+        collection(firestore, "events"),
+        where("eventCode", "==", values.eventCode),
+        limit(1)
+      );
 
-            if (!querySnapshot.empty) {
-                const eventDoc = querySnapshot.docs[0];
-                setFoundEvent({ id: eventDoc.id, ...eventDoc.data() } as Event);
-                eventFound = true;
-                break; 
-            }
-        }
+      const snap = await getDocs(q);
 
-        if (!eventFound) {
-            toast({
-                variant: "destructive",
-                title: "Event Not Found",
-                description: "No event found with that code. Please check and try again.",
-            });
-        }
-    } catch(error: any) {
-        console.error("Error searching for event:", error);
-        
-        if (error.code === 'permission-denied') {
-            errorEmitter.emit(
-                'permission-error',
-                new FirestorePermissionError({
-                  path: collectionPath,
-                  operation: 'list',
-                })
-            );
-        }
-
+      if (snap.empty) {
         toast({
-            variant: 'destructive',
-            title: 'Search Failed',
-            description: 'An error occurred while searching for the event.',
+          variant: "destructive",
+          title: "Event Not Found",
+          description: "No event matches that code.",
         });
+        return;
+      }
+
+      const doc = snap.docs[0];
+      setFoundEvent({ id: doc.id, ...doc.data() } as Event);
+    } catch (err) {
+      console.error("Event search failed:", err);
+      toast({
+        variant: "destructive",
+        title: "Search Failed",
+        description: "Unable to search for the event.",
+      });
     } finally {
-        setIsSearching(false);
+      setIsSearchingEvent(false);
     }
   }
 
- async function onGuestCodeSubmit(values: z.infer<typeof guestCodeSchema>) {
-    if (!firestore || !auth || !foundEvent) return;
+  /* ---------------------------- Guest Verification ---------------------------- */
+
+  async function onGuestCodeSubmit(values: z.infer<typeof guestCodeSchema>) {
+    if (!firestore || !foundEvent) return;
+
     setIsVerifyingGuest(true);
 
-    let guestDocRef;
-    let operation: 'list' | 'write' = 'list';
-
     try {
-        const guestsRef = collection(firestore, 'events', foundEvent.id, 'guests');
-        const q = query(guestsRef, where("guestCode", "==", values.guestCode.trim()), limit(1));
-        const querySnapshot = await getDocs(q);
+      const q = query(
+        collection(firestore, `events/${foundEvent.id}/guests`),
+        where("accessCode", "==", values.guestCode),
+        limit(1)
+      );
 
-        if (querySnapshot.empty) {
-            toast({
-                variant: "destructive",
-                title: "Invalid Guest Code",
-                description: "This guest code is not valid for this event.",
-            });
-            setIsVerifyingGuest(false);
-            return;
-        }
+      const snap = await getDocs(q);
 
-        const guestDoc = querySnapshot.docs[0];
-        const guestData = { id: guestDoc.id, ...guestDoc.data() } as Guest;
-        guestDocRef = doc(firestore, 'events', foundEvent.id, 'guests', guestData.id);
-        
-        operation = 'write'; // Switch context for the next operation
-
-        // Sign in anonymously
-        const userCredential = await signInAnonymously(auth);
-        const user = userCredential.user;
-
-        // Link anonymous UID to guest document
-        await updateDoc(guestDocRef, {
-            userProfileId: user.uid // Link the UID
-        });
-
-        sessionStorage.setItem('isNewLogin', 'true');
-        sessionStorage.setItem('guestEventId', foundEvent.id);
-        sessionStorage.setItem('guestEventName', foundEvent.name);
-        sessionStorage.setItem('guestId', guestData.id);
-        
+      if (snap.empty) {
         toast({
-            title: "Access Granted",
-            description: "Redirecting to your event dashboard...",
+          variant: "destructive",
+          title: "Invalid Guest Code",
+          description: "That code does not belong to this event.",
         });
-        
-        router.push('/attendee-dashboard/my-invitations');
+        return;
+      }
 
-    } catch (error: any) {
-        console.error("Error verifying guest or signing in:", error);
+      const guestDoc = snap.docs[0];
 
-        if (error.code === 'permission-denied') {
-            errorEmitter.emit(
-                'permission-error',
-                new FirestorePermissionError({
-                    path: guestDocRef ? guestDocRef.path : `events/${foundEvent.id}/guests`,
-                    operation: operation,
-                })
-            );
-        }
+      console.log("Guest verified:", {
+        eventId: foundEvent.id,
+        guestId: guestDoc.id,
+      });
 
-        toast({
-            variant: 'destructive',
-            title: 'Login Failed',
-            description: 'Could not verify your guest code. Please try again.',
-        });
+      toast({
+        title: "Access Granted",
+        description: "Redirecting to your event...",
+      });
+
+      router.push("/attendee-dashboard/my-invitations");
+    } catch (err) {
+      console.error("Guest verification failed:", err);
+      toast({
+        variant: "destructive",
+        title: "Access Failed",
+        description: "Unable to verify guest code.",
+      });
     } finally {
-        setIsVerifyingGuest(false);
+      setIsVerifyingGuest(false);
     }
   }
 
+  /* ---------------------------- Guest Code Step ---------------------------- */
 
   if (foundEvent) {
     return (
-        <div className="space-y-4">
-            <Card className="bg-muted">
-                <CardHeader>
-                    <CardTitle>{foundEvent.name}</CardTitle>
-                    <CardDescription>{format(foundEvent.eventDate.toDate(), 'PPP')}</CardDescription>
-                </CardHeader>
-            </Card>
-            <Form {...guestCodeForm}>
-            <form onSubmit={guestCodeForm.handleSubmit(onGuestCodeSubmit)} className="space-y-4">
-                <FormField
-                control={guestCodeForm.control}
-                name="guestCode"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Enter Your Guest Code</FormLabel>
-                    <FormControl>
-                        <Input
-                        placeholder="Your unique guest code"
-                        {...field}
-                        onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                        autoFocus
-                        />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-                <Button type="submit" className="w-full" disabled={isVerifyingGuest}>
-                   {isVerifyingGuest && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
-                   {isVerifyingGuest ? 'Verifying...' : 'Access Event'}
-                </Button>
-                 <Button variant="link" className="w-full" onClick={() => setFoundEvent(null)}>
-                    Wrong event? Go back.
-                </Button>
-            </form>
-            </Form>
-        </div>
-    )
+      <div className="space-y-4">
+        <Card className="bg-muted">
+          <CardHeader>
+            <CardTitle>{foundEvent.name}</CardTitle>
+            <CardDescription>
+              {foundEvent.eventDate?.toDate
+                ? format(foundEvent.eventDate.toDate(), "PPP")
+                : "Date not set"}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
+        <Form {...guestCodeForm}>
+          <form
+            onSubmit={guestCodeForm.handleSubmit(onGuestCodeSubmit)}
+            className="space-y-4"
+          >
+            <FormField
+              control={guestCodeForm.control}
+              name="guestCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Guest Code</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Your guest code"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(e.target.value.toUpperCase())
+                      }
+                      autoFocus
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" className="w-full" disabled={isVerifyingGuest}>
+              {isVerifyingGuest && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              Access Event
+            </Button>
+
+            <Button
+              type="button"
+              variant="link"
+              className="w-full"
+              onClick={() => setFoundEvent(null)}
+            >
+              Wrong event? Go back
+            </Button>
+          </form>
+        </Form>
+      </div>
+    );
   }
+
+  /* ---------------------------- Event Code Step ---------------------------- */
 
   return (
     <Form {...eventCodeForm}>
-      <form onSubmit={eventCodeForm.handleSubmit(onEventCodeSubmit)} className="space-y-4">
+      <form
+        onSubmit={eventCodeForm.handleSubmit(onEventCodeSubmit)}
+        className="space-y-4"
+      >
         <FormField
           control={eventCodeForm.control}
           name="eventCode"
@@ -247,18 +238,23 @@ export function GuestLoginForm() {
               <FormLabel>Event Code</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="e.g., WDO-O2CAP5"
+                  placeholder="e.g. WDO-O2CAP5"
                   {...field}
-                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                  onChange={(e) =>
+                    field.onChange(e.target.value.toUpperCase())
+                  }
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={isSearching}>
-          {isSearching && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
-          {isSearching ? 'Finding...' : 'Find Event'}
+
+        <Button type="submit" className="w-full" disabled={isSearchingEvent}>
+          {isSearchingEvent && (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          )}
+          {isSearchingEvent ? "Finding..." : "Find Event"}
         </Button>
       </form>
     </Form>

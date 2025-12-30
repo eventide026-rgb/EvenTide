@@ -246,9 +246,12 @@ service cloud.firestore {
 
        match /guests/{guestId} {
         allow get: if canReadEventData(eventId) || isOwner(guestId);
-        allow list: if isEventStaff(eventId) || request.query.keys().hasAny(['guestCode']);
+        // Allow unauthenticated query by guestCode, otherwise require staff role
+        allow list: if (request.query.keys().hasAll(['guestCode']) && request.query.limit <= 1) || isEventStaff(eventId);
         allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
-        allow update: if (isEventStaff(eventId) || isOwner(guestId) || isOwner(resource.data.userProfileId)) && isExistingDoc();
+        // Allow a user to link their anonymous UID to their guest profile
+        allow update: if (isEventStaff(eventId) || isOwner(guestId)) 
+          || (isSignedIn() && request.auth.uid == request.resource.data.userProfileId && resource.data.userProfileId == null);
         allow delete: if isEventStaff(eventId) && isExistingDoc();
       }
       
@@ -404,5 +407,3 @@ service cloud.firestore {
 
   }
 }
-
-    
