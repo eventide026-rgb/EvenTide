@@ -37,7 +37,7 @@ type Event = {
 
 type Guest = {
     id: string; // The guestCode now serves as the document ID
-    guestId: string; // A separate, internal unique ID for the guest
+    guestCode: string;
     name: string;
     email: string;
     phoneNumber?: string;
@@ -45,7 +45,7 @@ type Guest = {
     rsvpStatus: 'Pending' | 'Accepted' | 'Declined';
     hasCheckedIn: boolean;
     serialNumber?: number;
-    guestCode: string;
+    userProfileId?: string | null;
 };
 
 const guestFormSchema = z.object({
@@ -147,16 +147,11 @@ function GuestManagementComponent() {
         });
         return;
     }
-
-    const batch = writeBatch(firestore);
-
+    
     const guestCode = Math.random().toString(36).substring(2, 8).toUpperCase();
     const guestDocRef = doc(firestore, 'events', selectedEventId, 'guests', guestCode);
-    const guestId = `gst-${doc(collection(firestore, 'events')).id.substring(0, 8)}`;
-
-
+    
     const newGuestData = {
-        guestId: guestId,
         guestCode: guestCode,
         name: values.name,
         email: values.email,
@@ -165,16 +160,14 @@ function GuestManagementComponent() {
         rsvpStatus: 'Pending' as const,
         hasCheckedIn: false,
         createdAt: serverTimestamp(),
+        userProfileId: null,
     };
 
-    const guestCodeRef = doc(firestore, 'events', selectedEventId, 'guestCodes', guestCode);
-    
-    batch.set(guestDocRef, newGuestData);
-    batch.set(guestCodeRef, { guestId });
-    batch.update(selectedEventRef, { guestCount: guestCount + 1 });
-
     try {
-        await batch.commit();
+        await setDoc(guestDocRef, newGuestData);
+        // We can update the count in a separate, non-critical call if needed
+        // For simplicity, we'll rely on the collection query for the count for now.
+        
         toast({ title: 'Guest Added', description: `${values.name} has been added to your guest list.` });
         guestForm.reset();
     } catch (error) {
@@ -202,7 +195,12 @@ function GuestManagementComponent() {
     const guestRef = doc(firestore, 'events', selectedEventId, 'guests', editingGuest.id);
     
     try {
-        await updateDoc(guestRef, { ...values });
+        await updateDoc(guestRef, {
+             name: values.name,
+             email: values.email,
+             phoneNumber: values.phoneNumber,
+             category: values.category
+        });
         toast({ title: "Guest Updated", description: `${values.name}'s information has been saved.` });
         setEditingGuest(null);
     } catch (error) {
@@ -229,17 +227,10 @@ function GuestManagementComponent() {
   const handleDeleteGuest = async (guest: Guest) => {
       if (!firestore || !selectedEventId || !selectedEventRef) return;
       
-      const batch = writeBatch(firestore);
-
       const guestRef = doc(firestore, 'events', selectedEventId, 'guests', guest.id);
-      const guestCodeRef = doc(firestore, 'events', selectedEventId, 'guestCodes', guest.id);
       
-      batch.delete(guestRef);
-      batch.delete(guestCodeRef);
-      batch.update(selectedEventRef, { guestCount: guestCount - 1 });
-
       try {
-        await batch.commit();
+        await deleteDoc(guestRef);
         toast({
             title: "Guest Removed",
             description: `${guest.name} has been removed from the list.`
@@ -447,3 +438,5 @@ export function GuestManagement() {
         </Suspense>
     )
 }
+
+    
