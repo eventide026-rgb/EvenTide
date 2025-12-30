@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from "next/link";
@@ -20,7 +21,7 @@ export default function GuestLoginPage() {
         </Link>
         <CardTitle className="text-2xl font-headline pt-4">Guest Access</CardTitle>
         <CardDescription>
-          Enter your event and guest codes to view the event details.
+          Enter your event code to begin.
         </CardDescription>
       </CardHeader>
       <CardContent>
