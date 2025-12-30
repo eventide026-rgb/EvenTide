@@ -96,7 +96,6 @@ export default function OwnerDashboardPage() {
         return events.find(e => e.id === selectedEventId) || null;
     }, [events, selectedEventId]);
     
-    // New query for guests of the selected event
     const guestsQuery = useMemoFirebase(() => {
         if (!firestore || !selectedEventId) return null;
         return query(collection(firestore, 'events', selectedEventId, 'guests'));
@@ -107,7 +106,6 @@ export default function OwnerDashboardPage() {
     const rsvpRate = selectedEvent?.guestCapacity ? Math.round((guestCount / selectedEvent.guestCapacity) * 100) : 0;
 
 
-    // Effect to set the selected event once data loads
     React.useEffect(() => {
         if (!selectedEventId && events.length > 0) {
             setSelectedEventId(events[0].id);
@@ -149,16 +147,18 @@ export default function OwnerDashboardPage() {
                                 <ul className="space-y-2">
                                     {events.map(event => (
                                         <li key={event.id}>
-                                            <button 
-                                                className={cn(
-                                                    "w-full text-left p-3 rounded-lg border transition-all",
-                                                    selectedEvent?.id === event.id ? "bg-accent border-primary" : "hover:bg-accent/50"
-                                                )}
-                                                onClick={() => setSelectedEventId(event.id)}
-                                            >
-                                                <p className="font-semibold truncate">{event.name}</p>
-                                                <p className="text-sm text-muted-foreground">{event.status}</p>
-                                            </button>
+                                            <Link href={`/owner-dashboard/events/${event.id}`} legacyBehavior>
+                                                <a 
+                                                    className={cn(
+                                                        "block w-full text-left p-3 rounded-lg border transition-all",
+                                                        selectedEvent?.id === event.id ? "bg-accent border-primary" : "hover:bg-accent/50"
+                                                    )}
+                                                    onClick={() => setSelectedEventId(event.id)}
+                                                >
+                                                    <p className="font-semibold truncate">{event.name}</p>
+                                                    <p className="text-sm text-muted-foreground">{event.status}</p>
+                                                </a>
+                                            </Link>
                                         </li>
                                     ))}
                                 </ul>
