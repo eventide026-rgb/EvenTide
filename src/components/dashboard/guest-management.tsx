@@ -244,7 +244,6 @@ function GuestManagementComponent() {
     );
 
     const newGuestData = {
-      guestId: guestDocRef.id,
       guestCode: guestCode,
       name: values.name,
       email: values.email,
