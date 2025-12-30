@@ -205,8 +205,6 @@ export function GuestLoginForm() {
       router.push("/guest-dashboard/my-invitations");
 
     } catch (err: any) {
-        const safeFoundEventId = foundEvent?.id;
-
         // Safe, informative logging for many error shapes
         const raw = err ?? 'unknown error';
         const code = err && err.code ? err.code : undefined;
@@ -223,14 +221,14 @@ export function GuestLoginForm() {
             code,
             message,
             details,
-            path: safeFoundEventId ? `events/${safeFoundEventId}/guests` : 'unknown path',
+            path: `events/${foundEvent?.id ?? 'UNKNOWN_EVENT'}/guests`,
         });
 
         if (code === 'permission-denied') {
             errorEmitter.emit(
                 'permission-error',
                 new FirestorePermissionError({
-                  path: `events/${safeFoundEventId}/guests`,
+                  path: `events/${foundEvent.id}/guests`,
                   operation: 'list', // This could also be 'update'
                   requestResourceData: { guestCode: values.guestCode },
                 })
