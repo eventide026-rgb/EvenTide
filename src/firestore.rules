@@ -53,10 +53,8 @@ service cloud.firestore {
     }
     
     function isEventPlannerByAssignment() {
-        // Check if the user has an accepted assignment for this event.
         return isSignedIn() && exists(/databases/$(database)/documents/planners/$(request.auth.uid));
     }
-
 
     function isEventCohost(eventId) {
       return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/cohosts/$(request.auth.uid));
@@ -88,6 +86,7 @@ service cloud.firestore {
       
       // Allow user to update their own invitation status.
       allow update: if isSignedIn() && request.auth.uid == resource.data.userId && request.resource.data.status in ['accepted', 'declined'];
+      allow create: if isEventOwnerOnCreate() || isEventStaff(path.split('/')[1]);
     }
 
     // Begin Collection Rules
@@ -155,8 +154,8 @@ service cloud.firestore {
     }
     
     match /shows/{showId} {
-      allow get: if true; 
-      allow list: if true; 
+      allow get: if true;
+      allow list: if true;
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       allow update: if isShowOwner(showId);
       allow delete: if isShowOwner(showId);
@@ -175,7 +174,7 @@ service cloud.firestore {
     
     match /events/{eventId} {
       allow get: if isEventStaff(eventId) || isEventPlannerByAssignment();
-      allow list: if request.query.keys().hasAny(['eventCode']);
+      allow list: if true;
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       allow update: if (isEventOwner(eventId) || isEventPlanner(eventId)) && isExistingDoc() && request.resource.data.ownerId == resource.data.ownerId;
       allow delete: if isEventOwner(eventId) && isExistingDoc();
@@ -268,10 +267,15 @@ service cloud.firestore {
 
    match /events/{eventId}/planners/{plannerId} {
       allow get, list: if canReadEventData(eventId);
-      allow create: if isEventOwnerOnCreate();
+
+      allow create: if
+        isEventOwner(eventId) ||
+        isEventOwnerOnCreate();
+
       allow update: if isEventOwner(eventId) && isExistingDoc();
       allow delete: if isEventOwner(eventId) && isExistingDoc();
-   }
+
+    }
 
     match /events/{eventId}/cohosts/{cohostId} {
       allow get, list: if canReadEventData(eventId);
@@ -371,6 +375,7 @@ service cloud.firestore {
     }
      match /bookings/{bookingId} {
         allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.hotelOwnerId == request.auth.uid);
+        allow list, get: if request.auth != null && request.query.where.userId == request.auth.uid;
         allow create: if isSignedIn();
         allow update: if isSignedIn() && resource.data.hotelOwnerId == request.auth.uid;
     }
@@ -399,3 +404,5 @@ service cloud.firestore {
 
   }
 }
+
+    
