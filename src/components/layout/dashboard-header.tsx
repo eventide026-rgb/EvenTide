@@ -55,10 +55,12 @@ export function DashboardHeader() {
     if (path.startsWith('/vendor-dashboard')) return 'Vendor';
     if (path.startsWith('/ticketier-dashboard')) return 'Ticketier';
     if (path.startsWith('/cohost-dashboard')) return 'Co-host';
+    if (path.startsWith('/guest-dashboard')) return 'Guest';
     return 'User';
   }
 
   const role = getRoleFromPath(pathname);
+  const isGuest = role === 'Guest';
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
@@ -104,12 +106,14 @@ export function DashboardHeader() {
                 <span>Profile</span>
                 </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-                <Link href="/owner-dashboard/account">
-                <CreditCard className="mr-2 h-4 w-4" />
-                <span>Billing</span>
-                </Link>
-            </DropdownMenuItem>
+            {!isGuest && (
+              <DropdownMenuItem asChild>
+                  <Link href="/owner-dashboard/account">
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  <span>Billing</span>
+                  </Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleSignOut}>
                 <LogOut className="mr-2 h-4 w-4" />
