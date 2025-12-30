@@ -62,10 +62,7 @@ service cloud.firestore {
       }
 
       function isEventGuest(eventId) {
-          // This rule checks if a guest document exists for the currently signed-in user's UID.
-          // It relies on the userProfileId field being correctly set in the guest document.
-          // The query to check this would be complex, so this check is best used for individual document reads, not lists.
-          return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/guests/{guestId}) where get(/databases/$(database)/documents/events/$(eventId)/guests/{guestId}).data.userProfileId == request.auth.uid;
+          return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid));
       }
 
       function isEventStaff(eventId) {
@@ -185,7 +182,7 @@ service cloud.firestore {
       match /events/{eventId} {
 
         allow get: if isEventStaff(eventId) || isEventPlannerByAssignment();
-        allow list: if (isSignedIn() && request.query.where.ownerId == request.auth.uid) || (request.query.where.eventCode != null);
+        allow list: if true;
         allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
         allow update: if
           (isEventOwner(eventId) || isEventPlanner(eventId)) &&
@@ -197,28 +194,25 @@ service cloud.firestore {
           allow read, create, update, delete: if isEventStaff(eventId);
         }
 
-        match /guestCodes/{guestCode} {
-          allow get: if true;
-        }
-
+    
+        // DOCUMENT RULES
         match /guests/{guestId} {
-          // Unauthenticated users can read a specific guest document by its ID (the guest code).
-          // This allows the guest login flow to verify the code.
-          allow get: if true;
 
-          // Staff can list all guests. Guests can only list their own document.
+          // Staff access and unauthenticated guest lookup
+          allow get: if request.auth == null || isEventStaff(eventId) || (resource.data.userProfileId == request.auth.uid);
+
+          // Only staff can list all guests. No unauthenticated list.
           allow list: if isEventStaff(eventId);
 
-          // Staff creates guests.
+          // Staff creates guests
           allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
 
-          // Staff can update anything. A newly signed-in user can link their UID to a guest record ONCE.
-          allow update: if isEventStaff(eventId) || 
-                        (isSignedIn() && resource.data.userProfileId == null && 
-                         request.resource.data.userProfileId == request.auth.uid);
+          // 🔐 One-time anonymous UID linking
+          allow update: if isEventStaff(eventId) || (isSignedIn() && resource.data.userProfileId == null && request.resource.data.userProfileId == request.auth.uid);
 
           allow delete: if isEventStaff(eventId);
-        }
+        
+      }
 
 
 
@@ -436,3 +430,5 @@ service cloud.firestore {
 
     }
   }
+
+    
