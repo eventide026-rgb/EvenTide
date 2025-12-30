@@ -193,10 +193,7 @@ service cloud.firestore {
           allow read, create, update, delete: if isEventStaff(eventId);
         }
 
-        /* =====================================================
-           🔓 GUEST LOGIN — THIS IS THE IMPORTANT PART
-           ===================================================== */
-
+    
         // COLLECTION QUERY (unauthenticated guest lookup)
         match /guests {
           allow list: if

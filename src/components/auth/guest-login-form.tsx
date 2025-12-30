@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -6,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { collection, query, where, getDocs, limit, doc, updateDoc, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, limit, doc, updateDoc, getDoc, writeBatch } from "firebase/firestore";
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
 
@@ -44,6 +45,10 @@ type Event = {
 type Guest = {
     id: string;
     userProfileId?: string | null;
+}
+
+type GuestCodeLookup = {
+    guestId: string;
 }
 
 /* ---------------------------- Schemas ---------------------------- */
@@ -89,154 +94,80 @@ export function GuestLoginForm() {
 
     const collectionsToSearch = ['events', 'shows'];
     let eventFound = false;
-    let collectionPath = '';
 
-    try {
-        for (const col of collectionsToSearch) {
-            collectionPath = col;
-            const collectionRef = collection(firestore, col);
-            const q = query(collectionRef, where("eventCode", "==", values.eventCode.trim()), limit(1));
+    for (const col of collectionsToSearch) {
+        const collectionRef = collection(firestore, col);
+        const q = query(collectionRef, where("eventCode", "==", values.eventCode.trim()), limit(1));
+        
+        try {
             const querySnapshot = await getDocs(q);
-
             if (!querySnapshot.empty) {
                 const eventDoc = querySnapshot.docs[0];
                 setFoundEvent({ id: eventDoc.id, ...eventDoc.data() } as Event);
                 eventFound = true;
-                break; 
+                break;
             }
+        } catch (err: any) {
+             console.error(`Error searching collection ${col}:`, err);
         }
-
-        if (!eventFound) {
-            toast({
-                variant: "destructive",
-                title: "Event Not Found",
-                description: "No event found with that code. Please check and try again.",
-            });
-        }
-    } catch (err: any) {
-        // Safe, informative logging for many error shapes
-        const raw = err ?? 'unknown error';
-        const code = err && err.code ? err.code : undefined;
-        const message = err && err.message ? err.message : String(raw);
-        const details = (() => {
-          try {
-            return JSON.stringify(err, Object.getOwnPropertyNames(err));
-          } catch {
-            return String(err);
-          }
-        })();
-    
-        console.error('Detailed Firestore Error:', {
-          code,
-          message,
-          details,
-          collectionPath,
-          foundEventId: foundEvent?.id ?? null,
-        });
-    
-        if (code === 'permission-denied') {
-          errorEmitter.emit(
-            'permission-error',
-            new FirestorePermissionError({
-              path: collectionPath,
-              operation: 'list',
-            })
-          );
-          toast({
-            variant: 'destructive',
-            title: 'Permission Denied',
-            description: 'You do not have permission to search that collection.',
-          });
-        } else {
-          toast({
-            variant: 'destructive',
-            title: 'Search Failed',
-            description: 'An error occurred while searching for the event.',
-          });
-        }
-    } finally {
-        setIsSearchingEvent(false);
     }
+
+    if (!eventFound) {
+        toast({
+            variant: "destructive",
+            title: "Event Not Found",
+            description: "No event found with that code. Please check and try again.",
+        });
+    }
+
+    setIsSearchingEvent(false);
   }
 
   /* ---------------------------- Guest Verification ---------------------------- */
 
   async function onGuestCodeSubmit(values: z.infer<typeof guestCodeSchema>) {
     if (!firestore || !foundEvent || !auth) return;
-
     setIsVerifyingGuest(true);
 
     const guestCode = values.guestCode.trim();
-    const guestDocRef = doc(firestore, `events/${foundEvent.id}/guests`, guestCode);
-
+    const guestCodeRef = doc(firestore, `events/${foundEvent.id}/guestCodes`, guestCode);
+    
     try {
-        const guestSnap = await getDoc(guestDocRef);
+        const guestCodeSnap = await getDoc(guestCodeRef);
+        if (!guestCodeSnap.exists()) {
+             toast({ variant: "destructive", title: "Invalid Guest Code" });
+             setIsVerifyingGuest(false);
+             return;
+        }
 
+        const { guestId } = guestCodeSnap.data() as GuestCodeLookup;
+        const guestRef = doc(firestore, `events/${foundEvent.id}/guests`, guestId);
+        const guestSnap = await getDoc(guestRef);
+        
         if (!guestSnap.exists()) {
-            toast({
-                variant: "destructive",
-                title: "Invalid Guest Code",
-                description: "That code is not valid for this event.",
-            });
-            setIsVerifyingGuest(false);
-            return;
+             toast({ variant: "destructive", title: "Guest Record Missing" });
+             setIsVerifyingGuest(false);
+             return;
         }
 
         const guestData = guestSnap.data() as Guest;
-        
         const userCredential = await signInAnonymously(auth);
         
         if (guestData.userProfileId === null || guestData.userProfileId === undefined) {
-           await updateDoc(guestDocRef, { userProfileId: userCredential.user.uid });
+           await updateDoc(guestRef, { userProfileId: userCredential.user.uid });
         }
         
-        // Store event details for the guest dashboard
         sessionStorage.setItem('guestEventId', foundEvent.id);
         sessionStorage.setItem('guestEventName', foundEvent.name);
         sessionStorage.setItem('guestEventCode', values.guestCode);
 
-
-        toast({
-            title: "Access Granted",
-            description: "Redirecting to your event dashboard...",
-        });
+        toast({ title: "Access Granted", description: "Redirecting..." });
         router.push("/guest-dashboard/my-invitations");
 
-    } catch (err: any) {
-        const raw = err ?? 'unknown error';
-        const code = err && err.code ? err.code : undefined;
-        const message = err && err.message ? err.message : String(raw);
-        const details = (() => {
-          try {
-            return JSON.stringify(err, Object.getOwnPropertyNames(err));
-          } catch {
-            return String(err);
-          }
-        })();
-
-        console.error('Detailed Firestore Error:', {
-            code,
-            message,
-            details,
-            path: `events/${foundEvent.id}/guests/${guestCode}`,
-        });
-
-        if (code === 'permission-denied') {
-            errorEmitter.emit(
-                'permission-error',
-                new FirestorePermissionError({
-                  path: `events/${foundEvent.id}/guests/${guestCode}`,
-                  operation: 'get',
-                })
-            );
-        }
-       
-      toast({
-        variant: "destructive",
-        title: "Access Failed",
-        description: "Could not verify your guest code. Please try again.",
-      });
-      setIsVerifyingGuest(false);
+    } catch (error) {
+        console.error("Error during guest verification:", error);
+        toast({ variant: "destructive", title: "Access Failed", description: "Could not verify guest code. Please try again." });
+        setIsVerifyingGuest(false);
     }
   }
 

@@ -340,6 +340,15 @@
       },
       "required": ["guestId", "eventId", "name", "guestCode", "category", "rsvpStatus", "hasCheckedIn"]
     },
+    "GuestCode": {
+        "title": "GuestCode",
+        "description": "A lookup document to map a short, public guest code to a private guest document ID.",
+        "type": "object",
+        "properties": {
+          "guestId": { "type": "string", "description": "The ID of the actual guest document in the guests subcollection." }
+        },
+        "required": ["guestId"]
+    },
     "EventPlanner": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "EventPlanner",
@@ -975,6 +984,18 @@
           "params": [
             { "name": "eventId", "description": "The unique identifier of the event." },
             { "name": "guestCode", "description": "The unique alphanumeric code for the guest, used as the document ID." }
+          ]
+        }
+      },
+      {
+        "path": "/events/{eventId}/guestCodes/{guestCode}",
+        "definition": {
+          "entityName": "GuestCode",
+          "schema": { "$ref": "#/backend/entities/GuestCode" },
+          "description": "A public lookup collection to map a guest's code to their internal guest document ID.",
+          "params": [
+            { "name": "eventId", "description": "The unique identifier of the event." },
+            { "name": "guestCode", "description": "The public, unique guest code." }
           ]
         }
       },

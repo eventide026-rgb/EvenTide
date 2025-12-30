@@ -5,7 +5,7 @@
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, setDoc, serverTimestamp, orderBy, documentId, updateDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, doc, setDoc, serverTimestamp, orderBy, documentId, updateDoc, getDocs, deleteDoc, writeBatch } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -36,8 +36,8 @@ type Event = {
 };
 
 type Guest = {
-    id: string;
-    guestId: string;
+    id: string; // The guestCode now serves as the document ID
+    guestId: string; // A separate, internal unique ID for the guest
     name: string;
     email: string;
     phoneNumber?: string;
@@ -148,6 +148,8 @@ function GuestManagementComponent() {
         return;
     }
 
+    const batch = writeBatch(firestore);
+
     const guestCode = Math.random().toString(36).substring(2, 8).toUpperCase();
     const guestDocRef = doc(firestore, 'events', selectedEventId, 'guests', guestCode);
     const guestId = `gst-${doc(collection(firestore, 'events')).id.substring(0, 8)}`;
@@ -165,9 +167,14 @@ function GuestManagementComponent() {
         createdAt: serverTimestamp(),
     };
 
+    const guestCodeRef = doc(firestore, 'events', selectedEventId, 'guestCodes', guestCode);
+    
+    batch.set(guestDocRef, newGuestData);
+    batch.set(guestCodeRef, { guestId });
+    batch.update(selectedEventRef, { guestCount: guestCount + 1 });
+
     try {
-        await setDoc(guestDocRef, newGuestData);
-        await updateDoc(selectedEventRef, { guestCount: guestCount + 1 });
+        await batch.commit();
         toast({ title: 'Guest Added', description: `${values.name} has been added to your guest list.` });
         guestForm.reset();
     } catch (error) {
@@ -222,11 +229,17 @@ function GuestManagementComponent() {
   const handleDeleteGuest = async (guest: Guest) => {
       if (!firestore || !selectedEventId || !selectedEventRef) return;
       
+      const batch = writeBatch(firestore);
+
       const guestRef = doc(firestore, 'events', selectedEventId, 'guests', guest.id);
+      const guestCodeRef = doc(firestore, 'events', selectedEventId, 'guestCodes', guest.id);
       
+      batch.delete(guestRef);
+      batch.delete(guestCodeRef);
+      batch.update(selectedEventRef, { guestCount: guestCount - 1 });
+
       try {
-        await deleteDoc(guestRef);
-        await updateDoc(selectedEventRef, { guestCount: guestCount - 1 });
+        await batch.commit();
         toast({
             title: "Guest Removed",
             description: `${guest.name} has been removed from the list.`

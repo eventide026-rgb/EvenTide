@@ -1,4 +1,5 @@
 
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -244,15 +245,20 @@ service cloud.firestore {
         allow write: if isEventStaff(eventId); // Owner/Planner can add/remove
       }
 
+      match /guestCodes/{guestCode} {
+          allow get: if true;
+      }
+
        match /guests/{guestId} {
-        allow get: if canReadEventData(eventId) || isOwner(guestId);
-        // Allow unauthenticated query by guestCode, otherwise require staff role
-        allow list: if request.query.where.guestCode != null || isEventStaff(eventId);
+        // Staff can read any guest record. Guest can read their own once linked.
+        allow get: if isEventStaff(eventId) || (isSignedIn() && resource.data.userProfileId == request.auth.uid);
+        // Only staff can list all guests. No unauthenticated list.
+        allow list: if isEventStaff(eventId);
+        // Staff creates guests (and guest code lookup doc)
         allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
-        // Allow a user to link their anonymous UID to their guest profile
-        allow update: if isEventStaff(eventId) 
-          || (isSignedIn() && request.auth.uid == request.resource.data.userProfileId && resource.data.userProfileId == null);
-        allow delete: if isEventStaff(eventId) && isExistingDoc();
+        // Staff can update anything. User can only link their profile ID one time.
+        allow update: if isEventStaff(eventId) || (isSignedIn() && resource.data.userProfileId == null && request.resource.data.userProfileId == request.auth.uid);
+        allow delete: if isEventStaff(eventId);
       }
       
       match /invitations/{invitationId} {
