@@ -151,9 +151,8 @@ export function GuestLoginForm() {
         toast({ title: "Access Granted", description: "Redirecting..." });
         router.push("/guest-dashboard/my-invitations");
 
-    } catch (error) {
-        console.error("Error during guest verification:", error);
-         const raw = error ?? 'unknown error';
+    } catch (error: any) {
+        const raw = error ?? 'unknown error';
         const code = error && error.code ? error.code : undefined;
         const message = error && error.message ? error.message : String(raw);
         const details = (() => {
