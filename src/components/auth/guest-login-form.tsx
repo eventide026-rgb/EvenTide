@@ -47,10 +47,6 @@ type Guest = {
     userProfileId?: string | null;
 }
 
-type GuestCodeLookup = {
-    guestId: string;
-}
-
 /* ---------------------------- Schemas ---------------------------- */
 
 const eventCodeSchema = z.object({
@@ -130,22 +126,13 @@ export function GuestLoginForm() {
     setIsVerifyingGuest(true);
 
     const guestCode = values.guestCode.trim();
-    const guestCodeRef = doc(firestore, `events/${foundEvent.id}/guestCodes`, guestCode);
+    const guestDocRef = doc(firestore, `events/${foundEvent.id}/guests`, guestCode);
     
     try {
-        const guestCodeSnap = await getDoc(guestCodeRef);
-        if (!guestCodeSnap.exists()) {
-             toast({ variant: "destructive", title: "Invalid Guest Code" });
-             setIsVerifyingGuest(false);
-             return;
-        }
-
-        const { guestId } = guestCodeSnap.data() as GuestCodeLookup;
-        const guestRef = doc(firestore, `events/${foundEvent.id}/guests`, guestId);
-        const guestSnap = await getDoc(guestRef);
+        const guestSnap = await getDoc(guestDocRef);
         
         if (!guestSnap.exists()) {
-             toast({ variant: "destructive", title: "Guest Record Missing" });
+             toast({ variant: "destructive", title: "Invalid Guest Code", description: "This code is not valid for the selected event." });
              setIsVerifyingGuest(false);
              return;
         }
@@ -154,7 +141,7 @@ export function GuestLoginForm() {
         const userCredential = await signInAnonymously(auth);
         
         if (guestData.userProfileId === null || guestData.userProfileId === undefined) {
-           await updateDoc(guestRef, { userProfileId: userCredential.user.uid });
+           await updateDoc(guestDocRef, { userProfileId: userCredential.user.uid });
         }
         
         sessionStorage.setItem('guestEventId', foundEvent.id);
@@ -166,6 +153,29 @@ export function GuestLoginForm() {
 
     } catch (error) {
         console.error("Error during guest verification:", error);
+         const raw = error ?? 'unknown error';
+        const code = error && error.code ? error.code : undefined;
+        const message = error && error.message ? error.message : String(raw);
+        const details = (() => {
+        try {
+            return JSON.stringify(error, Object.getOwnPropertyNames(error));
+        } catch {
+            return String(error);
+        }
+        })();
+
+        console.error('Detailed Firestore Error:', {
+            code,
+            message,
+            details,
+            guestCode: guestCode,
+            eventId: foundEvent.id,
+        });
+
+        if (code === 'permission-denied') {
+            errorEmitter.emit('permission-error', new FirestorePermissionError({ path: guestDocRef.path, operation: 'get' }));
+        }
+
         toast({ variant: "destructive", title: "Access Failed", description: "Could not verify guest code. Please try again." });
         setIsVerifyingGuest(false);
     }

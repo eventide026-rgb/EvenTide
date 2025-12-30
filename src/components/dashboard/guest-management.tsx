@@ -165,13 +165,16 @@ function GuestManagementComponent() {
 
     try {
         await setDoc(guestDocRef, newGuestData);
-        // We can update the count in a separate, non-critical call if needed
-        // For simplicity, we'll rely on the collection query for the count for now.
-        
         toast({ title: 'Guest Added', description: `${values.name} has been added to your guest list.` });
         guestForm.reset();
     } catch (error) {
         console.error("Error adding guest:", error);
+        const contextualError = new FirestorePermissionError({
+            path: guestDocRef.path,
+            operation: 'create',
+            requestResourceData: newGuestData,
+        });
+        errorEmitter.emit('permission-error', contextualError);
         toast({
             variant: 'destructive',
             title: "Failed to Add Guest",
@@ -438,5 +441,3 @@ export function GuestManagement() {
         </Suspense>
     )
 }
-
-    

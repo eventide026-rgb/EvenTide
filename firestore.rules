@@ -1,4 +1,5 @@
 
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -61,7 +62,10 @@ service cloud.firestore {
       }
 
       function isEventGuest(eventId) {
-          return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid));
+          // This rule checks if a guest document exists for the currently signed-in user's UID.
+          // It relies on the userProfileId field being correctly set in the guest document.
+          // The query to check this would be complex, so this check is best used for individual document reads, not lists.
+          return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/guests/{guestId}) where get(/databases/$(database)/documents/events/$(eventId)/guests/{guestId}).data.userProfileId == request.auth.uid;
       }
 
       function isEventStaff(eventId) {
@@ -181,7 +185,7 @@ service cloud.firestore {
       match /events/{eventId} {
 
         allow get: if isEventStaff(eventId) || isEventPlannerByAssignment();
-        allow list: if true;
+        allow list: if (isSignedIn() && request.query.where.ownerId == request.auth.uid) || (request.query.where.eventCode != null);
         allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
         allow update: if
           (isEventOwner(eventId) || isEventPlanner(eventId)) &&
@@ -193,38 +197,28 @@ service cloud.firestore {
           allow read, create, update, delete: if isEventStaff(eventId);
         }
 
-    
-        // COLLECTION QUERY (unauthenticated guest lookup)
-        match /guests {
-          allow list: if
-            request.auth == null &&
-            request.query.limit == 1;
+        match /guestCodes/{guestCode} {
+          allow get: if true;
         }
 
-        // DOCUMENT RULES
         match /guests/{guestId} {
+          // Unauthenticated users can read a specific guest document by its ID (the guest code).
+          // This allows the guest login flow to verify the code.
+          allow get: if true;
 
-          // Staff access
-          allow get, list: if isEventStaff(eventId);
+          // Staff can list all guests. Guests can only list their own document.
+          allow list: if isEventStaff(eventId);
 
-          // Guest can read own linked doc
-          allow get: if
-            request.auth != null &&
-            resource.data.userProfileId == request.auth.uid;
+          // Staff creates guests.
+          allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
 
-          // Staff creates guests
-          allow create: if
-            isEventOwner(eventId) || isEventPlanner(eventId);
-
-          // 🔐 One-time anonymous UID linking
-          allow update: if
-            request.auth != null &&
-            resource.data.userProfileId == null &&
-            request.resource.data.userProfileId == request.auth.uid;
+          // Staff can update anything. A newly signed-in user can link their UID to a guest record ONCE.
+          allow update: if isEventStaff(eventId) || 
+                        (isSignedIn() && resource.data.userProfileId == null && 
+                         request.resource.data.userProfileId == request.auth.uid);
 
           allow delete: if isEventStaff(eventId);
-        
-      }
+        }
 
 
 
