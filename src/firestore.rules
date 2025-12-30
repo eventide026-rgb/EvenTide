@@ -155,7 +155,7 @@ service cloud.firestore {
     
     match /shows/{showId} {
       allow get: if true;
-      allow list: if true;
+      allow list: if request.query.where.eventCode != null;
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       allow update: if isShowOwner(showId);
       allow delete: if isShowOwner(showId);
@@ -174,7 +174,7 @@ service cloud.firestore {
     
     match /events/{eventId} {
       allow get: if isEventStaff(eventId) || isEventPlannerByAssignment();
-      allow list: if true;
+      allow list: if (isSignedIn() && request.query.where.ownerId == request.auth.uid) || (request.query.where.eventCode != null);
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       allow update: if (isEventOwner(eventId) || isEventPlanner(eventId)) && isExistingDoc() && request.resource.data.ownerId == resource.data.ownerId;
       allow delete: if isEventOwner(eventId) && isExistingDoc();
@@ -244,14 +244,15 @@ service cloud.firestore {
         allow write: if isEventStaff(eventId); // Owner/Planner can add/remove
       }
 
-      match /guests/{guestId} {
-        allow get: if canReadEventData(eventId) || isOwner(guestId);
-        // Allow unauthenticated query by guestCode, otherwise require staff role
-        allow list: if (request.query.keys().hasAll(['where', 'limit']) && request.query.limit <= 1) || isEventStaff(eventId);
+       match /guests/{guestId} {
+        allow get: if canReadEventData(eventId) || resource.data.guestCode != null;
+        allow list: if isEventStaff(eventId) || request.query.where.guestCode != null;
         allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
-        // Allow a user to link their anonymous UID to their guest profile
-        allow update: if (isEventStaff(eventId) || isOwner(guestId)) 
-          || (isSignedIn() && request.auth.uid == request.resource.data.userProfileId && resource.data.userProfileId == null);
+        allow update: if isEventStaff(eventId) || 
+            (isSignedIn() && 
+             resource.data.userProfileId == null && 
+             request.resource.data.userProfileId == request.auth.uid && 
+             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['userProfileId']));
         allow delete: if isEventStaff(eventId) && isExistingDoc();
       }
       
@@ -407,5 +408,3 @@ service cloud.firestore {
 
   }
 }
-
-    

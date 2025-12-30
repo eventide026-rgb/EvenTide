@@ -116,24 +116,47 @@ export function GuestLoginForm() {
                 description: "No event found with that code. Please check and try again.",
             });
         }
-    } catch(error: any) {
-        console.error("Error searching for event:", error);
-        
-        if (error.code === 'permission-denied') {
-            errorEmitter.emit(
-                'permission-error',
-                new FirestorePermissionError({
-                  path: collectionPath,
-                  operation: 'list',
-                })
-            );
-        }
+    } catch(err: any) {
+        // Safe, informative logging for many error shapes
+        const raw = err ?? 'unknown error';
+        const code = err && err.code ? err.code : undefined;
+        const message = err && err.message ? err.message : String(raw);
+        const details = (() => {
+          try {
+            return JSON.stringify(err, Object.getOwnPropertyNames(err));
+          } catch {
+            return String(err);
+          }
+        })();
 
-        toast({
+        console.error('Detailed Firestore Error:', {
+          code,
+          message,
+          details,
+          collectionPath,
+          foundEventId: foundEvent?.id ?? null,
+        });
+
+        if (code === 'permission-denied') {
+          errorEmitter.emit(
+            'permission-error',
+            new FirestorePermissionError({
+              path: collectionPath,
+              operation: 'list',
+            })
+          );
+          toast({
+            variant: 'destructive',
+            title: 'Permission Denied',
+            description: 'You do not have permission to search that collection.',
+          });
+        } else {
+          toast({
             variant: 'destructive',
             title: 'Search Failed',
             description: 'An error occurred while searching for the event.',
-        });
+          });
+        }
     } finally {
         setIsSearchingEvent(false);
     }
@@ -182,18 +205,20 @@ export function GuestLoginForm() {
       router.push("/guest-dashboard/my-invitations");
 
     } catch (err: any) {
-      console.error('Detailed Firestore Error:', err);
+        console.error('Detailed Firestore Error:', err);
 
-      if (err.code === 'permission-denied') {
-        errorEmitter.emit(
-            'permission-error',
-            new FirestorePermissionError({
-              path: `events/${foundEvent.id}/guests`,
-              operation: 'list', // or 'update' if that's where it fails
-              requestResourceData: { guestCode: values.guestCode },
-            })
-        );
-      }
+        const safeFoundEventId = foundEvent?.id;
+
+        if (err.code === 'permission-denied' && safeFoundEventId) {
+            errorEmitter.emit(
+                'permission-error',
+                new FirestorePermissionError({
+                  path: `events/${safeFoundEventId}/guests`,
+                  operation: 'list', // or 'update' if that's where it fails
+                  requestResourceData: { guestCode: values.guestCode },
+                })
+            );
+        }
        
       toast({
         variant: "destructive",
