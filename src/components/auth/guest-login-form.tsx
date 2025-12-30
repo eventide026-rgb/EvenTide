@@ -113,7 +113,7 @@ export function GuestLoginForm() {
                 description: "No event found with that code. Please check and try again.",
             });
         }
-    } catch(err: any) {
+    } catch (err: any) {
         // Safe, informative logging for many error shapes
         const raw = err ?? 'unknown error';
         const code = err && err.code ? err.code : undefined;
