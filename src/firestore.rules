@@ -245,14 +245,13 @@ service cloud.firestore {
       }
 
        match /guests/{guestId} {
-        allow get: if canReadEventData(eventId) || resource.data.guestCode != null;
-        allow list: if isEventStaff(eventId) || request.query.where.guestCode != null;
+        allow get: if canReadEventData(eventId) || isOwner(guestId);
+        // Allow unauthenticated query by guestCode, otherwise require staff role
+        allow list: if request.query.where.guestCode != null || isEventStaff(eventId);
         allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
-        allow update: if isEventStaff(eventId) || 
-            (isSignedIn() && 
-             resource.data.userProfileId == null && 
-             request.resource.data.userProfileId == request.auth.uid && 
-             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['userProfileId']));
+        // Allow a user to link their anonymous UID to their guest profile
+        allow update: if isEventStaff(eventId) 
+          || (isSignedIn() && request.auth.uid == request.resource.data.userProfileId && resource.data.userProfileId == null);
         allow delete: if isEventStaff(eventId) && isExistingDoc();
       }
       
