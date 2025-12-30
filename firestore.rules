@@ -154,7 +154,8 @@ service cloud.firestore {
     }
     
     match /shows/{showId} {
-      allow get, list: if true; // Shows are public
+      allow get: if true;
+      allow list: if true;
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       allow update: if isShowOwner(showId);
       allow delete: if isShowOwner(showId);
@@ -173,8 +174,7 @@ service cloud.firestore {
     
     match /events/{eventId} {
       allow get: if isEventStaff(eventId) || isEventPlannerByAssignment();
-      allow read: if request.auth != null;
-      allow list: if false;
+      allow list: if true;
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       allow update: if (isEventOwner(eventId) || isEventPlanner(eventId)) && isExistingDoc() && request.resource.data.ownerId == resource.data.ownerId;
       allow delete: if isEventOwner(eventId) && isExistingDoc();
@@ -244,7 +244,14 @@ service cloud.firestore {
         allow write: if isEventStaff(eventId); // Owner/Planner can add/remove
       }
 
-     
+       match /guests/{guestId} {
+        allow get: if canReadEventData(eventId) || isOwner(guestId);
+        allow list: if isEventStaff(eventId);
+        allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
+        allow update: if (isEventStaff(eventId) || isOwner(guestId)) && isExistingDoc();
+        allow delete: if isEventStaff(eventId) && isExistingDoc();
+      }
+      
       match /invitations/{invitationId} {
         allow read, update: if isEventStaff(eventId) || isOwner(resource.data.userId);
         allow list: if isEventStaff(eventId);
@@ -252,38 +259,6 @@ service cloud.firestore {
         allow delete: if isEventStaff(eventId);
       }
     }
-    
-
-      match /events/{eventId}/guests/{guestId} {
-
-        // Allow guest-code lookup (unauthenticated)
-        // Only exact match on accessCode
-        allow list: if
-          request.query != null &&
-          request.query.where.size() == 1 &&
-          request.query.where[0].field == "accessCode";
-
-        // Allow direct read for staff
-        allow get: if canReadEventData(eventId);
-
-        // Allow signed-in guest to read their own doc
-        allow get: if
-          isSignedIn() &&
-          (isOwner(guestId) || request.auth.token.email == resource.data.email);
-
-        // Creation restricted
-        allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
-
-        // Updates by staff or the guest themself
-        allow update: if
-          isExistingDoc() &&
-          (isEventStaff(eventId) || (isSignedIn() && isOwner(guestId)));
-
-        // Delete only for staff
-        allow delete: if isEventStaff(eventId) && isExistingDoc();
-
-    }
-
     
      match /events/{eventId}/moodboard/{moodboardId} {
       allow get, list: if isEventStaff(eventId) || isEventVendor(eventId, 'Decorator');
@@ -429,3 +404,5 @@ service cloud.firestore {
 
   }
 }
+
+    

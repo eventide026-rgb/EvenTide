@@ -124,6 +124,8 @@ export function GuestLoginForm() {
     if (!firestore || !auth || !foundEvent) return;
     setIsVerifyingGuest(true);
 
+    let guestDocRef;
+
     try {
         const guestsRef = collection(firestore, 'events', foundEvent.id, 'guests');
         const q = query(guestsRef, where("guestCode", "==", values.guestCode.trim()), limit(1));
@@ -141,19 +143,22 @@ export function GuestLoginForm() {
 
         const guestDoc = querySnapshot.docs[0];
         const guestData = { id: guestDoc.id, ...guestDoc.data() } as Guest;
+        guestDocRef = doc(firestore, 'events', foundEvent.id, 'guests', guestData.id);
+
 
         // Sign in anonymously
         const userCredential = await signInAnonymously(auth);
         const user = userCredential.user;
 
         // Link anonymous UID to guest document
-        await updateDoc(doc(firestore, 'events', foundEvent.id, 'guests', guestData.id), {
+        await updateDoc(guestDocRef, {
             userProfileId: user.uid // Link the UID
         });
 
         sessionStorage.setItem('isNewLogin', 'true');
         sessionStorage.setItem('guestEventId', foundEvent.id);
         sessionStorage.setItem('guestEventName', foundEvent.name);
+        sessionStorage.setItem('guestId', guestData.id);
         
         toast({
             title: "Access Granted",
@@ -162,8 +167,19 @@ export function GuestLoginForm() {
         
         router.push('/attendee-dashboard/my-invitations');
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error verifying guest or signing in:", error);
+
+        if (error.code === 'permission-denied') {
+            errorEmitter.emit(
+                'permission-error',
+                new FirestorePermissionError({
+                    path: guestDocRef ? guestDocRef.path : `events/${foundEvent.id}/guests`,
+                    operation: 'write', // Or 'list' depending on where it failed
+                })
+            );
+        }
+
         toast({
             variant: 'destructive',
             title: 'Login Failed',
