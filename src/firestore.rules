@@ -155,7 +155,8 @@ service cloud.firestore {
     }
     
     match /shows/{showId} {
-      allow get, list: if true; // Shows are public
+      allow get: if true; 
+      allow list: if true; 
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       allow update: if isShowOwner(showId);
       allow delete: if isShowOwner(showId);
@@ -174,8 +175,7 @@ service cloud.firestore {
     
     match /events/{eventId} {
       allow get: if isEventStaff(eventId) || isEventPlannerByAssignment();
-      // Allow listing events if querying by ownerId (for owners) OR by eventCode (for guests)
-      allow list: if (isSignedIn() && request.auth.uid == request.query.where.ownerId) || (request.query.where.eventCode != null);
+      allow list: if request.query.keys().hasAny(['eventCode']);
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       allow update: if (isEventOwner(eventId) || isEventPlanner(eventId)) && isExistingDoc() && request.resource.data.ownerId == resource.data.ownerId;
       allow delete: if isEventOwner(eventId) && isExistingDoc();
@@ -247,9 +247,9 @@ service cloud.firestore {
 
        match /guests/{guestId} {
         allow get: if canReadEventData(eventId) || isOwner(guestId);
-        allow list: if isEventStaff(eventId);
+        allow list: if isEventStaff(eventId) || request.query.keys().hasAny(['guestCode']);
         allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
-        allow update: if (isEventStaff(eventId) || isOwner(guestId)) && isExistingDoc();
+        allow update: if (isEventStaff(eventId) || isOwner(guestId) || isOwner(resource.data.userProfileId)) && isExistingDoc();
         allow delete: if isEventStaff(eventId) && isExistingDoc();
       }
       
@@ -399,5 +399,3 @@ service cloud.firestore {
 
   }
 }
-
-    
