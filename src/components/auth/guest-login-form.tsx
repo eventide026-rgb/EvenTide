@@ -218,7 +218,7 @@ export function GuestLoginForm() {
             code,
             message,
             details,
-            path: `events/${foundEvent?.id ?? 'UNKNOWN_EVENT'}/guests/${guestCode}`,
+            path: `events/${foundEvent.id}/guests/${guestCode}`,
         });
 
         if (code === 'permission-denied') {
