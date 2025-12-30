@@ -117,7 +117,7 @@ export default function GuestDashboardLayout({ children }: { children: React.Rea
 
   return (
     <SidebarProvider>
-        <div className="flex min-h-screen w-full flex-row bg-muted/40">
+        <div className="flex h-screen w-full flex-row bg-muted/40">
             <Sidebar>
                 <SidebarHeader>
                     <Link href="/">
