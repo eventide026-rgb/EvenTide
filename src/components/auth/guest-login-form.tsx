@@ -117,11 +117,7 @@ export function GuestLoginForm() {
             });
         }
     } catch(error: any) {
-        console.error("Error searching for event:", {
-            code: error.code,
-            message: error.message,
-            path: collectionPath
-        });
+        console.error("Error searching for event:", error);
         
         if (error.code === 'permission-denied') {
             errorEmitter.emit(
@@ -186,11 +182,7 @@ export function GuestLoginForm() {
       router.push("/guest-dashboard/my-invitations");
 
     } catch (err: any) {
-      console.error('Detailed Firestore Error:', {
-        code: err.code,
-        message: err.message,
-        path: `events/${foundEvent.id}/guests`,
-      });
+      console.error('Detailed Firestore Error:', err);
 
       if (err.code === 'permission-denied') {
         errorEmitter.emit(
