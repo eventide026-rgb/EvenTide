@@ -172,17 +172,64 @@ service cloud.firestore {
           allow update, delete: if isShowOwner(showId);
       }
 
+
+
+
+
+
+
       match /events/{eventId} {
+
         allow get: if isEventStaff(eventId) || isEventPlannerByAssignment();
         allow list: if true;
         allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-        allow update: if (isEventOwner(eventId) || isEventPlanner(eventId)) && isExistingDoc() && request.resource.data.ownerId == resource.data.ownerId;
+        allow update: if
+          (isEventOwner(eventId) || isEventPlanner(eventId)) &&
+          isExistingDoc() &&
+          request.resource.data.ownerId == resource.data.ownerId;
         allow delete: if isEventOwner(eventId) && isExistingDoc();
 
         match /tasks/{taskId} {
           allow read, create, update, delete: if isEventStaff(eventId);
+        }
 
+        /* =====================================================
+           🔓 GUEST LOGIN — THIS IS THE IMPORTANT PART
+           ===================================================== */
+
+        // COLLECTION QUERY (unauthenticated guest lookup)
+        match /guests {
+          allow list: if
+            request.auth == null &&
+            request.query.limit == 1;
+        }
+
+        // DOCUMENT RULES
+        match /guests/{guestId} {
+
+          // Staff access
+          allow get, list: if isEventStaff(eventId);
+
+          // Guest can read own linked doc
+          allow get: if
+            request.auth != null &&
+            resource.data.userProfileId == request.auth.uid;
+
+          // Staff creates guests
+          allow create: if
+            isEventOwner(eventId) || isEventPlanner(eventId);
+
+          // 🔐 One-time anonymous UID linking
+          allow update: if
+            request.auth != null &&
+            resource.data.userProfileId == null &&
+            request.resource.data.userProfileId == request.auth.uid;
+
+          allow delete: if isEventStaff(eventId);
+        
       }
+
+
 
       match /expenses/{expenseId} {
         allow read: if isEventStaff(eventId);
@@ -243,71 +290,7 @@ service cloud.firestore {
       match /shotLists/{shotListId} {
         allow read: if isEventStaff(eventId) || isEventVendor(eventId, 'Photographer') || isEventVendor(eventId, 'Videographer');
         allow write: if isEventStaff(eventId); // Owner/Planner can add/remove
-      }
-
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       
-       // COLLECTION-LEVEL RULE (THIS IS WHAT WAS MISSING)
-match /events/{eventId}/guests {
-  allow list: if
-    request.auth == null &&
-    request.query.limit == 1;
-}
-
-// DOCUMENT-LEVEL RULE
-match /events/{eventId}/guests/{guestId} {
-
-  // Staff full access
-  allow get, list: if isEventStaff(eventId);
-
-  // Guest can read own linked doc
-  allow get: if
-    request.auth != null &&
-    resource.data.userProfileId == request.auth.uid;
-
-  // Staff creates guests
-  allow create: if
-    isEventOwner(eventId) || isEventPlanner(eventId);
-
-  // One-time UID linking
-  allow update: if
-    request.auth != null &&
-    resource.data.userProfileId == null &&
-    request.resource.data.userProfileId == request.auth.uid;
-
-  allow delete: if isEventStaff(eventId);
-
-
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
+        
       }
       
       match /invitations/{invitationId} {
@@ -315,152 +298,152 @@ match /events/{eventId}/guests/{guestId} {
         allow list: if isEventStaff(eventId);
         allow create: if isEventOwnerOnCreate() || isEventStaff(eventId);
         allow delete: if isEventStaff(eventId);
+        }
       }
-    }
-    
-     match /events/{eventId}/moodboard/{moodboardId} {
-      allow get, list: if isEventStaff(eventId) || isEventVendor(eventId, 'Decorator');
-      allow create, update, delete: if isEventStaff(eventId);
-    }
 
-   match /events/{eventId}/planners/{plannerId} {
-      allow get, list: if canReadEventData(eventId);
+       match /events/{eventId}/moodboard/{moodboardId} {
+        allow get, list: if isEventStaff(eventId) || isEventVendor(eventId, 'Decorator');
+        allow create, update, delete: if isEventStaff(eventId);
+      }
 
-      allow create: if
-        isEventOwner(eventId) ||
-        isEventOwnerOnCreate();
+     match /events/{eventId}/planners/{plannerId} {
+        allow get, list: if canReadEventData(eventId);
 
-      allow update: if isEventOwner(eventId) && isExistingDoc();
-      allow delete: if isEventOwner(eventId) && isExistingDoc();
+        allow create: if
+          isEventOwner(eventId) ||
+          isEventOwnerOnCreate();
+
+        allow update: if isEventOwner(eventId) && isExistingDoc();
+        allow delete: if isEventOwner(eventId) && isExistingDoc();
+
+      }
+
+      match /events/{eventId}/cohosts/{cohostId} {
+        allow get, list: if canReadEventData(eventId);
+        allow create: if isEventOwner(eventId);
+        allow update: if isEventOwner(eventId) && isExistingDoc();
+        allow delete: if isEventOwner(eventId) && isExistingDoc();
+      }
+
+      match /events/{eventId}/chat_messages/{messageId} {
+        allow get, list: if canReadEventData(eventId);
+        allow create: if (isEventStaff(eventId) || isEventGuest(eventId)) && request.resource.data.senderId == request.auth.uid && request.resource.data.eventId == eventId;
+        allow update: if false; 
+        allow delete: if (isEventStaff(eventId) || isOwner(resource.data.senderId)) && isExistingDoc();
+      }
+
+      match /events/{eventId}/media/{mediaId} {
+        allow get, list: if canReadEventData(eventId);
+        allow create: if isEventStaff(eventId) && request.resource.data.uploaderId == request.auth.uid && request.resource.data.eventId == eventId;
+        allow update: if false; 
+        allow delete: if (isEventStaff(eventId) || isOwner(resource.data.uploaderId)) && isExistingDoc();
+      }
+
+      match /price_plans/{pricePlanId} {
+        allow read, list: if true;
+        allow write: if false;
+      }
+
+      match /events/{eventId}/security_codes/{securityCodeId} {
+        allow get: if isEventStaff(eventId) || isOwner(securityCodeId);
+        allow list: if isEventStaff(eventId);
+        allow create: if isEventStaff(eventId) && request.resource.data.eventId == eventId;
+        allow update: if isEventStaff(eventId) && isExistingDoc();
+        allow delete: if isEventStaff(eventId) && isExistingDoc();
+      }
+
+      match /events/{eventId}/announcements/{announcementId} {
+        allow read: if canReadEventData(eventId);
+        allow create: if isEventStaff(eventId) && request.resource.data.authorId == request.auth.uid && request.resource.data.eventId == eventId;
+        allow update, delete: if isEventStaff(eventId) && isExistingDoc();
+      }
+
+      // Marketplace Rules
+
+      match /cars/{carId} {
+          allow get, list: if true;
+          allow read: if true;
+          allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+          allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+
+          match /bookings/{bookingId} {
+              allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.carOwnerId == request.auth.uid);
+              allow list: if isSignedIn() && resource.data.carOwnerId == request.auth.uid;
+              allow create: if isSignedIn();
+              allow update, delete: if isSignedIn() && resource.data.carOwnerId == request.auth.uid;
+          }
+      }
+
+      match /carBookings/{bookingId} {
+          allow list, get: if request.auth != null
+              && request.query.where.userId == request.auth.uid;
+          allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.carOwnerId == request.auth.uid);
+          allow create: if isSignedIn();
+          allow update: if isSignedIn() && resource.data.carOwnerId == request.auth.uid;
+      }
+
+      match /venues/{venueId} {
+          allow get, list: if true;
+          allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+          allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+
+          match /bookings/{bookingId} {
+              allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.venueOwnerId == request.auth.uid);
+              allow list: if isSignedIn() && resource.data.venueOwnerId == request.auth.uid;
+              allow create: if isSignedIn();
+              allow update, delete: if isSignedIn() && resource.data.venueOwnerId == request.auth.uid;
+          }
+      }
+       match /venueBookings/{bookingId} {
+          allow list, get: if request.auth != null
+                && request.auth.uid == resource.data.userId;
+          allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.venueOwnerId == request.auth.uid);
+          allow create: if isSignedIn();
+          allow update: if isSignedIn() && resource.data.venueOwnerId == request.auth.uid;
+      }
+
+      match /hotels/{hotelId} {
+          allow get, list: if true;
+          allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+          allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+
+          match /bookings/{bookingId} {
+              allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.hotelOwnerId == request.auth.uid);
+              allow list: if isSignedIn() && resource.data.hotelOwnerId == request.auth.uid;
+              allow create: if isSignedIn();
+              allow update, delete: if isSignedIn() && resource.data.hotelOwnerId == request.auth.uid;
+          }
+      }
+       match /bookings/{bookingId} {
+          allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.hotelOwnerId == request.auth.uid);
+          allow list, get: if request.auth != null && request.query.where.userId == request.auth.uid;
+          allow create: if isSignedIn();
+          allow update: if isSignedIn() && resource.data.hotelOwnerId == request.auth.uid;
+      }
+
+      match /magazineIssues/{issueId} {
+          allow get: if resource.data.status == 'published' || isAdmin();
+          allow list: if true; // Public can list published issues, admins can list all
+          allow create, update, delete: if isAdmin();
+      }
+
+      // Administrative Rules
+      match /adRequests/{requestId} {
+          allow create: if isSignedIn();
+          allow read, update, delete: if isAdmin();
+      }
+
+      match /testimonials/{testimonialId} {
+          allow get, list: if true;
+          allow create: if isSignedIn();
+          allow update, delete: if false; // Should be handled by admin roles
+      }
+       match /supportTickets/{ticketId} {
+          allow create: if true;
+          allow read, update, delete: if false; // Should be handled by admin roles
+      }
 
     }
-
-    match /events/{eventId}/cohosts/{cohostId} {
-      allow get, list: if canReadEventData(eventId);
-      allow create: if isEventOwner(eventId);
-      allow update: if isEventOwner(eventId) && isExistingDoc();
-      allow delete: if isEventOwner(eventId) && isExistingDoc();
-    }
-
-    match /events/{eventId}/chat_messages/{messageId} {
-      allow get, list: if canReadEventData(eventId);
-      allow create: if (isEventStaff(eventId) || isEventGuest(eventId)) && request.resource.data.senderId == request.auth.uid && request.resource.data.eventId == eventId;
-      allow update: if false; 
-      allow delete: if (isEventStaff(eventId) || isOwner(resource.data.senderId)) && isExistingDoc();
-    }
-
-    match /events/{eventId}/media/{mediaId} {
-      allow get, list: if canReadEventData(eventId);
-      allow create: if isEventStaff(eventId) && request.resource.data.uploaderId == request.auth.uid && request.resource.data.eventId == eventId;
-      allow update: if false; 
-      allow delete: if (isEventStaff(eventId) || isOwner(resource.data.uploaderId)) && isExistingDoc();
-    }
-
-    match /price_plans/{pricePlanId} {
-      allow read, list: if true;
-      allow write: if false;
-    }
-
-    match /events/{eventId}/security_codes/{securityCodeId} {
-      allow get: if isEventStaff(eventId) || isOwner(securityCodeId);
-      allow list: if isEventStaff(eventId);
-      allow create: if isEventStaff(eventId) && request.resource.data.eventId == eventId;
-      allow update: if isEventStaff(eventId) && isExistingDoc();
-      allow delete: if isEventStaff(eventId) && isExistingDoc();
-    }
-
-    match /events/{eventId}/announcements/{announcementId} {
-      allow read: if canReadEventData(eventId);
-      allow create: if isEventStaff(eventId) && request.resource.data.authorId == request.auth.uid && request.resource.data.eventId == eventId;
-      allow update, delete: if isEventStaff(eventId) && isExistingDoc();
-    }
-    
-    // Marketplace Rules
-    
-    match /cars/{carId} {
-        allow get, list: if true;
-        allow read: if true;
-        allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-        allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-
-        match /bookings/{bookingId} {
-            allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.carOwnerId == request.auth.uid);
-            allow list: if isSignedIn() && resource.data.carOwnerId == request.auth.uid;
-            allow create: if isSignedIn();
-            allow update, delete: if isSignedIn() && resource.data.carOwnerId == request.auth.uid;
-        }
-    }
-
-    match /carBookings/{bookingId} {
-        allow list, get: if request.auth != null
-            && request.query.where.userId == request.auth.uid;
-        allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.carOwnerId == request.auth.uid);
-        allow create: if isSignedIn();
-        allow update: if isSignedIn() && resource.data.carOwnerId == request.auth.uid;
-    }
-
-    match /venues/{venueId} {
-        allow get, list: if true;
-        allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-        allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-
-        match /bookings/{bookingId} {
-            allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.venueOwnerId == request.auth.uid);
-            allow list: if isSignedIn() && resource.data.venueOwnerId == request.auth.uid;
-            allow create: if isSignedIn();
-            allow update, delete: if isSignedIn() && resource.data.venueOwnerId == request.auth.uid;
-        }
-    }
-     match /venueBookings/{bookingId} {
-     		allow list, get: if request.auth != null
-    					&& request.auth.uid == resource.data.userId;
-        allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.venueOwnerId == request.auth.uid);
-        allow create: if isSignedIn();
-        allow update: if isSignedIn() && resource.data.venueOwnerId == request.auth.uid;
-    }
-
-    match /hotels/{hotelId} {
-        allow get, list: if true;
-        allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-        allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-
-        match /bookings/{bookingId} {
-            allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.hotelOwnerId == request.auth.uid);
-            allow list: if isSignedIn() && resource.data.hotelOwnerId == request.auth.uid;
-            allow create: if isSignedIn();
-            allow update, delete: if isSignedIn() && resource.data.hotelOwnerId == request.auth.uid;
-        }
-    }
-     match /bookings/{bookingId} {
-        allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.hotelOwnerId == request.auth.uid);
-        allow list, get: if request.auth != null && request.query.where.userId == request.auth.uid;
-        allow create: if isSignedIn();
-        allow update: if isSignedIn() && resource.data.hotelOwnerId == request.auth.uid;
-    }
-
-    match /magazineIssues/{issueId} {
-        allow get: if resource.data.status == 'published' || isAdmin();
-        allow list: if true; // Public can list published issues, admins can list all
-        allow create, update, delete: if isAdmin();
-    }
-    
-    // Administrative Rules
-    match /adRequests/{requestId} {
-        allow create: if isSignedIn();
-        allow read, update, delete: if isAdmin();
-    }
-
-    match /testimonials/{testimonialId} {
-        allow get, list: if true;
-        allow create: if isSignedIn();
-        allow update, delete: if false; // Should be handled by admin roles
-    }
-     match /supportTickets/{ticketId} {
-        allow create: if true;
-        allow read, update, delete: if false; // Should be handled by admin roles
-    }
-
   }
-}
 
     
