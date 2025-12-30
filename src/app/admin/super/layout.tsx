@@ -30,8 +30,9 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/layout/logo";
-import { useAuth } from "@/firebase";
+import { useAuth, useUser } from "@/firebase";
 import { signOut } from "firebase/auth";
+import { useEffect, useState } from "react";
 
 const superAdminNav = [
   { href: "/admin/super/dashboard", icon: Home, label: "Dashboard" },
@@ -59,6 +60,14 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
   const pathname = usePathname();
   const auth = useAuth();
   const router = useRouter();
+  const { user } = useUser();
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      setUserName(sessionStorage.getItem('userName'));
+    }
+  }, [user]);
 
   const handleSignOut = async () => {
     if (auth) {
@@ -154,7 +163,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
                           <AvatarFallback>SA</AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col text-left">
-                          <span className="font-semibold">Super Admin</span>
+                          <span className="font-semibold">{userName || 'Super Admin'}</span>
                           <span className="text-xs text-muted-foreground">super@eventide.app</span>
                       </div>
                   </SidebarMenuButton>

@@ -52,12 +52,11 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
 
         const userData = userDoc.data();
         const role = userData.role;
-        const correctDashboard = ROLE_DASHBOARD_MAP[role];
-        const fullName = `${userData.firstName} ${userData.lastName}`;
+        const firstName = userData.firstName || '';
 
         // Store role and name in session storage for immediate access.
         sessionStorage.setItem('userRole', role);
-        sessionStorage.setItem('userName', fullName);
+        sessionStorage.setItem('userName', firstName);
 
 
         // 1. Handle new logins from an auth page
@@ -65,8 +64,9 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
           sessionStorage.removeItem('isNewLogin');
           toast({
             title: "Login Successful!",
-            description: `Welcome back, ${fullName}! Redirecting...`,
+            description: `Welcome back, ${firstName}! Redirecting...`,
           });
+          const correctDashboard = ROLE_DASHBOARD_MAP[role];
           if (correctDashboard) {
             router.replace(correctDashboard);
           }
@@ -74,6 +74,7 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
         }
 
         // 2. If an authenticated user lands on an auth page, redirect them away.
+        const correctDashboard = ROLE_DASHBOARD_MAP[role];
         if (isOnAuthPage && correctDashboard) {
             router.replace(correctDashboard);
             return;

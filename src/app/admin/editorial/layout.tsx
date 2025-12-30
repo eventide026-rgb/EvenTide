@@ -22,8 +22,9 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/layout/logo";
-import { useAuth } from "@/firebase";
+import { useAuth, useUser } from "@/firebase";
 import { signOut } from "firebase/auth";
+import { useEffect, useState } from "react";
 
 const navItems = [
   { href: "/admin/editorial/dashboard", icon: Home, label: "Dashboard" },
@@ -34,6 +35,14 @@ export default function EditorialAdminLayout({ children }: { children: React.Rea
   const pathname = usePathname();
   const auth = useAuth();
   const router = useRouter();
+  const { user } = useUser();
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      setUserName(sessionStorage.getItem('userName'));
+    }
+  }, [user]);
 
   const handleSignOut = async () => {
     if (auth) {
@@ -87,7 +96,7 @@ export default function EditorialAdminLayout({ children }: { children: React.Rea
                           <AvatarFallback>EA</AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col text-left">
-                          <span className="font-semibold">Editorial Admin</span>
+                          <span className="font-semibold">{userName || 'Editorial Admin'}</span>
                           <span className="text-xs text-muted-foreground">editorial.admin@eventide.app</span>
                       </div>
                   </SidebarMenuButton>

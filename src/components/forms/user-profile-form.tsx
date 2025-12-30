@@ -72,9 +72,9 @@ export function UserProfileForm() {
       });
       
       // Update Firebase Auth profile
-      await updateProfile(user, { displayName: `${values.firstName} ${values.lastName}` });
+      await updateProfile(user, { displayName: `${values.firstName}` });
 
-      sessionStorage.setItem('userName', `${values.firstName} ${values.lastName}`);
+      sessionStorage.setItem('userName', `${values.firstName}`);
 
       toast({
         title: 'Profile Updated',

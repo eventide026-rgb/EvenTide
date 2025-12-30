@@ -20,6 +20,7 @@ import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { NotificationBell } from './notification-bell';
+import { useEffect, useState } from 'react';
 
 export function DashboardHeader() {
   const { user, isUserLoading } = useUser();
@@ -27,15 +28,22 @@ export function DashboardHeader() {
   const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      setUserName(sessionStorage.getItem('userName'));
+    }
+  }, [user]);
 
   const handleSignOut = async () => {
     if (auth) {
-      const userName = sessionStorage.getItem('userName') || user?.displayName || user?.email || 'User';
+      const storedUserName = sessionStorage.getItem('userName') || user?.displayName || user?.email || 'User';
       await signOut(auth);
       sessionStorage.clear();
       toast({
         title: "Goodbye!",
-        description: `You have been successfully signed out, ${userName}.`,
+        description: `You have been successfully signed out, ${storedUserName}.`,
       });
       router.push('/');
     }
@@ -73,15 +81,15 @@ export function DashboardHeader() {
                 <Avatar className="h-8 w-8">
                 <AvatarImage
                     src={user?.photoURL ?? `https://picsum.photos/seed/${user?.uid}/100`}
-                    alt={user?.displayName ?? 'User'}
+                    alt={userName ?? 'User'}
                 />
                 <AvatarFallback>
-                    {user?.email?.[0].toUpperCase()}
+                    {userName?.[0].toUpperCase() || user?.email?.[0].toUpperCase()}
                 </AvatarFallback>
                 </Avatar>
                 <div className="hidden md:flex flex-col text-left">
                 <span className="font-semibold text-sm truncate">
-                    {isUserLoading ? 'Loading...' : user?.displayName || user?.email}
+                    {isUserLoading ? 'Loading...' : userName || user?.email}
                 </span>
                 <Badge variant="secondary" className="w-fit">{role}</Badge>
                 </div>
