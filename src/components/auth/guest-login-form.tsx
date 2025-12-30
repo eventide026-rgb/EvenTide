@@ -86,79 +86,80 @@ export function GuestLoginForm() {
     if (!firestore) return;
     setIsSearchingEvent(true);
     setFoundEvent(null);
-
+  
     const collectionsToSearch = ['events', 'shows'];
     let eventFound = false;
     let collectionPath = '';
-
+  
     try {
-        for (const col of collectionsToSearch) {
-            collectionPath = col;
-            const collectionRef = collection(firestore, col);
-            const q = query(collectionRef, where("eventCode", "==", values.eventCode.trim()), limit(1));
-            const querySnapshot = await getDocs(q);
-
-            if (!querySnapshot.empty) {
-                const eventDoc = querySnapshot.docs[0];
-                setFoundEvent({ id: eventDoc.id, ...eventDoc.data() } as Event);
-                sessionStorage.setItem('guestEventId', eventDoc.id);
-                sessionStorage.setItem('guestEventCode', values.eventCode.trim());
-                sessionStorage.setItem('guestEventName', eventDoc.data().name);
-                eventFound = true;
-                break; 
-            }
+      for (const col of collectionsToSearch) {
+        collectionPath = col;
+        const collectionRef = collection(firestore, col);
+        const q = query(
+          collectionRef,
+          where('eventCode', '==', values.eventCode.trim()),
+          limit(1)
+        );
+        const querySnapshot = await getDocs(q);
+  
+        if (!querySnapshot.empty) {
+          const eventDoc = querySnapshot.docs[0];
+          setFoundEvent({ id: eventDoc.id, ...eventDoc.data() } as Event);
+          eventFound = true;
+          break;
         }
-
-        if (!eventFound) {
-            toast({
-                variant: "destructive",
-                title: "Event Not Found",
-                description: "No event found with that code. Please check and try again.",
-            });
-        }
-    } catch(err: any) {
-        // Safe, informative logging for many error shapes
-        const raw = err ?? 'unknown error';
-        const code = err && err.code ? err.code : undefined;
-        const message = err && err.message ? err.message : String(raw);
-        const details = (() => {
-          try {
-            return JSON.stringify(err, Object.getOwnPropertyNames(err));
-          } catch {
-            return String(err);
-          }
-        })();
-
-        console.error('Detailed Firestore Error:', {
-          code,
-          message,
-          details,
-          collectionPath,
-          foundEventId: foundEvent?.id ?? null,
+      }
+  
+      if (!eventFound) {
+        toast({
+          variant: 'destructive',
+          title: 'Event Not Found',
+          description: 'No event found with that code. Please check and try again.',
         });
-
-        if (code === 'permission-denied') {
-          errorEmitter.emit(
-            'permission-error',
-            new FirestorePermissionError({
-              path: collectionPath,
-              operation: 'list',
-            })
-          );
-          toast({
-            variant: 'destructive',
-            title: 'Permission Denied',
-            description: 'You do not have permission to search that collection.',
-          });
-        } else {
-          toast({
-            variant: 'destructive',
-            title: 'Search Failed',
-            description: 'An error occurred while searching for the event.',
-          });
+      }
+    } catch (err: any) {
+      // Safe, informative logging for many error shapes
+      const raw = err ?? 'unknown error';
+      const code = err && err.code ? err.code : undefined;
+      const message = err && err.message ? err.message : String(raw);
+      const details = (() => {
+        try {
+          return JSON.stringify(err, Object.getOwnPropertyNames(err));
+        } catch {
+          return String(err);
         }
+      })();
+  
+      console.error('Detailed Firestore Error:', {
+        code,
+        message,
+        details,
+        collectionPath,
+        foundEventId: foundEvent?.id ?? null,
+      });
+  
+      if (code === 'permission-denied') {
+        errorEmitter.emit(
+          'permission-error',
+          new FirestorePermissionError({
+            path: collectionPath,
+            operation: 'list',
+          })
+        );
+        toast({
+          variant: 'destructive',
+          title: 'Permission Denied',
+          description: 'You do not have permission to search that collection.',
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Search Failed',
+          description: 'An error occurred while searching for the event.',
+        });
+      }
     } finally {
-        setIsSearchingEvent(false);
+      setIsSearchingEvent(false);
     }
   }
 
@@ -205,7 +206,6 @@ export function GuestLoginForm() {
       router.push("/guest-dashboard/my-invitations");
 
     } catch (err: any) {
-        // Safe, informative logging for many error shapes
         const raw = err ?? 'unknown error';
         const code = err && err.code ? err.code : undefined;
         const message = err && err.message ? err.message : String(raw);

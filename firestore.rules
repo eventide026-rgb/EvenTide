@@ -3,186 +3,187 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper Functions for Reusability and Readability
+      // Helper Functions for Reusability and Readability
 
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
-    function isExistingDoc() {
-      return resource != null;
-    }
-    
-    function isEventOwnerOnCreate() {
-      return isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-    }
-
-    function getUserRole(userId) {
-        return get(/databases/$(database)/documents/users/$(userId)).data.role;
-    }
-    
-    function isAdmin() {
-        let role = getUserRole(request.auth.uid);
-        return isSignedIn() && (role == 'Super Admin' || role == 'Content Admin' || role == 'Editorial Admin');
-    }
-    
-    function getShow(showId) {
-      return get(/databases/$(database)/documents/shows/$(showId));
-    }
-    
-    function isShowOwner(showId) {
-        // Use `resource.data` for existing documents
-        return isSignedIn() && resource.data.ownerId == request.auth.uid;
-    }
-
-    function getEvent(eventId) {
-      return get(/databases/$(database)/documents/events/$(eventId));
-    }
-
-    function isEventOwner(eventId) {
-      let eventData = getEvent(eventId).data;
-      return isSignedIn() && eventData.ownerId == request.auth.uid;
-    }
-
-    function isEventPlanner(eventId) {
-      return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/planners/$(request.auth.uid));
-    }
-    
-    function isEventPlannerByAssignment() {
-        return isSignedIn() && exists(/databases/$(database)/documents/planners/$(request.auth.uid));
-    }
-
-    function isEventCohost(eventId) {
-      return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/cohosts/$(request.auth.uid));
-    }
-    
-    function isEventGuest(eventId) {
-        return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid));
-    }
-
-    function isEventStaff(eventId) {
-      // For read operations, this is fine. For writes, be more specific.
-      return isEventOwner(eventId) || isEventPlanner(eventId) || isEventCohost(eventId);
-    }
-    
-    function isEventVendor(eventId, specialty) {
-        // This is a simplified check. A real implementation might check a 'contracts' subcollection.
-        let userRole = getUserRole(request.auth.uid);
-        return isSignedIn() && userRole == 'Vendor' || userRole == specialty;
-    }
-
-    function canReadEventData(eventId) {
-      return isEventStaff(eventId) || isEventGuest(eventId);
-    }
-    
-    // Security rule for the 'teamMembers' collection group query
-    match /{path=**}/teamMembers/{memberId} {
-      // Allow user to read invitations where their UID is in the `userId` field.
-      allow list, get: if isSignedIn() && request.auth.uid == resource.data.userId;
-      
-      // Allow user to update their own invitation status.
-      allow update: if isSignedIn() && request.auth.uid == resource.data.userId && request.resource.data.status in ['accepted', 'declined'];
-      allow create: if isEventOwnerOnCreate() || isEventStaff(path.split('/')[1]);
-    }
-
-    // Begin Collection Rules
-
-    match /hosts/{hostId} {
-       allow read, write: if isOwner(hostId);
-
-        match /events/{eventId} {
-            allow read, write: if isOwner(hostId);
-
-            match /teamMembers/{memberId} {
-              allow read, write: if isOwner(hostId);
-            }
-        }
-    }
-
-
-    match /users/{userId} {
-      allow get: if isSignedIn();
-      allow list: if isSignedIn();
-      allow create: if request.auth.uid == userId;
-      allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.id == resource.data.id;
-      allow delete: if isOwner(userId) && isExistingDoc();
-      
-      // Notifications can only be read/deleted by the user they belong to.
-      // Any signed in user can create a notification for another user (e.g. for invitations).
-      match /notifications/{notificationId} {
-        allow read, delete: if isOwner(userId);
-        allow create: if isSignedIn();
-        allow update: if isOwner(userId) && request.resource.data.read == true;
+      function isSignedIn() {
+        return request.auth != null;
       }
-    }
-    
-    match /users/{document=**} {
+
+      function isOwner(userId) {
+        return isSignedIn() && request.auth.uid == userId;
+      }
+
+      function isExistingDoc() {
+        return resource != null;
+      }
+
+      function isEventOwnerOnCreate() {
+        return isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      }
+
+      function getUserRole(userId) {
+          return get(/databases/$(database)/documents/users/$(userId)).data.role;
+      }
+
+      function isAdmin() {
+          let role = getUserRole(request.auth.uid);
+          return isSignedIn() && (role == 'Super Admin' || role == 'Content Admin' || role == 'Editorial Admin');
+      }
+
+      function getShow(showId) {
+        return get(/databases/$(database)/documents/shows/$(showId));
+      }
+
+      function isShowOwner(showId) {
+          // Use `resource.data` for existing documents
+          return isSignedIn() && resource.data.ownerId == request.auth.uid;
+      }
+
+      function getEvent(eventId) {
+        return get(/databases/$(database)/documents/events/$(eventId));
+      }
+
+      function isEventOwner(eventId) {
+        let eventData = getEvent(eventId).data;
+        return isSignedIn() && eventData.ownerId == request.auth.uid;
+      }
+
+      function isEventPlanner(eventId) {
+        return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/planners/$(request.auth.uid));
+      }
+
+      function isEventPlannerByAssignment() {
+          return isSignedIn() && exists(/databases/$(database)/documents/planners/$(request.auth.uid));
+      }
+
+      function isEventCohost(eventId) {
+        return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/cohosts/$(request.auth.uid));
+      }
+
+      function isEventGuest(eventId) {
+          return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid));
+      }
+
+      function isEventStaff(eventId) {
+        // For read operations, this is fine. For writes, be more specific.
+        return isEventOwner(eventId) || isEventPlanner(eventId) || isEventCohost(eventId);
+      }
+
+      function isEventVendor(eventId, specialty) {
+          // This is a simplified check. A real implementation might check a 'contracts' subcollection.
+          let userRole = getUserRole(request.auth.uid);
+          return isSignedIn() && userRole == 'Vendor' || userRole == specialty;
+      }
+
+      function canReadEventData(eventId) {
+        return isEventStaff(eventId) || isEventGuest(eventId);
+      }
+
+      // Security rule for the 'teamMembers' collection group query
+      match /{path=**}/teamMembers/{memberId} {
+        // Allow user to read invitations where their UID is in the `userId` field.
+        allow list, get: if isSignedIn() && request.auth.uid == resource.data.userId;
+
+        // Allow user to update their own invitation status.
+        allow update: if isSignedIn() && request.auth.uid == resource.data.userId && request.resource.data.status in ['accepted', 'declined'];
+        allow create: if isEventOwnerOnCreate() || isEventStaff(path.split('/')[1]);
+      }
+
+      // Begin Collection Rules
+
+      match /hosts/{hostId} {
+         allow read, write: if isOwner(hostId);
+
+          match /events/{eventId} {
+              allow read, write: if isOwner(hostId);
+
+              match /teamMembers/{memberId} {
+                allow read, write: if isOwner(hostId);
+              }
+          }
+      }
+
+
+      match /users/{userId} {
+        allow get: if isSignedIn();
         allow list: if isSignedIn();
-    }
-    
-    match /planners/{plannerId} {
-        allow read, write: if isOwner(plannerId);
-        
-        match /assignments/{assignmentId} {
-            allow read, list: if isOwner(plannerId);
-            allow update: if isOwner(plannerId); // Planner can accept/decline
+        allow create: if request.auth.uid == userId;
+        allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.id == resource.data.id;
+        allow delete: if isOwner(userId) && isExistingDoc();
+
+        // Notifications can only be read/deleted by the user they belong to.
+        // Any signed in user can create a notification for another user (e.g. for invitations).
+        match /notifications/{notificationId} {
+          allow read, delete: if isOwner(userId);
+          allow create: if isSignedIn();
+          allow update: if isOwner(userId) && request.resource.data.read == true;
         }
-    }
+      }
 
-    match /plannerProfiles/{plannerId} {
-        allow get, list: if true;
-        allow create: if request.auth.uid == plannerId;
-        allow update, delete: if isOwner(plannerId);
-    }
+      match /users/{document=**} {
+          allow list: if isSignedIn();
+      }
 
-    match /ticketiers/{ticketierId} {
+      match /planners/{plannerId} {
+          allow read, write: if isOwner(plannerId);
+
+          match /assignments/{assignmentId} {
+              allow read, list: if isOwner(plannerId);
+              allow update: if isOwner(plannerId); // Planner can accept/decline
+          }
+      }
+
+      match /plannerProfiles/{plannerId} {
+          allow get, list: if true;
+          allow create: if request.auth.uid == plannerId;
+          allow update, delete: if isOwner(plannerId);
+      }
+
+      match /ticketiers/{ticketierId} {
+          allow get: if true;
+          allow list: if true;
+          allow create: if request.auth.uid == ticketierId;
+          allow update: if isOwner(ticketierId);
+          allow delete: if false;
+      }
+
+      match /vendors/{vendorId} {
+          allow get, list: if true;
+          allow create: if request.auth.uid == vendorId;
+          allow update, delete: if isOwner(vendorId);
+      }
+
+      match /shows/{showId} {
         allow get: if true;
         allow list: if true;
-        allow create: if request.auth.uid == ticketierId;
-        allow update: if isOwner(ticketierId);
-        allow delete: if false;
-    }
-
-    match /vendors/{vendorId} {
-        allow get, list: if true;
-        allow create: if request.auth.uid == vendorId;
-        allow update, delete: if isOwner(vendorId);
-    }
-    
-    match /shows/{showId} {
-      allow get: if true;
-      allow list: if true;
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow update: if isShowOwner(showId);
-      allow delete: if isShowOwner(showId);
-    }
-
-    match /shows/{showId}/ticketTiers/{tierId} {
-        allow get, list: if true; // Tiers are public
-        allow create, update, delete: if isShowOwner(showId);
-    }
-    
-    match /shows/{showId}/tickets/{ticketId} {
-        allow get, list: if isShowOwner(showId) || isOwner(resource.data.buyerId);
-        allow create: if isSignedIn();
-        allow update, delete: if isShowOwner(showId);
-    }
-    
-    match /events/{eventId} {
-      allow get: if isEventStaff(eventId) || isEventPlannerByAssignment();
-      allow list: if true;
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow update: if (isEventOwner(eventId) || isEventPlanner(eventId)) && isExistingDoc() && request.resource.data.ownerId == resource.data.ownerId;
-      allow delete: if isEventOwner(eventId) && isExistingDoc();
-
-      match /tasks/{taskId} {
-        allow read, create, update, delete: if isEventStaff(eventId);
+        allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+        allow update: if isShowOwner(showId);
+        allow delete: if isShowOwner(showId);
       }
-      
+
+      match /shows/{showId}/ticketTiers/{tierId} {
+          allow get, list: if true; // Tiers are public
+          allow create, update, delete: if isShowOwner(showId);
+      }
+
+      match /shows/{showId}/tickets/{ticketId} {
+          allow get, list: if isShowOwner(showId) || isOwner(resource.data.buyerId);
+          allow create: if isSignedIn();
+          allow update, delete: if isShowOwner(showId);
+      }
+
+      match /events/{eventId} {
+        allow get: if isEventStaff(eventId) || isEventPlannerByAssignment();
+        allow list: if true;
+        allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+        allow update: if (isEventOwner(eventId) || isEventPlanner(eventId)) && isExistingDoc() && request.resource.data.ownerId == resource.data.ownerId;
+        allow delete: if isEventOwner(eventId) && isExistingDoc();
+
+        match /tasks/{taskId} {
+          allow read, create, update, delete: if isEventStaff(eventId);
+
+      }
+
       match /expenses/{expenseId} {
         allow read: if isEventStaff(eventId);
         allow create, update, delete: if isEventPlanner(eventId);
@@ -244,15 +245,69 @@ service cloud.firestore {
         allow write: if isEventStaff(eventId); // Owner/Planner can add/remove
       }
 
-       match /guests/{guestId} {
-        allow get: if canReadEventData(eventId) || isOwner(guestId);
-        // Allow unauthenticated query by guestCode, otherwise require staff role
-        allow list: if request.query.where.guestCode != null || isEventStaff(eventId);
-        allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
-        // Allow a user to link their anonymous UID to their guest profile
-        allow update: if (isEventStaff(eventId) || isOwner(guestId)) 
-          || (isSignedIn() && request.auth.uid == request.resource.data.userProfileId && resource.data.userProfileId == null);
-        allow delete: if isEventStaff(eventId) && isExistingDoc();
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       // 🔓 COLLECTION-LEVEL RULE (THIS IS WHAT WAS MISSING)
+match /events/{eventId}/guests {
+  allow list: if
+    request.auth == null &&
+    request.query.limit == 1;
+}
+
+// 📄 DOCUMENT-LEVEL RULE
+match /events/{eventId}/guests/{guestId} {
+
+  // Staff full access
+  allow get, list: if isEventStaff(eventId);
+
+  // Guest can read own linked doc
+  allow get: if
+    request.auth != null &&
+    resource.data.userProfileId == request.auth.uid;
+
+  // Staff creates guests
+  allow create: if
+    isEventOwner(eventId) || isEventPlanner(eventId);
+
+  // 🔐 One-time UID linking
+  allow update: if
+    request.auth != null &&
+    resource.data.userProfileId == null &&
+    request.resource.data.userProfileId == request.auth.uid;
+
+  allow delete: if isEventStaff(eventId);
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       }
       
       match /invitations/{invitationId} {
@@ -407,3 +462,5 @@ service cloud.firestore {
 
   }
 }
+
+    
