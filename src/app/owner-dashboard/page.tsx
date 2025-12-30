@@ -147,17 +147,16 @@ export default function OwnerDashboardPage() {
                                 <ul className="space-y-2">
                                     {events.map(event => (
                                         <li key={event.id}>
-                                            <Link href={`/owner-dashboard/events/${event.id}`} legacyBehavior>
-                                                <a 
-                                                    className={cn(
-                                                        "block w-full text-left p-3 rounded-lg border transition-all",
-                                                        selectedEvent?.id === event.id ? "bg-accent border-primary" : "hover:bg-accent/50"
-                                                    )}
-                                                    onClick={() => setSelectedEventId(event.id)}
-                                                >
-                                                    <p className="font-semibold truncate">{event.name}</p>
-                                                    <p className="text-sm text-muted-foreground">{event.status}</p>
-                                                </a>
+                                            <Link 
+                                                href={`/owner-dashboard/events/${event.id}`}
+                                                className={cn(
+                                                    "block w-full text-left p-3 rounded-lg border transition-all",
+                                                    selectedEvent?.id === event.id ? "bg-accent border-primary" : "hover:bg-accent/50"
+                                                )}
+                                                onClick={() => setSelectedEventId(event.id)}
+                                            >
+                                                <p className="font-semibold truncate">{event.name}</p>
+                                                <p className="text-sm text-muted-foreground">{event.status}</p>
                                             </Link>
                                         </li>
                                     ))}
