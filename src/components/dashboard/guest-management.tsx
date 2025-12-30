@@ -5,7 +5,7 @@
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, addDoc, serverTimestamp, orderBy, documentId, updateDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, doc, setDoc, serverTimestamp, orderBy, documentId, updateDoc, getDocs, deleteDoc } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -148,10 +148,9 @@ function GuestManagementComponent() {
         return;
     }
 
-    const guestCollectionRef = collection(firestore, 'events', selectedEventId, 'guests');
-    
-    const guestId = `gst-${doc(guestCollectionRef).id.substring(0, 8)}`;
     const guestCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const guestDocRef = doc(firestore, 'events', selectedEventId, 'guests', guestCode);
+    const guestId = `gst-${doc(collection(firestore, 'events')).id.substring(0, 8)}`;
 
 
     const newGuestData = {
@@ -167,7 +166,7 @@ function GuestManagementComponent() {
     };
 
     try {
-        await addDoc(guestCollectionRef, newGuestData);
+        await setDoc(guestDocRef, newGuestData);
         await updateDoc(selectedEventRef, { guestCount: guestCount + 1 });
         toast({ title: 'Guest Added', description: `${values.name} has been added to your guest list.` });
         guestForm.reset();

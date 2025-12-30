@@ -121,7 +121,7 @@ export function HotelCalendar() {
             {daysInMonth.map((day, dayIndex) => (
               <div key={day.toISOString()} className={cn("text-center", (getDay(day) === 0 || getDay(day) === 6) && 'bg-muted/50' )}>
                 <div className="h-12 border-b flex flex-col items-center justify-center p-1">
-                    <span className="text-xs">{format(day, 'E')}</span>
+                    <span className="text-xs">{['S', 'M', 'T', 'W', 'T', 'F', 'S'][getDay(day)]}</span>
                     <span className="font-bold text-lg">{format(day, 'd')}</span>
                 </div>
                 {selectedHotel.roomTypes.map(room => {
@@ -155,4 +155,3 @@ export function HotelCalendar() {
     </div>
   );
 }
-

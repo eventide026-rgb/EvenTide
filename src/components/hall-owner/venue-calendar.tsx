@@ -111,7 +111,7 @@ export function VenueCalendar() {
         <TooltipProvider>
         <div className="overflow-x-auto border rounded-lg">
           <div className="grid grid-cols-7 min-w-full">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(day => (
                 <div key={day} className="text-center font-semibold p-2 border-b">{day}</div>
             ))}
 

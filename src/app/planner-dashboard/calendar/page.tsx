@@ -6,7 +6,7 @@ import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebas
 import { collection, query, where, doc, getDocs, documentId } from 'firebase/firestore';
 import { DayPicker, Day, type DayProps } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
-import { isSameDay, format } from 'date-fns';
+import { isSameDay, format, getDay } from 'date-fns';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -147,6 +147,10 @@ export default function PlannerCalendarPage() {
     }
     return <Day {...props} />;
   }
+  
+  const formatShortWeekday = (date: Date) => {
+    return ['S', 'M', 'T', 'W', 'T', 'F', 'S'][getDay(date)];
+  };
 
   if (isLoading) {
     return (
@@ -177,6 +181,7 @@ export default function PlannerCalendarPage() {
                 onSelect={setSelectedDate}
                 className="w-full"
                 modifiers={{ marked: markedDates }}
+                formatters={{ formatShortWeekday }}
                 modifiersStyles={{
                     marked: { backgroundColor: 'hsl(var(--primary) / 0.1)', borderRadius: '50%'}
                 }}
