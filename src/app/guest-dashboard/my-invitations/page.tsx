@@ -5,7 +5,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, QrCode } from 'lucide-react';
-import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
 import { collection, query, where, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -24,67 +24,67 @@ type Announcement = {
     timestamp: any;
 };
 
-// This is a placeholder. In a real application, the guest's context (including their ID and the event ID)
-// would be managed through a secure session or context provider after they log in.
-const MOCK_GUEST_ID = 'YOUR_MOCK_GUEST_ID';   // Mock guest document ID
-const MOCK_GUEST_CATEGORY = 'VIP';            // Mock guest category for filtering announcements
-const MOCK_RSVP_STATUS: 'Pending' | 'Accepted' | 'Declined' = 'Pending'; // Mock initial RSVP status
-
+type Guest = {
+    id: string;
+    rsvpStatus: 'Pending' | 'Accepted' | 'Declined';
+    category: string;
+}
 
 export default function MyInvitationsPage() {
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
   const router = useRouter();
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // This will be populated from session storage or a similar mechanism
   const [eventDetails, setEventDetails] = useState<{id: string, code: string, name: string} | null>(null);
+  const [guestCode, setGuestCode] = useState<string | null>(null);
 
   useEffect(() => {
     // In a real app, you would get this from a secure context after login.
     // For now, we'll retrieve it from session storage for demonstration.
     const eventId = sessionStorage.getItem('guestEventId');
-    const eventCode = sessionStorage.getItem('guestEventCode');
+    const storedGuestCode = sessionStorage.getItem('guestEventCode');
     const eventName = sessionStorage.getItem('guestEventName');
     
-    if (eventId && eventCode && eventName) {
-        setEventDetails({id: eventId, code: eventCode, name: eventName});
-        setSelectedEventId(eventId);
+    if (eventId && storedGuestCode && eventName) {
+        setEventDetails({id: eventId, code: storedGuestCode, name: eventName});
+        setGuestCode(storedGuestCode);
     } else if (!user) {
         // If there's no user and no session data, they probably shouldn't be here.
         router.push('/guest-login');
     }
   }, [user, router]);
+  
+  const guestRef = useMemoFirebase(() => {
+    if (!firestore || !eventDetails?.id || !guestCode) return null;
+    return doc(firestore, 'events', eventDetails.id, 'guests', guestCode);
+  }, [firestore, eventDetails?.id, guestCode]);
 
-
-  const [rsvpStatus, setRsvpStatus] = useState<'Pending' | 'Accepted' | 'Declined'>(MOCK_RSVP_STATUS);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { data: guestData, isLoading: isLoadingGuest } = useDoc<Guest>(guestRef);
+  const rsvpStatus = guestData?.rsvpStatus || 'Pending';
 
   // Query for announcements targeted at all guests OR the specific guest's category
   const announcementsQuery = useMemoFirebase(() => {
-    if (!firestore || !selectedEventId) return null;
+    if (!firestore || !eventDetails?.id || !guestData?.category) return null;
     return query(
-        collection(firestore, 'events', selectedEventId, 'announcements'),
-        where('targetRoles', 'array-contains-any', ['All Guests', MOCK_GUEST_CATEGORY]),
+        collection(firestore, 'events', eventDetails.id, 'announcements'),
+        where('targetRoles', 'array-contains-any', ['All Guests', guestData.category]),
         orderBy('timestamp', 'desc')
     );
-  }, [firestore, selectedEventId]);
+  }, [firestore, eventDetails?.id, guestData?.category]);
 
   const { data: announcements, isLoading: isLoadingAnnouncements } = useCollection<Announcement>(announcementsQuery);
 
   const handleRsvp = async (status: 'Accepted' | 'Declined') => {
-    if (!firestore || !selectedEventId) {
+    if (!guestRef) {
         toast({ variant: 'destructive', title: 'Error', description: 'Could not connect to the database.' });
         return;
     }
     setIsSubmitting(true);
-    // In a real app, MOCK_GUEST_ID would come from the user's session
-    const guestRef = doc(firestore, 'events', selectedEventId, 'guests', MOCK_GUEST_ID);
-
     try {
         await updateDoc(guestRef, { rsvpStatus: status });
-        setRsvpStatus(status);
         toast({
             title: 'RSVP Submitted',
             description: `You have successfully ${status.toLowerCase()} the invitation.`,
@@ -97,7 +97,7 @@ export default function MyInvitationsPage() {
     }
   }
   
-  if (!eventDetails) {
+  if (!eventDetails || isLoadingGuest) {
       return (
           <div className="flex justify-center items-center h-64">
               <Loader2 className="h-8 w-8 animate-spin" />
@@ -119,7 +119,7 @@ export default function MyInvitationsPage() {
                     <QrCode className='h-48 w-48 text-black' />
                 </div>
                  <p className='text-sm text-muted-foreground pt-2'>Show this QR code at the entrance for check-in.</p>
-                 <Badge variant="outline" className="mt-2">Event Code: {eventDetails.code}</Badge>
+                 <Badge variant="outline" className="mt-2">Guest Code: {eventDetails.code}</Badge>
             </CardHeader>
             <CardContent>
                 <div className='flex gap-4'>
@@ -127,16 +127,16 @@ export default function MyInvitationsPage() {
                         className='w-full' 
                         variant={rsvpStatus === 'Declined' ? 'destructive' : 'outline'} 
                         onClick={() => handleRsvp('Declined')}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || rsvpStatus === 'Declined'}
                     >
                         <XCircle className='mr-2 h-4 w-4' /> Decline
                     </Button>
                     <Button 
                         className={cn('w-full', rsvpStatus === 'Accepted' && 'bg-green-600 hover:bg-green-700')}
                         onClick={() => handleRsvp('Accepted')}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || rsvpStatus === 'Accepted'}
                     >
-                        {isSubmitting && rsvpStatus !== 'Accepted' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className='mr-2 h-4 w-4' /> }
+                        {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className='mr-2 h-4 w-4' /> }
                         Accept
                     </Button>
                 </div>
