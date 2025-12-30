@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -125,6 +126,7 @@ export function GuestLoginForm() {
     setIsVerifyingGuest(true);
 
     let guestDocRef;
+    let operation: 'list' | 'write' = 'list';
 
     try {
         const guestsRef = collection(firestore, 'events', foundEvent.id, 'guests');
@@ -144,7 +146,8 @@ export function GuestLoginForm() {
         const guestDoc = querySnapshot.docs[0];
         const guestData = { id: guestDoc.id, ...guestDoc.data() } as Guest;
         guestDocRef = doc(firestore, 'events', foundEvent.id, 'guests', guestData.id);
-
+        
+        operation = 'write'; // Switch context for the next operation
 
         // Sign in anonymously
         const userCredential = await signInAnonymously(auth);
@@ -175,7 +178,7 @@ export function GuestLoginForm() {
                 'permission-error',
                 new FirestorePermissionError({
                     path: guestDocRef ? guestDocRef.path : `events/${foundEvent.id}/guests`,
-                    operation: 'write', // Or 'list' depending on where it failed
+                    operation: operation,
                 })
             );
         }
@@ -185,6 +188,7 @@ export function GuestLoginForm() {
             title: 'Login Failed',
             description: 'Could not verify your guest code. Please try again.',
         });
+    } finally {
         setIsVerifyingGuest(false);
     }
   }
