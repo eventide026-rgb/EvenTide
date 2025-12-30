@@ -73,9 +73,11 @@ export function GuestLoginForm() {
 
     const collectionsToSearch = ['events', 'shows'];
     let eventFound = false;
+    let collectionPath = '';
 
     try {
         for (const col of collectionsToSearch) {
+            collectionPath = col;
             const collectionRef = collection(firestore, col);
             const q = query(collectionRef, where("eventCode", "==", values.eventCode.trim()), limit(1));
             const querySnapshot = await getDocs(q);
@@ -95,15 +97,19 @@ export function GuestLoginForm() {
                 description: "No event found with that code. Please check and try again.",
             });
         }
-    } catch(error) {
+    } catch(error: any) {
         console.error("Error searching for event:", error);
-         errorEmitter.emit(
-            'permission-error',
-            new FirestorePermissionError({
-              path: `events or shows`,
-              operation: 'list',
-            })
-          );
+        
+        if (error.code === 'permission-denied') {
+            errorEmitter.emit(
+                'permission-error',
+                new FirestorePermissionError({
+                  path: collectionPath,
+                  operation: 'list',
+                })
+            );
+        }
+
         toast({
             variant: 'destructive',
             title: 'Search Failed',
@@ -129,6 +135,7 @@ export function GuestLoginForm() {
                 title: "Invalid Guest Code",
                 description: "This guest code is not valid for this event.",
             });
+            setIsVerifyingGuest(false);
             return;
         }
 
@@ -146,6 +153,7 @@ export function GuestLoginForm() {
 
         sessionStorage.setItem('isNewLogin', 'true');
         sessionStorage.setItem('guestEventId', foundEvent.id);
+        sessionStorage.setItem('guestEventName', foundEvent.name);
         
         toast({
             title: "Access Granted",
@@ -161,7 +169,6 @@ export function GuestLoginForm() {
             title: 'Login Failed',
             description: 'Could not verify your guest code. Please try again.',
         });
-    } finally {
         setIsVerifyingGuest(false);
     }
   }
