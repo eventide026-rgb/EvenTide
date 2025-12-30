@@ -171,16 +171,36 @@ service cloud.firestore {
         allow update, delete: if isShowOwner(showId);
     }
     
-    match /events/{eventId} {
-      allow get: if isEventStaff(eventId) || isEventPlannerByAssignment();
-      allow read: if request.auth != null;
-      allow list: if false;
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow update: if (isEventOwner(eventId) || isEventPlanner(eventId)) && isExistingDoc() && request.resource.data.ownerId == resource.data.ownerId;
-      allow delete: if isEventOwner(eventId) && isExistingDoc();
+      match /events/{eventId} {
+        // Allow reading a specific event if:
+        // - the caller is signed in (staff/planners/owners will be covered by other helpers), OR
+        // - the event document exposes an eventCode (so guests who found it by code can fetch it)
+        allow get: if isSignedIn() || resource.data.eventCode != null;
 
+        // Allow listing only when the client queries by eventCode (prevents open listing)
+        allow list: if request.query.where.eventCode != null;
+
+        // Create/update/delete rules remain restricted
+        allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+        allow update: if (isEventOwner(eventId) || isEventPlanner(eventId))
+                      && isExistingDoc()
+                      && request.resource.data.ownerId == resource.data.ownerId;
+        allow delete: if isEventOwner(eventId) && isExistingDoc();
+
+      // --------------------
+      // Subcollections
+      // --------------------
       match /tasks/{taskId} {
-        allow read, create, update, delete: if isEventStaff(eventId);
+        // Guests and staff can read tasks; only staff can create/update/delete
+        allow read: if canReadEventData(eventId);
+        allow create, update, delete: if isEventStaff(eventId);
+      }
+
+      // Example pattern to apply across other subcollections:
+      // - use `allow read: if canReadEventData(eventId);` where guests should view
+      // - keep create/update/delete restricted to planners/staff/owners as appropriate
+    
+
       }
       
       match /expenses/{expenseId} {
@@ -403,4 +423,4 @@ service cloud.firestore {
     }
 
   }
-}
+

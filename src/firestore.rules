@@ -173,10 +173,9 @@ service cloud.firestore {
     }
     
     match /events/{eventId} {
-      // Planner can read events they are assigned to.
       allow get: if isEventStaff(eventId) || isEventPlannerByAssignment();
-      // Only allow listing events if the query is constrained by planner's assigned event IDs.
-      allow list: if isSignedIn() && request.query.keys.size() > 0;
+      // Allow listing events if querying by ownerId (for owners) OR by eventCode (for guests)
+      allow list: if (isSignedIn() && request.auth.uid == request.query.where.ownerId) || (request.query.where.eventCode != null);
       allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       allow update: if (isEventOwner(eventId) || isEventPlanner(eventId)) && isExistingDoc() && request.resource.data.ownerId == resource.data.ownerId;
       allow delete: if isEventOwner(eventId) && isExistingDoc();
@@ -400,3 +399,5 @@ service cloud.firestore {
 
   }
 }
+
+    
