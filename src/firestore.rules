@@ -204,34 +204,24 @@ service cloud.firestore {
       }
 
       
-      
-      
-
-
         match /events/{eventId}/guests/{guestCode} {
+          // Guests can read their own record
+          allow read: if request.auth != null
+                      && request.auth.uid == resource.data.userProfileId;
 
-           // Guests can READ their own guest record
-          allow read: if
-            request.query.guestCode == guestCode;
-
-          // Guests can UPDATE RSVP only
-          allow update: if
-            request.query.guestCode == guestCode
-            && request.resource.data.diff(resource.data).changedKeys()
-              .hasOnly([
-                "rsvpStatus",
-                "rsvpUpdatedAt"
-              ]);
+          // Guests can update RSVP only
+          allow update: if request.auth != null
+                        && request.auth.uid == resource.data.userProfileId
+                        && request.resource.data.diff(resource.data).changedKeys()
+                           .hasOnly(["rsvpStatus", "rsvpUpdatedAt"]);
 
           // Staff / owner full access
-          allow read, update, delete: if																											
-            isEventStaff(eventId)
-            || isEventOwner(eventId);
+          allow read, update, delete: if isEventStaff(eventId)
+                                      || isEventOwner(eventId);
 
-          // Creation controlled elsewhere
-          allow create: if
-            isEventStaff(eventId)
-            || isEventOwner(eventId);
+          allow create: if isEventStaff(eventId)
+                        || isEventOwner(eventId);
+
  			}
 
 

@@ -4,6 +4,8 @@
 import { SeatingChartClient } from '@/components/events/seating-chart-client';
 
 export default function SeatingChartPage() {
+  // For the planner, the SeatingChartClient will handle event selection.
+  // We pass an empty string for eventId initially.
   return (
     <div className="flex flex-col gap-6 h-full">
        <header>

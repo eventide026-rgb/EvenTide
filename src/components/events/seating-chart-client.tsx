@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -20,7 +19,7 @@ import { ScrollArea } from '../ui/scroll-area';
 
 type SeatingChartClientProps = {
   eventId: string;
-  userRole: 'owner' | 'planner';
+  userRole: 'owner' | 'planner' | 'guest';
 };
 
 type Table = {
@@ -50,9 +49,9 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
   const [selectedGuestId, setSelectedGuestId] = useState<string | null>(null);
 
   const eventsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
+    if (!firestore || !user?.uid || userRole !== 'planner') return null;
     return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
-  }, [firestore, user]);
+  }, [firestore, user, userRole]);
   const { data: events, isLoading: isLoadingEvents } = useCollection(eventsQuery);
 
   const tablesQuery = useMemoFirebase(() => {
@@ -64,16 +63,16 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
     if (!firestore || !selectedEventId) return null;
     return query(collection(firestore, 'events', selectedEventId, 'guests'));
   }, [firestore, selectedEventId]);
+  
+  const seatsQuery = useMemoFirebase(() => {
+    if (!firestore || !selectedEventId) return null;
+    return query(collection(firestore, 'events', selectedEventId, 'seats'));
+  }, [firestore, selectedEventId]);
 
   const { data: tablesData, isLoading: isLoadingTables } = useCollection<Table>(tablesQuery);
   const { data: guestsData, isLoading: isLoadingGuests } = useCollection<Guest>(guestsQuery);
-
-  const allSeatsQuery = useMemoFirebase(() => {
-      if (!firestore || !selectedEventId) return null;
-      return collection(firestore, `events/${selectedEventId}/seats`);
-  }, [firestore, selectedEventId])
-
-  const { data: seatsData, isLoading: isLoadingSeats } = useCollection<Seat>(allSeatsQuery);
+  const { data: seatsData, isLoading: isLoadingSeats } = useCollection<Seat>(seatsQuery);
+  
 
   const unassignedGuests = useMemo(() => {
     if (!guestsData || !seatsData) return guestsData || [];
@@ -115,6 +114,8 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
     // In a real app, this would trigger a Firestore update.
     setSelectedGuestId(null); // Reset selection
   }
+  
+  const guestId = userRole === 'guest' ? user?.uid : null;
 
   return (
     <div className="grid lg:grid-cols-4 gap-6 h-full">
@@ -134,11 +135,13 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
                                 {table.seats.map((seat, index) => {
                                     const angle = (index / table.capacity) * 360;
                                     const style = { transform: `rotate(${angle}deg) translate(12rem) rotate(-${angle}deg)`};
+                                    const isThisGuestSeat = guestId && seat.guestId === guestId;
+                                    
                                     return (
                                         <Tooltip key={seat.id}>
                                             <TooltipTrigger asChild>
-                                                <button className="absolute w-12 h-12 flex items-center justify-center" style={style} onClick={() => handleSeatClick(seat.id)} disabled={userRole !== 'planner' || !!seat.guestId && !selectedGuestId}>
-                                                    <div className={cn("p-2 rounded-full", seat.guestName ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground", selectedGuestId && !seat.guestId && "cursor-pointer ring-2 ring-primary")}>
+                                                <button className="absolute w-12 h-12 flex items-center justify-center" style={style} onClick={() => handleSeatClick(seat.id)} disabled={userRole !== 'planner' || (!!seat.guestId && !selectedGuestId)}>
+                                                    <div className={cn("p-2 rounded-full", seat.guestName ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground", selectedGuestId && !seat.guestId && "cursor-pointer ring-2 ring-primary ring-offset-2 ring-offset-secondary", isThisGuestSeat && "ring-4 ring-offset-4 ring-accent ring-offset-secondary")}>
                                                         {seat.guestName ? <User className="h-5 w-5"/> : <Armchair className="h-5 w-5"/>}
                                                     </div>
                                                 </button>
@@ -160,19 +163,21 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
             </CardContent>
         </Card>
         <div className="lg:col-span-1 flex flex-col gap-6">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Event</CardTitle>
-                </CardHeader>
-                <CardContent>
-                     <Select onValueChange={setSelectedEventId} value={selectedEventId || ''} disabled={isLoadingEvents}>
-                        <SelectTrigger><SelectValue placeholder="Select an Event" /></SelectTrigger>
-                        <SelectContent>
-                            {events?.map(event => <SelectItem key={event.id} value={event.id}>{event.name}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                </CardContent>
-            </Card>
+            {userRole !== 'guest' && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Event</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Select onValueChange={setSelectedEventId} value={selectedEventId || ''} disabled={isLoadingEvents}>
+                            <SelectTrigger><SelectValue placeholder="Select an Event" /></SelectTrigger>
+                            <SelectContent>
+                                {events?.map(event => <SelectItem key={event.id} value={event.id}>{event.name}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                    </CardContent>
+                </Card>
+            )}
             {userRole === 'planner' && (
                 <Card className="flex-grow">
                     <CardHeader>
@@ -193,6 +198,16 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
                             <Button className="w-full" disabled={unassignedGuests.length === 0}>Seat with Eni</Button>
                             <Button className="w-full" variant="secondary" disabled={!selectedGuestId} onClick={() => setSelectedGuestId(null)}>Clear Selection</Button>
                         </div>
+                    </CardContent>
+                </Card>
+            )}
+            {userRole === 'guest' && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Your Seat</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground">Your assigned seat is highlighted on the chart.</p>
                     </CardContent>
                 </Card>
             )}
