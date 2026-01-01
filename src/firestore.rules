@@ -1,4 +1,3 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -61,13 +60,8 @@ service cloud.firestore {
       }
 
       function isEventGuest(eventId) {
-          // A user is a guest if they are authenticated and their UID is linked to a guest record for the event.
-          // This requires a query or a specific doc read. For a general rule, we can check if a document
-          // with the user's UID exists in the guests subcollection. This assumes doc IDs are user UIDs.
-          // A better approach is to check a specific field, as done in the rule itself.
           return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid));
       }
-
 
       function isEventStaff(eventId) {
         // For read operations, this is fine. For writes, be more specific.
@@ -177,13 +171,7 @@ service cloud.firestore {
           allow update, delete: if isShowOwner(showId);
       }
 
-
-
-
-
-
-
-      match /events/{eventId} {
+			match /events/{eventId} {
 
         allow get: if isEventStaff(eventId) || isEventPlannerByAssignment();
         allow list: if true;
@@ -199,27 +187,53 @@ service cloud.firestore {
         }
 
     
-        match /guests/{guestId} {
-          // Public can read a specific guest document IF they know the non-guessable guestId.
-          // This enables the direct getDoc() lookup on the login form.
-          // Once a guest links their account, they can also read their own record.
-          allow get: if true;
-        
-          // Only event staff can list all guests.
-          allow list: if isEventStaff(eventId);
-        
-          // Staff creates guests
-          allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
-        
-          // Staff can update anything.
-          // A guest can perform a one-time update to link their auth UID to their guest record.
-          // A guest can update their own RSVP status.
-          allow update: if isEventStaff(eventId) || 
-                         (isSignedIn() && resource.data.userProfileId == null && request.resource.data.userProfileId == request.auth.uid) ||
-                         (isSignedIn() && request.auth.uid == resource.data.userProfileId);
-        
-          allow delete: if isEventStaff(eventId);
-        }
+        // DOCUMENT RULES
+       match /guests/{guestId} {
+        allow get: if true;
+        allow list: if isEventStaff(eventId);
+        allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
+
+        allow update: if isEventStaff(eventId) ||
+                       // Guest can link or re-link their UID
+                       (isSignedIn() && request.resource.data.userProfileId == request.auth.uid) ||
+                       // Guest can update RSVP if UID matches
+                       (isSignedIn() && request.auth.uid == resource.data.userProfileId &&
+                        request.resource.data.diff(resource.data).changedKeys().hasOnly(['rsvpStatus', 'rsvpUpdatedAt']));
+
+        allow delete: if isEventStaff(eventId);
+      }
+
+      
+      
+      
+
+
+        match /events/{eventId}/guests/{guestCode} {
+
+           // Guests can READ their own guest record
+          allow read: if
+            request.query.guestCode == guestCode;
+
+          // Guests can UPDATE RSVP only
+          allow update: if
+            request.query.guestCode == guestCode
+            && request.resource.data.diff(resource.data).changedKeys()
+              .hasOnly([
+                "rsvpStatus",
+                "rsvpUpdatedAt"
+              ]);
+
+          // Staff / owner full access
+          allow read, update, delete: if																											
+            isEventStaff(eventId)
+            || isEventOwner(eventId);
+
+          // Creation controlled elsewhere
+          allow create: if
+            isEventStaff(eventId)
+            || isEventOwner(eventId);
+ 			}
+
 
 
 
@@ -286,7 +300,10 @@ service cloud.firestore {
       }
       
       match /invitations/{invitationId} {
-        allow read, update: if isEventStaff(eventId) || isOwner(resource.data.userId);
+        allow read, update: if request.auth != null
+        									&& request.auth.uid == resource.data.userId
+                          || isEventStaff(eventId);
+        
         allow list: if isEventStaff(eventId);
         allow create: if isEventOwnerOnCreate() || isEventStaff(eventId);
         allow delete: if isEventStaff(eventId);

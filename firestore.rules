@@ -213,11 +213,9 @@ service cloud.firestore {
           allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
         
           // Staff can update anything.
-          // A guest can perform a one-time update to link their auth UID to their guest record.
-          // A guest can update their own RSVP status.
+          // A guest can perform a one-time update to link their auth UID to their guest record, or update their RSVP status.
           allow update: if isEventStaff(eventId) || 
-                         (isSignedIn() && resource.data.userProfileId == null && request.resource.data.userProfileId == request.auth.uid) ||
-                         (isSignedIn() && resource.data.userProfileId == request.auth.uid && request.resource.data.rsvpStatus != resource.data.rsvpStatus);
+                         (isSignedIn() && request.auth.uid == resource.data.userProfileId);
         
           allow delete: if isEventStaff(eventId);
         }
@@ -438,6 +436,4 @@ service cloud.firestore {
 
     }
   }
-
-    
 
