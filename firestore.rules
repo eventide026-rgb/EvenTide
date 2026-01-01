@@ -62,8 +62,13 @@ service cloud.firestore {
       }
 
       function isEventGuest(eventId) {
+          // A user is a guest if they are authenticated and their UID is linked to a guest record for the event.
+          // This requires a query or a specific doc read. For a general rule, we can check if a document
+          // with the user's UID exists in the guests subcollection. This assumes doc IDs are user UIDs.
+          // A better approach is to check a specific field, as done in the rule itself.
           return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid));
       }
+
 
       function isEventStaff(eventId) {
         // For read operations, this is fine. For writes, be more specific.
@@ -195,7 +200,6 @@ service cloud.firestore {
         }
 
     
-        // DOCUMENT RULES
         match /guests/{guestId} {
           // Public can read a specific guest document IF they know the non-guessable guestId.
           // This enables the direct getDoc() lookup on the login form.
@@ -210,8 +214,10 @@ service cloud.firestore {
         
           // Staff can update anything.
           // A guest can perform a one-time update to link their auth UID to their guest record.
+          // A guest can update their own RSVP status.
           allow update: if isEventStaff(eventId) || 
-                         (isSignedIn() && resource.data.userProfileId == null && request.resource.data.userProfileId == request.auth.uid);
+                         (isSignedIn() && resource.data.userProfileId == null && request.resource.data.userProfileId == request.auth.uid) ||
+                         (isSignedIn() && resource.data.userProfileId == request.auth.uid && request.resource.data.rsvpStatus != resource.data.rsvpStatus);
         
           allow delete: if isEventStaff(eventId);
         }
@@ -434,3 +440,4 @@ service cloud.firestore {
   }
 
     
+
