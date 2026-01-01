@@ -1,18 +1,9 @@
 
 'use client';
 
-import dynamic from 'next/dynamic';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { DashboardHeader } from '@/components/layout/dashboard-header';
-
-// ✅ Explicitly select the named export
-const OwnerDashboardSidebar = dynamic(
-  () =>
-    import('@/components/layout/owner-sidebar').then(
-      (mod) => mod.OwnerDashboardSidebar
-    ),
-  { ssr: false }
-);
+import { OwnerDashboardSidebar } from '@/components/layout/owner-sidebar';
 
 export default function OwnerDashboardLayout({
   children,
