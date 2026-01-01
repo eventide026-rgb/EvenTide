@@ -3,7 +3,7 @@
 
 import { useState, useMemo, Suspense } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collectionGroup, query, where, doc, updateDoc, Timestamp, writeBatch } from 'firebase/firestore';
+import { collection, query, where, doc, updateDoc, Timestamp, writeBatch } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -21,13 +21,13 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-type TeamMemberInvitation = {
+type Invitation = {
   id: string; 
   eventId: string;
-  eventName: string;
+  eventTitle: string;
   eventDate: Timestamp;
   status: 'pending' | 'accepted' | 'declined';
-  userId: string;
+  invitedBy: string;
 };
 
 
@@ -37,31 +37,29 @@ export default function InvitationsPage() {
   const { toast } = useToast();
   const [clashWarning, setClashWarning] = useState<{
     show: boolean;
-    invitation?: TeamMemberInvitation;
-    clashingEvent?: TeamMemberInvitation;
+    invitation?: Invitation;
+    clashingEvent?: Invitation;
   }>({ show: false });
 
-  // ✅ CORRECT PATTERN: The query is only defined when dependencies are ready.
-  const membershipsQuery = useMemoFirebase(() => {
+  const invitationsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return undefined;
     return query(
-        collectionGroup(firestore, 'teamMembers'),
-        where('userId', '==', user.uid)
+        collection(firestore, 'users', user.uid, 'invitations')
     );
   }, [firestore, user?.uid]);
 
-  const { data: memberships, isLoading, error } = useCollection<TeamMemberInvitation>(membershipsQuery);
+  const { data: invitations, isLoading, error } = useCollection<Invitation>(invitationsQuery);
   
   const pendingInvitations = useMemo(() => {
-      return memberships?.filter(m => m.status === 'pending') || [];
-  }, [memberships]);
+      return invitations?.filter(m => m.status === 'pending') || [];
+  }, [invitations]);
 
   const acceptedGigs = useMemo(() => {
-    return memberships?.filter(m => m.status === 'accepted') || [];
-  }, [memberships]);
+    return invitations?.filter(m => m.status === 'accepted') || [];
+  }, [invitations]);
 
 
-  const handleResponse = async (invitation: TeamMemberInvitation, status: 'accepted' | 'declined') => {
+  const handleResponse = async (invitation: Invitation, status: 'accepted' | 'declined') => {
     if (!firestore || !user) return;
 
     if (status === 'accepted') {
@@ -79,13 +77,13 @@ export default function InvitationsPage() {
     await updateInvitationStatus(invitation, status);
   };
   
-  const updateInvitationStatus = async (invitation: TeamMemberInvitation, status: 'accepted' | 'declined') => {
+  const updateInvitationStatus = async (invitation: Invitation, status: 'accepted' | 'declined') => {
     if (!firestore || !user) return;
 
-    const teamMemberRef = doc(firestore, 'events', invitation.eventId, 'teamMembers', invitation.id);
+    const invitationRef = doc(firestore, 'users', user.uid, 'invitations', invitation.id);
     
     try {
-        await updateDoc(teamMemberRef, { status });
+        await updateDoc(invitationRef, { status });
         toast({
             title: `Invitation ${status}`,
             description: 'The event owner has been notified.',
@@ -143,7 +141,7 @@ export default function InvitationsPage() {
                   className="flex items-center justify-between rounded-lg border p-4"
                 >
                   <div>
-                    <p className="font-semibold">{invitation.eventName || 'An Event'}</p>
+                    <p className="font-semibold">{invitation.eventTitle || 'An Event'}</p>
                     <p className="text-sm text-muted-foreground flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
                       {invitation.eventDate ? format(invitation.eventDate.toDate(), 'PPP') : 'Date TBD'}
@@ -178,7 +176,7 @@ export default function InvitationsPage() {
             <AlertDialogTitle>Calendar Clash Detected</AlertDialogTitle>
             <AlertDialogDescription>
               You are already booked for{' '}
-              <strong>`{clashWarning.clashingEvent?.eventName}`</strong> on this
+              <strong>`{clashWarning.clashingEvent?.eventTitle}`</strong> on this
               date. Are you sure you want to accept this new event?
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -198,4 +196,3 @@ export default function InvitationsPage() {
     </div>
   );
 }
-
