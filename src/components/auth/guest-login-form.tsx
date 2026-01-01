@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -52,6 +53,7 @@ type Event = {
 
 type Guest = {
   id: string;
+  name: string;
   userProfileId?: string | null;
 };
 
@@ -168,6 +170,7 @@ export function GuestLoginForm() {
       sessionStorage.setItem('guestEventId', foundEvent.id);
       sessionStorage.setItem('guestEventName', foundEvent.name);
       sessionStorage.setItem('guestEventCode', values.guestCode);
+      sessionStorage.setItem('guestName', guestData.name);
 
       toast({ title: 'Access Granted', description: 'Redirecting...' });
       router.push('/guest-dashboard/my-invitations');

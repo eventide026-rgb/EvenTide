@@ -43,6 +43,7 @@ export default function MyInvitationsPage() {
   // This will be populated from session storage or a similar mechanism
   const [eventDetails, setEventDetails] = useState<{id: string, code: string, name: string} | null>(null);
   const [guestCode, setGuestCode] = useState<string | null>(null);
+  const [guestName, setGuestName] = useState<string | null>(null);
 
   useEffect(() => {
     // In a real app, you would get this from a secure context after login.
@@ -50,10 +51,12 @@ export default function MyInvitationsPage() {
     const eventId = sessionStorage.getItem('guestEventId');
     const storedGuestCode = sessionStorage.getItem('guestEventCode');
     const eventName = sessionStorage.getItem('guestEventName');
+    const storedGuestName = sessionStorage.getItem('guestName');
     
     if (eventId && storedGuestCode && eventName) {
         setEventDetails({id: eventId, code: storedGuestCode, name: eventName});
         setGuestCode(storedGuestCode);
+        setGuestName(storedGuestName || 'Guest');
         setSelectedEventId(eventId);
     } else if (!user) {
         // If there's no user and no session data, they probably shouldn't be here.
@@ -102,7 +105,7 @@ export default function MyInvitationsPage() {
             requestResourceData: updatedData,
         });
         errorEmitter.emit('permission-error', permissionError);
-        toast({ variant: 'destructive', title: 'Update Failed', description: 'Could not update your RSVP status.' });
+        toast({ variant: 'destructive', title: 'Update Failed', description: 'Could not update your RSVP status. You may not have permission.' });
     } finally {
         setIsSubmitting(false);
     }
@@ -120,7 +123,7 @@ export default function MyInvitationsPage() {
   return (
     <div className="space-y-8">
         <div>
-            <h1 className="text-3xl font-bold font-headline">Welcome, Guest!</h1>
+            <h1 className="text-3xl font-bold font-headline">Welcome, {guestName}!</h1>
             <p className="text-muted-foreground">This is your personal dashboard for the event.</p>
         </div>
         <Card className='max-w-md mx-auto'>
