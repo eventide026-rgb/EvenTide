@@ -54,7 +54,7 @@ export function ControlPanel({ eventId, eventType, initialStationery, setStation
                 title: 'Theme Saved!',
                 description: 'Your event stationery theme has been updated.',
             });
-            router.push(`/owner-dashboard/stationery-hub/gatepass-preview/${eventId}`);
+            router.push(`/owner-dashboard/stationery-hub/invitation-studio/${eventId}`);
         } catch (error) {
             console.error("Error saving theme:", error);
             toast({ variant: 'destructive', title: 'Save Failed', description: 'Could not save your theme.' });
