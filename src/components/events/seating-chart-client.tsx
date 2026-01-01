@@ -3,7 +3,7 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc } from 'firebase/firestore';
+import { collection, query, where, doc, documentId } from 'firebase/firestore';
 import { Loader2, Armchair, User, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
@@ -33,6 +33,7 @@ type Seat = {
   id: string;
   seatNumber: number;
   guestId?: string;
+  tableId: string;
 };
 
 type Guest = {
@@ -50,8 +51,16 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
   const [selectedGuestId, setSelectedGuestId] = useState<string | null>(null);
 
   const eventsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid || userRole !== 'planner') return null;
-    return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
+    if (!firestore || !user?.uid) return null;
+    if (userRole === 'planner') {
+      // Planners need a different query logic based on their assignments
+      // This is a placeholder, a real implementation would query an 'assignments' collection
+      return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
+    }
+    if (userRole === 'owner') {
+       return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
+    }
+    return null;
   }, [firestore, user, userRole]);
   const { data: events, isLoading: isLoadingEvents } = useCollection(eventsQuery);
 
@@ -82,17 +91,20 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
   }, [guestsData, seatsData]);
 
   const fullSeatingChart = useMemo((): FullTable[] => {
-    if (!tablesData || !guestsData) return [];
+    if (!tablesData) return [];
 
     return tablesData.map(table => {
+      const tableSeats = seatsData?.filter(s => s.tableId === table.id) || [];
       const seatsForTable: FullSeat[] = [];
+      
       for (let i = 1; i <= table.capacity; i++) {
-        const realSeat = seatsData?.find(s => s.seatNumber === i);
-        const guest = guestsData.find(g => g.id === realSeat?.guestId);
+        const realSeat = tableSeats.find(s => s.seatNumber === i);
+        const guest = guestsData?.find(g => g.id === realSeat?.guestId);
         
         seatsForTable.push({
           id: realSeat?.id || `${table.id}-${i}`,
           seatNumber: i,
+          tableId: table.id,
           guestId: realSeat?.guestId,
           guestName: guest?.name,
         });
@@ -104,7 +116,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
   const isLoading = isLoadingEvents || isLoadingTables || isLoadingGuests || isLoadingSeats;
 
     useEffect(() => {
-      if (userRole === 'planner' && !selectedEventId && events && events.length > 0) {
+      if ((userRole === 'planner' || userRole === 'owner') && !selectedEventId && events && events.length > 0) {
           setSelectedEventId(events[0].id);
       }
   }, [events, selectedEventId, userRole]);
