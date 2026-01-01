@@ -21,6 +21,8 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { useBeforeUnload } from '@/hooks/use-before-unload';
 
 
 const steps: Step[] = [
@@ -74,7 +76,9 @@ export default function CreateEventWizardPage() {
         defaultValues: getInitialValues(),
     });
 
-    const { trigger, watch } = methods;
+    const { trigger, watch, formState: { isDirty } } = methods;
+
+    useBeforeUnload(isDirty, "You have unsaved changes. Are you sure you want to leave?");
 
     const eventType = watch('eventType');
 
@@ -124,7 +128,8 @@ export default function CreateEventWizardPage() {
             id: newEventRef.id,
             ownerId: user.uid,
             eventCode: eventCode,
-            createdAt: serverTimestamp(),
+            createdAt: new Date(),
+            eventDate: data.eventDate,
             guestCount: 0,
             guestLimit: 20,
             imageUrls: [`https://picsum.photos/seed/${eventCode}/1200/800`]
