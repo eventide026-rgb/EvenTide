@@ -8,12 +8,14 @@ import { Loader2, PartyPopper } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import Fireworks from '@/components/ui/fireworks';
 
 function CompletionPageContent({ eventId }: { eventId: string }) {
     const { user } = useUser();
     
     return (
-        <div className="max-w-2xl mx-auto text-center">
+        <div className="max-w-2xl mx-auto text-center relative">
+            <Fireworks />
             <Card>
                 <CardHeader className="items-center">
                     <div className="p-4 bg-green-500/20 rounded-full">

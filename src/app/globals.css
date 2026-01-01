@@ -86,3 +86,42 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Fireworks Animation */
+.fireworks {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.fireworks .before,
+.fireworks .after {
+  content: '';
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  box-shadow: -120px -218.66667px blue, 248px -16.66667px #00ff84, 190px 16.33333px #002bff, -113px -308.66667px #ff009d, -109px -287.66667px #ffb300, -50px -313.66667px #ff006e, 226px -250.66667px #ff4000, 180px -355.66667px #ff00d0, -12px -255.66667px #00f6ff, 220px -31.66667px #99ff00, -4px -142.66667px #ff0000, -248px -334.66667px #00ffb3, -90px -13.66667px #ff0088, 244px -170.66667px #00f2ff, -134px -353.66667px #ff00b3, -102px -166.66667px #00ffd0, 133px -216.66667px #001eff, -222px -341.66667px #ff0066, 137px -134.66667px #ff00a6, -231px -22.66667px #00a2ff, 221px -228.66667px #d4ff00, -232px -349.66667px #00ffea, -139px -349.66667px #00ff62, -126px -20.66667px #0062ff;
+  animation: 1s bang ease-out infinite;
+}
+
+.fireworks .after {
+  animation-delay: 0.5s;
+  animation-direction: reverse;
+}
+
+@keyframes bang {
+  from {
+    transform: scale(0.1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
