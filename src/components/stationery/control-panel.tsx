@@ -22,21 +22,25 @@ import { generateInvitationCard } from '@/ai/flows/invitation-card-design';
 import { StationeryDesigns } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { ScrollArea } from '../ui/scroll-area';
+import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
+
+type CardType = 'invitation' | 'gatepass' | 'program' | 'menu';
 
 type ControlPanelProps = {
     eventId: string;
-    eventType: string;
+    event: any;
     initialStationery: Stationery;
     setStationery: React.Dispatch<React.SetStateAction<Stationery>>;
     initialColors: EventColors;
     setColors: React.Dispatch<React.SetStateAction<EventColors>>;
 };
 
-export function ControlPanel({ eventId, eventType, initialStationery, setStationery, initialColors, setColors }: ControlPanelProps) {
+export function ControlPanel({ eventId, event, initialStationery, setStationery, initialColors, setColors }: ControlPanelProps) {
     const { toast } = useToast();
     const router = useRouter();
     const firestore = useFirestore();
 
+    const [activeCard, setActiveCard] = useState<CardType>('invitation');
     const [aiPrompt, setAiPrompt] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -54,7 +58,7 @@ export function ControlPanel({ eventId, eventType, initialStationery, setStation
                 title: 'Theme Saved!',
                 description: 'Your event stationery theme has been updated.',
             });
-            router.push(`/owner-dashboard/stationery-hub/invitation-studio/${eventId}`);
+            router.push(`/owner-dashboard/stationery-hub/gatepass-preview/${eventId}`);
         } catch (error) {
             console.error("Error saving theme:", error);
             toast({ variant: 'destructive', title: 'Save Failed', description: 'Could not save your theme.' });
@@ -62,6 +66,11 @@ export function ControlPanel({ eventId, eventType, initialStationery, setStation
             setIsSaving(false);
         }
     };
+    
+    const handleSetBackground = (url: string) => {
+        const backgroundProp = `${activeCard}Background` as keyof Stationery;
+        setStationery(prev => ({ ...prev, [backgroundProp]: url }));
+    }
 
     const handleGenerate = async () => {
         setIsGenerating(true);
@@ -76,7 +85,7 @@ export function ControlPanel({ eventId, eventType, initialStationery, setStation
                 eventDescription: initialStationery.invitationDetails?.description || 'A grand celebration',
                 theme: aiPrompt,
             });
-            setStationery(prev => ({...prev, background: result.invitationCardDesign }));
+            handleSetBackground(result.invitationCardDesign);
             toast({ title: "New background generated!" });
         } catch(error) {
             console.error(error);
@@ -93,12 +102,20 @@ export function ControlPanel({ eventId, eventType, initialStationery, setStation
                     <AccordionItem value="item-1">
                         <AccordionTrigger>Background Control</AccordionTrigger>
                         <AccordionContent className="space-y-4">
+                             <Tabs value={activeCard} onValueChange={(value) => setActiveCard(value as CardType)}>
+                                <TabsList className="grid w-full grid-cols-4">
+                                    <TabsTrigger value="invitation">Invite</TabsTrigger>
+                                    <TabsTrigger value="gatepass">Pass</TabsTrigger>
+                                    <TabsTrigger value="program">Program</TabsTrigger>
+                                    <TabsTrigger value="menu">Menu</TabsTrigger>
+                                </TabsList>
+                             </Tabs>
                              <div className="space-y-2">
                                 <Label>Template Gallery</Label>
                                 <ScrollArea className="h-48">
                                     <div className="grid grid-cols-3 gap-2">
                                     {StationeryDesigns.map(design => (
-                                        <button key={design.id} className="aspect-[2/3] relative rounded-md overflow-hidden group border-2 border-transparent hover:border-primary" onClick={() => setStationery(prev => ({ ...prev, background: design.imageUrl }))}>
+                                        <button key={design.id} className="aspect-[2/3] relative rounded-md overflow-hidden group border-2 border-transparent hover:border-primary" onClick={() => handleSetBackground(design.imageUrl)}>
                                             <Image src={design.imageUrl} alt={design.name} fill className="object-cover"/>
                                             <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
                                         </button>
@@ -126,11 +143,11 @@ export function ControlPanel({ eventId, eventType, initialStationery, setStation
                          <AccordionContent className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor='inv-title'>Invitation Title</Label>
-                                <Input id="inv-title" value={initialStationery.invitationDetails?.title} onChange={e => setStationery(s => ({...s, invitationDetails: {...s.invitationDetails, title: e.target.value}}))} />
+                                <Input id="inv-title" value={initialStationery.invitationDetails?.title || ''} onChange={e => setStationery(s => ({...s, invitationDetails: {...(s.invitationDetails || {title: '', description: ''}), title: e.target.value}}))} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor='inv-desc'>Invitation Description</Label>
-                                <Textarea id="inv-desc" value={initialStationery.invitationDetails?.description} onChange={e => setStationery(s => ({...s, invitationDetails: {...s.invitationDetails, description: e.target.value}}))} />
+                                <Textarea id="inv-desc" value={initialStationery.invitationDetails?.description || ''} onChange={e => setStationery(s => ({...s, invitationDetails: {...(s.invitationDetails || {title: '', description: ''}), description: e.target.value}}))} />
                             </div>
                          </AccordionContent>
                     </AccordionItem>

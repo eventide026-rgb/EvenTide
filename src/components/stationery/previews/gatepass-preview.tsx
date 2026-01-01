@@ -11,8 +11,8 @@ function formatSerialNumber(num?: number) {
 }
 
 export function GatepassPreviewCard({ event }: { event: any }) {
-    const backgroundStyle = event.stationery?.background
-    ? { backgroundImage: `url(${event.stationery.background})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    const backgroundStyle = event.stationery?.gatepassBackground
+    ? { backgroundImage: `url(${event.stationery.gatepassBackground})`, backgroundSize: 'cover', backgroundPosition: 'center' }
     : { backgroundColor: event.primaryColor };
 
     // This would come from the specific guest's data

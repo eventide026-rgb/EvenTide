@@ -16,8 +16,8 @@ export function ProgramPreviewCard({ event }: { event: any }) {
 
     const { data: program, isLoading } = useDoc(programDocRef);
     
-    const backgroundStyle = event.stationery?.background
-    ? { backgroundImage: `url(${event.stationery.background})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    const backgroundStyle = event.stationery?.programBackground
+    ? { backgroundImage: `url(${event.stationery.programBackground})`, backgroundSize: 'cover', backgroundPosition: 'center' }
     : { backgroundColor: event.primaryColor };
     
     return (

@@ -6,8 +6,8 @@ import Image from 'next/image';
 import { format } from 'date-fns';
 
 export function InvitationPreviewCard({ event }: { event: any }) {
-    const backgroundStyle = event.stationery?.background
-    ? { backgroundImage: `url(${event.stationery.background})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    const backgroundStyle = event.stationery?.invitationBackground
+    ? { backgroundImage: `url(${event.stationery.invitationBackground})`, backgroundSize: 'cover', backgroundPosition: 'center' }
     : { backgroundColor: event.primaryColor };
     
     return (

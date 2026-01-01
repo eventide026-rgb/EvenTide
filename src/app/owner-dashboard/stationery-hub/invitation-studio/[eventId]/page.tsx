@@ -9,7 +9,10 @@ import { ControlPanel } from '@/components/stationery/control-panel';
 import { PreviewArea } from '@/components/stationery/preview-area';
 
 export type Stationery = {
-    background?: string;
+    invitationBackground?: string;
+    gatepassBackground?: string;
+    programBackground?: string;
+    menuBackground?: string;
     font?: 'serif' | 'sans-serif';
     invitationDetails?: {
         title: string;
@@ -62,7 +65,7 @@ export default function InvitationStudioPage({ params }: { params: Promise<{ eve
                     setStationery={setStationery}
                     initialColors={colors}
                     setColors={setColors}
-                    eventType={event.eventType}
+                    event={event}
                 />
             </div>
             <div className="lg:col-span-2">

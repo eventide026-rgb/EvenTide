@@ -16,8 +16,8 @@ export function MenuPreviewCard({ event }: { event: any }) {
 
     const { data: menu, isLoading } = useDoc(menuDocRef);
     
-    const backgroundStyle = event.stationery?.background
-    ? { backgroundImage: `url(${event.stationery.background})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    const backgroundStyle = event.stationery?.menuBackground
+    ? { backgroundImage: `url(${event.stationery.menuBackground})`, backgroundSize: 'cover', backgroundPosition: 'center' }
     : { backgroundColor: event.primaryColor };
     
     return (
