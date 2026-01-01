@@ -5,7 +5,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, QrCode } from 'lucide-react';
-import { useCollection, useFirestore, useMemoFirebase, useUser, setDocumentNonBlocking } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, where, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -27,8 +27,10 @@ type Announcement = {
     timestamp: any;
 };
 
-const MOCK_GUEST_CATEGORY = 'VIP';
-const MOCK_RSVP_STATUS: 'Pending' | 'Accepted' | 'Declined' = 'Pending';
+// This is a placeholder. In a real application, the guest's context (including their ID and the event ID)
+// would be managed through a secure session or context provider after they log in.
+const MOCK_GUEST_CATEGORY = 'VIP';            // Mock guest category for filtering announcements
+const MOCK_RSVP_STATUS: 'Pending' | 'Accepted' | 'Declined' = 'Pending'; // Mock initial RSVP status
 
 
 export default function MyInvitationsPage() {
@@ -37,12 +39,14 @@ export default function MyInvitationsPage() {
   const { toast } = useToast();
   const router = useRouter();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  
+  // This will be populated from session storage or a similar mechanism
   const [eventDetails, setEventDetails] = useState<{id: string, code: string, name: string} | null>(null);
   const [guestCode, setGuestCode] = useState<string | null>(null);
-  const [rsvpStatus, setRsvpStatus] = useState<'Pending' | 'Accepted' | 'Declined'>(MOCK_RSVP_STATUS);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    // In a real app, you would get this from a secure context after login.
+    // For now, we'll retrieve it from session storage for demonstration.
     const eventId = sessionStorage.getItem('guestEventId');
     const storedGuestCode = sessionStorage.getItem('guestEventCode');
     const eventName = sessionStorage.getItem('guestEventName');
@@ -52,10 +56,16 @@ export default function MyInvitationsPage() {
         setGuestCode(storedGuestCode);
         setSelectedEventId(eventId);
     } else if (!user) {
+        // If there's no user and no session data, they probably shouldn't be here.
         router.push('/guest-login');
     }
   }, [user, router]);
 
+
+  const [rsvpStatus, setRsvpStatus] = useState<'Pending' | 'Accepted' | 'Declined'>(MOCK_RSVP_STATUS);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Query for announcements targeted at all guests OR the specific guest's category
   const announcementsQuery = useMemoFirebase(() => {
     if (!firestore || !selectedEventId) return null;
     return query(
@@ -67,25 +77,24 @@ export default function MyInvitationsPage() {
 
   const { data: announcements, isLoading: isLoadingAnnouncements } = useCollection<Announcement>(announcementsQuery);
 
-  const handleRsvp = (status: 'Accepted' | 'Declined') => {
+  const handleRsvp = async (status: 'Accepted' | 'Declined') => {
     if (!firestore || !selectedEventId || !guestCode) {
         toast({ variant: 'destructive', title: 'Error', description: 'Could not connect to the database or find guest ID.' });
         return;
     }
     setIsSubmitting(true);
-
+    // Use the actual guestCode from state, not a mock ID
     const guestRef = doc(firestore, 'events', selectedEventId, 'guests', guestCode);
     const updatedData = { rsvpStatus: status };
 
-    updateDoc(guestRef, updatedData)
-      .then(() => {
+    try {
+        await updateDoc(guestRef, updatedData);
         setRsvpStatus(status);
         toast({
             title: 'RSVP Submitted',
             description: `You have successfully ${status.toLowerCase()} the invitation.`,
         });
-      })
-      .catch((error) => {
+    } catch (error) {
         console.error("Error updating RSVP:", error);
         const permissionError = new FirestorePermissionError({
             path: guestRef.path,
@@ -94,10 +103,9 @@ export default function MyInvitationsPage() {
         });
         errorEmitter.emit('permission-error', permissionError);
         toast({ variant: 'destructive', title: 'Update Failed', description: 'Could not update your RSVP status.' });
-      })
-      .finally(() => {
-          setIsSubmitting(false);
-      });
+    } finally {
+        setIsSubmitting(false);
+    }
   }
   
   if (!eventDetails) {
