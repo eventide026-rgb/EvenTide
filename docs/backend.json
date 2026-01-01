@@ -336,9 +336,10 @@
         "category": { "type": "string", "description": "Category of the guest (e.g., Chairman, VIP, General)." },
         "rsvpStatus": { "type": "string", "enum": ["Pending", "Accepted", "Declined"], "description": "RSVP status of the guest." },
         "hasCheckedIn": { "type": "boolean", "description": "Indicates whether the guest has checked in to the event." },
-        "checkInTime": { "type": "string", "format": "date-time", "description": "The timestamp of when the guest checked in." }
+        "checkInTime": { "type": "string", "format": "date-time", "description": "The timestamp of when the guest checked in." },
+        "serialNumber": { "type": "number", "description": "A unique, sequential number for the guest within the event." }
       },
-      "required": ["guestId", "eventId", "name", "guestCode", "category", "rsvpStatus", "hasCheckedIn"]
+      "required": ["guestId", "eventId", "name", "guestCode", "category", "rsvpStatus", "hasCheckedIn", "serialNumber"]
     },
     "GuestCode": {
         "title": "GuestCode",

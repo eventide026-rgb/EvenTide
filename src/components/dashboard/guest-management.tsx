@@ -253,6 +253,7 @@ function GuestManagementComponent() {
       hasCheckedIn: false,
       createdAt: serverTimestamp(),
       userProfileId: null,
+      serialNumber: guestCount + 1,
     };
 
     try {
