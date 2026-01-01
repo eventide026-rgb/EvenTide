@@ -22,7 +22,7 @@ import { generateInvitationCard } from '@/ai/flows/invitation-card-design';
 import { StationeryDesigns } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { ScrollArea } from '../ui/scroll-area';
-import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
 type CardType = 'invitation' | 'gatepass' | 'program' | 'menu';
 
