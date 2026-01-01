@@ -21,6 +21,7 @@ import {
   Mic,
   Paintbrush,
   Shirt,
+  Music,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -87,6 +88,9 @@ const specialtyNavs: Record<string, {href: string, label: string, icon: React.El
     ],
     "Fashion Designer": [
          { href: "/vendor-dashboard/my-commissions", label: "My Commissions", icon: Shirt },
+    ],
+    "DJ/Musician": [
+        { href: "/vendor-dashboard/song-requests", label: "Song Requests", icon: Music },
     ]
 }
 
