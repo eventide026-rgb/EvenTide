@@ -51,11 +51,9 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
   const [selectedGuestId, setSelectedGuestId] = useState<string | null>(null);
 
   const eventsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
+    if (!firestore || !user?.uid || userRole === 'guest') return null; // Guests don't need to select an event
     if (userRole === 'planner') {
-      // Planners need a different query logic based on their assignments
-      // This is a placeholder, a real implementation would query an 'assignments' collection
-      return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
+      return query(collection(firestore, 'events'), where('ownerId', '==', user.uid)); // Placeholder
     }
     if (userRole === 'owner') {
        return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
@@ -74,15 +72,16 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
     return query(collection(firestore, 'events', selectedEventId, 'guests'));
   }, [firestore, selectedEventId]);
   
-  const seatsQuery = useMemoFirebase(() => {
-    if (!firestore || !selectedEventId) return null;
-    return query(collection(firestore, 'events', selectedEventId, 'seats'));
+  const seatsDataQuery = useMemoFirebase(() => {
+      if (!firestore || !selectedEventId) return null;
+      // This is not optimal for very large events, but sufficient for this structure.
+      // A better approach might be to query seats for each table individually.
+      return collection(firestore, 'events', selectedEventId, 'seats');
   }, [firestore, selectedEventId]);
 
   const { data: tablesData, isLoading: isLoadingTables } = useCollection<Table>(tablesQuery);
   const { data: guestsData, isLoading: isLoadingGuests } = useCollection<Guest>(guestsQuery);
-  const { data: seatsData, isLoading: isLoadingSeats } = useCollection<Seat>(seatsQuery);
-  
+  const { data: seatsData, isLoading: isLoadingSeats } = useCollection<Seat>(seatsDataQuery);
 
   const unassignedGuests = useMemo(() => {
     if (!guestsData || !seatsData) return guestsData || [];
@@ -115,20 +114,19 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
 
   const isLoading = isLoadingEvents || isLoadingTables || isLoadingGuests || isLoadingSeats;
 
-    useEffect(() => {
-      if ((userRole === 'planner' || userRole === 'owner') && !selectedEventId && events && events.length > 0) {
-          setSelectedEventId(events[0].id);
-      }
+  useEffect(() => {
+    if ((userRole === 'planner' || userRole === 'owner') && !selectedEventId && events && events.length > 0) {
+        setSelectedEventId(events[0].id);
+    }
   }, [events, selectedEventId, userRole]);
 
   const handleSeatClick = (seatId: string) => {
     if (userRole !== 'planner' || !selectedGuestId) return;
     console.log(`Assigning guest ${selectedGuestId} to seat ${seatId}`);
-    // In a real app, this would trigger a Firestore update.
-    setSelectedGuestId(null); // Reset selection
+    setSelectedGuestId(null);
   }
   
-  const guestId = userRole === 'guest' ? user?.uid : null;
+  const guestId = userRole === 'guest' ? sessionStorage.getItem('guestEventCode') : null;
 
   return (
     <div className="grid lg:grid-cols-4 gap-6 h-full">
