@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where, doc } from 'firebase/firestore';
 import { Loader2, Armchair, User, Users } from 'lucide-react';
@@ -102,11 +103,11 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
 
   const isLoading = isLoadingEvents || isLoadingTables || isLoadingGuests || isLoadingSeats;
 
-  if (userRole === 'planner' && !selectedEventId && events) {
-      if (events.length > 0) {
-          setSelectedEventId(events[0].id)
+    useEffect(() => {
+      if (userRole === 'planner' && !selectedEventId && events && events.length > 0) {
+          setSelectedEventId(events[0].id);
       }
-  }
+  }, [events, selectedEventId, userRole]);
 
   const handleSeatClick = (seatId: string) => {
     if (userRole !== 'planner' || !selectedGuestId) return;
