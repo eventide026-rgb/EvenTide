@@ -93,6 +93,7 @@ export default function MyInvitationsPage() {
             requestResourceData: updatedData,
         });
         errorEmitter.emit('permission-error', permissionError);
+        toast({ variant: 'destructive', title: 'Update Failed', description: 'Could not update your RSVP status.' });
       })
       .finally(() => {
           setIsSubmitting(false);
