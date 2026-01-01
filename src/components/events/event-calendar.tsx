@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -49,7 +50,7 @@ type CalendarItem = {
 /* Page Component                                                     */
 /* ------------------------------------------------------------------ */
 
-export default function CalendarPage() {
+export default function EventCalendar() {
   const firestore = useFirestore();
   const { user } = useUser();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
@@ -187,90 +188,77 @@ export default function CalendarPage() {
   /* ---------------------------------------------------------------- */
 
   return (
-    <div className="h-full flex flex-col">
-      <header className="pb-4 border-b">
-        <div>
-          <h1 className="text-3xl font-bold font-headline">My Calendar</h1>
-          <p className="text-muted-foreground">
-            A unified view of all your owned and invited events, plus tasks.
-          </p>
-        </div>
-      </header>
+    <div className="grid md:grid-cols-3 gap-8 min-h-[600px]">
+      {/* Calendar */}
+      <Card className="md:col-span-2">
+        <CardContent className="p-4">
+          <DayPicker
+            mode="single"
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            className="w-full"
+            components={{
+              Day: DayWithDot,
+            }}
+          />
+        </CardContent>
+      </Card>
 
-      <div className="flex-1 mt-6">
-        <div className="grid md:grid-cols-3 gap-8 min-h-[600px]">
-          {/* Calendar */}
-          <Card className="md:col-span-2">
-            <CardContent className="p-4">
-              <DayPicker
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                className="w-full"
-                components={{
-                  Day: DayWithDot,
-                }}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Agenda */}
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                Agenda for {selectedDate ? format(selectedDate, 'PPP') : '—'}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {selectedDayItems.length === 0 ? (
-                <p className="text-muted-foreground text-center py-6">
-                  No events or tasks for this day.
-                </p>
-              ) : (
-                <ul className="space-y-4">
-                  {selectedDayItems.map((item) => (
-                    <li key={`${item.type}-${item.id}`} className="flex gap-3">
-                      {item.type === 'event' ? (
-                        <CalendarCheck
-                          className={`h-5 w-5 mt-1 ${
-                            item.source === 'owned'
-                              ? 'text-primary'
-                              : 'text-blue-500'
-                          }`}
-                        />
-                      ) : (
-                        <CheckSquare className="h-5 w-5 text-green-500 mt-1" />
+      {/* Agenda */}
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            Agenda for {selectedDate ? format(selectedDate, 'PPP') : '—'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {selectedDayItems.length === 0 ? (
+            <p className="text-muted-foreground text-center py-6">
+              No events or tasks for this day.
+            </p>
+          ) : (
+            <ul className="space-y-4">
+              {selectedDayItems.map((item) => (
+                <li key={`${item.type}-${item.id}`} className="flex gap-3">
+                  {item.type === 'event' ? (
+                    <CalendarCheck
+                      className={`h-5 w-5 mt-1 ${
+                        item.source === 'owned'
+                          ? 'text-primary'
+                          : 'text-blue-500'
+                      }`}
+                    />
+                  ) : (
+                    <CheckSquare className="h-5 w-5 text-green-500 mt-1" />
+                  )}
+                  <div>
+                    <p className="font-semibold">{item.title}</p>
+                    <div className="flex gap-2 mt-1">
+                      <Badge
+                        variant={
+                          item.type === 'event'
+                            ? item.source === 'owned'
+                              ? 'default'
+                              : 'secondary'
+                            : 'secondary'
+                        }
+                      >
+                        {item.type}
+                      </Badge>
+                      {item.source && (
+                        <Badge variant="outline">{item.source}</Badge>
                       )}
-                      <div>
-                        <p className="font-semibold">{item.title}</p>
-                        <div className="flex gap-2 mt-1">
-                          <Badge
-                            variant={
-                              item.type === 'event'
-                                ? item.source === 'owned'
-                                  ? 'default'
-                                  : 'secondary'
-                                : 'secondary'
-                            }
-                          >
-                            {item.type}
-                          </Badge>
-                          {item.source && (
-                            <Badge variant="outline">{item.source}</Badge>
-                          )}
-                          {item.task && (
-                            <Badge variant="outline">{item.task.status}</Badge>
-                          )}
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+                      {item.task && (
+                        <Badge variant="outline">{item.task.status}</Badge>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
