@@ -45,8 +45,12 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
         const userDoc = await getDoc(userDocRef);
 
         if (!userDoc.exists()) {
-          console.warn('User document not found for UID:', user.uid, 'Signing out.');
-          await auth.signOut();
+          // This case handles anonymous guest users who don't have a user doc.
+          // We don't sign them out. We let the page-level logic handle them.
+          if (!user.isAnonymous) {
+             console.warn('User document not found for non-anonymous UID:', user.uid, 'Signing out.');
+             await auth.signOut();
+          }
           return;
         }
 
