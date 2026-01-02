@@ -1,8 +1,53 @@
+'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Lock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
+import { GuestCard } from '@/components/stationery/guest-card';
+import { InvitationCardClient } from '@/components/stationery/previews/invitation-card-client';
+import { GatepassCardClient } from '@/components/stationery/previews/gatepass-card-client';
+import { MenuPreviewCard } from '@/components/stationery/previews/menu-preview';
+import { ProgramPreviewCard } from '@/components/stationery/previews/program-preview';
+import { Loader2 } from 'lucide-react';
+import { type Guest } from '@/lib/types';
 
 export default function GuestCardsPage() {
+  const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
+  const [eventId, setEventId] = useState<string | null>(null);
+  const [guestCode, setGuestCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    setEventId(sessionStorage.getItem('guestEventId'));
+    setGuestCode(sessionStorage.getItem('guestEventCode'));
+  }, []);
+
+  const guestRef = useMemoFirebase(() => {
+    if (!firestore || !eventId || !guestCode) return null;
+    return doc(firestore, 'events', eventId, 'guests', guestCode);
+  }, [firestore, eventId, guestCode]);
+
+  const { data: guest, isLoading: isLoadingGuest } = useDoc<Guest>(guestRef);
+  const eventRef = useMemoFirebase(() => {
+    if (!firestore || !eventId) return null;
+    return doc(firestore, 'events', eventId);
+  }, [firestore, eventId]);
+  const { data: event, isLoading: isLoadingEvent } = useDoc(eventRef);
+
+  const isLoading = isUserLoading || isLoadingGuest || isLoadingEvent;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+  
+  if (!event || !guest) {
+      return <p>Could not load event or guest details.</p>
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -11,48 +56,18 @@ export default function GuestCardsPage() {
       </div>
 
        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <Card>
-            <CardHeader>
-                <CardTitle>Invitation Card</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-muted-foreground text-center py-16">Invitation Card Preview</p>
-            </CardContent>
-        </Card>
-         <Card>
-            <CardHeader>
-                <CardTitle>Digital Gate Pass</CardTitle>
-            </CardHeader>
-            <CardContent>
-                 <p className="text-muted-foreground text-center py-16">Gate Pass with QR Code</p>
-            </CardContent>
-        </Card>
-         <Card className="relative border-dashed">
-            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center z-10">
-                <Lock className="h-8 w-8 text-muted-foreground" />
-                <p className="mt-2 text-muted-foreground font-semibold">Locked</p>
-                <p className="text-xs text-muted-foreground">Unlocks upon check-in</p>
-            </div>
-            <CardHeader>
-                <CardTitle className="text-muted-foreground">Menu Card</CardTitle>
-            </CardHeader>
-            <CardContent>
-                 <div className="h-48" />
-            </CardContent>
-        </Card>
-        <Card className="relative border-dashed">
-            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center z-10">
-                <Lock className="h-8 w-8 text-muted-foreground" />
-                <p className="mt-2 text-muted-foreground font-semibold">Locked</p>
-                <p className="text-xs text-muted-foreground">Unlocks upon check-in</p>
-            </div>
-            <CardHeader>
-                <CardTitle className="text-muted-foreground">Program Card</CardTitle>
-            </CardHeader>
-             <CardContent>
-                 <div className="h-48" />
-            </CardContent>
-        </Card>
+        <GuestCard title="Invitation Card" isLocked={false}>
+            <InvitationCardClient event={event} guest={guest} />
+        </GuestCard>
+         <GuestCard title="Digital Gate Pass" isLocked={false}>
+            <GatepassCardClient event={event} guest={guest} />
+        </GuestCard>
+         <GuestCard title="Menu Card" isLocked={!guest.hasCheckedIn}>
+             <MenuPreviewCard event={event} />
+         </GuestCard>
+        <GuestCard title="Program Card" isLocked={!guest.hasCheckedIn}>
+            <ProgramPreviewCard event={event} />
+        </GuestCard>
        </div>
     </div>
   );
