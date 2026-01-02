@@ -8,19 +8,28 @@ import { InvitationCardClient } from '@/components/stationery/previews/invitatio
 import { GatepassCardClient } from '@/components/stationery/previews/gatepass-card-client';
 import { MenuPreviewCard } from '@/components/stationery/previews/menu-preview';
 import { ProgramPreviewCard } from '@/components/stationery/previews/program-preview';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertTriangle } from 'lucide-react';
 import { type Guest } from '@/lib/types';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default function GuestCardsPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   const [eventId, setEventId] = useState<string | null>(null);
   const [guestId, setGuestId] = useState<string | null>(null);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
-    setEventId(sessionStorage.getItem('guestEventId'));
-    setGuestId(sessionStorage.getItem('guestId'));
-  }, []);
+    if (user) { // Ensure user object is available
+        const id = sessionStorage.getItem('guestEventId');
+        const gId = sessionStorage.getItem('guestId');
+        setEventId(id);
+        setGuestId(gId);
+        setDataLoaded(true); // Mark that we have attempted to load from session
+    }
+  }, [user]);
 
   const guestRef = useMemoFirebase(() => {
     if (!firestore || !eventId || !guestId) return null;
@@ -35,7 +44,7 @@ export default function GuestCardsPage() {
   }, [firestore, eventId]);
   const { data: event, isLoading: isLoadingEvent } = useDoc(eventRef);
 
-  const isLoading = isUserLoading || isLoadingGuest || isLoadingEvent;
+  const isLoading = isUserLoading || isLoadingGuest || isLoadingEvent || !dataLoaded;
 
   if (isLoading) {
     return (
@@ -46,7 +55,18 @@ export default function GuestCardsPage() {
   }
   
   if (!event || !guest) {
-      return <p>Could not load event or guest details.</p>
+      return (
+        <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Error Loading Your Details</AlertTitle>
+            <AlertDescription>
+                We couldn't find the necessary event or guest information. Please try logging in again.
+                 <Button asChild variant="link" className="p-0 h-auto ml-1">
+                    <Link href="/guest-login">Go to Guest Login</Link>
+                </Button>
+            </AlertDescription>
+        </Alert>
+      )
   }
 
   return (
