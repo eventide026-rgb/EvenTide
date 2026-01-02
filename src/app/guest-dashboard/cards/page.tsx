@@ -22,14 +22,14 @@ export default function GuestCardsPage() {
   const [dataLoaded, setDataLoaded] = useState(false);
 
   useEffect(() => {
-    if (user) { // Ensure user object is available
+    if (typeof window !== 'undefined') {
         const id = sessionStorage.getItem('guestEventId');
         const gId = sessionStorage.getItem('guestId');
         setEventId(id);
         setGuestId(gId);
-        setDataLoaded(true); // Mark that we have attempted to load from session
+        setDataLoaded(true);
     }
-  }, [user]);
+  }, [user]); 
 
   const guestRef = useMemoFirebase(() => {
     if (!firestore || !eventId || !guestId) return null;
@@ -60,7 +60,7 @@ export default function GuestCardsPage() {
             <AlertTriangle className="h-4 w-4" />
             <AlertTitle>Error Loading Your Details</AlertTitle>
             <AlertDescription>
-                We couldn't find the necessary event or guest information. Please try logging in again.
+                We couldn&apos;t find the necessary event or guest information. Please try logging in again.
                  <Button asChild variant="link" className="p-0 h-auto ml-1">
                     <Link href="/guest-login">Go to Guest Login</Link>
                 </Button>
