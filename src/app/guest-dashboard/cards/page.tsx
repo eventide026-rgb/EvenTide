@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { GuestCard } from '@/components/stationery/guest-card';
@@ -14,27 +14,29 @@ import { type Guest } from '@/lib/types';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { usePathname } from 'next/navigation';
 
-export default function GuestCardsPage() {
+function GuestCardsPageContent() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   const [eventId, setEventId] = useState<string | null>(null);
   const [guestId, setGuestId] = useState<string | null>(null);
   const [sessionStatus, setSessionStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
+  const pathname = usePathname(); // Using pathname to trigger useEffect reliably
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-        const id = sessionStorage.getItem('guestEventId');
-        const gId = sessionStorage.getItem('guestId');
-        if (id && gId) {
-            setEventId(id);
-            setGuestId(gId);
-            setSessionStatus('loaded');
-        } else {
-            setSessionStatus('error');
-        }
+    // This effect runs once on mount to get data from session storage.
+    // It's more reliable than depending on the user object which might not change.
+    const id = sessionStorage.getItem('guestEventId');
+    const gId = sessionStorage.getItem('guestId');
+    if (id && gId) {
+        setEventId(id);
+        setGuestId(gId);
+        setSessionStatus('loaded');
+    } else {
+        setSessionStatus('error');
     }
-  }, [user]); 
+  }, [pathname]); // Depend on pathname to ensure it runs once on page load.
 
   const guestRef = useMemoFirebase(() => {
     if (!firestore || !eventId || !guestId) return null;
@@ -75,9 +77,8 @@ export default function GuestCardsPage() {
       )
   }
   
-  // This check is now safe because isLoading is false and hasError is false
   if (!event || !guest) {
-      return null; // Should not happen due to the hasError check, but good for type safety
+      return null;
   }
 
   return (
@@ -103,4 +104,12 @@ export default function GuestCardsPage() {
        </div>
     </div>
   );
+}
+
+export default function GuestCardsPage() {
+    return (
+        <Suspense fallback={<div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+            <GuestCardsPageContent />
+        </Suspense>
+    )
 }
