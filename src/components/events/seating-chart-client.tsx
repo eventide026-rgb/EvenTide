@@ -3,7 +3,7 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, documentId } from 'firebase/firestore';
+import { collection, query, where, doc, documentId, collectionGroup } from 'firebase/firestore';
 import { Loader2, Armchair, User, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
@@ -74,9 +74,8 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
   
   const seatsDataQuery = useMemoFirebase(() => {
       if (!firestore || !selectedEventId) return null;
-      // This is not optimal for very large events, but sufficient for this structure.
-      // A better approach might be to query seats for each table individually.
-      return collection(firestore, 'events', selectedEventId, 'seats');
+      // Correctly query the collection group 'seats' across all tables within the event.
+      return query(collectionGroup(firestore, 'seats'), where('eventId', '==', selectedEventId));
   }, [firestore, selectedEventId]);
 
   const { data: tablesData, isLoading: isLoadingTables } = useCollection<Table>(tablesQuery);
@@ -126,7 +125,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
     setSelectedGuestId(null);
   }
   
-  const guestId = userRole === 'guest' ? sessionStorage.getItem('guestEventCode') : null;
+  const guestId = userRole === 'guest' ? user?.uid : null;
 
   return (
     <div className="grid lg:grid-cols-4 gap-6 h-full">
@@ -226,3 +225,5 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
     </div>
   );
 }
+
+    

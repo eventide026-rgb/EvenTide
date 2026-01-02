@@ -80,7 +80,7 @@ service cloud.firestore {
       }
 
       function canReadEventData(eventId) {
-        return isEventStaff(eventId) || isEventGuest(eventId);
+        return isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid);
       }
 
       // Security rule for the 'teamMembers' collection group query
@@ -121,6 +121,10 @@ service cloud.firestore {
           allow read, delete: if isOwner(userId);
           allow create: if isSignedIn();
           allow update: if isOwner(userId) && request.resource.data.read == true;
+        }
+
+        match /invitations/{invitationId} {
+          allow read, write: if isOwner(userId);
         }
       }
 
@@ -224,11 +228,11 @@ service cloud.firestore {
       }
 
       match /tables/{tableId} {
-        allow read: if isEventStaff(eventId);
+        allow read: if isSignedIn();
         allow write: if isEventPlanner(eventId);
 
         match /seats/{seatId} {
-          allow read: if isEventStaff(eventId);
+          allow read: if isSignedIn();
           allow write: if isEventPlanner(eventId);
         }
       }
@@ -270,7 +274,7 @@ service cloud.firestore {
       }
 
       match /menu/{docId} {
-        allow read: if isEventStaff(eventId) || isEventGuest(eventId) || isEventVendor(eventId, 'Caterer');
+        allow read: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isEventVendor(eventId, 'Caterer');
         allow write: if isEventPlanner(eventId);
       }
       
@@ -280,12 +284,6 @@ service cloud.firestore {
         
       }
       
-      match /invitations/{invitationId} {
-        allow read, update: if isEventStaff(eventId) || isOwner(resource.data.userId);
-        allow list: if isEventStaff(eventId);
-        allow create: if isEventOwnerOnCreate() || isEventStaff(eventId);
-        allow delete: if isEventStaff(eventId);
-        }
       }
 
        match /events/{eventId}/moodboard/{moodboardId} {
@@ -433,3 +431,4 @@ service cloud.firestore {
     }
   }
 
+    
