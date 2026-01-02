@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
@@ -101,6 +101,16 @@ export default function GiftRegistryPage() {
   const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
 
   const selectedEvent = events?.find(e => e.id === selectedEventId);
+  
+  useEffect(() => {
+    if (selectedEvent) {
+      bankForm.reset({
+        bankName: selectedEvent.bankName || '',
+        accountNumber: selectedEvent.accountNumber || '',
+        accountName: selectedEvent.accountName || '',
+      });
+    }
+  }, [selectedEvent, bankForm]);
 
   const giftsQuery = useMemoFirebase(() => {
     if (!firestore || !selectedEventId) return null;
@@ -176,130 +186,132 @@ export default function GiftRegistryPage() {
       </Card>
 
       {selectedEventId && (
-        <>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Gift className="h-5 w-5" /> Add a New Gift</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Form {...giftForm}>
-                        <form onSubmit={giftForm.handleSubmit(handleAddGift)} className="space-y-4">
-                            <div className='grid md:grid-cols-2 gap-4'>
-                                <FormField control={giftForm.control} name="name" render={({ field }) => (
-                                    <FormItem><FormLabel>Gift Name</FormLabel><FormControl><Input placeholder="e.g., Premium Blender" {...field} /></FormControl><FormMessage /></FormItem>
+        <div className="grid md:grid-cols-3 gap-6 items-start">
+            <div className="md:col-span-2 space-y-6">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Current Registry</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {isLoadingGifts ? <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" /> : (
+                             <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Gift</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead>Claimed By</TableHead>
+                                            <TableHead className="text-right">Actions</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {gifts && gifts.length > 0 ? gifts.map(gift => (
+                                            <TableRow key={gift.id}>
+                                                <TableCell className="font-medium flex items-center gap-4">
+                                                    {gift.imageUrl && <Image src={gift.imageUrl} alt={gift.name} width={40} height={40} className="rounded-md object-cover" />}
+                                                    {gift.name}
+                                                </TableCell>
+                                                <TableCell>{getStatus(gift)}</TableCell>
+                                                <TableCell>
+                                                    {gift.claimedBy.length > 0 ? gift.claimedBy.map(g => g.guestName).join(', ') : 'N/A'}
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger asChild>
+                                                            <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                                                        </AlertDialogTrigger>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader>
+                                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                                <AlertDialogDescription>
+                                                                    This action cannot be undone. This will permanently delete this gift from the registry.
+                                                                </AlertDialogDescription>
+                                                            </AlertDialogHeader>
+                                                            <AlertDialogFooter>
+                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                <AlertDialogAction onClick={() => handleDeleteGift(gift.id)}>Delete</AlertDialogAction>
+                                                            </AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
+                                                </TableCell>
+                                            </TableRow>
+                                        )) : (
+                                            <TableRow>
+                                                <TableCell colSpan={4} className="h-24 text-center">
+                                                    No gifts have been added to this registry yet.
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                    </TableBody>
+                                </Table>
+                             </div>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="md:col-span-1 space-y-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Gift className="h-5 w-5" /> Add a New Gift</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Form {...giftForm}>
+                            <form onSubmit={giftForm.handleSubmit(handleAddGift)} className="space-y-4">
+                                <div className='grid grid-cols-2 gap-4'>
+                                    <FormField control={giftForm.control} name="name" render={({ field }) => (
+                                        <FormItem className="col-span-2"><FormLabel>Gift Name</FormLabel><FormControl><Input placeholder="e.g., Premium Blender" {...field} /></FormControl><FormMessage /></FormItem>
+                                    )}/>
+                                     <FormField control={giftForm.control} name="price" render={({ field }) => (
+                                        <FormItem><FormLabel>Price (₦, Opt.)</FormLabel><FormControl><Input type="number" placeholder="50000" {...field} /></FormControl><FormMessage /></FormItem>
+                                    )}/>
+                                     <FormField control={giftForm.control} name="quantity" render={({ field }) => (
+                                        <FormItem><FormLabel>Quantity</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                                    )}/>
+                                </div>
+                                 <FormField control={giftForm.control} name="imageUrl" render={({ field }) => (
+                                    <FormItem><FormLabel>Image URL (Optional)</FormLabel><FormControl><Input placeholder="https://example.com/image.jpg" {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
-                                 <FormField control={giftForm.control} name="price" render={({ field }) => (
-                                    <FormItem><FormLabel>Price (₦, Optional)</FormLabel><FormControl><Input type="number" placeholder="50000" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormField control={giftForm.control} name="description" render={({ field }) => (
+                                    <FormItem><FormLabel>Description (Optional)</FormLabel><FormControl><Textarea placeholder="Any specific details..." {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
-                            </div>
-                             <FormField control={giftForm.control} name="imageUrl" render={({ field }) => (
-                                <FormItem><FormLabel>Image URL (Optional)</FormLabel><FormControl><Input placeholder="https://example.com/image.jpg" {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <FormField control={giftForm.control} name="description" render={({ field }) => (
-                                <FormItem><FormLabel>Description (Optional)</FormLabel><FormControl><Textarea placeholder="Any specific details about the gift..." {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                             <FormField control={giftForm.control} name="quantity" render={({ field }) => (
-                                <FormItem><FormLabel>Quantity</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <Button type="submit" disabled={giftForm.formState.isSubmitting}>
-                                {giftForm.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Add to Registry
-                            </Button>
-                        </form>
-                    </Form>
-                </CardContent>
-            </Card>
+                                <Button type="submit" disabled={giftForm.formState.isSubmitting}>
+                                    {giftForm.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    Add to Registry
+                                </Button>
+                            </form>
+                        </Form>
+                    </CardContent>
+                </Card>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Banknote className="h-5 w-5" /> Monetary Gift Details</CardTitle>
-                    <CardDescription>Provide bank details for guests who prefer to give cash gifts.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                     <Form {...bankForm}>
-                        <form onSubmit={bankForm.handleSubmit(handleUpdateBankDetails)} className="space-y-4">
-                            <div className='grid md:grid-cols-2 gap-4'>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Banknote className="h-5 w-5" /> Monetary Gift Details</CardTitle>
+                        <CardDescription>Provide bank details for guests who prefer to give cash gifts.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                         <Form {...bankForm}>
+                            <form onSubmit={bankForm.handleSubmit(handleUpdateBankDetails)} className="space-y-4">
                                 <FormField control={bankForm.control} name="bankName" render={({ field }) => (
                                     <FormItem><FormLabel>Bank Name</FormLabel><FormControl><Input placeholder="e.g., Guaranty Trust Bank" {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
                                  <FormField control={bankForm.control} name="accountNumber" render={({ field }) => (
                                     <FormItem><FormLabel>Account Number</FormLabel><FormControl><Input placeholder="0123456789" {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
-                            </div>
-                            <FormField control={bankForm.control} name="accountName" render={({ field }) => (
-                                <FormItem><FormLabel>Account Name</FormLabel><FormControl><Input placeholder="John Doe" {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
-                            <Button type="submit" disabled={bankForm.formState.isSubmitting}>
-                                {bankForm.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Save Bank Details
-                            </Button>
-                        </form>
-                    </Form>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Current Registry</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {isLoadingGifts ? <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" /> : (
-                         <div className="rounded-md border">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Gift</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead>Claimed By</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {gifts && gifts.length > 0 ? gifts.map(gift => (
-                                        <TableRow key={gift.id}>
-                                            <TableCell className="font-medium flex items-center gap-4">
-                                                {gift.imageUrl && <Image src={gift.imageUrl} alt={gift.name} width={40} height={40} className="rounded-md object-cover" />}
-                                                {gift.name}
-                                            </TableCell>
-                                            <TableCell>{getStatus(gift)}</TableCell>
-                                            <TableCell>
-                                                {gift.claimedBy.length > 0 ? gift.claimedBy.map(g => g.guestName).join(', ') : 'N/A'}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <AlertDialog>
-                                                    <AlertDialogTrigger asChild>
-                                                        <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                                                    </AlertDialogTrigger>
-                                                    <AlertDialogContent>
-                                                        <AlertDialogHeader>
-                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                            <AlertDialogDescription>
-                                                                This action cannot be undone. This will permanently delete this gift from the registry.
-                                                            </AlertDialogDescription>
-                                                        </AlertDialogHeader>
-                                                        <AlertDialogFooter>
-                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleDeleteGift(gift.id)}>Delete</AlertDialogAction>
-                                                        </AlertDialogFooter>
-                                                    </AlertDialogContent>
-                                                </AlertDialog>
-                                            </TableCell>
-                                        </TableRow>
-                                    )) : (
-                                        <TableRow>
-                                            <TableCell colSpan={4} className="h-24 text-center">
-                                                No gifts have been added to this registry yet.
-                                            </TableCell>
-                                        </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-                         </div>
-                    )}
-                </CardContent>
-            </Card>
-        </>
+                                <FormField control={bankForm.control} name="accountName" render={({ field }) => (
+                                    <FormItem><FormLabel>Account Name</FormLabel><FormControl><Input placeholder="John Doe" {...field} /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                                <Button type="submit" disabled={bankForm.formState.isSubmitting}>
+                                    {bankForm.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    Save Bank Details
+                                </Button>
+                            </form>
+                        </Form>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
       )}
     </div>
   );
 }
+
