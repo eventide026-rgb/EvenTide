@@ -171,6 +171,7 @@ export function GuestLoginForm() {
       sessionStorage.setItem('guestEventName', foundEvent.name);
       sessionStorage.setItem('guestEventCode', values.guestCode);
       sessionStorage.setItem('guestName', guestData.name);
+      sessionStorage.setItem('guestId', guestSnap.id);
 
       toast({ title: 'Access Granted', description: 'Redirecting...' });
       router.push('/guest-dashboard/my-invitations');

@@ -15,19 +15,20 @@ export default function GuestCardsPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   const [eventId, setEventId] = useState<string | null>(null);
-  const [guestCode, setGuestCode] = useState<string | null>(null);
+  const [guestId, setGuestId] = useState<string | null>(null);
 
   useEffect(() => {
     setEventId(sessionStorage.getItem('guestEventId'));
-    setGuestCode(sessionStorage.getItem('guestEventCode'));
+    setGuestId(sessionStorage.getItem('guestId'));
   }, []);
 
   const guestRef = useMemoFirebase(() => {
-    if (!firestore || !eventId || !guestCode) return null;
-    return doc(firestore, 'events', eventId, 'guests', guestCode);
-  }, [firestore, eventId, guestCode]);
+    if (!firestore || !eventId || !guestId) return null;
+    return doc(firestore, 'events', eventId, 'guests', guestId);
+  }, [firestore, eventId, guestId]);
 
   const { data: guest, isLoading: isLoadingGuest } = useDoc<Guest>(guestRef);
+  
   const eventRef = useMemoFirebase(() => {
     if (!firestore || !eventId) return null;
     return doc(firestore, 'events', eventId);
