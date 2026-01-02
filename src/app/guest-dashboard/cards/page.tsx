@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -19,15 +20,19 @@ export default function GuestCardsPage() {
   const firestore = useFirestore();
   const [eventId, setEventId] = useState<string | null>(null);
   const [guestId, setGuestId] = useState<string | null>(null);
-  const [dataLoaded, setDataLoaded] = useState(false);
+  const [sessionStatus, setSessionStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
         const id = sessionStorage.getItem('guestEventId');
         const gId = sessionStorage.getItem('guestId');
-        setEventId(id);
-        setGuestId(gId);
-        setDataLoaded(true);
+        if (id && gId) {
+            setEventId(id);
+            setGuestId(gId);
+            setSessionStatus('loaded');
+        } else {
+            setSessionStatus('error');
+        }
     }
   }, [user]); 
 
@@ -44,7 +49,8 @@ export default function GuestCardsPage() {
   }, [firestore, eventId]);
   const { data: event, isLoading: isLoadingEvent } = useDoc(eventRef);
 
-  const isLoading = isUserLoading || isLoadingGuest || isLoadingEvent || !dataLoaded;
+  const isLoading = isUserLoading || sessionStatus === 'loading' || isLoadingGuest || isLoadingEvent;
+  const hasError = sessionStatus === 'error' || (!isLoading && (!event || !guest));
 
   if (isLoading) {
     return (
@@ -54,7 +60,7 @@ export default function GuestCardsPage() {
     );
   }
   
-  if (!event || !guest) {
+  if (hasError) {
       return (
         <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
@@ -67,6 +73,11 @@ export default function GuestCardsPage() {
             </AlertDescription>
         </Alert>
       )
+  }
+  
+  // This check is now safe because isLoading is false and hasError is false
+  if (!event || !guest) {
+      return null; // Should not happen due to the hasError check, but good for type safety
   }
 
   return (
