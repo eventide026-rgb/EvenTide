@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Music } from 'lucide-react';
 import { Label } from '@/components/ui/label';
@@ -33,7 +32,6 @@ type SongRequest = {
   songTitle: string;
   artist: string;
   requesterName: string;
-  status: 'pending' | 'approved' | 'rejected';
 };
 
 export default function VendorSongRequestsPage() {
@@ -41,18 +39,13 @@ export default function VendorSongRequestsPage() {
   const { user, isUserLoading } = useUser();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
+  // This is a simplified query. A real app would check a contracts or assignments collection.
   const vendorGigsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
-    return query(collection(firestore, 'vendorContracts'), where('vendorId', '==', user.uid), where('status', '==', 'accepted'));
+    return query(collection(firestore, 'events'), where('ownerId', '==', user.uid)); // Placeholder logic
   }, [firestore, user?.uid]);
-  const { data: gigs, isLoading: isLoadingGigs } = useCollection<VendorGig>(vendorGigsQuery);
-  const eventIds = useMemo(() => gigs?.map(gig => gig.eventId) || [], [gigs]);
-
-  const eventsQuery = useMemoFirebase(() => {
-    if (!firestore || eventIds.length === 0) return null;
-    return query(collection(firestore, 'events'), where(documentId(), 'in', eventIds));
-  }, [firestore, eventIds]);
-  const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
+  
+  const { data: gigs, isLoading: isLoadingGigs } = useCollection<Event>(vendorGigsQuery);
 
   const requestsQuery = useMemoFirebase(() => {
     if (!firestore || !selectedEventId) return null;
@@ -61,7 +54,7 @@ export default function VendorSongRequestsPage() {
 
   const { data: requests, isLoading: isLoadingRequests } = useCollection<SongRequest>(requestsQuery);
 
-  const isLoading = isUserLoading || isLoadingGigs || isLoadingEvents;
+  const isLoading = isUserLoading || isLoadingGigs;
 
   return (
     <div className="space-y-6">
@@ -80,8 +73,8 @@ export default function VendorSongRequestsPage() {
                 <SelectValue placeholder="Select an event to view its playlist" />
               </SelectTrigger>
               <SelectContent>
-                {events && events.length > 0 ? (
-                  events.map((event) => (
+                {gigs && gigs.length > 0 ? (
+                  gigs.map((event) => (
                     <SelectItem key={event.id} value={event.id}>
                       {event.name}
                     </SelectItem>
