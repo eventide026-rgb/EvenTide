@@ -68,6 +68,11 @@ service cloud.firestore {
           return isSignedIn() && exists(guestDocPath);
        }
       // --- End of Event-Scoped Helper Functions ---
+
+      function isShowOwner(showId) {
+        let show = get(/databases/$(database)/documents/shows/$(showId));
+        return isSignedIn() && show.data.ownerId == request.auth.uid;
+      }
       
 
       // --- Start of Security Rule Definitions ---
@@ -109,11 +114,19 @@ service cloud.firestore {
       match /shows/{showId} {
         allow read, list: if true;
         allow create: if isEventOwnerOnCreate();
-        allow update, delete: if isEventOwner(showId) || isAdmin();
-      }
+        allow update, delete: if isShowOwner(showId) || isAdmin();
 
-      match /shows/{showId}/{document=**} {
-          allow read, list, write: if isEventOwner(showId) || isAdmin();
+        match /ticketTiers/{tierId} {
+            allow read, list: if true;
+            allow create, update, delete: if isShowOwner(showId) || isAdmin();
+        }
+
+        match /tickets/{ticketId} {
+            allow read: if isShowOwner(showId) || (isSignedIn() && resource.data.buyerId == request.auth.uid);
+            allow list: if isShowOwner(showId) || (isSignedIn() && request.query.where.buyerId == request.auth.uid);
+            allow create: if isSignedIn() && request.resource.data.buyerId == request.auth.uid;
+            allow update, delete: if isShowOwner(showId);
+        }
       }
       
       match /events/{eventId} {
@@ -154,9 +167,10 @@ service cloud.firestore {
 
         match /tables/{tableId} {
           allow read, write: if isEventStaff(eventId) || isAdmin();
-          match /seats/{seatId} {
+        }
+        
+        match /seats/{seatId} {
             allow read, write: if isEventStaff(eventId) || isAdmin();
-          }
         }
         
         match /gifts/{giftId} {
@@ -216,6 +230,18 @@ service cloud.firestore {
         match /announcements/{announcementId} {
           allow read: if isEventStaff(eventId) || isEventGuest(eventId) || isAdmin();
           allow create, update, delete: if isEventStaff(eventId) || isAdmin();
+        }
+
+        match /polls/{pollId} {
+            allow read, list: if isEventStaff(eventId) || isEventGuest(eventId);
+            allow create, delete: if isEventStaff(eventId) || isAdmin();
+            allow update: if (isEventGuest(eventId) && !(request.auth.uid in resource.data.voters)) || isEventStaff(eventId);
+        }
+        
+        match /autographs/{autographId} {
+            allow read, list: if isEventStaff(eventId) || isEventGuest(eventId);
+            allow create: if isEventGuest(eventId);
+            allow delete: if isEventStaff(eventId);
         }
       }
 
