@@ -145,15 +145,13 @@ export function GuestLoginForm() {
     if (!firestore || !foundEvent || !auth) return;
     setIsVerifyingGuest(true);
 
-    const guestCode = values.guestCode.trim();
-    const guestCodeRef = doc(firestore, `events/${foundEvent.id}/guestCodes`, guestCode);
-    
     try {
+        const guestCode = values.guestCode.trim();
+        const guestCodeRef = doc(firestore, `events/${foundEvent.id}/guestCodes`, guestCode);
         const guestCodeSnap = await getDoc(guestCodeRef);
+        
         if (!guestCodeSnap.exists()) {
-            toast({ variant: 'destructive', title: 'Invalid Guest Code' });
-            setIsVerifyingGuest(false);
-            return;
+            throw new Error("Invalid Guest Code. Please check the code and try again.");
         }
 
         const { guestId } = guestCodeSnap.data() as GuestCode;
@@ -161,21 +159,17 @@ export function GuestLoginForm() {
         const guestSnap = await getDoc(guestDocRef);
         
         if (!guestSnap.exists()) {
-            toast({ variant: 'destructive', title: 'Guest Record Not Found' });
-            setIsVerifyingGuest(false);
-            return;
+            throw new Error("Could not find your guest record. Please contact the event host.");
         }
         
         const guestData = guestSnap.data() as Guest;
         
-        // This is a simplified custom token flow. In a real app, you'd use a server function.
         const userCredential = await signInAnonymously(auth);
         const user = userCredential.user;
 
-        // Associate the anonymous user's UID with the guest document
-        // This only needs to be done once.
-        if (guestData.id !== user.uid) {
-            await updateDoc(guestDocRef, { id: user.uid });
+        // One-time operation to link the anonymous auth UID to the guest document
+        if (guestSnap.id !== user.uid) {
+            await updateDoc(doc(firestore, `events/${foundEvent.id}/guests`, guestId), { id: user.uid });
         }
         
         sessionStorage.setItem('guestEventId', foundEvent.id);
@@ -183,14 +177,15 @@ export function GuestLoginForm() {
         sessionStorage.setItem('guestEventCode', foundEvent.eventCode || '');
         sessionStorage.setItem('guestCode', guestData.guestCode);
         sessionStorage.setItem('guestName', guestData.name);
-        sessionStorage.setItem('guestId', user.uid); // The user's auth UID is the guest document ID
+        sessionStorage.setItem('guestId', user.uid); // The auth UID is now the canonical guest ID
 
         toast({ title: 'Access Granted', description: 'Redirecting...' });
         router.push('/guest-dashboard/my-invitations');
 
-    } catch (error) {
+    } catch (error: any) {
         console.error(error);
-        toast({ variant: 'destructive', title: 'Login Failed', description: 'An unexpected error occurred.' });
+        toast({ variant: 'destructive', title: 'Login Failed', description: error.message || 'An unexpected error occurred.' });
+    } finally {
         setIsVerifyingGuest(false);
     }
   }

@@ -119,55 +119,39 @@ export default function CreateEventWizardPage() {
         }
         setIsSubmitting(true);
 
-        const batch = writeBatch(firestore);
-        
-        // Prepare event data
-        const newEventRef = doc(collection(firestore, "events"));
+        const eventsCollection = collection(firestore, "events");
         const eventData = {
             ...data,
-            id: newEventRef.id,
             ownerId: user.uid,
             eventCode: eventCode,
             createdAt: serverTimestamp(),
             eventDate: data.eventDate,
             guestCount: 0,
-            guestLimit: 20,
-            imageUrls: [`https://picsum.photos/seed/${eventCode}/1200/800`]
+            guestLimit: 20, // Default for new events
+            imageUrls: [`https://picsum.photos/seed/${eventCode}/1200/800`],
+            plannerIds: data.plannerId ? [data.plannerId] : [],
         };
-        batch.set(newEventRef, eventData);
-
-        // Prepare planner invitation data if a planner is assigned
-        let plannerInvitationData: any;
-        let plannerNotificationData: any;
-        let plannerAssignmentRef: any;
-        let plannerNotificationRef: any;
         
-        if (data.plannerId) {
-            plannerAssignmentRef = doc(firestore, "events", newEventRef.id, "planners", data.plannerId);
-            plannerInvitationData = {
-                userId: data.plannerId,
-                role: 'Planner',
-                status: 'pending',
-                invitedAt: serverTimestamp(),
-                eventName: data.name,
-                eventDate: data.eventDate,
-                ownerId: user.uid,
-            };
-            batch.set(plannerAssignmentRef, plannerInvitationData);
-
-            plannerNotificationRef = doc(collection(firestore, 'users', data.plannerId, 'notifications'));
-            plannerNotificationData = {
-                message: `You've been invited by ${user.displayName || user.email} to plan the event: "${data.name}".`,
-                link: '/planner-dashboard/invitations',
-                read: false,
-                createdAt: serverTimestamp(),
-                userId: data.plannerId
-            };
-            batch.set(plannerNotificationRef, plannerNotificationData);
-        }
-
         try {
-            await batch.commit();
+            const newEventRef = await addDoc(eventsCollection, eventData);
+            
+            // If a planner was assigned, send them a notification in a separate non-blocking write.
+            if (data.plannerId) {
+                const batch = writeBatch(firestore);
+                const plannerAssignmentRef = doc(firestore, "events", newEventRef.id, "planners", data.plannerId);
+                batch.set(plannerAssignmentRef, { status: 'pending' });
+
+                const plannerNotificationRef = doc(collection(firestore, 'users', data.plannerId, 'notifications'));
+                batch.set(plannerNotificationRef, {
+                    message: `You've been invited by ${user.displayName || user.email} to plan the event: "${data.name}".`,
+                    link: '/planner-dashboard/invitations',
+                    read: false,
+                    createdAt: serverTimestamp(),
+                    userId: data.plannerId
+                });
+                // Commit this separately. It's not critical for event creation itself.
+                batch.commit().catch(console.error);
+            }
             
             toast({
                 title: "Event Created!",
@@ -178,25 +162,12 @@ export default function CreateEventWizardPage() {
 
         } catch (error: any) {
             console.error("Error creating event:", error);
-            let contextualError;
-
-            // Determine which part of the batch failed for better error reporting
-            if (data.plannerId && error.message.includes('permission-denied')) {
-                 contextualError = new FirestorePermissionError({
-                    path: plannerAssignmentRef.path,
-                    operation: 'create',
-                    requestResourceData: plannerInvitationData,
-                });
-            } else {
-                 contextualError = new FirestorePermissionError({
-                    path: newEventRef.path,
-                    operation: 'create',
-                    requestResourceData: eventData,
-                });
-            }
-            
+            const contextualError = new FirestorePermissionError({
+                path: 'events',
+                operation: 'create',
+                requestResourceData: eventData,
+            });
             errorEmitter.emit('permission-error', contextualError);
-
         } finally {
             setIsSubmitting(false);
         }
