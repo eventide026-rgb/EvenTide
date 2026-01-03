@@ -169,14 +169,21 @@ export function GuestLoginForm() {
         const guestData = guestSnap.data() as Guest;
         
         // This is a simplified custom token flow. In a real app, you'd use a server function.
-        await signInAnonymously(auth);
+        const userCredential = await signInAnonymously(auth);
+        const user = userCredential.user;
+
+        // Associate the anonymous user's UID with the guest document
+        // This only needs to be done once.
+        if (guestData.id !== user.uid) {
+            await updateDoc(guestDocRef, { id: user.uid });
+        }
         
         sessionStorage.setItem('guestEventId', foundEvent.id);
         sessionStorage.setItem('guestEventName', foundEvent.name);
         sessionStorage.setItem('guestEventCode', foundEvent.eventCode || '');
         sessionStorage.setItem('guestCode', guestData.guestCode);
         sessionStorage.setItem('guestName', guestData.name);
-        sessionStorage.setItem('guestId', guestId); // The user's UID is the guest document ID
+        sessionStorage.setItem('guestId', user.uid); // The user's auth UID is the guest document ID
 
         toast({ title: 'Access Granted', description: 'Redirecting...' });
         router.push('/guest-dashboard/my-invitations');
