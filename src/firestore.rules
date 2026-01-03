@@ -92,8 +92,7 @@ service cloud.firestore {
 
         match /notifications/{notificationId} {
           allow read, delete: if isOwner(userId) || isAdmin();
-          // Allow creation if the user is an event owner creating an invitation for a planner
-          allow create: if isSignedIn() && (isOwner(userId) || getEventData().ownerId == request.auth.uid);
+          allow create: if isSignedIn();
           allow update: if isOwner(userId) && request.resource.data.read == true;
         }
       }
@@ -111,7 +110,7 @@ service cloud.firestore {
       match /ticketiers/{ticketierId} {
           allow get, list: if true;
           allow create: if request.auth.uid == ticketierId;
-          allow update: if isOwner(ticketierId) || isAdmin();
+          allow update, delete: if isOwner(ticketierId) || isAdmin();
       }
 
       match /vendors/{vendorId} {
@@ -136,7 +135,7 @@ service cloud.firestore {
         allow update, delete: if isEventStaff(eventId) || isAdmin();
         
         match /planners/{plannerId} {
-            allow create: if getEventData().ownerId == request.auth.uid;
+            allow create: if isEventOwner(eventId);
             allow read, list: if isEventStaff(eventId) || isAdmin();
             allow update, delete: if isEventStaff(eventId) || isAdmin();
         }
@@ -147,7 +146,7 @@ service cloud.firestore {
             allow delete: if isEventStaff(eventId) || isAdmin();
             allow update: if isEventStaff(eventId) || 
                            (isEventGuest(eventId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rsvpStatus'])) ||
-                           (isSignedIn() && resource.data.userProfileId == null && request.resource.data.userProfileId == request.auth.uid);
+                           (isSignedIn() && resource.data.id != request.auth.uid && request.resource.data.id == request.auth.uid); // Linking anonymous user
         }
 
         match /guestCodes/{guestCode} {
