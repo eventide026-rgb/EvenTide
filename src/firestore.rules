@@ -50,7 +50,8 @@ service cloud.firestore {
       }
 
       function isEventPlanner(eventId) {
-        return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/planners/$(request.auth.uid));
+        let eventData = getEvent(eventId).data;
+        return isSignedIn() && request.auth.uid in eventData.plannerIds;
       }
 
       function isEventPlannerByAssignment() {
@@ -58,7 +59,8 @@ service cloud.firestore {
       }
 
       function isEventCohost(eventId) {
-        return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/cohosts/$(request.auth.uid));
+        let eventData = getEvent(eventId).data;
+        return isSignedIn() && request.auth.uid in eventData.cohostIds;
       }
 
       function isEventGuest(eventId, guestId) {
@@ -83,29 +85,41 @@ service cloud.firestore {
         return isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid);
       }
 
-      // Security rule for the 'teamMembers' collection group query
-      match /{path=**}/teamMembers/{memberId} {
-        // Allow user to read invitations where their UID is in the `userId` field.
-        allow list, get: if isSignedIn() && request.auth.uid == resource.data.userId;
+   // Guests can read events and write RSVP, song requests, and media uploads
+      match /hosts/{hostId}/events/{eventId} {
+        // Owners still have full control
+        allow read, write: if isOwner(hostId);
 
-        // Allow user to update their own invitation status.
-        allow update: if isSignedIn() && request.auth.uid == resource.data.userId && request.resource.data.status in ['accepted', 'declined'];
-        allow create: if isEventOwnerOnCreate() || isEventStaff(path.split('/')[1]);
+        // Guests can read event details
+        allow read: if isSignedIn();
+
+        // RSVP collection
+        match /rsvps/{rsvpId} {
+          // Guests can create or update their own RSVP
+          allow create, update: if isSignedIn() && request.auth.uid == request.resource.data.userId;
+          allow read: if isSignedIn();
+        }
+
+        // Song requests collection
+        match /songRequests/{songId} {
+          // Any signed-in guest can submit a request
+          allow create: if isSignedIn();
+          allow read: if isSignedIn();
+        }
+
+        // Media uploads collection
+        match /media/{mediaId} {
+          // Guests can upload media (e.g., photos/videos)
+          allow create: if isSignedIn() && request.auth.uid == request.resource.data.userId;
+          allow read: if isSignedIn();
+        }
+
+        // Team members remain restricted to owners
+        match /teamMembers/{memberId} {
+          allow read, write: if isOwner(hostId);
+        }
       }
 
-      // Begin Collection Rules
-
-      match /hosts/{hostId} {
-         allow read, write: if isOwner(hostId);
-
-          match /events/{eventId} {
-              allow read, write: if isOwner(hostId);
-
-              match /teamMembers/{memberId} {
-                allow read, write: if isOwner(hostId);
-              }
-          }
-      }
 
 
       match /users/{userId} {
@@ -121,10 +135,6 @@ service cloud.firestore {
           allow read, delete: if isOwner(userId);
           allow create: if isSignedIn();
           allow update: if isOwner(userId) && request.resource.data.read == true;
-        }
-
-        match /invitations/{invitationId} {
-          allow read, write: if isOwner(userId);
         }
       }
 
@@ -179,13 +189,7 @@ service cloud.firestore {
           allow create: if isSignedIn();
           allow update, delete: if isShowOwner(showId);
       }
-
-
-
-
-
-
-
+      
       match /events/{eventId} {
 
         allow get: if isEventStaff(eventId) || isEventPlannerByAssignment();
@@ -203,28 +207,78 @@ service cloud.firestore {
 
     
         match /guests/{guestId} {
-          allow get: if isEventGuest(eventId, guestId) || isEventStaff(eventId);
-          allow list: if isEventStaff(eventId);
+            // Public can read a specific guest document IF they know the non-guessable guestId.
+            // This enables the direct getDoc() lookup on the login form.
+            allow get: if true;
+        
+            // Only event staff can list all guests.
+            allow list: if isEventStaff(eventId);
+        
+            // Staff creates guests
+            allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
+        
+            // Staff can update anything.
+            // A guest can perform a one-time update to link their auth UID, or update their RSVP status.
+            allow update: if isEventStaff(eventId) || (isEventGuest(eventId, guestId));
+        
+            allow delete: if isEventStaff(eventId);
+        }
+
+			match /events/{eventId}/guests/{guestId} {
+          // Guests can read their own guest record
+          allow get: if isEventGuest(eventId, guestId);
+
+          // Guests can list, but only if the query is filtered to their own UID
+          allow list: if isEventGuest(eventId, guestId);
+
+          // Staff creates guests
           allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
-          allow update: if isEventStaff(eventId) || 
-                         (isEventGuest(eventId, guestId) && 
-                          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'rsvpStatus']));
+
+          // Staff can update anything.
+          // Guests can update their RSVP status only
+          allow update: if isEventStaff(eventId) ||
+                         (isEventGuest(eventId, guestId) &&
+                          request.resource.data.diff(resource.data).changedKeys()
+                            .hasOnly(["rsvpStatus", "rsvpUpdatedAt"]));
+
           allow delete: if isEventStaff(eventId);
         }
 
+        // Invitation cards
+        match /events/{eventId}/invitationCards/{cardId} {
+          allow read: if isEventGuest(eventId, resource.data.guestId) || isEventStaff(eventId);
+          allow create, update, delete: if isEventStaff(eventId);
+        }
 
+        // Gatepasses
+        match /events/{eventId}/gatepasses/{passId} {
+          allow read: if isEventGuest(eventId, resource.data.guestId) || isEventStaff(eventId);
+          allow create, update, delete: if isEventStaff(eventId);
+        }
 
+        // Menu cards
+        match /events/{eventId}/menuCards/{menuId} {
+          allow read: if isEventGuest(eventId, resource.data.guestId) || isEventStaff(eventId);
+          allow create, update, delete: if isEventStaff(eventId);
+        }
+
+        // Program cards
+        match /events/{eventId}/programCards/{programId} {
+          allow read: if isEventGuest(eventId, resource.data.guestId) || isEventStaff(eventId);
+          allow create, update, delete: if isEventStaff(eventId);
+        }
+      
       match /expenses/{expenseId} {
         allow read: if isEventStaff(eventId);
         allow create, update, delete: if isEventPlanner(eventId);
       }
 
       match /tables/{tableId} {
-        allow read: if isSignedIn();
+        allow read: if isEventStaff(eventId);
         allow write: if isEventPlanner(eventId);
 
         match /seats/{seatId} {
-          allow read: if isSignedIn();
+          allow read: if isEventStaff(eventId);
           allow write: if isEventPlanner(eventId);
         }
       }
@@ -276,6 +330,20 @@ service cloud.firestore {
         
       }
       
+      match /events/{eventId}/invitations/{invitationId} {
+        // Guests can read their own invitation
+        allow read: if isOwner(resource.data.userId);
+
+        // Guests can list, but only if the query is filtered to their own UID
+        allow list: if request.auth != null
+                    && request.query.where("userId", "==", request.auth.uid);
+
+        // Staff and owners full access
+        allow read, update, delete, list: if isEventStaff(eventId) || isEventOwner(eventId);
+
+        allow create: if isEventOwnerOnCreate() || isEventStaff(eventId);
+      }
+
       }
 
        match /events/{eventId}/moodboard/{moodboardId} {
@@ -315,17 +383,6 @@ service cloud.firestore {
         allow update: if false; 
         allow delete: if (isEventStaff(eventId) || isOwner(resource.data.uploaderId)) && isExistingDoc();
       }
-       match /events/{eventId}/autographs/{autographId} {
-        allow read, list: if canReadEventData(eventId);
-        allow create: if isEventGuest(eventId, request.resource.data.guestId);
-      }
-
-       match /events/{eventId}/polls/{pollId} {
-        allow read, list: if canReadEventData(eventId);
-        allow create: if isEventStaff(eventId);
-        allow update: if isEventGuest(eventId, request.auth.uid) && !isOwner(resource.data.voters[0]); // Simplified check
-      }
-
 
       match /price_plans/{pricePlanId} {
         allow read, list: if true;
@@ -433,3 +490,4 @@ service cloud.firestore {
 
     }
   }
+

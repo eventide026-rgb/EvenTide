@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -12,7 +13,10 @@ import {
   getDocs,
   limit,
   serverTimestamp,
-  documentId
+  documentId,
+  updateDoc,
+  arrayUnion,
+  arrayRemove
 } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -68,6 +72,8 @@ type Event = {
   ownerId: string;
   eventCode?: string;
   eventDate?: any;
+  plannerIds: string[];
+  cohostIds: Record<string, boolean>;
 };
 
 type UserProfile = {
@@ -81,9 +87,7 @@ type UserProfile = {
 type TeamMember = {
     id: string;
     role: 'Planner' | 'Co-host' | 'Security';
-    status: 'Pending' | 'Accepted' | 'Declined';
     user: UserProfile;
-    userId: string;
 }
 
 const inviteFormSchema = z.object({
@@ -105,7 +109,7 @@ const findUserByEmail = async (firestore: any, email: string): Promise<UserProfi
 }
 
 
-export function TeamManagement() {
+export default function TeamManagementPage() {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
   const { toast } = useToast();
@@ -124,58 +128,25 @@ export function TeamManagement() {
     return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
   }, [firestore, user?.uid]);
 
-  const { data: events, isLoading: isLoadingEvents } =
-    useCollection<Event>(eventsQuery);
+  const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
+  const selectedEvent = useMemo(() => events?.find(e => e.id === selectedEventId), [events, selectedEventId]);
 
-  const plannersQuery = useMemoFirebase(() => {
-    if (!firestore || !selectedEventId) return null;
-    return collection(firestore, 'events', selectedEventId, 'planners');
-  }, [firestore, selectedEventId]);
-
-  const cohostsQuery = useMemoFirebase(() => {
-      if(!firestore || !selectedEventId) return null;
-      return collection(firestore, 'events', selectedEventId, 'cohosts');
-  }, [firestore, selectedEventId]);
-  
-  const securityQuery = useMemoFirebase(() => {
-      if (!firestore || !selectedEventId) return null;
-      // Assuming security members are stored in a 'security' subcollection
-      return collection(firestore, 'events', selectedEventId, 'security');
-  }, [firestore, selectedEventId]);
-
-  const { data: planners, isLoading: isLoadingPlanners } = useCollection(plannersQuery);
-  const { data: cohosts, isLoading: isLoadingCohosts } = useCollection(cohostsQuery);
-  const { data: security, isLoading: isLoadingSecurity } = useCollection(securityQuery);
-
-  const isLoadingTeam = isLoadingPlanners || isLoadingCohosts || isLoadingSecurity;
-
-  const teamMembers = useMemo(() => {
-    const allMembers: Omit<TeamMember, 'user'>[] = [];
-    if (planners) {
-        allMembers.push(...planners.map((p: any) => ({ ...p, role: 'Planner' })));
-    }
-    if (cohosts) {
-        allMembers.push(...cohosts.map((c: any) => ({ ...c, role: 'Co-host' })));
-    }
-    if (security) {
-        allMembers.push(...security.map((s: any) => ({ ...s, role: 'Security' })));
-    }
-    return allMembers;
-  }, [planners, cohosts, security]);
+  const teamMemberIds = useMemo(() => {
+    if (!selectedEvent) return [];
+    const plannerIds = selectedEvent.plannerIds || [];
+    const cohostIds = selectedEvent.cohostIds ? Object.keys(selectedEvent.cohostIds) : [];
+    return [...new Set([...plannerIds, ...cohostIds])];
+  }, [selectedEvent]);
 
   useEffect(() => {
     const fetchTeamProfiles = async () => {
-        if (!firestore || teamMembers.length === 0) {
+        if (!firestore || teamMemberIds.length === 0) {
             setTeamMemberProfiles([]);
             return;
         }
-
-        const userIds = [...new Set(teamMembers.map(m => m.userId || m.id))];
-        if (userIds.length === 0) return;
-
         try {
             const usersRef = collection(firestore, 'users');
-            const q = query(usersRef, where(documentId(), 'in', userIds));
+            const q = query(usersRef, where(documentId(), 'in', teamMemberIds));
             const querySnapshot = await getDocs(q);
             const profiles = querySnapshot.docs.map(d => ({id: d.id, ...d.data()} as UserProfile));
             setTeamMemberProfiles(profiles);
@@ -184,15 +155,20 @@ export function TeamManagement() {
         }
     };
     fetchTeamProfiles();
-  }, [teamMembers, firestore]);
+  }, [teamMemberIds, firestore]);
 
-  const teamMembersWithProfiles = useMemo(() => {
-    return teamMembers.map(member => {
-        const profile = teamMemberProfiles.find(p => p.id === (member.userId || member.id));
+  const teamMembersWithProfiles: TeamMember[] = useMemo(() => {
+    return teamMemberIds.map(id => {
+        const profile = teamMemberProfiles.find(p => p.id === id);
+        let role: TeamMember['role'] = 'Co-host'; // default
+        if (selectedEvent?.plannerIds?.includes(id)) {
+            role = 'Planner';
+        }
         return {
-            ...member,
+            id,
+            role,
             user: profile || {
-                id: member.userId,
+                id: id,
                 firstName: 'Unknown',
                 lastName: 'User',
                 email: '',
@@ -200,7 +176,8 @@ export function TeamManagement() {
             }
         }
     })
-  }, [teamMembers, teamMemberProfiles])
+  }, [teamMemberIds, teamMemberProfiles, selectedEvent]);
+
 
   const handleSearchUser = async () => {
       if (!firestore) return;
@@ -223,54 +200,38 @@ export function TeamManagement() {
   const handleSendInvite = async () => {
     if (!firestore || !user || !selectedEventId || !foundUser) return;
     
-    const event = events?.find(e => e.id === selectedEventId);
-    if (!event) return;
-
+    const eventRef = doc(firestore, "events", selectedEventId);
     const role = form.getValues('role');
-    const batch = writeBatch(firestore);
-    
-    // Create invitation in the user's subcollection
-    const invitationRef = doc(collection(firestore, 'users', foundUser.id, 'invitations'));
-    const invitationData = {
-        eventId: selectedEventId,
-        eventTitle: event.name,
-        eventDate: event.eventDate,
-        role: role,
-        status: 'pending',
-        invitedBy: user.uid,
-        createdAt: serverTimestamp(),
-    };
-    batch.set(invitationRef, invitationData);
+    let updateData = {};
 
-    const notificationRef = doc(collection(firestore, 'users', foundUser.id, 'notifications'));
-    const notificationData = {
-        message: `You have been invited to be a ${role} for "${event.name}".`,
-        link: role === 'Planner' ? '/planner-dashboard/events' : (role === 'Co-host' ? '/cohost-dashboard/invitations' : '/security-dashboard'),
-        read: false,
-        createdAt: serverTimestamp(),
-    };
-    batch.set(notificationRef, notificationData);
-    
-    batch.commit()
-      .then(() => {
-        toast({ title: 'Invitation Sent!', description: `${foundUser.firstName} has been invited as a ${role}.`});
+    if (role === 'Planner') {
+        updateData = { plannerIds: arrayUnion(foundUser.id) };
+    } else if (role === 'Co-host') {
+        updateData = { [`cohostIds.${foundUser.id}`]: true };
+    } else {
+        // Handle other roles like Security if needed
+        toast({ variant: "destructive", title: "Unsupported Role", description: "This role cannot be assigned at this time." });
+        return;
+    }
+
+    try {
+        await updateDoc(eventRef, updateData);
+        toast({ title: 'Team Member Added!', description: `${foundUser.firstName} has been added as a ${role}.`});
         setFoundUser(null);
         form.reset();
-      })
-      .catch((serverError) => {
+    } catch (serverError) {
+        console.error("Error adding team member:", serverError);
         const contextualError = new FirestorePermissionError({
-          path: invitationRef.path,
-          operation: 'create',
-          requestResourceData: { invitationData, notificationData },
+          path: eventRef.path,
+          operation: 'update',
+          requestResourceData: updateData,
         });
         errorEmitter.emit('permission-error', contextualError);
-      });
+    }
   }
 
   const isLoading = isUserLoading || isLoadingEvents;
   
-  const selectedEvent = events?.find(e => e.id === selectedEventId);
-
   return (
     <div className="grid md:grid-cols-3 gap-8 items-start h-full">
       <Card className="md:col-span-2">
@@ -282,15 +243,12 @@ export function TeamManagement() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-            {isLoadingTeam ? (
-                 <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
-            ) : teamMembersWithProfiles && teamMembersWithProfiles.length > 0 ? (
+            {teamMembersWithProfiles && teamMembersWithProfiles.length > 0 ? (
                  <div className="rounded-md border">
                     <Table>
                         <TableHeader><TableRow>
                             <TableHead>Member</TableHead>
                             <TableHead>Role</TableHead>
-                            <TableHead>Status</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow></TableHeader>
                         <TableBody>
@@ -298,7 +256,6 @@ export function TeamManagement() {
                                 <TableRow key={member.id}>
                                     <TableCell>{member.user.firstName} {member.user.lastName}</TableCell>
                                     <TableCell><Badge variant="secondary">{member.role}</Badge></TableCell>
-                                    <TableCell>{member.status || 'Accepted'}</TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
                                     </TableCell>
@@ -373,7 +330,7 @@ export function TeamManagement() {
                                             </Select>
                                         </FormItem>
                                     )} />
-                                    <Button className='w-full mt-4' onClick={handleSendInvite}>Send Invite</Button>
+                                    <Button className='w-full mt-4' onClick={handleSendInvite}>Add to Team</Button>
                                 </Card>
                             )}
                         </form>
@@ -385,3 +342,5 @@ export function TeamManagement() {
     </div>
   );
 }
+
+
