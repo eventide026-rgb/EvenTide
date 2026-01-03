@@ -235,15 +235,14 @@ function GuestManagementComponent() {
     }
 
     const guestCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const guestDocRef = doc(
-      firestore,
-      'events',
-      selectedEventId,
-      'guests',
-      guestCode
-    );
+    const guestId = Math.random().toString(36).substring(2, 12); // A temporary non-auth UID
+    
+    const guestDocRef = doc(firestore, 'events', selectedEventId, 'guests', guestId);
+    const guestCodeLookupRef = doc(firestore, 'events', selectedEventId, 'guestCodes', guestCode);
+
 
     const newGuestData = {
+      id: guestId,
       guestCode: guestCode,
       name: values.name,
       email: values.email,
@@ -257,7 +256,11 @@ function GuestManagementComponent() {
     };
 
     try {
-      await setDoc(guestDocRef, newGuestData);
+        const batch = writeBatch(firestore);
+        batch.set(guestDocRef, newGuestData);
+        batch.set(guestCodeLookupRef, { guestId: guestId });
+        await batch.commit();
+
       toast({
         title: 'Guest Added',
         description: `${values.name} has been added to your guest list.`,
