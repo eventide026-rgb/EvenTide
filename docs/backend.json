@@ -929,14 +929,13 @@
         }
       },
       {
-        "path": "/events/{eventId}/tables/{tableId}/seats/{seatId}",
+        "path": "/events/{eventId}/seats/{seatId}",
         "definition": {
           "entityName": "Seat",
           "schema": { "$ref": "#/backend/entities/Seat" },
           "description": "Stores the seats for a specific table.",
           "params": [
             { "name": "eventId", "description": "The unique identifier of the event." },
-            { "name": "tableId", "description": "The unique identifier of the table." },
             { "name": "seatId", "description": "The unique identifier for the seat." }
           ]
         }

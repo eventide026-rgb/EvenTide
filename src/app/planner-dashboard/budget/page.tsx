@@ -42,7 +42,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, PlusCircle, Trash2, DollarSign, X } from 'lucide-react';
+import { Loader2, PlusCircle, Trash2, DollarSign } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 
 type EventPlannerAssignment = {
@@ -97,10 +97,10 @@ export default function BudgetPage() {
 
   const plannerAssignmentsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
-    return query(collection(firestore, 'planners'), where('plannerId', '==', user.uid));
+    return query(collection(firestore, 'planners', user.uid, 'assignments'));
   }, [firestore, user?.uid]);
   const { data: assignments, isLoading: isLoadingAssignments } = useCollection<EventPlannerAssignment>(plannerAssignmentsQuery);
-  const eventIds = useMemo(() => assignments?.map(a => a.eventId) || [], [assignments]);
+  const eventIds = useMemo(() => assignments?.map((a: any) => a.eventId) || [], [assignments]);
 
   const eventsQuery = useMemoFirebase(() => {
     if (!firestore || eventIds.length === 0) return null;
@@ -229,7 +229,7 @@ export default function BudgetPage() {
                             <FormMessage/></FormItem>
                         )}/>
                         <FormField control={form.control} name="description" render={({field}) => (
-                            <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage/></FormItem>
+                            <FormItem><FormLabel>Description (Optional)</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage/></FormItem>
                         )}/>
                         <FormField control={form.control} name="amount" render={({field}) => (
                             <FormItem><FormLabel>Amount (₦)</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage/></FormItem>

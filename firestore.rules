@@ -1,5 +1,4 @@
 
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -152,13 +151,12 @@ service cloud.firestore {
         match /expenses/{expenseId} {
             allow read, write: if isEventStaff(eventId) || isAdmin();
         }
-
+        
         match /tables/{tableId} {
           allow read, write: if isEventStaff(eventId) || isAdmin();
-        }
-        
-        match /seats/{seatId} {
+          match /seats/{seatId} {
             allow read, write: if isEventStaff(eventId) || isAdmin();
+          }
         }
         
         match /gifts/{giftId} {

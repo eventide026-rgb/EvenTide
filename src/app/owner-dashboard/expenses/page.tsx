@@ -70,7 +70,7 @@ export default function ExpensesPage() {
 
 
   const isLoading = isUserLoading || isLoadingEvents;
-  const isLoadingData = isLoadingExpenses || (selectedEventId && !expenses);
+  const isLoadingData = isLoadingExpenses && !!selectedEventId;
 
   return (
     <div className="space-y-6">
