@@ -42,6 +42,8 @@ export default function VendorSongRequestsPage() {
   // This is a simplified query. A real app would check a contracts or assignments collection.
   const vendorGigsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
+    // As a placeholder, we query events where the user might be a planner or owner.
+    // In a real app, you would have a 'gigs' or 'contracts' collection to query.
     return query(collection(firestore, 'events'), where('ownerId', '==', user.uid)); // Placeholder logic
   }, [firestore, user?.uid]);
   
