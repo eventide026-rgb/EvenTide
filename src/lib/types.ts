@@ -28,7 +28,7 @@ export type PlannerProfile = {
 };
 
 export type Guest = {
-  id: string; 
+  id: string; // This is now the user's auth UID
   guestCode: string;
   name: string;
   email: string;
@@ -37,5 +37,4 @@ export type Guest = {
   rsvpStatus: 'Pending' | 'Accepted' | 'Declined';
   hasCheckedIn: boolean;
   serialNumber?: number;
-  userProfileId?: string | null;
 };

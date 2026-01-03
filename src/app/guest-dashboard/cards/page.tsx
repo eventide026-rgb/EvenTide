@@ -22,13 +22,10 @@ function GuestCardsPageContent() {
   const [eventId, setEventId] = useState<string | null>(null);
   const [guestId, setGuestId] = useState<string | null>(null);
   const [sessionStatus, setSessionStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
-  const pathname = usePathname(); // Using pathname to trigger useEffect reliably
 
   useEffect(() => {
-    // This effect runs once on mount to get data from session storage.
-    // It's more reliable than depending on the user object which might not change.
     const id = sessionStorage.getItem('guestEventId');
-    const gId = sessionStorage.getItem('guestId');
+    const gId = sessionStorage.getItem('guestId'); // This is now the UID
     if (id && gId) {
         setEventId(id);
         setGuestId(gId);
@@ -36,7 +33,7 @@ function GuestCardsPageContent() {
     } else {
         setSessionStatus('error');
     }
-  }, [pathname]); // Depend on pathname to ensure it runs once on page load.
+  }, []);
 
   const guestRef = useMemoFirebase(() => {
     if (!firestore || !eventId || !guestId) return null;

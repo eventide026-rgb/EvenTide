@@ -55,8 +55,12 @@ type Event = {
 type Guest = {
   id: string;
   name: string;
-  userProfileId?: string | null;
+  guestCode: string;
 };
+
+type GuestCode = {
+    guestId: string;
+}
 
 /* ---------------------------- Schemas ---------------------------- */
 
@@ -142,48 +146,45 @@ export function GuestLoginForm() {
     setIsVerifyingGuest(true);
 
     const guestCode = values.guestCode.trim();
-    const guestDocRef = doc(
-      firestore,
-      `events/${foundEvent.id}/guests`,
-      guestCode
-    );
-
+    const guestCodeRef = doc(firestore, `events/${foundEvent.id}/guestCodes`, guestCode);
+    
     try {
-      const guestSnap = await getDoc(guestDocRef);
+        const guestCodeSnap = await getDoc(guestCodeRef);
+        if (!guestCodeSnap.exists()) {
+            toast({ variant: 'destructive', title: 'Invalid Guest Code' });
+            setIsVerifyingGuest(false);
+            return;
+        }
 
-      if (!guestSnap.exists()) {
-        toast({
-          variant: 'destructive',
-          title: 'Invalid Guest Code',
-          description: 'This code is not valid for the selected event.',
-        });
-        setIsVerifyingGuest(false);
-        return;
-      }
+        const { guestId } = guestCodeSnap.data() as GuestCode;
+        const guestDocRef = doc(firestore, `events/${foundEvent.id}/guests`, guestId);
+        const guestSnap = await getDoc(guestDocRef);
+        
+        if (!guestSnap.exists()) {
+            toast({ variant: 'destructive', title: 'Guest Record Not Found' });
+            setIsVerifyingGuest(false);
+            return;
+        }
+        
+        const guestData = guestSnap.data() as Guest;
+        
+        // This is a simplified custom token flow. In a real app, you'd use a server function.
+        await signInAnonymously(auth);
+        
+        sessionStorage.setItem('guestEventId', foundEvent.id);
+        sessionStorage.setItem('guestEventName', foundEvent.name);
+        sessionStorage.setItem('guestEventCode', foundEvent.eventCode || '');
+        sessionStorage.setItem('guestCode', guestData.guestCode);
+        sessionStorage.setItem('guestName', guestData.name);
+        sessionStorage.setItem('guestId', guestId); // The user's UID is the guest document ID
 
-      const guestData = guestSnap.data() as Guest;
-      const userCredential = await signInAnonymously(auth);
+        toast({ title: 'Access Granted', description: 'Redirecting...' });
+        router.push('/guest-dashboard/my-invitations');
 
-      if (guestData.userProfileId === null || guestData.userProfileId === undefined) {
-        await updateDoc(guestDocRef, { userProfileId: userCredential.user.uid });
-      }
-
-      sessionStorage.setItem('guestEventId', foundEvent.id);
-      sessionStorage.setItem('guestEventName', foundEvent.name);
-      sessionStorage.setItem('guestEventCode', foundEvent.eventCode || '');
-      sessionStorage.setItem('guestCode', guestCode);
-      sessionStorage.setItem('guestName', guestData.name);
-      sessionStorage.setItem('guestId', guestSnap.id);
-
-      toast({ title: 'Access Granted', description: 'Redirecting...' });
-      router.push('/guest-dashboard/my-invitations');
     } catch (error) {
-      const contextualError = new FirestorePermissionError({
-        path: guestDocRef.path,
-        operation: 'get',
-      });
-      errorEmitter.emit('permission-error', contextualError);
-      setIsVerifyingGuest(false);
+        console.error(error);
+        toast({ variant: 'destructive', title: 'Login Failed', description: 'An unexpected error occurred.' });
+        setIsVerifyingGuest(false);
     }
   }
 

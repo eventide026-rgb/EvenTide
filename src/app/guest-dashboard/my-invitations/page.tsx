@@ -4,7 +4,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, QrCode } from 'lucide-react';
-import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useCollection, useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, where, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -26,70 +26,73 @@ type Announcement = {
     timestamp: any;
 };
 
-// This is a placeholder. In a real application, the guest's context (including their ID and the event ID)
-// would be managed through a secure session or context provider after they log in.
-const MOCK_GUEST_CATEGORY = 'VIP';            // Mock guest category for filtering announcements
-const MOCK_RSVP_STATUS: 'Pending' | 'Accepted' | 'Declined' = 'Pending'; // Mock initial RSVP status
-
-
 export default function MyInvitationsPage() {
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
   const router = useRouter();
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   
-  // This will be populated from session storage or a similar mechanism
-  const [eventDetails, setEventDetails] = useState<{id: string, name: string} | null>(null);
-  const [guestCode, setGuestCode] = useState<string | null>(null);
+  // State for session data
+  const [eventId, setEventId] = useState<string | null>(null);
+  const [guestId, setGuestId] = useState<string | null>(null);
+  const [eventName, setEventName] = useState<string | null>(null);
   const [eventCode, setEventCode] = useState<string | null>(null);
   const [guestName, setGuestName] = useState<string | null>(null);
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // In a real app, you would get this from a secure context after login.
-    // For now, we'll retrieve it from session storage for demonstration.
-    const eventId = sessionStorage.getItem('guestEventId');
-    const storedGuestCode = sessionStorage.getItem('guestCode');
-    const storedEventCode = sessionStorage.getItem('guestEventCode');
-    const eventName = sessionStorage.getItem('guestEventName');
-    const storedGuestName = sessionStorage.getItem('guestName');
+    const eventIdFromSession = sessionStorage.getItem('guestEventId');
+    const guestIdFromSession = sessionStorage.getItem('guestId'); // This is the UID
+    const eventNameFromSession = sessionStorage.getItem('guestEventName');
+    const eventCodeFromSession = sessionStorage.getItem('guestEventCode');
+    const guestNameFromSession = sessionStorage.getItem('guestName');
     
-    if (eventId && storedGuestCode && eventName && storedEventCode) {
-        setEventDetails({id: eventId, name: eventName});
-        setGuestCode(storedGuestCode);
-        setEventCode(storedEventCode);
-        setGuestName(storedGuestName || 'Guest');
-        setSelectedEventId(eventId);
+    if (eventIdFromSession && guestIdFromSession && eventNameFromSession) {
+        setEventId(eventIdFromSession);
+        setGuestId(guestIdFromSession);
+        setEventName(eventNameFromSession);
+        setEventCode(eventCodeFromSession);
+        setGuestName(guestNameFromSession);
     } else if (!user) {
-        // If there's no user and no session data, they probably shouldn't be here.
         router.push('/guest-login');
     }
   }, [user, router]);
+  
+  // Fetch guest document
+  const guestRef = useMemoFirebase(() => {
+      if (!firestore || !eventId || !guestId) return null;
+      return doc(firestore, 'events', eventId, 'guests', guestId);
+  }, [firestore, eventId, guestId]);
+  const { data: guestData, isLoading: isLoadingGuest } = useDoc(guestRef);
+  
+  const [rsvpStatus, setRsvpStatus] = useState<'Pending' | 'Accepted' | 'Declined'>('Pending');
+  
+  useEffect(() => {
+    if (guestData) {
+      setRsvpStatus(guestData.rsvpStatus);
+    }
+  }, [guestData]);
 
 
-  const [rsvpStatus, setRsvpStatus] = useState<'Pending' | 'Accepted' | 'Declined'>(MOCK_RSVP_STATUS);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Query for announcements targeted at all guests OR the specific guest's category
+  // Query for announcements
   const announcementsQuery = useMemoFirebase(() => {
-    if (!firestore || !selectedEventId) return null;
+    if (!firestore || !eventId) return null;
     return query(
-        collection(firestore, 'events', selectedEventId, 'announcements'),
-        where('targetRoles', 'array-contains-any', ['All Guests', MOCK_GUEST_CATEGORY]),
+        collection(firestore, 'events', eventId, 'announcements'),
+        where('targetRoles', 'array-contains-any', ['All Guests', guestData?.category || '']),
         orderBy('timestamp', 'desc')
     );
-  }, [firestore, selectedEventId]);
+  }, [firestore, eventId, guestData]);
 
   const { data: announcements, isLoading: isLoadingAnnouncements } = useCollection<Announcement>(announcementsQuery);
 
   const handleRsvp = async (status: 'Accepted' | 'Declined') => {
-    if (!firestore || !selectedEventId || !guestCode) {
+    if (!guestRef) {
         toast({ variant: 'destructive', title: 'Error', description: 'Could not connect to the database or find guest ID.' });
         return;
     }
     setIsSubmitting(true);
-    // Use the actual guestCode from state, not a mock ID
-    const guestRef = doc(firestore, 'events', selectedEventId, 'guests', guestCode);
     const updatedData = { rsvpStatus: status };
 
     try {
@@ -113,7 +116,7 @@ export default function MyInvitationsPage() {
     }
   }
   
-  if (!eventDetails) {
+  if (isLoadingGuest || !guestData) {
       return (
           <div className="flex justify-center items-center h-64">
               <Loader2 className="h-8 w-8 animate-spin" />
@@ -130,7 +133,7 @@ export default function MyInvitationsPage() {
         </div>
         <Card className='max-w-md mx-auto'>
             <CardHeader className='text-center items-center'>
-                <CardTitle>{eventDetails.name}</CardTitle>
+                <CardTitle>{eventName}</CardTitle>
                 <div className='p-4 bg-white rounded-lg mt-4'>
                     <QrCode className='h-48 w-48 text-black' />
                 </div>

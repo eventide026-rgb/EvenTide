@@ -328,12 +328,11 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Guest",
       "type": "object",
-      "description": "Represents a guest invited to an event.",
+      "description": "Represents a guest invited to an event. The document ID for a guest is their auth UID.",
       "properties": {
-        "guestId": { "type": "string", "description": "A unique identifier for the guest within the event." },
+        "id": { "type": "string", "description": "The user's auth UID." },
         "eventId": { "type": "string", "description": "Reference to the Event the guest is invited to." },
-        "userProfileId": { "type": "string", "description": "Optional reference to a registered UserProfile." },
-        "guestCode": { "type": "string", "description": "Unique alphanumeric code for guest check-in." },
+        "guestCode": { "type": "string", "description": "Unique alphanumeric code for initial guest lookup." },
         "name": { "type": "string", "description": "Full name of the guest." },
         "category": { "type": "string", "description": "Category of the guest (e.g., Chairman, VIP, General)." },
         "rsvpStatus": { "type": "string", "enum": ["Pending", "Accepted", "Declined"], "description": "RSVP status of the guest." },
@@ -341,7 +340,7 @@
         "checkInTime": { "type": "string", "format": "date-time", "description": "The timestamp of when the guest checked in." },
         "serialNumber": { "type": "number", "description": "A unique, sequential number for the guest within the event." }
       },
-      "required": ["guestId", "eventId", "name", "guestCode", "category", "rsvpStatus", "hasCheckedIn", "serialNumber"]
+      "required": ["id", "eventId", "name", "guestCode", "category", "rsvpStatus", "hasCheckedIn", "serialNumber"]
     },
     "GuestCode": {
         "title": "GuestCode",
@@ -979,14 +978,14 @@
         }
       },
       {
-        "path": "/events/{eventId}/guests/{guestCode}",
+        "path": "/events/{eventId}/guests/{guestId}",
         "definition": {
           "entityName": "Guest",
           "schema": { "$ref": "#/backend/entities/Guest" },
-          "description": "Stores guest information related to an event, identified by a unique guest code.",
+          "description": "Stores guest information related to an event, where the document ID is the guest's auth UID.",
           "params": [
             { "name": "eventId", "description": "The unique identifier of the event." },
-            { "name": "guestCode", "description": "The unique alphanumeric code for the guest, used as the document ID." }
+            { "name": "guestId", "description": "The guest's auth UID." }
           ]
         }
       },
@@ -1104,4 +1103,3 @@
     "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging. Public, ticketed shows created by Ticketiers are stored in a top-level `/shows` collection, separating them from private events created by Hosts, which are stored in the `/events` collection. This structural segregation improves query performance and simplifies security rules. User data is kept in a separate `/users` collection, and public Ticketier profiles are in `/ticketiers`, both secured by path-based ownership. Subcollections for shows (like `ticketTiers` and `tickets`) and events (like `guests` and `planners`) are nested under their parent documents, ensuring data locality and enabling targeted queries and security. A dedicated `notifications` subcollection under each user provides a private, real-time channel for alerts."
   }
 }
-
