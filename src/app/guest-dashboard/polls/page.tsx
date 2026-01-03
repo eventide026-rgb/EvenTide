@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, doc, updateDoc, increment, arrayUnion } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,9 +27,9 @@ export default function EventPollsPage() {
   const [eventId, setEventId] = useState<string | null>(null);
   const [votingStates, setVotingStates] = useState<Record<string, { selectedOption: string | null, isSubmitting: boolean }>>({});
 
-  useState(() => {
+  useEffect(() => {
     setEventId(sessionStorage.getItem('guestEventId'));
-  });
+  }, []);
 
   const pollsQuery = useMemoFirebase(() => {
     if (!firestore || !eventId) return null;

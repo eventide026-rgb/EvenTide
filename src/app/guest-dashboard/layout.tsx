@@ -37,6 +37,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DashboardHeader } from '@/components/layout/dashboard-header';
+import { useEffect, useState } from 'react';
 
 const sidebarNav = [
     {
@@ -98,6 +99,14 @@ export default function GuestDashboardLayout({ children }: { children: React.Rea
   const pathname = usePathname();
   const auth = useAuth();
   const router = useRouter();
+  const { user } = useUser();
+  const [guestName, setGuestName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if(user) {
+        setGuestName(sessionStorage.getItem('guestName'));
+    }
+  }, [user]);
 
   const handleSignOut = async () => {
     if (auth) {
@@ -156,11 +165,11 @@ export default function GuestDashboardLayout({ children }: { children: React.Rea
                                     tooltip={{ children: 'Profile' }}
                                 >
                                     <Avatar className="h-8 w-8">
-                                        <AvatarImage src="https://picsum.photos/seed/guest-avatar/100" alt="Guest" />
-                                        <AvatarFallback>G</AvatarFallback>
+                                        <AvatarImage src={`https://picsum.photos/seed/${user?.uid}/100`} alt="Guest" />
+                                        <AvatarFallback>{guestName ? guestName[0] : 'G'}</AvatarFallback>
                                     </Avatar>
                                     <div className="flex flex-col text-left">
-                                        <span className="font-semibold">Guest</span>
+                                        <span className="font-semibold">{guestName || 'Guest'}</span>
                                         <span className="text-xs text-muted-foreground">Viewing event</span>
                                     </div>
                                 </SidebarMenuButton>
