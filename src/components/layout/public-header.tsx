@@ -32,7 +32,7 @@ const communityLinks = [
     { href: "/guest-login", label: "Guest Login" },
     { href: "/security-login", label: "Security Login" },
     { href: "#", label: "Find Planners" },
-    { href: "#", label: "Find Vendors" },
+    { href: "#", "label": "Find Vendors" },
     { href: "/advertise", label: "Advertise" },
 ];
 
@@ -59,7 +59,7 @@ const HeaderContent = () => {
   const hotelsImage = getImage('venueHall');
 
   return (
-    <div className="container flex h-14 items-center">
+    <div className="container flex h-12 items-center">
       <Link href="/" className="mr-6 flex items-center space-x-2">
         <Logo />
       </Link>
