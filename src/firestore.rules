@@ -52,11 +52,11 @@ service cloud.firestore {
       }
 
       function isEventStaff(eventId) {
-        let event = getEvent(eventId);
         // During a create operation, `resource` is null. We check `request.resource.data` instead.
         if (request.method == 'create') {
            return isSignedIn() && request.resource.data.ownerId == request.auth.uid;
         }
+        let event = getEvent(eventId);
         return isSignedIn() && (
           event.data.ownerId == request.auth.uid ||
           (event.data.plannerIds != null && request.auth.uid in event.data.plannerIds) ||
@@ -122,7 +122,7 @@ service cloud.firestore {
         
         match /guests/{guestId} {
             allow read, list: if isEventStaff(eventId) || isEventGuest(eventId);
-            allow create: if get(/databases/$(database)/documents/events/$(eventId)).data.ownerId == request.auth.uid;
+            allow create: if isEventStaff(eventId);
             allow delete: if isEventStaff(eventId);
             allow update: if isEventStaff(eventId) || 
                            (isEventGuest(eventId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rsvpStatus'])) ||

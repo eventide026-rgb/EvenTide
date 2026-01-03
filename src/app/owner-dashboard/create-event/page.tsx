@@ -128,7 +128,7 @@ export default function CreateEventWizardPage() {
             id: newEventRef.id,
             ownerId: user.uid,
             eventCode: eventCode,
-            createdAt: new Date(),
+            createdAt: serverTimestamp(),
             eventDate: data.eventDate,
             guestCount: 0,
             guestLimit: 20,
@@ -150,7 +150,7 @@ export default function CreateEventWizardPage() {
                 status: 'pending',
                 invitedAt: serverTimestamp(),
                 eventName: data.name,
-                eventDate: serverTimestamp(),
+                eventDate: data.eventDate,
                 ownerId: user.uid,
             };
             batch.set(plannerAssignmentRef, plannerInvitationData);
