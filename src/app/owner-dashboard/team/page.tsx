@@ -157,6 +157,7 @@ export default function TeamManagementPage() {
   }, [teamMemberIds, firestore]);
 
   const teamMembersWithProfiles: TeamMember[] = useMemo(() => {
+    if (!selectedEvent) return [];
     return teamMemberIds.map(id => {
         const profile = teamMemberProfiles.find(p => p.id === id);
         let role: TeamMember['role'] = 'Co-host'; // default
@@ -208,7 +209,6 @@ export default function TeamManagementPage() {
     } else if (role === 'Co-host') {
         updateData = { [`cohostIds.${foundUser.id}`]: true };
     } else {
-        // Handle other roles like Security if needed
         toast({ variant: "destructive", title: "Unsupported Role", description: "This role cannot be assigned at this time." });
         return;
     }
@@ -292,7 +292,7 @@ export default function TeamManagementPage() {
                                 {events && events.length > 0 ? (
                                 events.map((event) => (<SelectItem key={event.id} value={event.id}>{event.name}</SelectItem>))
                                 ) : (
-                                <SelectItem value="no-events" disabled>No events assigned</SelectItem>
+                                <SelectItem value="no-events" disabled>Create an event first</SelectItem>
                                 )}
                             </SelectContent>
                             </Select>
@@ -341,8 +341,3 @@ export default function TeamManagementPage() {
     </div>
   );
 }
-
-
-
-
-    

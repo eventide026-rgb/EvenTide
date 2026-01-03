@@ -8,11 +8,11 @@ import {
   query,
   where,
   doc,
-  writeBatch,
   getDocs,
   limit,
-  serverTimestamp,
-  documentId
+  documentId,
+  updateDoc,
+  arrayUnion
 } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -52,10 +52,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, UserPlus, Search, Trash2 } from 'lucide-react';
-import { Label } from '../ui/label';
+import { Label } from '@/components/ui/label';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-
+import { useCollectionGroup } from 'react-firebase-hooks/firestore';
 
 type EventPlannerAssignment = {
     id: string;
@@ -66,6 +66,9 @@ type Event = {
   id: string;
   name: string;
   ownerId: string;
+  plannerIds?: string[];
+  cohostIds?: Record<string, boolean>;
+  eventCode?: string;
 };
 
 type UserProfile = {
@@ -79,15 +82,12 @@ type UserProfile = {
 type TeamMember = {
     id: string;
     role: 'Planner' | 'Co-host' | 'Security';
-    status: 'Pending' | 'Accepted' | 'Declined';
     user: UserProfile;
 }
 
 const inviteFormSchema = z.object({
   email: z.string().email('Please enter a valid email to search.'),
-  role: z.enum(['Co-host', 'Security'], {
-    required_error: 'Please select a role for the team member.',
-  }),
+  role: z.enum(['Co-host', 'Security']),
 });
 
 const findUserByEmail = async (firestore: any, email: string): Promise<UserProfile | null> => {
@@ -101,7 +101,6 @@ const findUserByEmail = async (firestore: any, email: string): Promise<UserProfi
     return { id: userDoc.id, ...userDoc.data() } as UserProfile;
 }
 
-
 export default function TeamManagementPage() {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
@@ -109,36 +108,80 @@ export default function TeamManagementPage() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [foundUser, setFoundUser] = useState<UserProfile | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [teamMemberProfiles, setTeamMemberProfiles] = useState<UserProfile[]>([]);
+  
+  const [assignmentsSnapshot, isLoadingAssignments] = useCollectionGroup(firestore, 'assignments');
 
+  const plannerAssignments = useMemo(() => {
+    if (!assignmentsSnapshot) return [];
+    return assignmentsSnapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .filter((assignment: any) => assignment.plannerId === user?.uid);
+  }, [assignmentsSnapshot, user]);
+  
+  const eventIds = useMemo(() => plannerAssignments?.map((a: any) => a.eventId) || [], [plannerAssignments]);
+
+  const eventsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid || !eventIds.length) return null;
+    return query(collection(firestore, 'events'), where(documentId(), 'in', eventIds));
+  }, [firestore, user?.uid, eventIds]);
+
+  const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
+  const selectedEvent = useMemo(() => events?.find(e => e.id === selectedEventId), [events, selectedEventId]);
+
+  const teamMemberIds = useMemo(() => {
+    if (!selectedEvent) return [];
+    const plannerIds = selectedEvent.plannerIds || [];
+    const cohostIds = selectedEvent.cohostIds ? Object.keys(selectedEvent.cohostIds) : [];
+    return [...new Set([...plannerIds, ...cohostIds])];
+  }, [selectedEvent]);
+
+  useEffect(() => {
+    const fetchTeamProfiles = async () => {
+        if (!firestore || teamMemberIds.length === 0) {
+            setTeamMemberProfiles([]);
+            return;
+        }
+        try {
+            const usersRef = collection(firestore, 'users');
+            const q = query(usersRef, where(documentId(), 'in', teamMemberIds));
+            const querySnapshot = await getDocs(q);
+            const profiles = querySnapshot.docs.map(d => ({id: d.id, ...d.data()} as UserProfile));
+            setTeamMemberProfiles(profiles);
+        } catch (error) {
+            console.error("Error fetching team profiles: ", error);
+        }
+    };
+    fetchTeamProfiles();
+  }, [teamMemberIds, firestore]);
+  
+  const teamMembersWithProfiles: TeamMember[] = useMemo(() => {
+    if (!selectedEvent) return [];
+    return teamMemberIds.map(id => {
+        const profile = teamMemberProfiles.find(p => p.id === id);
+        let role: TeamMember['role'] = 'Co-host';
+        if (selectedEvent?.plannerIds?.includes(id)) {
+            role = 'Planner';
+        }
+        return {
+            id,
+            role,
+            user: profile || {
+                id: id,
+                firstName: 'Loading...',
+                lastName: '',
+                email: '',
+                role: ''
+            }
+        }
+    })
+  }, [teamMemberIds, teamMemberProfiles, selectedEvent]);
+  
   const form = useForm<z.infer<typeof inviteFormSchema>>({
     resolver: zodResolver(inviteFormSchema),
     defaultValues: { email: '', role: 'Co-host' },
   });
 
-  const plannerAssignmentsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
-    return query(collection(firestore, 'planners'), where('plannerId', '==', user.uid));
-  }, [firestore, user?.uid]);
-  const { data: assignments, isLoading: isLoadingAssignments } = useCollection<EventPlannerAssignment>(plannerAssignmentsQuery);
-  const eventIds = useMemo(() => assignments?.map(a => a.eventId) || [], [assignments]);
-
-  const eventsQuery = useMemoFirebase(() => {
-    if (!firestore || !eventIds || eventIds.length === 0) return null;
-    return query(collection(firestore, 'events'), where(documentId(), 'in', eventIds));
-  }, [firestore, eventIds]);
-
-  const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
-
-  const cohostsQuery = useMemoFirebase(() => {
-      if(!firestore || !selectedEventId) return null;
-      return collection(firestore, 'events', selectedEventId, 'cohosts');
-  }, [firestore, selectedEventId]);
-
-  const {data: cohosts} = useCollection(cohostsQuery);
-  
-  const teamMembers = useMemo(() => {
-      return cohosts?.map(c => ({...c, role: 'Co-host'})) || [];
-  }, [cohosts]);
 
   const handleSearchUser = async () => {
       if (!firestore) return;
@@ -160,73 +203,59 @@ export default function TeamManagementPage() {
 
   const handleSendInvite = async () => {
     if (!firestore || !user || !selectedEventId || !foundUser) return;
-
+    
+    const eventRef = doc(firestore, "events", selectedEventId);
     const role = form.getValues('role');
-    const collectionName = 'cohosts'; // Simplified for now
-    const batch = writeBatch(firestore);
-    
-    const teamMemberRef = doc(firestore, 'events', selectedEventId, collectionName, foundUser.id);
-    const teamMemberData = {
-        userId: foundUser.id,
-        status: 'Pending',
-        invitedAt: new Date(),
-    };
-    batch.set(teamMemberRef, teamMemberData);
+    let updateData = {};
+    if (role === 'Co-host') {
+        updateData = { [`cohostIds.${foundUser.id}`]: true };
+    } else {
+        toast({ variant: "destructive", title: "Unsupported Role" });
+        return;
+    }
 
-    const notificationRef = doc(collection(firestore, 'users', foundUser.id, 'notifications'));
-    const notificationData = {
-        message: `You have been invited to be a ${role} for an event.`,
-        link: `/cohost-dashboard/invitations`,
-        read: false,
-        createdAt: new Date(),
-        userId: foundUser.id,
-        eventId: selectedEventId
-    };
-    batch.set(notificationRef, notificationData);
-    
-    batch.commit()
-      .then(() => {
-        toast({ title: 'Invitation Sent!', description: `${foundUser.firstName} has been invited as a ${role}.`});
+    try {
+        await updateDoc(eventRef, updateData);
+        toast({ title: 'Team Member Added!', description: `${foundUser.firstName} has been added as a ${role}.`});
         setFoundUser(null);
         form.reset();
-      })
-      .catch((serverError) => {
-        const contextualError = new FirestorePermissionError({
-          path: teamMemberRef.path,
-          operation: 'create',
-          requestResourceData: { teamMemberData, notificationData },
+    } catch (serverError) {
+        console.error("Error adding team member:", serverError);
+         const contextualError = new FirestorePermissionError({
+          path: eventRef.path,
+          operation: 'update',
+          requestResourceData: updateData,
         });
         errorEmitter.emit('permission-error', contextualError);
-      });
+    }
   }
 
-  const isLoading = isUserLoading || isLoadingEvents;
-
+  const isLoading = isUserLoading || isLoadingEvents || isLoadingAssignments;
+  
   return (
     <div className="grid md:grid-cols-3 gap-8 items-start h-full">
       <Card className="md:col-span-2">
         <CardHeader>
           <CardTitle>Team Roster</CardTitle>
            <CardDescription>
-            {selectedEventId ? `Showing team for your selected event.` : "Select an event to see the team list."}
+            {selectedEvent ? `Showing team for "${selectedEvent.name}"` : "Select an event to see the team list."}
+            {selectedEvent?.eventCode && <Badge variant="outline" className="ml-2">{selectedEvent.eventCode}</Badge>}
           </CardDescription>
         </CardHeader>
         <CardContent>
-            {teamMembers && teamMembers.length > 0 ? (
+            {teamMembersWithProfiles && teamMembersWithProfiles.length > 0 ? (
                  <div className="rounded-md border">
                     <Table>
                         <TableHeader><TableRow>
                             <TableHead>Member</TableHead>
                             <TableHead>Role</TableHead>
-                            <TableHead>Status</TableHead>
                             <TableHead className="text-right">Actions</TableHead>
                         </TableRow></TableHeader>
                         <TableBody>
-                            {teamMembers.map(member => (
+                            {teamMembersWithProfiles.map(member => (
                                 <TableRow key={member.id}>
-                                    <TableCell>{member.userId}</TableCell>
+                                    <TableCell>{member.user.firstName} {member.user.lastName}</TableCell>
                                     <TableCell><Badge variant="secondary">{member.role}</Badge></TableCell>
-                                    <TableCell>{member.status || 'Accepted'}</TableCell>
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="icon" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
                                     </TableCell>
@@ -300,7 +329,7 @@ export default function TeamManagementPage() {
                                             </Select>
                                         </FormItem>
                                     )} />
-                                    <Button className='w-full mt-4' onClick={handleSendInvite}>Send Invite</Button>
+                                    <Button className='w-full mt-4' onClick={handleSendInvite}>Add to Team</Button>
                                 </Card>
                             )}
                         </form>
@@ -312,5 +341,3 @@ export default function TeamManagementPage() {
     </div>
   );
 }
-
-    
