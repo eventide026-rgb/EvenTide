@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { useCollection, useFirestore, useUser, useMemoFirebase } from "@/firebase";
 import { collection, query, where } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
+import { isToday, isFuture } from 'date-fns';
 
 type Event = {
     id: string;
@@ -18,7 +19,7 @@ type Event = {
     date?: string; // Kept for compatibility with Countdown, will be populated from eventDate
     eventDate: any; // Firestore Timestamp
     eventCode?: string;
-    status: "Upcoming" | "Completed";
+    status: "Upcoming" | "In Progress" | "Completed";
     guestCapacity?: number;
 };
 
@@ -84,12 +85,23 @@ export default function OwnerDashboardPage() {
     const { data: eventsData, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
 
     const events = useMemo(() => {
-        return eventsData?.map(e => ({
-            ...e,
-            date: e.eventDate.toDate().toISOString(),
-            status: e.eventDate.toDate() > new Date() ? 'Upcoming' : 'Completed',
-            guestCapacity: e.guestCapacity || 20,
-        })) || [];
+        return eventsData?.map(e => {
+            const eventDate = e.eventDate.toDate();
+            let status: Event['status'];
+            if (isToday(eventDate)) {
+                status = 'In Progress';
+            } else if (isFuture(eventDate)) {
+                status = 'Upcoming';
+            } else {
+                status = 'Completed';
+            }
+            return {
+                ...e,
+                date: eventDate.toISOString(),
+                status,
+                guestCapacity: e.guestCapacity || 20,
+            }
+        }) || [];
     }, [eventsData]);
 
     const selectedEvent = useMemo(() => {
