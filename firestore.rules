@@ -30,7 +30,6 @@ service cloud.firestore {
 
       function isEventGuest(eventId) {
         // Check if a guest document exists for the current user for this event.
-        // This is a placeholder for a more specific check, like against a guest's userProfileId
         return isSignedIn() && exists(/databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid));
       }
 
