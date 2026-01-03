@@ -1097,6 +1097,41 @@
             "description": "Stores issues of the EvenTide Community Magazine. Drafts are only accessible by admins, while published issues are public.",
             "params": [{ "name": "issueId", "description": "The unique identifier for the magazine issue." }]
         }
+      },
+      {
+        "path": "/hotels/{hotelId}",
+        "definition": {
+          "entityName": "Hotel",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "ownerId": { "type": "string" },
+              "name": { "type": "string" },
+              "address": { "type": "string" },
+              "city": { "type": "string" },
+              "state": { "type": "string" },
+              "description": { "type": "string" },
+              "imageUrls": { "type": "array", "items": { "type": "string", "format": "uri" } },
+              "amenities": { "type": "array", "items": { "type": "string" } },
+              "roomTypes": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": { "type": "string" },
+                    "price": { "type": "number" },
+                    "capacity": { "type": "number" }
+                  },
+                  "required": ["name", "price", "capacity"]
+                }
+              }
+            },
+            "required": ["ownerId", "name", "address", "city", "state", "description", "imageUrls", "amenities", "roomTypes"]
+          },
+          "description": "Stores details for each hotel listing.",
+          "params": [{ "name": "hotelId", "description": "The unique identifier for the hotel." }]
+        }
       }
     ],
     "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging. Public, ticketed shows created by Ticketiers are stored in a top-level `/shows` collection, separating them from private events created by Hosts, which are stored in the `/events` collection. This structural segregation improves query performance and simplifies security rules. User data is kept in a separate `/users` collection, and public Ticketier profiles are in `/ticketiers`, both secured by path-based ownership. Subcollections for shows (like `ticketTiers` and `tickets`) and events (like `guests` and `planners`) are nested under their parent documents, ensuring data locality and enabling targeted queries and security. A dedicated `notifications` subcollection under each user provides a private, real-time channel for alerts."

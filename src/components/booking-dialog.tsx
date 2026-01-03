@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { User } from 'firebase/auth';
-import { addDoc, collection, serverTimestamp, writeBatch, doc } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
@@ -70,13 +70,7 @@ export function BookingDialog({ hotel, roomType, user, isUserLoading }: BookingD
     };
     
     try {
-      const batch = writeBatch(firestore);
-
-      // Write to the top-level bookings collection
-      const topLevelBookingRef = doc(collection(firestore, 'bookings'));
-      batch.set(topLevelBookingRef, bookingData);
-
-      await batch.commit();
+      await addDoc(collection(firestore, 'bookings'), bookingData);
 
       toast({
         title: 'Booking Request Sent!',

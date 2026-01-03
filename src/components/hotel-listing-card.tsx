@@ -43,7 +43,6 @@ export function HotelListingCard({ hotel, isDashboard = false }: HotelListingCar
               alt={hotel.name}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
-              data-ai-hint={hotel.imageHint}
             />
           </div>
         </CardHeader>
