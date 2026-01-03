@@ -73,7 +73,7 @@ export function BroadcastClient() {
         authorRole: 'Owner', // This should be dynamic based on user role
         content: values.content,
         targetGroup: values.targetGroup,
-        targetRoles: values.targetGroup === 'All Guests' ? [] : [values.targetGroup], // Simplified
+        targetRoles: values.targetGroup === 'All Guests' ? ['All Guests'] : [values.targetGroup], // Simplified
         timestamp: serverTimestamp(),
     };
 

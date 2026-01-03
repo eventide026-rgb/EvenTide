@@ -41,9 +41,8 @@ service cloud.firestore {
         }
 
         function isEventGuest(eventId) {
-          return exists(
-            /databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid)
-          );
+          let guestDocPath = /databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid);
+          return isSignedIn() && exists(guestDocPath);
         }
 
 
@@ -155,8 +154,8 @@ service cloud.firestore {
       
       match /events/{eventId} {
           allow get: if isEventStaff(eventId) || isEventGuest(eventId) || isGuestByCode(eventId, guestId);
-          allow list: if isEventStaff(eventId);
-          allow create: if isEventStaff(eventId);
+          allow list: if isEventStaff(eventId) || request.query.where.eventCode != null;
+          allow create: if isEventOwnerOnCreate() || isEventStaff(eventId);
           allow update: if isEventStaff(eventId) 
                        || (isEventGuest(eventId) && request.resource.data.diff(resource.data).changedKeys()
                            .hasOnly(["rsvpStatus", "rsvpUpdatedAt"]));
@@ -176,10 +175,9 @@ service cloud.firestore {
        match /guests/{guestId} {
             allow get: if isEventStaff(eventId) || isEventGuest(eventId);
             allow list: if true;
-            allow create: if isSignedIn()
-                    && request.resource.data.ownerId == request.auth.uid;
+            allow create: if isEventOwnerOnCreate() || isEventStaff(eventId);
         
-            allow update: if isEventOwner(eventId) || isEventPlanner(eventId) || (isEventGuest(eventId, guestId));
+            allow update: if isEventOwner(eventId) || isEventPlanner(eventId) || (isEventGuest(eventId, guestId)) || (isSignedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['id']) && request.resource.data.id == request.auth.uid);
             allow delete: if isEventOwner(eventId);
 
         }
@@ -219,25 +217,25 @@ service cloud.firestore {
 
         // Invitation cards
         match /events/{eventId}/invitationCards/{cardId} {
-          allow read: if isEventGuest(eventId, resource.data.guestId) || isEventStaff(eventId);
+          allow read: if isEventGuest(eventId) || isEventStaff(eventId);
           allow create, update, delete: if isEventStaff(eventId);
         }
 
         // Gatepasses
         match /events/{eventId}/gatepasses/{passId} {
-          allow read: if isEventGuest(eventId, resource.data.guestId) || isEventStaff(eventId);
+          allow read: if isEventGuest(eventId) || isEventStaff(eventId);
           allow create, update, delete: if isEventStaff(eventId);
         }
 
         // Menu cards
         match /events/{eventId}/menuCards/{menuId} {
-          allow read: if isEventGuest(eventId, resource.data.guestId) || isEventStaff(eventId);
+          allow read: if isEventGuest(eventId) || isEventStaff(eventId);
           allow create, update, delete: if isEventStaff(eventId);
         }
 
         // Program cards
         match /events/{eventId}/programCards/{programId} {
-          allow read: if isEventGuest(eventId, resource.data.guestId) || isEventStaff(eventId);
+          allow read: if isEventGuest(eventId) || isEventStaff(eventId);
           allow create, update, delete: if isEventStaff(eventId);
         }
       
@@ -259,12 +257,12 @@ service cloud.firestore {
       match /gifts/{giftId} {
         allow read: if true; // Guests need to be able to read this
         allow create, delete: if isEventStaff(eventId);
-        allow update: if isSignedIn() && (isEventOwner(eventId) || isEventGuest(eventId, giftId));
+        allow update: if isSignedIn() && (isEventOwner(eventId) || isEventGuest(eventId));
       }
       
       match /songRequests/{requestId} {
-        allow create: if isEventGuest(eventId, request.resource.data.requesterId);
-        allow read: if isEventStaff(eventId) || isEventVendor(eventId, 'DJ/Musician') || (isEventGuest(eventId, resource.data.requesterId) && resource.data.requesterId == request.auth.uid);
+        allow create: if isEventGuest(eventId);
+        allow read: if isEventStaff(eventId) || isEventVendor(eventId, 'DJ/Musician') || (isEventGuest(eventId) && resource.data.requesterId == request.auth.uid);
         allow update: if isEventStaff(eventId); // For changing status
         allow delete: if isEventStaff(eventId);
       }
@@ -288,7 +286,7 @@ service cloud.firestore {
       }
 
       match /program/{docId} {
-        allow read: if isEventStaff(eventId);
+        allow read: if isEventStaff(eventId) || isEventGuest(eventId);
         allow write: if isEventPlanner(eventId);
       }
 
@@ -345,14 +343,14 @@ service cloud.firestore {
 
       match /events/{eventId}/chat_messages/{messageId} {
         allow get, list: if canReadEventData(eventId);
-        allow create: if (isEventStaff(eventId) || isEventGuest(eventId, request.resource.data.senderId)) && request.resource.data.senderId == request.auth.uid && request.resource.data.eventId == eventId;
+        allow create: if (isEventStaff(eventId) || isEventGuest(eventId)) && request.resource.data.senderId == request.auth.uid && request.resource.data.eventId == eventId;
         allow update: if false; 
         allow delete: if (isEventStaff(eventId) || isOwner(resource.data.senderId)) && isExistingDoc();
       }
 
       match /events/{eventId}/media/{mediaId} {
-        allow get, list: if canReadEventData(eventId);
-        allow create: if isEventStaff(eventId) && request.resource.data.uploaderId == request.auth.uid && request.resource.data.eventId == eventId;
+        allow get, list: if isEventStaff(eventId) || isEventGuest(eventId);
+        allow create: if isEventStaff(eventId) || isEventGuest(eventId);
         allow update: if false; 
         allow delete: if (isEventStaff(eventId) || isOwner(resource.data.uploaderId)) && isExistingDoc();
       }
@@ -371,7 +369,7 @@ service cloud.firestore {
       }
 
       match /events/{eventId}/announcements/{announcementId} {
-        allow read: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid);
+        allow read: if isEventStaff(eventId) || isEventGuest(eventId);
         allow create: if isEventStaff(eventId) && request.resource.data.authorId == request.auth.uid && request.resource.data.eventId == eventId;
         allow update, delete: if isEventStaff(eventId) && isExistingDoc();
       }
@@ -460,6 +458,5 @@ service cloud.firestore {
           allow create: if true;
           allow read, update, delete: if false; // Should be handled by admin roles
       }
-
     }
   }
