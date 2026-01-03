@@ -6,7 +6,7 @@ import { SeatingChartClient } from '@/components/events/seating-chart-client';
 export default function SeatingChartPage() {
 
   // The SeatingChartClient will handle event selection for the owner.
-  // We pass an empty string for eventId initially.
+  // We pass an empty string for eventId initially, and the component will prompt for selection.
   return (
     <div className="flex flex-col gap-6 h-full">
       <header>

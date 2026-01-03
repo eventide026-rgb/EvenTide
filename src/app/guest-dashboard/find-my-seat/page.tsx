@@ -1,12 +1,12 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { SeatingChartClient } from '@/components/events/seating-chart-client';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 
-export default function FindMySeatPage() {
+function FindMySeatPageContent() {
   const [eventId, setEventId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -42,4 +42,12 @@ export default function FindMySeatPage() {
       </div>
     </div>
   );
+}
+
+export default function FindMySeatPage() {
+    return (
+        <Suspense fallback={<div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+            <FindMySeatPageContent />
+        </Suspense>
+    )
 }
