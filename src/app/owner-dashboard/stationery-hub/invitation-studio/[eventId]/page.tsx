@@ -61,11 +61,11 @@ export default function InvitationStudioPage({ params }: { params: Promise<{ eve
             <div className="lg:col-span-1">
                 <ControlPanel
                     eventId={eventId}
+                    event={event}
                     initialStationery={stationery}
                     setStationery={setStationery}
                     initialColors={colors}
                     setColors={setColors}
-                    event={event}
                 />
             </div>
             <div className="lg:col-span-2">
