@@ -174,7 +174,7 @@ service cloud.firestore {
       
         match /songRequests/{requestId} {
           allow create: if isEventGuest(eventId);
-          allow read: if isEventStaff(eventId) || isEventVendor(eventId, 'DJ/Musician') || isAdmin();
+          allow read: if isEventStaff(eventId) || isAdmin();
           allow update, delete: if isEventStaff(eventId) || isAdmin();
         }
 

@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, addDoc, updateDoc, deleteDoc, getDocs, documentId } from 'firebase/firestore';
+import { collection, query, where, doc, addDoc, updateDoc, deleteDoc, getDocs, documentId, orderBy } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -32,16 +33,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, PlusCircle, UserPlus, CalendarIcon, Trash2 } from 'lucide-react';
+import { Loader2, PlusCircle, CalendarIcon, Trash2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -55,9 +48,11 @@ type Event = {
   id: string;
   name: string;
   ownerId: string;
+  plannerIds?: string[];
+  cohostIds?: Record<string, boolean>;
 };
 
-type TeamMemberProfile = {
+type UserProfile = {
     id: string;
     firstName: string;
     lastName: string;
@@ -78,12 +73,40 @@ const taskFormSchema = z.object({
   dueDate: z.date().optional(),
 });
 
+function TaskCard({ task, teamMembers, onStatusChange, onDelete, isReadOnly }: { task: Task; teamMembers: UserProfile[]; onStatusChange: (status: Task['status']) => void; onDelete: () => void; isReadOnly: boolean }) {
+    const assignee = teamMembers.find(m => m.id === task.assigneeId);
+    return (
+        <Card className="bg-background">
+            <CardContent className="p-3 space-y-2">
+                <p className="font-semibold text-sm">{task.title}</p>
+                 <div className="flex items-center justify-between">
+                    <div className="text-xs text-muted-foreground space-y-1">
+                        {assignee && <p>To: {assignee.firstName}</p>}
+                        {task.dueDate && <p>Due: {format(task.dueDate.toDate(), 'MMM dd')}</p>}
+                    </div>
+                    <Select value={task.status} onValueChange={(value) => onStatusChange(value as Task['status'])} disabled={isReadOnly}>
+                        <SelectTrigger className="text-xs h-7 w-auto focus:ring-0 border-none shadow-none bg-transparent">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="To Do">To Do</SelectItem>
+                            <SelectItem value="In Progress">In Progress</SelectItem>
+                            <SelectItem value="Completed">Completed</SelectItem>
+                        </SelectContent>
+                    </Select>
+                 </div>
+                 {!isReadOnly && <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={onDelete}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
+            </CardContent>
+        </Card>
+    )
+}
+
 export function TaskBoard({ isReadOnly }: { isReadOnly: boolean }) {
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const [teamMembers, setTeamMembers] = useState<TeamMemberProfile[]>([]);
+  const [teamMembers, setTeamMembers] = useState<UserProfile[]>([]);
   const [isLoadingTeam, setIsLoadingTeam] = useState(false);
 
   const form = useForm<z.infer<typeof taskFormSchema>>({
@@ -91,19 +114,10 @@ export function TaskBoard({ isReadOnly }: { isReadOnly: boolean }) {
     defaultValues: { title: '', assigneeId: user?.uid },
   });
 
-  const plannerAssignmentsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
-    return query(collection(firestore, 'planners'), where('plannerId', '==', user.uid));
-  }, [firestore, user?.uid]);
-
-  const { data: assignments, isLoading: isLoadingAssignments } = useCollection<EventPlannerAssignment>(plannerAssignmentsQuery);
-  
-  const eventIds = useMemo(() => assignments?.map(a => a.eventId) || [], [assignments]);
-  
   const eventsQuery = useMemoFirebase(() => {
-    if (!firestore || eventIds.length === 0) return null;
-    return query(collection(firestore, 'events'), where(documentId(), 'in', eventIds));
-  }, [firestore, eventIds]);
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'events'), where(isReadOnly ? 'ownerId' : 'plannerIds', 'array-contains', user.uid));
+  }, [firestore, user?.uid, isReadOnly]);
 
   const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
 
@@ -122,20 +136,19 @@ export function TaskBoard({ isReadOnly }: { isReadOnly: boolean }) {
     
     const fetchTeam = async () => {
         setIsLoadingTeam(true);
-        const memberIds = new Set<string>();
         const eventRef = doc(firestore, 'events', selectedEventId);
-        const eventSnap = await getDocs(query(collection(eventRef, 'planners')));
-        eventSnap.forEach(doc => memberIds.add(doc.id));
-        const cohostsSnap = await getDocs(query(collection(eventRef, 'cohosts')));
-        cohostsSnap.forEach(doc => memberIds.add(doc.id));
+        const eventSnap = await getDoc(eventRef);
+        const eventData = eventSnap.data() as Event;
         
-        const ownerId = (await getDocs(query(collection(firestore, 'events'), where(documentId(), '==', selectedEventId)))).docs[0]?.data().ownerId;
-        if(ownerId) memberIds.add(ownerId);
+        const memberIds = new Set<string>();
+        if (eventData.ownerId) memberIds.add(eventData.ownerId);
+        if (eventData.plannerIds) eventData.plannerIds.forEach(id => memberIds.add(id));
+        if (eventData.cohostIds) Object.keys(eventData.cohostIds).forEach(id => memberIds.add(id));
         
         if (memberIds.size > 0) {
             const usersQuery = query(collection(firestore, 'users'), where(documentId(), 'in', Array.from(memberIds)));
             const usersSnap = await getDocs(usersQuery);
-            const members = usersSnap.docs.map(d => ({id: d.id, ...d.data()} as TeamMemberProfile));
+            const members = usersSnap.docs.map(d => ({id: d.id, ...d.data()} as UserProfile));
             setTeamMembers(members);
         }
         setIsLoadingTeam(false);
@@ -165,52 +178,48 @@ export function TaskBoard({ isReadOnly }: { isReadOnly: boolean }) {
       toast({title: "Task Deleted"});
   }
 
-  const isLoading = isLoadingAssignments || isLoadingEvents;
+  const isLoading = isLoadingEvents;
+  const taskColumns = {
+      'To Do': tasks?.filter(t => t.status === 'To Do') || [],
+      'In Progress': tasks?.filter(t => t.status === 'In Progress') || [],
+      'Completed': tasks?.filter(t => t.status === 'Completed') || [],
+  }
 
   return (
-    <div className="grid md:grid-cols-3 gap-8 items-start h-full">
-      <Card className="md:col-span-2">
-        <CardHeader>
-          <CardTitle>Task Board</CardTitle>
-          <CardDescription>
-            {selectedEventId ? 'Manage your event tasks.' : 'Select an event to see tasks.'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoadingTasks && selectedEventId ? (
-            <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
-          ) : tasks && tasks.length > 0 ? (
-            <div className="rounded-md border">
-              <Table><TableHeader><TableRow><TableHead>Task</TableHead><TableHead>Assigned To</TableHead><TableHead>Due Date</TableHead><TableHead>Status</TableHead>{!isReadOnly && <TableHead className='text-right'>Actions</TableHead>}</TableRow></TableHeader>
-                <TableBody>
-                  {tasks.map(task => (
-                    <TableRow key={task.id}>
-                      <TableCell className='font-medium'>{task.title}</TableCell>
-                      <TableCell>{teamMembers.find(m => m.id === task.assigneeId)?.firstName || 'Unassigned'}</TableCell>
-                      <TableCell>{task.dueDate ? format(task.dueDate.toDate(), 'PPP') : 'N/A'}</TableCell>
-                      <TableCell>
-                        <Select value={task.status} onValueChange={(value) => handleStatusChange(task.id, value as Task['status'])} disabled={isReadOnly}>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent><SelectItem value="To Do">To Do</SelectItem><SelectItem value="In Progress">In Progress</SelectItem><SelectItem value="Completed">Completed</SelectItem></SelectContent>
-                        </Select>
-                      </TableCell>
-                       {!isReadOnly && (
-                        <TableCell className="text-right">
-                           <Button variant="ghost" size="icon" onClick={() => handleDeleteTask(task.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                        </TableCell>
-                       )}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          ) : (
-            <div className="text-center py-16 border-dashed border-2 rounded-lg">
-                <h3 className="text-xl font-semibold">No tasks yet.</h3>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+    <div className="grid md:grid-cols-4 gap-6 items-start h-full">
+        <div className="md:col-span-3 h-full">
+            {selectedEventId ? (
+                <div className="grid md:grid-cols-3 gap-6 items-start h-full">
+                    {isLoadingTasks ? (
+                        <div className="md:col-span-3 flex justify-center items-center h-64">
+                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                        </div>
+                    ) : (
+                        <>
+                            <Card className="bg-muted/50 h-full flex flex-col"><CardHeader><CardTitle className='text-base'>To Do ({taskColumns['To Do'].length})</CardTitle></CardHeader>
+                                <CardContent className="space-y-3 flex-1 overflow-y-auto">
+                                {taskColumns['To Do'].map(task => <TaskCard key={task.id} task={task} teamMembers={teamMembers} onStatusChange={(s) => handleStatusChange(task.id, s)} onDelete={() => handleDeleteTask(task.id)} isReadOnly={isReadOnly} />)}
+                                </CardContent>
+                            </Card>
+                            <Card className="bg-muted/50 h-full flex flex-col"><CardHeader><CardTitle className='text-base'>In Progress ({taskColumns['In Progress'].length})</CardTitle></CardHeader>
+                                <CardContent className="space-y-3 flex-1 overflow-y-auto">
+                                {taskColumns['In Progress'].map(task => <TaskCard key={task.id} task={task} teamMembers={teamMembers} onStatusChange={(s) => handleStatusChange(task.id, s)} onDelete={() => handleDeleteTask(task.id)} isReadOnly={isReadOnly} />)}
+                                </CardContent>
+                            </Card>
+                            <Card className="bg-muted/50 h-full flex flex-col"><CardHeader><CardTitle className='text-base'>Completed ({taskColumns['Completed'].length})</CardTitle></CardHeader>
+                                <CardContent className="space-y-3 flex-1 overflow-y-auto">
+                                {taskColumns['Completed'].map(task => <TaskCard key={task.id} task={task} teamMembers={teamMembers} onStatusChange={(s) => handleStatusChange(task.id, s)} onDelete={() => handleDeleteTask(task.id)} isReadOnly={isReadOnly} />)}
+                                </CardContent>
+                            </Card>
+                        </>
+                    )}
+                </div>
+            ) : (
+                 <Card className="h-full flex items-center justify-center">
+                    <p className="text-muted-foreground">Select an event to view the task board.</p>
+                </Card>
+            )}
+        </div>
 
       <div className="md:col-span-1 space-y-6">
         <Card><CardHeader><CardTitle>Select Event</CardTitle></CardHeader>
