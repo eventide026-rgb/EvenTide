@@ -82,6 +82,7 @@ import { FirestorePermissionError } from '@/firebase/errors';
 import { Progress } from '../ui/progress';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import type { Guest } from '@/lib/types';
 
 type Event = {
   id: string;
@@ -90,19 +91,6 @@ type Event = {
   guestCount?: number;
   guestLimit?: number;
   eventCode?: string;
-};
-
-type Guest = {
-  id: string; // This is now the user's auth UID
-  guestCode: string;
-  name: string;
-  email: string;
-  phoneNumber?: string;
-  category: string;
-  rsvpStatus: 'Pending' | 'Accepted' | 'Declined';
-  hasCheckedIn: boolean;
-  serialNumber?: number;
-  userProfileId?: string | null;
 };
 
 const guestFormSchema = z.object({

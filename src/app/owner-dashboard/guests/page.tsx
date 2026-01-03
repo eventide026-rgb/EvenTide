@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Suspense } from 'react';
@@ -5,7 +6,7 @@ import { GuestManagement } from '@/components/dashboard/guest-management';
 
 export default function GuestsPage() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col h-full">
       {/* Header stays fixed at the top */}
       <header className="pb-4 border-b">
         <div>
