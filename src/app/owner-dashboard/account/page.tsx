@@ -38,7 +38,7 @@ type PricePlan = {
   name: string;
   price: number;
   description?: string;
-  guestLimit: number;
+  maxGuests: number;
   plannerLimit: number;
   cohostLimit: number;
   securityPersonnelLimit: number;
@@ -51,7 +51,7 @@ const seedPricePlansData: Omit<PricePlan, 'id'>[] = [
         name: "Free",
         price: 0,
         description: "For small, intimate gatherings and personal events.",
-        guestLimit: 20,
+        maxGuests: 20,
         plannerLimit: 0,
         cohostLimit: 2,
         securityPersonnelLimit: 0,
@@ -62,7 +62,7 @@ const seedPricePlansData: Omit<PricePlan, 'id'>[] = [
         name: "Standard",
         price: 45000,
         description: "Ideal for weddings, birthdays, and corporate events.",
-        guestLimit: 150,
+        maxGuests: 150,
         plannerLimit: 1,
         cohostLimit: 4,
         securityPersonnelLimit: 2,
@@ -73,7 +73,7 @@ const seedPricePlansData: Omit<PricePlan, 'id'>[] = [
         name: "Gold",
         price: 80000,
         description: "For larger events and professional planners.",
-        guestLimit: 300,
+        maxGuests: 300,
         plannerLimit: 1,
         cohostLimit: 8,
         securityPersonnelLimit: 4,
@@ -84,7 +84,7 @@ const seedPricePlansData: Omit<PricePlan, 'id'>[] = [
         name: "Platinum",
         price: 120000,
         description: "The ultimate package for grand occasions.",
-        guestLimit: 500,
+        maxGuests: 500,
         plannerLimit: 1,
         cohostLimit: 16,
         securityPersonnelLimit: 8,
@@ -95,7 +95,7 @@ const seedPricePlansData: Omit<PricePlan, 'id'>[] = [
         name: "Festival",
         price: 200000,
         description: "Engineered for large-scale public events.",
-        guestLimit: 1000,
+        maxGuests: 1000,
         plannerLimit: 1,
         cohostLimit: 99, // Essentially unlimited
         securityPersonnelLimit: 16,
@@ -265,7 +265,7 @@ export default function AccountPage() {
                             <ul className="space-y-3">
                             <li className="flex items-start gap-2 text-sm">
                                 <Users className="h-4 w-4 text-primary flex-shrink-0 mt-1" />
-                                <span>Up to <span className='font-bold'>{plan.guestLimit.toLocaleString()}</span> Guests</span>
+                                <span>Up to <span className='font-bold'>{plan.maxGuests.toLocaleString()}</span> Guests</span>
                             </li>
                              <li className="flex items-start gap-2 text-sm text-muted-foreground">
                                 <UserCheck className="h-4 w-4 text-green-500 flex-shrink-0 mt-1" />
@@ -302,5 +302,3 @@ export default function AccountPage() {
     </div>
   );
 }
-
-    
