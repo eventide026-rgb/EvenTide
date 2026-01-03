@@ -12,6 +12,7 @@ import { useCollection, useFirestore, useUser, useMemoFirebase } from "@/firebas
 import { collection, query, where } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isToday, isFuture } from 'date-fns';
+import { Countdown } from '@/components/countdown';
 
 type Event = {
     id: string;
@@ -27,49 +28,6 @@ type Guest = {
     id: string;
 }
 
-
-const Countdown = ({ date }: { date?: string }) => {
-    if (!date) return null;
-    const calculateTimeLeft = () => {
-        const difference = +new Date(date) - +new Date();
-        let timeLeft = {days: 0, hours: 0, minutes: 0};
-        if (difference > 0) {
-            timeLeft = {
-                days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-                hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-                minutes: Math.floor((difference / 1000 / 60) % 60),
-            };
-        }
-        return timeLeft;
-    };
-
-    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
-
-    React.useEffect(() => {
-        const timer = setInterval(() => {
-            setTimeLeft(calculateTimeLeft());
-        }, 60000);
-        return () => clearInterval(timer);
-    }, [date]);
-
-
-    return (
-        <div className="flex space-x-4">
-            <div>
-                <div className="text-3xl font-bold">{timeLeft.days}</div>
-                <div className="text-xs text-muted-foreground">Days</div>
-            </div>
-            <div>
-                <div className="text-3xl font-bold">{timeLeft.hours}</div>
-                <div className="text-xs text-muted-foreground">Hours</div>
-            </div>
-            <div>
-                <div className="text-3xl font-bold">{timeLeft.minutes}</div>
-                <div className="text-xs text-muted-foreground">Minutes</div>
-            </div>
-        </div>
-    );
-}
 
 export default function OwnerDashboardPage() {
     const { user, isUserLoading } = useUser();
@@ -159,8 +117,7 @@ export default function OwnerDashboardPage() {
                                 <ul className="space-y-2">
                                     {events.map(event => (
                                         <li key={event.id}>
-                                            <Link 
-                                                href={`/owner-dashboard/events/${event.id}`}
+                                            <button
                                                 className={cn(
                                                     "block w-full text-left p-3 rounded-lg border transition-all",
                                                     selectedEvent?.id === event.id ? "bg-accent border-primary" : "hover:bg-accent/50"
@@ -169,7 +126,7 @@ export default function OwnerDashboardPage() {
                                             >
                                                 <p className="font-semibold truncate">{event.name}</p>
                                                 <p className="text-sm text-muted-foreground">{event.status}</p>
-                                            </Link>
+                                            </button>
                                         </li>
                                     ))}
                                 </ul>
@@ -196,7 +153,11 @@ export default function OwnerDashboardPage() {
                                         <CardTitle className="text-2xl">{selectedEvent.name}</CardTitle>
                                         <CardDescription>Event Code: <span className="font-mono bg-muted px-2 py-1 rounded-md">{selectedEvent.eventCode}</span></CardDescription>
                                     </div>
-                                    <Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button>
+                                     <Button variant="ghost" size="icon" asChild>
+                                        <Link href={`/owner-dashboard/events/${selectedEvent.id}`}>
+                                            <MoreVertical className="h-4 w-4" />
+                                        </Link>
+                                    </Button>
                                 </CardHeader>
                                 <CardContent>
                                     <Countdown date={selectedEvent.date} />

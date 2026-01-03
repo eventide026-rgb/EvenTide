@@ -40,7 +40,6 @@ service cloud.firestore {
               || isEventCohost(eventId);
         }
 
-        // Guest access — NO auth required
         function isEventGuest(eventId) {
           return exists(
             /databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid)
@@ -137,7 +136,7 @@ service cloud.firestore {
 
       match /shows/{showId} {
         allow get: if true;
-        allow list: if request.query.keys().hasOnly(['where']) && request.query.where.size() == 1 && request.query.where[0][0] == 'eventCode';
+        allow list: if true;
         allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
         allow update: if isShowOwner(showId);
         allow delete: if isShowOwner(showId);
@@ -154,81 +153,68 @@ service cloud.firestore {
           allow update, delete: if isShowOwner(showId);
       }
       
-      
+      match /events/{eventId} {
+          allow get: if isEventStaff(eventId) || isEventGuest(eventId) || isGuestByCode(eventId, guestId);
+          allow list: if isEventStaff(eventId);
+          allow create: if isEventStaff(eventId);
+          allow update: if isEventStaff(eventId) 
+                       || (isEventGuest(eventId) && request.resource.data.diff(resource.data).changedKeys()
+                           .hasOnly(["rsvpStatus", "rsvpUpdatedAt"]));
+          allow delete: if isEventStaff(eventId);	
 
-
-
-
- 		  match /events/{eventId} {
-
-          
-          allow get, update, delete: if isEventStaff(eventId);
-          allow get: if isEventGuest(eventId);
-          allow list: if request.query.keys().hasOnly(['where']) && request.query.where.size() == 1 && request.query.where[0][0] == 'eventCode';
-
-          allow create: if
-            request.auth != null &&
-            request.resource.data.ownerId == request.auth.uid;
-
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-
-        match /tasks/{taskId} {
+			match /tasks/{taskId} {
           allow read, create, update, delete: if isEventStaff(eventId);
-	     }
-         match /guestCodes/{guestCode} {
+	     
+       }
+       
+       match /guestCodes/{guestCode} {
             allow read: if true; // Publicly readable for login
             allow create, update, delete: if isEventStaff(eventId);
-        }
+       
+       }
 
-    
-        match /guests/{guestId} {
-            // Public can read a specific guest document IF they know the non-guessable guestId.
-            // This enables the direct getDoc() lookup on the login form.
-            allow get: if isEventStaff(eventId) || isEventGuest(eventId, guestId);
+       match /guests/{guestId} {
+            allow get: if isEventStaff(eventId) || isEventGuest(eventId);
+            allow list: if true;
+            allow create: if isSignedIn()
+                    && request.resource.data.ownerId == request.auth.uid;
         
-            // Only event staff can list all guests.
-            allow list: if isEventStaff(eventId);
-        
-            // Staff creates guests
-            allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
-        
-            // Staff can update anything.
-            // A guest can perform a one-time update to link their auth UID, or update their RSVP status.
-            allow update: if isEventStaff(eventId) || (isEventGuest(eventId, guestId));
-        
-            allow delete: if isEventStaff(eventId);
-        }
+            allow update: if isEventOwner(eventId) || isEventPlanner(eventId) || (isEventGuest(eventId, guestId));
+            allow delete: if isEventOwner(eventId);
 
+        }
+        
+        
+        
+        
         match /events/{eventId}/guests/{guestId} {
 
-          // Guests can read their own guest record
-          allow get: if isEventGuest() || isEventStaff(eventId);
+            allow get: if true;
+            allow list: if isEventStaff(eventId);
+            allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
+            allow update: if isEventStaff(eventId)
+                          || (
+                            request.auth != null
+                            && request.auth.uid == guestId
+                            && request.resource.data.diff(resource.data).changedKeys()
+                                 .hasOnly(["rsvpStatus", "rsvpUpdatedAt"])
+                          );
+            allow delete: if isEventStaff(eventId);
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
 
-          // Guests cannot list all guests; staff can list
-          allow list: if isEventStaff(eventId);
-
-          // Staff creates guests
-          allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
-
-          // Staff can update anything. Guests can update RSVP fields only
-          allow update: if isEventStaff(eventId) ||
-                        (isEventGuest() &&
-                         request.resource.data.diff(resource.data).changedKeys()
-                           .hasOnly(["rsvpStatus", "rsvpUpdatedAt"]));
-
-          // Only staff can delete guests
-          allow delete: if isEventStaff(eventId);
         }
 
         // Invitation cards
@@ -477,4 +463,3 @@ service cloud.firestore {
 
     }
   }
-    
