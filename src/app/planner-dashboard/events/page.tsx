@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -176,9 +175,9 @@ export default function PlannerEventsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold font-headline">My Assigned Events</h1>
+        <h1 className="text-3xl font-bold font-headline">My Gigs & Invitations</h1>
         <p className="text-muted-foreground">
-          Manage your job invitations and active gigs.
+          Manage your job invitations and active event assignments.
         </p>
       </div>
 
@@ -270,6 +269,13 @@ export default function PlannerEventsPage() {
                   </TableRow>
                 ) : null
               )}
+               {!isLoading && activeGigs.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center h-24">
+                    You have no active gigs.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -304,5 +310,3 @@ export default function PlannerEventsPage() {
     </div>
   );
 }
-
-    
