@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,9 +20,9 @@ export default function MediaGalleryPage() {
   const { user } = useUser();
   const [eventId, setEventId] = useState<string | null>(null);
 
-  useState(() => {
+  useEffect(() => {
     setEventId(sessionStorage.getItem('guestEventId'));
-  });
+  }, []);
 
   const mediaQuery = useMemoFirebase(() => {
     if (!firestore || !eventId) return null;

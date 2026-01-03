@@ -61,9 +61,10 @@ export function ImageUploader({ eventId }: ImageUploaderProps) {
         const dataUrl = event.target?.result as string;
 
         try {
-            // Upload the file as a data URL string.
+            // This is a simplified progress simulation for uploadString
+            setUploadProgress(50);
             const uploadTask = await uploadString(storageRef, dataUrl, 'data_url');
-            setUploadProgress(100); // Simulate completion after uploadString finishes
+            setUploadProgress(100);
 
             const downloadURL = await getDownloadURL(uploadTask.ref);
 
