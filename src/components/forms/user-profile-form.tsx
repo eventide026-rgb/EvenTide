@@ -32,7 +32,7 @@ export function UserProfileForm() {
   const { toast } = useToast();
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const userDocRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;
@@ -62,7 +62,7 @@ export function UserProfileForm() {
 
   async function onSubmit(values: z.infer<typeof profileSchema>) {
     if (!userDocRef || !user) return;
-    setIsLoading(true);
+    setIsSaving(true);
     try {
       // Update Firestore document
       await updateDoc(userDocRef, {
@@ -88,7 +88,7 @@ export function UserProfileForm() {
         description: 'Could not save your profile. Please try again.',
       });
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   }
 
@@ -146,8 +146,8 @@ export function UserProfileForm() {
                 </FormItem>
             )}
         />
-        <Button type="submit" disabled={isLoading}>
-          {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        <Button type="submit" disabled={isSaving}>
+          {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Save Changes
         </Button>
       </form>
