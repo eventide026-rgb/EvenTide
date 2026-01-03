@@ -19,7 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import { useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
-import { doc, updateDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Loader2, Globe, Instagram, Facebook } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { TikTokIcon } from '../icons/tiktok';

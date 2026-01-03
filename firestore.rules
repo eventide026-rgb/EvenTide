@@ -1,5 +1,4 @@
 
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -181,6 +180,12 @@ service cloud.firestore {
             allow read, update: if isEventStaff(eventId) || isOwner(resource.data.designerId);
             allow delete: if isEventOwner(eventId);
         }
+
+        match /vendorContracts/{contractId} {
+            allow create: if isEventStaff(eventId);
+            allow read, update: if isEventStaff(eventId) || isOwner(resource.data.vendorId);
+            allow delete: if isEventStaff(eventId);
+        }
       
         match /program/{docId} {
           allow read: if isEventStaff(eventId) || isEventGuest(eventId) || isAdmin();
@@ -286,6 +291,3 @@ service cloud.firestore {
       }
     }
   }
-
-
-    
