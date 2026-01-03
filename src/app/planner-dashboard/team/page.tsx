@@ -12,7 +12,6 @@ import {
   limit,
   documentId,
   updateDoc,
-  arrayUnion
 } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -56,11 +55,6 @@ import { Label } from '@/components/ui/label';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useCollectionGroup } from 'react-firebase-hooks/firestore';
-
-type EventPlannerAssignment = {
-    id: string;
-    eventId: string;
-};
 
 type Event = {
   id: string;
@@ -110,16 +104,14 @@ export default function TeamManagementPage() {
   const [isSearching, setIsSearching] = useState(false);
   const [teamMemberProfiles, setTeamMemberProfiles] = useState<UserProfile[]>([]);
   
-  const [assignmentsSnapshot, isLoadingAssignments] = useCollectionGroup(firestore, 'assignments');
+  const plannerAssignmentsQuery = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'planners', user.uid, 'assignments'));
+  }, [firestore, user?.uid]);
 
-  const plannerAssignments = useMemo(() => {
-    if (!assignmentsSnapshot) return [];
-    return assignmentsSnapshot.docs
-      .map(doc => ({ id: doc.id, ...doc.data() }))
-      .filter((assignment: any) => assignment.plannerId === user?.uid);
-  }, [assignmentsSnapshot, user]);
+  const { data: assignments, isLoading: isLoadingAssignments } = useCollection(plannerAssignmentsQuery);
   
-  const eventIds = useMemo(() => plannerAssignments?.map((a: any) => a.eventId) || [], [plannerAssignments]);
+  const eventIds = useMemo(() => assignments?.docs.map((doc:any) => doc.data().eventId) || [], [assignments]);
 
   const eventsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid || !eventIds.length) return null;
@@ -341,3 +333,5 @@ export default function TeamManagementPage() {
     </div>
   );
 }
+
+    

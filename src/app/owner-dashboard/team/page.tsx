@@ -60,19 +60,14 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 
-type EventPlannerAssignment = {
-    id: string;
-    eventId: string;
-};
-
 type Event = {
   id: string;
   name: string;
   ownerId: string;
   eventCode?: string;
   eventDate?: any;
-  plannerIds: string[];
-  cohostIds: Record<string, boolean>;
+  plannerIds?: string[];
+  cohostIds?: Record<string, boolean>;
 };
 
 type UserProfile = {
@@ -91,9 +86,7 @@ type TeamMember = {
 
 const inviteFormSchema = z.object({
   email: z.string().email('Please enter a valid email to search.'),
-  role: z.enum(['Co-host', 'Security', 'Planner'], {
-    required_error: 'Please select a role for the team member.',
-  }),
+  role: z.enum(['Co-host', 'Security']),
 });
 
 const findUserByEmail = async (firestore: any, email: string): Promise<UserProfile | null> => {
@@ -204,9 +197,7 @@ export default function TeamManagementPage() {
     const role = form.getValues('role');
     let updateData = {};
 
-    if (role === 'Planner') {
-        updateData = { plannerIds: arrayUnion(foundUser.id) };
-    } else if (role === 'Co-host') {
+    if (role === 'Co-host') {
         updateData = { [`cohostIds.${foundUser.id}`]: true };
     } else {
         toast({ variant: "destructive", title: "Unsupported Role", description: "This role cannot be assigned at this time." });
@@ -322,7 +313,6 @@ export default function TeamManagementPage() {
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                                                 <SelectContent>
-                                                    <SelectItem value="Planner">Planner</SelectItem>
                                                     <SelectItem value="Co-host">Co-host</SelectItem>
                                                     <SelectItem value="Security">Security</SelectItem>
                                                 </SelectContent>
@@ -341,3 +331,5 @@ export default function TeamManagementPage() {
     </div>
   );
 }
+
+    
