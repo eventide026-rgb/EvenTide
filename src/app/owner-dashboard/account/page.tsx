@@ -46,64 +46,6 @@ type PricePlan = {
   isPopular?: boolean;
 };
 
-const seedPricePlansData: Omit<PricePlan, 'id'>[] = [
-    {
-        name: "Free",
-        price: 0,
-        description: "For small, intimate gatherings and personal events.",
-        maxGuests: 20,
-        plannerLimit: 0,
-        cohostLimit: 2,
-        securityPersonnelLimit: 0,
-        features: ["Digital Invitations", "QR Code Gate Passes"],
-        isPopular: false,
-    },
-    {
-        name: "Standard",
-        price: 45000,
-        description: "Ideal for weddings, birthdays, and corporate events.",
-        maxGuests: 150,
-        plannerLimit: 1,
-        cohostLimit: 4,
-        securityPersonnelLimit: 2,
-        features: ["Guest Management", "Team Collaboration"],
-        isPopular: false,
-    },
-    {
-        name: "Gold",
-        price: 80000,
-        description: "For larger events and professional planners.",
-        maxGuests: 300,
-        plannerLimit: 1,
-        cohostLimit: 8,
-        securityPersonnelLimit: 4,
-        features: ["Advanced Analytics", "Budget Tracking"],
-        isPopular: true,
-    },
-    {
-        name: "Platinum",
-        price: 120000,
-        description: "The ultimate package for grand occasions.",
-        maxGuests: 500,
-        plannerLimit: 1,
-        cohostLimit: 16,
-        securityPersonnelLimit: 8,
-        features: ["Priority Support", "AI-Powered Tools"],
-        isPopular: false,
-    },
-    {
-        name: "Festival",
-        price: 200000,
-        description: "Engineered for large-scale public events.",
-        maxGuests: 1000,
-        plannerLimit: 1,
-        cohostLimit: 99, // Essentially unlimited
-        securityPersonnelLimit: 16,
-        features: ["Public Ticket Sales", "Vendor Marketplace"],
-        isPopular: false,
-    },
-];
-
 export default function AccountPage() {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
@@ -125,25 +67,6 @@ export default function AccountPage() {
   }, [firestore]);
   const { data: pricePlans, isLoading: isLoadingPlans } = useCollection<PricePlan>(plansQuery);
   
-  // Seed database if plans are missing
-  useEffect(() => {
-    const seedDatabase = async () => {
-      if (firestore && !isLoadingPlans && pricePlans?.length === 0) {
-        console.log("No pricing plans found. Seeding database...");
-        const batch = writeBatch(firestore);
-        const plansCollection = collection(firestore, "price_plans");
-        seedPricePlansData.forEach(plan => {
-          const docRef = doc(plansCollection);
-          batch.set(docRef, plan);
-        });
-        await batch.commit();
-        console.log("Database seeded successfully.");
-        // We don't need to force a refresh, useCollection will pick up the new data.
-      }
-    };
-    seedDatabase();
-  }, [firestore, pricePlans, isLoadingPlans]);
-
 
   const sortedPricePlans = useMemo(() => {
     if (!pricePlans) return [];

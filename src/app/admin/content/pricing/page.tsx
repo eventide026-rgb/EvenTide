@@ -36,14 +36,14 @@ export default function PricingPage() {
 
   const plansQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, "events"));
+    return query(collection(firestore, "price_plans"));
   }, [firestore]);
 
   const { data: plans, isLoading } = useCollection<PricePlan>(plansQuery);
 
   const handleDelete = async (id: string) => {
     if (!firestore) return;
-    const docRef = doc(firestore, "events", id);
+    const docRef = doc(firestore, "price_plans", id);
     try {
       await deleteDoc(docRef);
       toast({
