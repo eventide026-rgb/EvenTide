@@ -27,6 +27,7 @@ type Table = {
   id: string;
   tableName: string;
   capacity: number;
+  eventId: string; // Add eventId for context in sub-components
 };
 
 type Seat = {
@@ -69,7 +70,6 @@ function TableWithSeats({ table, guestsData, guestId }: { table: Table; guestsDa
           id: realSeat?.id || `${table.id}-${i}`,
           seatNumber: i,
           tableId: table.id,
-          eventId: table.eventId,
           guestId: realSeat?.guestId,
           guestName: guest?.name,
         });
