@@ -43,16 +43,17 @@ function GuestCardsPageContent() {
     return doc(firestore, 'events', eventId, 'guests', guestId);
   }, [firestore, eventId, guestId]);
 
-  const { data: guest, isLoading: isLoadingGuest } = useDoc<Guest>(guestRef);
+  const { data: guest, isLoading: isLoadingGuest, error: guestError } = useDoc<Guest>(guestRef);
   
   const eventRef = useMemoFirebase(() => {
     if (!firestore || !eventId) return null;
     return doc(firestore, 'events', eventId);
   }, [firestore, eventId]);
-  const { data: event, isLoading: isLoadingEvent } = useDoc(eventRef);
+  const { data: event, isLoading: isLoadingEvent, error: eventError } = useDoc(eventRef);
 
   const isLoading = isUserLoading || sessionStatus === 'loading' || isLoadingGuest || isLoadingEvent;
-  const hasError = sessionStatus === 'error' || (!isLoading && (!event || !guest));
+  
+  const combinedError = guestError || eventError;
 
   if (isLoading) {
     return (
@@ -62,7 +63,24 @@ function GuestCardsPageContent() {
     );
   }
   
-  if (hasError) {
+  if (combinedError) {
+       return (
+        <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Error Fetching Data</AlertTitle>
+            <AlertDescription>
+                <p>We couldn&apos;t load your details. This is often due to a permissions issue.</p>
+                <p className="font-mono text-xs bg-black/20 p-2 rounded-md my-2">{combinedError.message}</p>
+                <p>Please try logging in again.</p>
+                 <Button asChild variant="link" className="p-0 h-auto ml-1">
+                    <Link href="/guest-login">Go to Guest Login</Link>
+                </Button>
+            </AlertDescription>
+        </Alert>
+      )
+  }
+
+  if (sessionStatus === 'error' || (!isLoading && (!event || !guest))) {
       return (
         <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
