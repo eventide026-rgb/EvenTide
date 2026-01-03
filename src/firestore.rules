@@ -108,11 +108,11 @@ service cloud.firestore {
 
       match /shows/{showId} {
         allow read, list: if true;
-        allow create, update, delete: if isEventOwner(showId);
+        allow create, update, delete: if isShowOwner(showId);
       }
 
       match /shows/{showId}/{document=**} {
-          allow read, list, write: if isEventOwner(showId);
+          allow read, list, write: if isShowOwner(showId);
       }
       
       match /events/{eventId} {
@@ -122,7 +122,8 @@ service cloud.firestore {
         
         match /guests/{guestId} {
             allow read, list: if isEventStaff(eventId) || isEventGuest(eventId);
-            allow create, delete: if isEventStaff(eventId);
+            allow create: if get(/databases/$(database)/documents/events/$(eventId)).data.ownerId == request.auth.uid;
+            allow delete: if isEventStaff(eventId);
             allow update: if isEventStaff(eventId) || 
                            (isEventGuest(eventId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rsvpStatus'])) ||
                            (isSignedIn() && resource.data.userProfileId == null && request.resource.data.userProfileId == request.auth.uid);
@@ -262,3 +263,7 @@ service cloud.firestore {
       }
     }
   }
+
+function isShowOwner(showId) {
+    return false;
+}
