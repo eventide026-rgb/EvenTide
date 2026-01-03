@@ -3,7 +3,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, setDoc } from 'firebase/firestore';
+import { collection, query, where, doc, setDoc, documentId } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useDebounce } from 'use-debounce';
 import { Card, CardContent } from '@/components/ui/card';
@@ -51,6 +51,7 @@ export function MoodBoardClient({ isReadOnly }: MoodBoardClientProps) {
 
   const eventsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
+     // Simplified query: In a real app, this should query based on planner assignments
     return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
   }, [firestore, user]);
   const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
@@ -187,7 +188,7 @@ export function MoodBoardClient({ isReadOnly }: MoodBoardClientProps) {
                     </Select>
                 </div>
                 {saveStatus === 'saving' && <span className="text-xs flex items-center gap-1 text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin"/>Saving...</span>}
-                {saveStatus === 'saved' && <span className="text-xs flex items-center gap-1 text-green-600"><Save className="h-3 w-3"/>All changes saved</span>}
+                {saveStatus === 'saved' && <span className="text-xs flex items-center gap-1 text-green-600">All changes saved</span>}
             </CardContent>
         </Card>
         {!isReadOnly && (

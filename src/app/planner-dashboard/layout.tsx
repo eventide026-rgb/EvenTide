@@ -16,12 +16,13 @@ import {
   Bell,
   LogOut,
   User,
+  Camera,
   ClipboardList,
-  Percent,
-  PartyPopper,
-  Mail,
+  Upload,
+  ChefHat,
+  Mic,
+  Paintbrush,
   Shirt,
-  Vote,
   Music,
   Shield,
   Hotel,
@@ -162,7 +163,7 @@ export default function PlannerDashboardLayout({ children }: { children: React.R
   const isGroupActive = (groupLinks: typeof sidebarNav[0]['links']) => {
     return groupLinks.some(link => {
         if (link.href === "/planner-dashboard") {
-            return pathname === link.href;
+            return pathname === href;
         }
         return pathname.startsWith(link.href);
     });
