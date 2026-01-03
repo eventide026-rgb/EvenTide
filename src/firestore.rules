@@ -3,35 +3,11 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-      // --- Start of Corrected Event-Scoped Helpers ---
-
+      // --- Start of General Helper Functions ---
       function isSignedIn() {
         return request.auth != null;
       }
 
-      function isEventOwner() {
-        return isSignedIn() && resource.data.ownerId == request.auth.uid;
-      }
-
-      function isEventPlanner() {
-        return isSignedIn() && resource.data.plannerIds != null
-              && request.auth.uid in resource.data.plannerIds;
-      }
-
-      function isEventCohost() {
-        return isSignedIn() && resource.data.cohostIds != null
-              && resource.data.cohostIds[request.auth.uid] == true;
-      }
-
-      function isEventStaff() {
-        return isEventOwner() || isEventPlanner() || isEventCohost();
-      }
-
-      // --- End of Corrected Event-Scoped Helpers ---
-
-
-      // --- Start of General Helpers ---
-      
       function isOwner(userId) {
         return isSignedIn() && request.auth.uid == userId;
       }
@@ -43,7 +19,7 @@ service cloud.firestore {
       function isEventOwnerOnCreate() {
         return isSignedIn() && request.resource.data.ownerId == request.auth.uid;
       }
-
+      
       function getUserRole(userId) {
           return get(/databases/$(database)/documents/users/$(userId)).data.role;
       }
@@ -52,38 +28,60 @@ service cloud.firestore {
           let role = getUserRole(request.auth.uid);
           return isSignedIn() && (role == 'Super Admin' || role == 'Content Admin' || role == 'Editorial Admin');
       }
+      // --- End of General Helper Functions ---
 
-      function getShow(showId) {
-        return get(/databases/$(database)/documents/shows/$(showId));
+
+      // --- Start of Event-Scoped Helper Functions ---
+      function getEvent(eventId) {
+        return get(/databases/$(database)/documents/events/$(eventId));
       }
 
-      function isShowOwner(showId) {
-          // Use `resource.data` for existing documents
-          return isSignedIn() && resource.data.ownerId == request.auth.uid;
+      function isEventOwner(eventId) {
+        let event = getEvent(eventId);
+        return isSignedIn() && event.data.ownerId == request.auth.uid;
       }
+
+      function isEventPlanner(eventId) {
+        let event = getEvent(eventId);
+        return isSignedIn() && event.data.plannerIds != null && request.auth.uid in event.data.plannerIds;
+      }
+
+      function isEventCohost(eventId) {
+        let event = getEvent(eventId);
+        return isSignedIn() && event.data.cohostIds != null && event.data.cohostIds[request.auth.uid] == true;
+      }
+
+      function isEventStaff(eventId) {
+        let event = getEvent(eventId);
+        // During a create operation, `resource` is null. We check `request.resource.data` instead.
+        if (request.method == 'create') {
+           return isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+        }
+        return isSignedIn() && (
+          event.data.ownerId == request.auth.uid ||
+          (event.data.plannerIds != null && request.auth.uid in event.data.plannerIds) ||
+          (event.data.cohostIds != null && event.data.cohostIds[request.auth.uid] == true)
+        );
+      }
+
+       function isEventGuest(eventId) {
+          let guestDoc = get(/databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid));
+          return isSignedIn() && guestDoc != null;
+       }
+      // --- End of Event-Scoped Helper Functions ---
       
-      function isEventGuestByDoc(guestDoc) {
-          return isSignedIn() && guestDoc.userProfileId == request.auth.uid;
-      }
-      
-      // --- End of General Helpers ---
 
+      // --- Start of Security Rule Definitions ---
       match /users/{userId} {
-        allow get: if isSignedIn();
+        allow read, create: if isOwner(userId) || request.auth == null; // Allow creation for new users
+        allow update, delete: if isOwner(userId);
         allow list: if isSignedIn();
-        allow create: if request.auth.uid == userId;
-        allow update: if isOwner(userId) && isExistingDoc() && request.resource.data.id == resource.data.id;
-        allow delete: if isOwner(userId) && isExistingDoc();
 
         match /notifications/{notificationId} {
           allow read, delete: if isOwner(userId);
           allow create: if isSignedIn();
           allow update: if isOwner(userId) && request.resource.data.read == true;
         }
-      }
-
-      match /users/{document=**} {
-          allow list: if isSignedIn();
       }
 
       match /planners/{plannerId} {
@@ -97,11 +95,9 @@ service cloud.firestore {
       }
 
       match /ticketiers/{ticketierId} {
-          allow get: if true;
-          allow list: if true;
+          allow get, list: if true;
           allow create: if request.auth.uid == ticketierId;
           allow update: if isOwner(ticketierId);
-          allow delete: if false;
       }
 
       match /vendors/{vendorId} {
@@ -111,160 +107,137 @@ service cloud.firestore {
       }
 
       match /shows/{showId} {
-        allow get: if true;
-        allow list: if true;
-        allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-        allow update: if isShowOwner(showId);
-        allow delete: if isShowOwner(showId);
+        allow read, list: if true;
+        allow create, update, delete: if isEventOwner(showId);
       }
 
-      match /shows/{showId}/ticketTiers/{tierId} {
-          allow get, list: if true;
-          allow create, update, delete: if isShowOwner(showId);
-      }
-
-      match /shows/{showId}/tickets/{ticketId} {
-          allow get, list: if isShowOwner(showId) || isOwner(resource.data.buyerId);
-          allow create: if isSignedIn();
-          allow update, delete: if isShowOwner(showId);
+      match /shows/{showId}/{document=**} {
+          allow read, list, write: if isEventOwner(showId);
       }
       
       match /events/{eventId} {
         allow create: if isEventOwnerOnCreate();
-        allow get: if isEventStaff();
-        allow update, delete: if isEventStaff();
-        allow list: if true;
-
-        match /tasks/{taskId} {
-          allow read, create, update, delete: if isEventStaff();
+        allow get: if isEventStaff(eventId) || isEventGuest(eventId);
+        allow update, delete: if isEventStaff(eventId);
+        
+        match /guests/{guestId} {
+            allow read, list: if isEventStaff(eventId) || isEventGuest(eventId);
+            allow create, delete: if isEventStaff(eventId);
+            allow update: if isEventStaff(eventId) || 
+                           (isEventGuest(eventId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rsvpStatus'])) ||
+                           (isSignedIn() && resource.data.userProfileId == null && request.resource.data.userProfileId == request.auth.uid);
         }
 
-        match /guests/{guestId} {
-            allow get: if isEventStaff() || isEventGuestByDoc(resource.data);
-            allow list: if isEventStaff();
-            allow create: if isEventStaff();
-            allow update: if isEventStaff() || 
-                           (isEventGuestByDoc(resource.data) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rsvpStatus'])) ||
-                           (isSignedIn() && resource.data.userProfileId == null && request.resource.data.userProfileId == request.auth.uid);
-            allow delete: if isEventStaff();
+        match /guestCodes/{guestCode} {
+            allow read: if true; // Publicly readable for login
+            allow create, update, delete: if isEventStaff(eventId);
+        }
+
+        match /tasks/{taskId} {
+          allow read, write: if isEventStaff(eventId);
         }
 
         match /expenses/{expenseId} {
-            allow read, create, update, delete: if isEventStaff();
+            allow read, write: if isEventStaff(eventId);
         }
 
         match /tables/{tableId} {
-          allow read, create, update, delete: if isEventStaff();
+          allow read, write: if isEventStaff(eventId);
           match /seats/{seatId} {
-            allow read, create, update, delete: if isEventStaff();
+            allow read, write: if isEventStaff(eventId);
           }
         }
         
         match /gifts/{giftId} {
-          allow read: if true; 
-          allow create, delete: if isEventStaff();
-          allow update: if isEventStaff() || isEventGuestByDoc(get(/databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid))); // Complex rule for guest claiming
+          allow read, write: if isEventStaff(eventId);
         }
       
         match /songRequests/{requestId} {
-          allow create: if isEventGuestByDoc(get(/databases/$(database)/documents/events/$(eventId)/guests/$(request.resource.data.requesterId)));
-          allow read, update, delete: if isEventStaff();
+          allow create: if isEventGuest(eventId);
+          allow read, update, delete: if isEventStaff(eventId);
         }
 
         match /fashionContracts/{contractId} {
-            allow create: if isEventOwner();
-            allow read, update: if isEventStaff() || isOwner(resource.data.designerId);
-            allow delete: if isEventOwner();
-
-            match /messages/{messageId} {
-              allow read, create: if isEventStaff() || isOwner(get(/databases/$(database)/documents/events/$(eventId)/fashionContracts/$(contractId)).data.designerId);
-              allow update, delete: if isOwner(resource.data.senderId);
-            }
+            allow create: if isEventOwner(eventId);
+            allow read, update: if isEventStaff(eventId) || isOwner(resource.data.designerId);
+            allow delete: if isEventOwner(eventId);
         }
       
-        match /event_pricing/{pricingId} {
-            allow read, create, update, delete: if isEventStaff();
-        }
-
         match /program/{docId} {
-          allow read, write: if isEventStaff();
+          allow read, write: if isEventStaff(eventId);
         }
 
         match /menu/{docId} {
-          allow read, write: if isEventStaff();
+          allow read, write: if isEventStaff(eventId);
         }
         
         match /shotLists/{shotListId} {
-          allow read, write: if isEventStaff();
+          allow read, write: if isEventStaff(eventId);
         }
         
         match /moodboard/{moodboardId} {
-            allow read, create, update, delete: if isEventStaff();
+            allow read, write: if isEventStaff(eventId);
         }
 
         match /chat_messages/{messageId} {
-            allow read, list: if isEventStaff() || isEventGuestByDoc(get(/databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid)));
-            allow create: if (isEventStaff() || isEventGuestByDoc(get(/databases/$(database)/documents/events/$(eventId)/guests/$(request.resource.data.senderId)))) && request.resource.data.senderId == request.auth.uid;
-            allow update: if false; 
-            allow delete: if isEventStaff() || isOwner(resource.data.senderId);
+            allow read, list: if isEventStaff(eventId) || isEventGuest(eventId);
+            allow create, update, delete: if isEventStaff(eventId) || isOwner(resource.data.senderId);
         }
 
         match /media/{mediaId} {
-            allow read, list: if isEventStaff() || isEventGuestByDoc(get(/databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid)));
-            allow create: if (isEventStaff() || isEventGuestByDoc(get(/databases/$(database)/documents/events/$(eventId)/guests/$(request.resource.data.uploaderId)))) && request.resource.data.uploaderId == request.auth.uid;
-            allow update: if false; 
-            allow delete: if isEventStaff() || isOwner(resource.data.uploaderId);
+            allow read, list: if isEventStaff(eventId) || isEventGuest(eventId);
+            allow create, update, delete: if isEventStaff(eventId) || isOwner(resource.data.uploaderId);
         }
 
         match /security_codes/{securityCodeId} {
-          allow read, list, create, update, delete: if isEventStaff();
+          allow read, list, create, update, delete: if isEventStaff(eventId);
         }
 
         match /announcements/{announcementId} {
-          allow read: if isEventStaff() || isEventGuestByDoc(get(/databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid)));
-          allow create, update, delete: if isEventStaff();
+          allow read: if isEventStaff(eventId) || isEventGuest(eventId);
+          allow create, update, delete: if isEventStaff(eventId);
         }
       }
 
       match /price_plans/{pricePlanId} {
         allow read, list: if true;
-        allow write: if false;
+        allow write: if isAdmin();
       }
 
       match /cars/{carId} {
           allow get, list: if true;
-          allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-          allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+          allow create: if isSignedIn();
+          allow update, delete: if isOwner(resource.data.ownerId);
       }
       
       match /carBookings/{bookingId} {
-          allow read, list: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.carOwnerId == request.auth.uid);
+          allow read, list: if isSignedIn();
           allow create: if isSignedIn();
-          allow update: if isSignedIn() && resource.data.carOwnerId == request.auth.uid;
+          allow update: if isOwner(resource.data.carOwnerId);
       }
 
       match /venues/{venueId} {
           allow get, list: if true;
-          allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-          allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+          allow create: if isSignedIn();
+          allow update, delete: if isOwner(resource.data.ownerId);
       }
 
        match /venueBookings/{bookingId} {
-          allow read, list: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.venueOwnerId == request.auth.uid);
+          allow read, list: if isSignedIn();
           allow create: if isSignedIn();
-          allow update: if isSignedIn() && resource.data.venueOwnerId == request.auth.uid;
+          allow update: if isOwner(resource.data.venueOwnerId);
       }
 
       match /hotels/{hotelId} {
           allow get, list: if true;
-          allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-          allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+          allow create: if isSignedIn();
+          allow update, delete: if isOwner(resource.data.ownerId);
       }
 
        match /bookings/{bookingId} {
-          allow read, list: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.hotelOwnerId == request.auth.uid);
+          allow read, list: if isSignedIn();
           allow create: if isSignedIn();
-          allow update: if isSignedIn() && resource.data.hotelOwnerId == request.auth.uid;
+          allow update: if isOwner(resource.data.hotelOwnerId);
       }
 
       match /magazineIssues/{issueId} {
@@ -281,14 +254,11 @@ service cloud.firestore {
       match /testimonials/{testimonialId} {
           allow get, list: if true;
           allow create: if isSignedIn();
-          allow update, delete: if false; 
+          allow update, delete: if isAdmin();
       }
        match /supportTickets/{ticketId} {
           allow create: if true;
-          allow read, update, delete: if false;
+          allow read, update, delete: if isAdmin();
       }
     }
   }
-
-    
-    

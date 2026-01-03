@@ -93,7 +93,7 @@ type Event = {
 };
 
 type Guest = {
-  id: string; // The guestCode now serves as the document ID
+  id: string; // This is now the user's auth UID
   guestCode: string;
   name: string;
   email: string;
@@ -357,9 +357,14 @@ function GuestManagementComponent() {
       'guests',
       guest.id
     );
+     const guestCodeLookupRef = doc(firestore, 'events', selectedEventId, 'guestCodes', guest.guestCode);
 
     try {
-      await deleteDoc(guestRef);
+      const batch = writeBatch(firestore);
+      batch.delete(guestRef);
+      batch.delete(guestCodeLookupRef);
+      await batch.commit();
+
       toast({
         title: 'Guest Removed',
         description: `${guest.name} has been removed from the list.`,
