@@ -28,7 +28,8 @@ export type PlannerProfile = {
 };
 
 export type Guest = {
-  id: string; // This is now the user's auth UID
+  id: string; // The document ID, which is now stable
+  userProfileId?: string; // The auth UID of the user, if they have one
   guestCode: string;
   name: string;
   email: string;

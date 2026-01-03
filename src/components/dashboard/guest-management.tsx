@@ -22,6 +22,7 @@ import {
   updateDoc,
   deleteDoc,
   writeBatch,
+  addDoc,
 } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -223,14 +224,14 @@ function GuestManagementComponent() {
     }
 
     const guestCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const guestId = Math.random().toString(36).substring(2, 12); // A temporary non-auth UID
-    
-    const guestDocRef = doc(firestore, 'events', selectedEventId, 'guests', guestId);
+    const guestColRef = collection(firestore, 'events', selectedEventId, 'guests');
+    const guestDocRef = doc(guestColRef); // Auto-generate ID
+
     const guestCodeLookupRef = doc(firestore, 'events', selectedEventId, 'guestCodes', guestCode);
 
 
     const newGuestData = {
-      id: guestId,
+      id: guestDocRef.id,
       guestCode: guestCode,
       name: values.name,
       email: values.email,
@@ -246,7 +247,7 @@ function GuestManagementComponent() {
     try {
         const batch = writeBatch(firestore);
         batch.set(guestDocRef, newGuestData);
-        batch.set(guestCodeLookupRef, { guestId: guestId });
+        batch.set(guestCodeLookupRef, { guestId: guestDocRef.id });
         await batch.commit();
 
       toast({

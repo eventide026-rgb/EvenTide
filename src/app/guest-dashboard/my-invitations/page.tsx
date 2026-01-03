@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import type { Guest } from '@/lib/types';
 
 
 type Announcement = {
@@ -34,7 +35,7 @@ export default function MyInvitationsPage() {
   
   // State for session data
   const [eventId, setEventId] = useState<string | null>(null);
-  const [guestId, setGuestId] = useState<string | null>(null);
+  const [guestId, setGuestId] = useState<string | null>(null); // This is now the document ID
   const [eventName, setEventName] = useState<string | null>(null);
   const [eventCode, setEventCode] = useState<string | null>(null);
   const [guestName, setGuestName] = useState<string | null>(null);
@@ -43,7 +44,7 @@ export default function MyInvitationsPage() {
 
   useEffect(() => {
     const eventIdFromSession = sessionStorage.getItem('guestEventId');
-    const guestIdFromSession = sessionStorage.getItem('guestId'); // This is the UID
+    const guestIdFromSession = sessionStorage.getItem('guestId'); // This is the doc ID
     const eventNameFromSession = sessionStorage.getItem('guestEventName');
     const eventCodeFromSession = sessionStorage.getItem('guestEventCode');
     const guestNameFromSession = sessionStorage.getItem('guestName');
@@ -59,31 +60,25 @@ export default function MyInvitationsPage() {
     }
   }, [user, router]);
   
-  // Fetch guest document
+  // Fetch guest document using the stable document ID
   const guestRef = useMemoFirebase(() => {
       if (!firestore || !eventId || !guestId) return null;
       return doc(firestore, 'events', eventId, 'guests', guestId);
   }, [firestore, eventId, guestId]);
-  const { data: guestData, isLoading: isLoadingGuest } = useDoc(guestRef);
-  
-  const [rsvpStatus, setRsvpStatus] = useState<'Pending' | 'Accepted' | 'Declined'>('Pending');
-  
-  useEffect(() => {
-    if (guestData) {
-      setRsvpStatus(guestData.rsvpStatus);
-    }
-  }, [guestData]);
 
+  const { data: guestData, isLoading: isLoadingGuest } = useDoc<Guest>(guestRef);
+  
+  const rsvpStatus = guestData?.rsvpStatus || 'Pending';
 
   // Query for announcements
   const announcementsQuery = useMemoFirebase(() => {
-    if (!firestore || !eventId) return null;
+    if (!firestore || !eventId || !guestData?.category) return null;
     return query(
         collection(firestore, 'events', eventId, 'announcements'),
-        where('targetRoles', 'array-contains-any', ['All Guests', guestData?.category || '']),
+        where('targetRoles', 'array-contains-any', ['All Guests', guestData.category]),
         orderBy('timestamp', 'desc')
     );
-  }, [firestore, eventId, guestData]);
+  }, [firestore, eventId, guestData?.category]);
 
   const { data: announcements, isLoading: isLoadingAnnouncements } = useCollection<Announcement>(announcementsQuery);
 
@@ -97,7 +92,6 @@ export default function MyInvitationsPage() {
 
     try {
         await updateDoc(guestRef, updatedData);
-        setRsvpStatus(status);
         toast({
             title: 'RSVP Submitted',
             description: `You have successfully ${status.toLowerCase()} the invitation.`,

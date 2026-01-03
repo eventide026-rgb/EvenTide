@@ -20,6 +20,7 @@ import { useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
+import { Guest } from '@/lib/types';
 
 const profileSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -31,19 +32,19 @@ export function GuestProfileForm() {
   const { user, isUserLoading } = useUser();
   const [isSaving, setIsSaving] = useState(false);
   const [eventId, setEventId] = useState<string | null>(null);
-  const [guestCode, setGuestCode] = useState<string | null>(null);
+  const [guestId, setGuestId] = useState<string | null>(null);
 
   useEffect(() => {
     setEventId(sessionStorage.getItem('guestEventId'));
-    setGuestCode(sessionStorage.getItem('guestEventCode'));
+    setGuestId(sessionStorage.getItem('guestId'));
   }, []);
 
   const guestDocRef = useMemoFirebase(() => {
-    if (!firestore || !eventId || !guestCode) return null;
-    return doc(firestore, 'events', eventId, 'guests', guestCode);
-  }, [firestore, eventId, guestCode]);
+    if (!firestore || !eventId || !guestId) return null;
+    return doc(firestore, 'events', eventId, 'guests', guestId);
+  }, [firestore, eventId, guestId]);
 
-  const { data: guestProfile, isLoading: isLoadingProfile } = useDoc(guestDocRef);
+  const { data: guestProfile, isLoading: isLoadingProfile } = useDoc<Guest>(guestDocRef);
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),

@@ -14,7 +14,6 @@ import { type Guest } from '@/lib/types';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { usePathname } from 'next/navigation';
 
 function GuestCardsPageContent() {
   const { user, isUserLoading } = useUser();
@@ -25,7 +24,7 @@ function GuestCardsPageContent() {
 
   useEffect(() => {
     const id = sessionStorage.getItem('guestEventId');
-    const gId = sessionStorage.getItem('guestId'); // This is now the UID
+    const gId = sessionStorage.getItem('guestId'); // This is now the stable document ID
     if (id && gId) {
         setEventId(id);
         setGuestId(gId);

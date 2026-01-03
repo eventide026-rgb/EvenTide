@@ -63,9 +63,9 @@ service cloud.firestore {
         );
       }
 
-       function isEventGuest(eventId) {
-          let guestDocPath = /databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid);
-          return isSignedIn() && exists(guestDocPath);
+       function isEventGuest(eventId, guestId) {
+          // Check if the authenticated user is the guest in question
+          return isSignedIn() && request.auth.uid == guestId;
        }
       // --- End of Event-Scoped Helper Functions ---
 
@@ -131,7 +131,7 @@ service cloud.firestore {
       
       match /events/{eventId} {
         allow create: if isEventOwnerOnCreate();
-        allow get: if isEventStaff(eventId) || isEventGuest(eventId) || isAdmin();
+        allow get: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAdmin();
         allow update: if isEventStaff(eventId) || isAdmin();
         allow delete: if isEventOwner(eventId) || isAdmin();
         allow list: if isSignedIn();
@@ -143,13 +143,11 @@ service cloud.firestore {
         }
 
         match /guests/{guestId} {
-            allow read, list: if isEventStaff(eventId) || isEventGuest(eventId) || isAdmin();
+            allow read, list: if isEventStaff(eventId) || isEventGuest(eventId, guestId) || isAdmin();
             allow create: if isEventStaff(eventId) || isAdmin();
             allow delete: if isEventStaff(eventId) || isAdmin();
             allow update: if isEventStaff(eventId) || 
-                           (isEventGuest(eventId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rsvpStatus'])) ||
-                           // Allow a newly signed-in anonymous user to claim their guest document
-                           (isSignedIn() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['id']) && request.resource.data.id == request.auth.uid);
+                           (isEventGuest(eventId, guestId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rsvpStatus']));
         }
 
         match /guestCodes/{guestCode} {
@@ -174,14 +172,14 @@ service cloud.firestore {
         }
         
         match /gifts/{giftId} {
-            allow read: if isEventStaff(eventId) || isEventGuest(eventId) || isAdmin();
+            allow read: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAdmin();
             allow create, delete: if isEventStaff(eventId) || isAdmin();
             allow update: if isEventStaff(eventId) ||
-                           (isEventGuest(eventId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimedCount', 'claimedBy']));
+                           (isEventGuest(eventId, request.auth.uid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimedCount', 'claimedBy']));
         }
       
         match /songRequests/{requestId} {
-          allow create: if isEventGuest(eventId);
+          allow create: if isEventGuest(eventId, request.resource.data.requesterId);
           allow read: if isEventStaff(eventId) || isAdmin();
           allow update, delete: if isEventStaff(eventId) || isAdmin();
         }
@@ -193,12 +191,12 @@ service cloud.firestore {
         }
       
         match /program/{docId} {
-          allow read: if isEventStaff(eventId) || isEventGuest(eventId) || isAdmin();
+          allow read: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAdmin();
           allow write: if isEventStaff(eventId) || isAdmin();
         }
 
         match /menu/{docId} {
-          allow read: if isEventStaff(eventId) || isEventGuest(eventId) || isAdmin();
+          allow read: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAdmin();
           allow write: if isEventStaff(eventId) || isAdmin();
         }
         
@@ -211,14 +209,14 @@ service cloud.firestore {
         }
 
         match /chat_messages/{messageId} {
-            allow read, list: if isEventStaff(eventId) || isEventGuest(eventId) || isAdmin();
-            allow create, delete: if isEventStaff(eventId) || (isEventGuest(eventId) && isOwner(request.resource.data.senderId));
+            allow read, list: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAdmin();
+            allow create, delete: if isEventStaff(eventId) || (isEventGuest(eventId, request.resource.data.senderId) && isOwner(request.resource.data.senderId));
             allow update: if false; // Messages are immutable
         }
 
         match /media/{mediaId} {
-            allow read, list: if isEventStaff(eventId) || isEventGuest(eventId) || isAdmin();
-            allow create: if isEventStaff(eventId) || isEventGuest(eventId);
+            allow read, list: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAdmin();
+            allow create: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid);
             allow delete: if isEventStaff(eventId) || isOwner(resource.data.uploaderId);
             allow update: if false;
         }
@@ -228,19 +226,19 @@ service cloud.firestore {
         }
 
         match /announcements/{announcementId} {
-          allow read: if isEventStaff(eventId) || isEventGuest(eventId) || isAdmin();
+          allow read: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAdmin();
           allow create, update, delete: if isEventStaff(eventId) || isAdmin();
         }
 
         match /polls/{pollId} {
-            allow read, list: if isEventStaff(eventId) || isEventGuest(eventId);
+            allow read, list: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid);
             allow create, delete: if isEventStaff(eventId) || isAdmin();
-            allow update: if (isEventGuest(eventId) && !(request.auth.uid in resource.data.voters)) || isEventStaff(eventId);
+            allow update: if (isEventGuest(eventId, request.auth.uid) && !(request.auth.uid in resource.data.voters)) || isEventStaff(eventId);
         }
         
         match /autographs/{autographId} {
-            allow read, list: if isEventStaff(eventId) || isEventGuest(eventId);
-            allow create: if isEventGuest(eventId);
+            allow read, list: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid);
+            allow create: if isEventGuest(eventId, request.auth.uid);
             allow delete: if isEventStaff(eventId);
         }
       }

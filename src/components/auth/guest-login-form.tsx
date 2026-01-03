@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -14,9 +13,7 @@ import {
   getDocs,
   limit,
   doc,
-  updateDoc,
   getDoc,
-  writeBatch,
 } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { Loader2 } from 'lucide-react';
@@ -57,10 +54,11 @@ type Guest = {
   id: string;
   name: string;
   guestCode: string;
+  userProfileId?: string; // The auth UID of the user, if they have an account
 };
 
 type GuestCode = {
-    guestId: string;
+    guestId: string; // The document ID of the guest document
 }
 
 /* ---------------------------- Schemas ---------------------------- */
@@ -170,31 +168,17 @@ export function GuestLoginForm() {
         
         const guestData = { id: guestSnap.id, ...guestSnap.data() } as Guest;
         
-        const userCredential = await signInAnonymously(auth);
-        const user = userCredential.user;
-
-        const batch = writeBatch(firestore);
-        
-        // Update the guest document with the new anonymous auth UID
-        const finalGuestRef = doc(firestore, 'events', foundEvent.id, 'guests', user.uid);
-        batch.set(finalGuestRef, { ...guestSnap.data(), id: user.uid });
-        
-        // If the original guest doc had a temporary ID, delete it
-        if (guestSnap.id !== user.uid) {
-            batch.delete(guestDocRef);
+        // If the user isn't already logged in, sign them in anonymously
+        if (!auth.currentUser) {
+            await signInAnonymously(auth);
         }
-
-        // Update the guest code lookup to point to the new UID-based doc
-        batch.update(guestCodeRef, { guestId: user.uid });
-
-        await batch.commit();
         
         sessionStorage.setItem('guestEventId', foundEvent.id);
         sessionStorage.setItem('guestEventName', foundEvent.name);
         sessionStorage.setItem('guestEventCode', foundEvent.eventCode || '');
         sessionStorage.setItem('guestCode', guestData.guestCode);
         sessionStorage.setItem('guestName', guestData.name);
-        sessionStorage.setItem('guestId', user.uid);
+        sessionStorage.setItem('guestId', guestData.id); // This is now the stable document ID
 
         toast({ title: 'Access Granted', description: 'Redirecting...' });
         router.push('/guest-dashboard/my-invitations');
