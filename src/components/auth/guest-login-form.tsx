@@ -48,6 +48,7 @@ import { FirestorePermissionError } from '@/firebase/errors';
 type Event = {
   id: string;
   name: string;
+  eventCode?: string;
   eventDate?: any;
 };
 
@@ -169,7 +170,8 @@ export function GuestLoginForm() {
 
       sessionStorage.setItem('guestEventId', foundEvent.id);
       sessionStorage.setItem('guestEventName', foundEvent.name);
-      sessionStorage.setItem('guestEventCode', values.guestCode);
+      sessionStorage.setItem('guestEventCode', foundEvent.eventCode || '');
+      sessionStorage.setItem('guestCode', guestCode);
       sessionStorage.setItem('guestName', guestData.name);
       sessionStorage.setItem('guestId', guestSnap.id);
 

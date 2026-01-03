@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,21 +40,24 @@ export default function MyInvitationsPage() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   
   // This will be populated from session storage or a similar mechanism
-  const [eventDetails, setEventDetails] = useState<{id: string, code: string, name: string} | null>(null);
+  const [eventDetails, setEventDetails] = useState<{id: string, name: string} | null>(null);
   const [guestCode, setGuestCode] = useState<string | null>(null);
+  const [eventCode, setEventCode] = useState<string | null>(null);
   const [guestName, setGuestName] = useState<string | null>(null);
 
   useEffect(() => {
     // In a real app, you would get this from a secure context after login.
     // For now, we'll retrieve it from session storage for demonstration.
     const eventId = sessionStorage.getItem('guestEventId');
-    const storedGuestCode = sessionStorage.getItem('guestEventCode');
+    const storedGuestCode = sessionStorage.getItem('guestCode');
+    const storedEventCode = sessionStorage.getItem('guestEventCode');
     const eventName = sessionStorage.getItem('guestEventName');
     const storedGuestName = sessionStorage.getItem('guestName');
     
-    if (eventId && storedGuestCode && eventName) {
-        setEventDetails({id: eventId, code: storedGuestCode, name: eventName});
+    if (eventId && storedGuestCode && eventName && storedEventCode) {
+        setEventDetails({id: eventId, name: eventName});
         setGuestCode(storedGuestCode);
+        setEventCode(storedEventCode);
         setGuestName(storedGuestName || 'Guest');
         setSelectedEventId(eventId);
     } else if (!user) {
@@ -131,7 +135,7 @@ export default function MyInvitationsPage() {
                     <QrCode className='h-48 w-48 text-black' />
                 </div>
                  <p className='text-sm text-muted-foreground pt-2'>Show this QR code at the entrance for check-in.</p>
-                 <Badge variant="outline" className="mt-2">Event Code: {eventDetails.code}</Badge>
+                 <Badge variant="outline" className="mt-2">Event Code: {eventCode}</Badge>
             </CardHeader>
             <CardContent>
                 <div className='flex gap-4'>
