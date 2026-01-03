@@ -5,8 +5,6 @@ import { useState, useEffect, useMemo } from 'react';
 import {
   collection,
   query,
-  where,
-  or,
 } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { NigerianStatesAndCities } from '@/lib/nigerian-states';
@@ -18,15 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Building, Search, Calendar as CalendarIcon } from 'lucide-react';
+import { Building, Search } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VenueListingCard, type Venue } from '@/components/venue-listing-card';
-import { Button } from '@/components/ui/button';
 import { useDebounce } from 'use-debounce';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
 
 
 export default function VenuesPage() {
@@ -34,7 +27,6 @@ export default function VenuesPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedState, setSelectedState] = useState('All');
   const [selectedCity, setSelectedCity] = useState('All');
-  const [selectedDate, setSelectedDate] = useState<Date>();
 
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500);
 

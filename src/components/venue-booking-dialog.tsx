@@ -57,7 +57,7 @@ export function VenueBookingDialog({ venue, user, isUserLoading }: VenueBookingD
       userEmail: user.email,
       venueName: venue.name,
       eventName,
-      eventDate: serverTimestamp.call(null, eventDate),
+      eventDate: eventDate,
       numberOfGuests,
       status: 'pending' as const,
       createdAt: serverTimestamp(),
@@ -70,11 +70,6 @@ export function VenueBookingDialog({ venue, user, isUserLoading }: VenueBookingD
       const venueBookingsCol = collection(firestore, 'venueBookings');
       const topLevelBookingRef = doc(venueBookingsCol);
       batch.set(topLevelBookingRef, {...bookingData, id: topLevelBookingRef.id});
-
-      // Write to subcollection
-      const bookingsCol = collection(firestore, 'venues', venue.id, 'bookings');
-      const subBookingRef = doc(bookingsCol);
-      batch.set(subBookingRef, {...bookingData, id: subBookingRef.id});
 
       await batch.commit();
 

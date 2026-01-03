@@ -86,9 +86,6 @@ service cloud.firestore {
 
       match /planners/{plannerId} {
           allow read, write: if isOwner(plannerId) || isAdmin();
-          match /assignments/{assignmentId} {
-             allow read, list, write: if isOwner(plannerId) || isAdmin();
-          }
       }
 
       match /plannerProfiles/{plannerId} {

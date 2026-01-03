@@ -167,20 +167,24 @@ export function VenueForm({ venueId }: VenueFormProps) {
         if (!files) return;
 
         const newImageUrls: string[] = [];
-        for (let i = 0; i < files.length; i++) {
-            const file = files[i];
+        Array.from(files).forEach(file => {
             const reader = new FileReader();
             reader.onload = (e) => {
                  if (typeof e.target?.result === 'string') {
                     newImageUrls.push(e.target.result);
                     if(newImageUrls.length === files.length) {
-                        form.setValue('imageUrls', newImageUrls);
+                        form.setValue('imageUrls', [...form.getValues('imageUrls'), ...newImageUrls]);
                     }
                 }
             };
             reader.readAsDataURL(file);
-        }
+        });
     };
+
+    const removeImageUrl = (indexToRemove: number) => {
+        const currentImages = form.getValues('imageUrls');
+        form.setValue('imageUrls', currentImages.filter((_, index) => index !== indexToRemove));
+    }
 
     if (isLoadingVenue && isEditMode) {
         return <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
@@ -280,12 +284,12 @@ export function VenueForm({ venueId }: VenueFormProps) {
                             Choose Images
                         </Label>
                     </Button>
-                    <FormField
+                     <FormField
                         control={form.control}
                         name="imageUrls"
                         render={() => <FormMessage />}
                     />
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                         {form.watch('imageUrls').map((url, index) => (
                             <div key={index} className="relative group aspect-video">
                                 <Image
