@@ -5,22 +5,39 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Shield } from 'lucide-react';
 import Link from 'next/link';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query, where } from 'firebase/firestore';
+import { Loader2 } from 'lucide-react';
 
-// Sample data - in a real app, this would be fetched from Firestore based on the user's assignments
-const assignedEvents = [
-    {
-        id: 'evt_123',
-        name: "Adebayo & Funke's Wedding",
-        date: "2024-12-15",
-    },
-    {
-        id: 'evt_456',
-        name: "Lagos Tech Summit 2024",
-        date: "2024-11-02",
-    }
-];
+// This would represent a security assignment document
+type SecurityAssignment = {
+    id: string;
+    eventId: string;
+    eventName: string;
+    eventDate: any; // Firestore Timestamp
+};
 
 export default function SecurityEventSelectionPage() {
+    const { user, isUserLoading } = useUser();
+    const firestore = useFirestore();
+
+    // In a real app, this query would be more specific, maybe checking a 'securityAssignments' collection.
+    // For this demo, we'll assume security is assigned to events they are co-hosts on for simplicity.
+    const assignmentsQuery = useMemoFirebase(() => {
+        if (!user || !firestore) return null;
+        return query(collection(firestore, 'events'), where(`cohostIds.${user.uid}`, '==', true));
+    }, [user, firestore]);
+
+    const { data: assignedEvents, isLoading } = useCollection<SecurityAssignment>(assignmentsQuery);
+
+    if (isLoading || isUserLoading) {
+        return (
+            <div className="flex justify-center items-center h-full">
+                <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            </div>
+        )
+    }
+
     return (
         <div className="w-full max-w-4xl mx-auto">
             <Card>
@@ -30,22 +47,23 @@ export default function SecurityEventSelectionPage() {
                     <CardDescription>Select the event you are currently working at to activate the scanner.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {assignedEvents.map(event => (
-                        <Card key={event.id} className="p-4 flex items-center justify-between">
-                            <div>
-                                <h3 className="font-semibold">{event.name}</h3>
-                                <p className="text-sm text-muted-foreground">{new Date(event.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                            </div>
-                            <Button asChild>
-                                <Link href={`/security-dashboard/${event.id}/activate`}>
-                                    <CheckCircle className="mr-2 h-4 w-4" />
-                                    Select Event
-                                </Link>
-                            </Button>
-                        </Card>
-                    ))}
-                     {assignedEvents.length === 0 && (
-                        <p className="text-center text-muted-foreground py-8">You have no event assignments.</p>
+                    {assignedEvents && assignedEvents.length > 0 ? (
+                        assignedEvents.map(event => (
+                            <Card key={event.id} className="p-4 flex items-center justify-between">
+                                <div>
+                                    <h3 className="font-semibold">{event.eventName}</h3>
+                                    <p className="text-sm text-muted-foreground">{event.eventDate?.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                </div>
+                                <Button asChild>
+                                    <Link href={`/security-dashboard/${event.id}/activate`}>
+                                        <CheckCircle className="mr-2 h-4 w-4" />
+                                        Select Event
+                                    </Link>
+                                </Button>
+                            </Card>
+                        ))
+                    ) : (
+                         <p className="text-center text-muted-foreground py-8">You have no event assignments.</p>
                     )}
                 </CardContent>
             </Card>

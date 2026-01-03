@@ -25,16 +25,30 @@ import { Input } from '@/components/ui/input';
 import { KeyRound, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 const formSchema = z.object({
   securityCode: z.string().min(4, { message: 'Code must be at least 4 characters.' }),
 });
+
+type Event = {
+  securityCode?: string;
+}
 
 export default function ActivateScannerPage({ params }: { params: { eventId: string } }) {
     const { eventId } = params;
     const { toast } = useToast();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const firestore = useFirestore();
+
+    const eventRef = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return doc(firestore, 'events', eventId);
+    }, [firestore, eventId]);
+
+    const { data: eventData } = useDoc<Event>(eventRef);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -43,26 +57,18 @@ export default function ActivateScannerPage({ params }: { params: { eventId: str
         },
     });
 
-    // In a real app, this would query Firestore to validate the code
-    const validateCode = async (code: string) => {
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network latency
-        // This is a placeholder. A real implementation would fetch the code from the event document.
-        // For demonstration, we'll use a simple hardcoded value.
-        if (code.toUpperCase() === 'SECURE123') {
-            return true;
-        }
-        return false;
-    }
-
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
-        const isValid = await validateCode(values.securityCode);
+        const enteredCode = values.securityCode.trim().toUpperCase();
+        const correctCode = eventData?.securityCode;
 
-        if (isValid) {
+        if (correctCode && enteredCode === correctCode) {
             toast({
                 title: 'Code Accepted',
                 description: 'Activating scanner...',
             });
+            // Store a token in session storage to prove activation
+            sessionStorage.setItem(`scanner_activated_${eventId}`, 'true');
             router.push(`/security-dashboard/${eventId}/scanner`);
         } else {
             toast({
@@ -94,7 +100,11 @@ export default function ActivateScannerPage({ params }: { params: { eventId: str
                                 <FormItem>
                                     <FormLabel>Event Security Code</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Enter code..." {...field} />
+                                        <Input 
+                                            placeholder="Enter code..." 
+                                            {...field}
+                                            onChange={e => field.onChange(e.target.value.toUpperCase())}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

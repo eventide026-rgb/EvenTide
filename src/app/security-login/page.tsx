@@ -17,7 +17,7 @@ export default function SecurityLoginPage() {
         <Link href="/">
             <Logo />
         </Link>
-        <CardTitle className="text-2xl font-headline pt-4">Security Check-in</CardTitle>
+        <CardTitle className="text-2xl font-headline pt-4">Security Login</CardTitle>
         <CardDescription>
           Enter your credentials to access your event assignments.
         </CardDescription>
