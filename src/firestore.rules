@@ -121,6 +121,7 @@ service cloud.firestore {
         allow get: if isEventStaff(eventId) || isEventGuest(eventId) || isAdmin();
         allow update: if isEventStaff(eventId) || isAdmin();
         allow delete: if isEventOwner(eventId) || isAdmin();
+        allow list: if isSignedIn();
         
         match /planners/{plannerId} {
             allow create: if isEventOwner(eventId);
@@ -159,7 +160,10 @@ service cloud.firestore {
         }
         
         match /gifts/{giftId} {
-          allow read, write: if isEventStaff(eventId) || isAdmin();
+            allow read: if isEventStaff(eventId) || isEventGuest(eventId) || isAdmin();
+            allow create, delete: if isEventStaff(eventId) || isAdmin();
+            allow update: if isEventStaff(eventId) ||
+                           (isEventGuest(eventId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['claimedCount', 'claimedBy']));
         }
       
         match /songRequests/{requestId} {
@@ -278,4 +282,3 @@ service cloud.firestore {
       }
     }
   }
-    

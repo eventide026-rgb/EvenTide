@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
@@ -314,4 +314,3 @@ export default function GiftRegistryPage() {
     </div>
   );
 }
-

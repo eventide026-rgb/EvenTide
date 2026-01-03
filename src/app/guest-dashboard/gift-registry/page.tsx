@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,9 +48,9 @@ export default function GiftRegistryPage() {
   const [eventId, setEventId] = useState<string | null>(null);
   const [confirmingClaim, setConfirmingClaim] = useState<Gift | null>(null);
 
-  useState(() => {
+  useEffect(() => {
     setEventId(sessionStorage.getItem('guestEventId'));
-  });
+  }, []);
 
   const eventRef = useMemoFirebase(() => {
     if (!firestore || !eventId) return null;
