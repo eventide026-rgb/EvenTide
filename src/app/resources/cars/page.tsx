@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -9,54 +8,6 @@ import { Car, Search } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CarListingCard, type Car as CarType } from '@/components/car-listing-card';
 import { useDebounce } from 'use-debounce';
-
-const sampleCars: CarType[] = [
-    {
-        id: 'sample-car-1',
-        ownerId: 'sample-owner',
-        make: 'Toyota',
-        model: 'Land Cruiser',
-        year: 2022,
-        pricePerDay: 150000,
-        location: { city: 'Lekki', state: 'Lagos' },
-        imageUrls: ['https://picsum.photos/seed/landcruiser/400/225'],
-        features: ['Air Conditioning', 'Automatic', '4x4'],
-    },
-    {
-        id: 'sample-car-2',
-        ownerId: 'sample-owner',
-        make: 'Mercedes-Benz',
-        model: 'G-Wagon',
-        year: 2023,
-        pricePerDay: 350000,
-        location: { city: 'Ikeja', state: 'Lagos' },
-        imageUrls: ['https://picsum.photos/seed/gwagon/400/225'],
-        features: ['Air Conditioning', 'Automatic', 'Leather Seats', 'Sunroof'],
-    },
-    {
-        id: 'sample-car-3',
-        ownerId: 'sample-owner',
-        make: 'Lexus',
-        model: 'LX 570',
-        year: 2021,
-        pricePerDay: 200000,
-        location: { city: 'Maitama', state: 'Abuja' },
-        imageUrls: ['https://picsum.photos/seed/lx570/400/225'],
-        features: ['Air Conditioning', 'Automatic', '3-Row Seating'],
-    },
-    {
-        id: 'sample-car-4',
-        ownerId: 'sample-owner',
-        make: 'Range Rover',
-        model: 'Vogue',
-        year: 2022,
-        pricePerDay: 280000,
-        location: { city: 'Port Harcourt', state: 'Rivers' },
-        imageUrls: ['https://picsum.photos/seed/vogue/400/225'],
-        features: ['Air Conditioning', 'Automatic', 'Panoramic Roof'],
-    }
-];
-
 
 export default function CarsPage() {
   const firestore = useFirestore();
@@ -70,19 +21,17 @@ export default function CarsPage() {
 
   const { data: allCars, isLoading } = useCollection<CarType>(carsQuery);
   
-  const carsToDisplay = !isLoading && allCars && allCars.length > 0 ? allCars : sampleCars;
-
   const filteredCars = useMemo(() => {
-    if (!carsToDisplay) return [];
-    if (!debouncedSearchTerm) return carsToDisplay;
+    if (!allCars) return [];
+    if (!debouncedSearchTerm) return allCars;
 
     const lowercasedFilter = debouncedSearchTerm.toLowerCase();
-    return carsToDisplay.filter(car => 
+    return allCars.filter(car => 
         car.make.toLowerCase().includes(lowercasedFilter) ||
         car.model.toLowerCase().includes(lowercasedFilter) ||
         car.year.toString().includes(lowercasedFilter)
     );
-  }, [carsToDisplay, debouncedSearchTerm]);
+  }, [allCars, debouncedSearchTerm]);
 
   return (
     <>
@@ -119,7 +68,7 @@ export default function CarsPage() {
             </div>
           )}
 
-          {!isLoading && filteredCars.length > 0 && (
+          {!isLoading && filteredCars && filteredCars.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
               {filteredCars.map((car) => (
                 <CarListingCard key={car.id} car={car} />
@@ -127,7 +76,7 @@ export default function CarsPage() {
             </div>
           )}
 
-          {!isLoading && filteredCars.length === 0 && (
+          {!isLoading && (!filteredCars || filteredCars.length === 0) && (
              <div className="text-center py-16">
               <div className="inline-block bg-muted p-6 rounded-full mb-4">
                 <Car className="h-16 w-16 text-muted-foreground" />

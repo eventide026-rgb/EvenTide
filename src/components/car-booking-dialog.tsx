@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useState } from 'react';
 import { User } from 'firebase/auth';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, writeBatch, doc } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,7 +24,7 @@ import { format, differenceInDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { DateRange } from 'react-day-picker';
-import { type Car } from '@/app/resources/cars/[carId]/page';
+import { type Car } from '@/components/car-listing-card';
 
 
 type CarBookingDialogProps = {
@@ -57,20 +56,17 @@ export function CarBookingDialog({ car, user, isUserLoading }: CarBookingDialogP
       carOwnerId: car.ownerId,
       userId: user.uid,
       userEmail: user.email,
-      carName: `${car.make} ${car.model} (${car.year})`,
-      pickupDate: serverTimestamp.call(null, dateRange.from),
-      returnDate: serverTimestamp.call(null, dateRange.to),
+      carName: `${car.year} ${car.make} ${car.model}`,
+      pickupDate: dateRange.from,
+      returnDate: dateRange.to,
       totalPrice,
-      status: 'pending',
+      status: 'pending' as const,
       createdAt: serverTimestamp(),
     };
     
     try {
       // Create in root collection for owner queries
       await addDoc(collection(firestore, 'carBookings'), bookingData);
-
-      // Create in subcollection for potential per-car queries
-      await addDoc(collection(firestore, 'cars', car.id, 'bookings'), bookingData);
 
       toast({
         title: 'Booking Request Sent!',

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useMemo } from 'react';
@@ -13,22 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { CheckCircle, Loader2, DollarSign } from 'lucide-react';
 import { CarBookingDialog } from '@/components/car-booking-dialog';
-
-// This type should be moved to a shared types file later
-export type Car = {
-    id: string;
-    ownerId: string;
-    make: string;
-    model: string;
-    year: number;
-    pricePerDay: number;
-    location: {
-        city: string;
-        state: string;
-    };
-    imageUrls: string[];
-    features: string[];
-};
+import { type Car } from '@/components/car-listing-card';
 
 
 export default function CarDetailsPage({ params }: { params: Promise<{ carId: string }> }) {

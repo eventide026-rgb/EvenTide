@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -25,8 +24,8 @@ import {
 import { NigerianStatesAndCities } from '@/lib/nigerian-states';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
-import { useFirestore, useUser } from '@/firebase';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
+import { addDoc, collection, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { Loader2, PlusCircle, Trash2, X, Upload } from 'lucide-react';
 import { Badge } from '../ui/badge';
@@ -237,7 +236,7 @@ export function CarForm() {
                 </div>
 
                 <div className="space-y-4">
-                    <FormLabel>Vehicle Images</FormLabel>
+                    <Label>Vehicle Images</Label>
                     <FormDescription>Upload at least one high-quality image of your vehicle.</FormDescription>
                     <FormControl>
                         <Input id="image-upload" type="file" multiple accept="image/*" className="hidden" onChange={handleFileChange} />
@@ -277,7 +276,7 @@ export function CarForm() {
                 </div>
                 
                  <div className="space-y-2">
-                    <FormLabel htmlFor="features-input">Vehicle Features</FormLabel>
+                    <Label htmlFor="features-input">Vehicle Features</Label>
                     <FormDescription>List key features (e.g., Air Conditioning, Automatic, Bluetooth).</FormDescription>
                     <div className="flex items-center gap-2">
                         <Input 
@@ -294,10 +293,10 @@ export function CarForm() {
                         />
                         <Button type="button" onClick={() => handleAddTag(featureInput)}>Add</Button>
                     </div>
-                     <Controller
+                     <FormField
                         control={form.control}
                         name="features"
-                        render={({ field }) => <FormMessage>{form.formState.errors.features?.message}</FormMessage>}
+                        render={() => <FormMessage />}
                      />
                     <div className="flex flex-wrap gap-2 pt-2">
                         {features.map(tag => (
