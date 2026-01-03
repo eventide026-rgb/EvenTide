@@ -16,6 +16,7 @@ import {
   doc,
   updateDoc,
   getDoc,
+  writeBatch,
 } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { Loader2 } from 'lucide-react';
@@ -120,10 +121,15 @@ export function GuestLoginForm() {
           const eventDoc = querySnapshot.docs[0];
           setFoundEvent({ id: eventDoc.id, ...eventDoc.data() } as Event);
           eventFound = true;
-          break;
+          break; 
         }
       } catch (err: any) {
         console.error(`Error searching collection ${col}:`, err);
+        const permissionError = new FirestorePermissionError({
+            path: col,
+            operation: 'list',
+        });
+        errorEmitter.emit('permission-error', permissionError);
       }
     }
 
@@ -162,22 +168,33 @@ export function GuestLoginForm() {
             throw new Error("Could not find your guest record. Please contact the event host.");
         }
         
-        const guestData = guestSnap.data() as Guest;
+        const guestData = { id: guestSnap.id, ...guestSnap.data() } as Guest;
         
         const userCredential = await signInAnonymously(auth);
         const user = userCredential.user;
 
-        // One-time operation to link the anonymous auth UID to the guest document
+        const batch = writeBatch(firestore);
+        
+        // Update the guest document with the new anonymous auth UID
+        const finalGuestRef = doc(firestore, 'events', foundEvent.id, 'guests', user.uid);
+        batch.set(finalGuestRef, { ...guestSnap.data(), id: user.uid });
+        
+        // If the original guest doc had a temporary ID, delete it
         if (guestSnap.id !== user.uid) {
-            await updateDoc(doc(firestore, `events/${foundEvent.id}/guests`, guestId), { id: user.uid });
+            batch.delete(guestDocRef);
         }
+
+        // Update the guest code lookup to point to the new UID-based doc
+        batch.update(guestCodeRef, { guestId: user.uid });
+
+        await batch.commit();
         
         sessionStorage.setItem('guestEventId', foundEvent.id);
         sessionStorage.setItem('guestEventName', foundEvent.name);
         sessionStorage.setItem('guestEventCode', foundEvent.eventCode || '');
         sessionStorage.setItem('guestCode', guestData.guestCode);
         sessionStorage.setItem('guestName', guestData.name);
-        sessionStorage.setItem('guestId', user.uid); // The auth UID is now the canonical guest ID
+        sessionStorage.setItem('guestId', user.uid);
 
         toast({ title: 'Access Granted', description: 'Redirecting...' });
         router.push('/guest-dashboard/my-invitations');
