@@ -186,11 +186,13 @@ service cloud.firestore {
         }
       
         match /program/{docId} {
-          allow read, write: if isEventStaff(eventId) || isAdmin();
+          allow read: if isEventStaff(eventId) || isEventGuest(eventId) || isAdmin();
+          allow write: if isEventStaff(eventId) || isAdmin();
         }
 
         match /menu/{docId} {
-          allow read, write: if isEventStaff(eventId) || isAdmin();
+          allow read: if isEventStaff(eventId) || isEventGuest(eventId) || isAdmin();
+          allow write: if isEventStaff(eventId) || isAdmin();
         }
         
         match /shotLists/{shotListId} {
@@ -284,3 +286,5 @@ service cloud.firestore {
       }
     }
   }
+
+    
