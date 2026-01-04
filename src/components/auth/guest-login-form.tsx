@@ -40,6 +40,7 @@ import {
 import { initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { ToastAction } from '../ui/toast';
 
 /* ---------------------------- Types ---------------------------- */
 
@@ -196,7 +197,20 @@ export function GuestLoginForm() {
 
     } catch (error: any) {
         console.error("Guest login error:", error);
-        toast({ variant: 'destructive', title: 'Login Failed', description: error.message || 'An unexpected error occurred.' });
+        const errorMessage = error.message || 'An unexpected error occurred.';
+        toast({ 
+            variant: 'destructive', 
+            title: 'Login Failed', 
+            description: errorMessage,
+            action: (
+                <ToastAction
+                    altText="Copy error message"
+                    onClick={() => navigator.clipboard.writeText(errorMessage)}
+                >
+                    Copy
+                </ToastAction>
+            ),
+        });
     } finally {
         setIsVerifyingGuest(false);
     }
