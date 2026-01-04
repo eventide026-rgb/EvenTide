@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { ScanLine, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -11,7 +11,8 @@ import { type Guest } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
+import { Html5QrcodeScanner, Html5Qrcode } from 'html5-qrcode';
+import { Html5QrcodeError, Html5QrcodeResult } from 'html5-qrcode/core';
 
 type ScanStatus = 'scanning' | 'success' | 'failure' | 'loading';
 type ScannedGuest = {
@@ -27,7 +28,7 @@ export default function ScannerPage({ params }: { params: { eventId: string } })
   const [scannedData, setScannedData] = useState<ScannedGuest | null>(null);
   const firestore = useFirestore();
   const { toast } = useToast();
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState(true);
 
   useEffect(() => {
@@ -42,26 +43,54 @@ export default function ScannerPage({ params }: { params: { eventId: string } })
     }
   }, [eventId, router, toast]);
 
+  const onScanSuccess = useCallback((decodedText: string, result: Html5QrcodeResult) => {
+    handleScanResult(decodedText);
+  }, [firestore, eventId, scanStatus]);
+
+  const onScanFailure = (error: Html5QrcodeError) => {
+    // This function is called frequently, so we typically don't log every "error".
+    // "QR code not found" is a common one we can ignore.
+  };
+
   useEffect(() => {
-    const getCameraPermission = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+    const getCameraAndStartScanner = async () => {
+        try {
+            await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            setHasCameraPermission(true);
+
+            if (!scannerRef.current) {
+                const scanner = new Html5Qrcode('reader');
+                scannerRef.current = scanner;
+                scanner.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    onScanSuccess,
+                    onScanFailure
+                ).catch(err => {
+                    console.error("Failed to start scanner", err);
+                    toast({ variant: 'destructive', title: 'Scanner Error', description: 'Could not start the QR code scanner.' });
+                });
+            }
+        } catch (error) {
+            console.error('Error accessing camera:', error);
+            setHasCameraPermission(false);
+            toast({
+              variant: 'destructive',
+              title: 'Camera Access Denied',
+              description: 'Please enable camera permissions in your browser settings to use this feature.',
+            });
         }
-        setHasCameraPermission(true);
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        setHasCameraPermission(false);
-        toast({
-          variant: 'destructive',
-          title: 'Camera Access Denied',
-          description: 'Please enable camera permissions in your browser settings to use this feature.',
-        });
-      }
+    }
+
+    getCameraAndStartScanner();
+
+    return () => {
+        if (scannerRef.current && scannerRef.current.isScanning) {
+            scannerRef.current.stop().catch(err => console.error("Failed to stop scanner", err));
+        }
     };
-    getCameraPermission();
-  }, []);
+  }, [onScanSuccess]);
+
 
   useEffect(() => {
     if (scanStatus !== 'scanning') {
@@ -73,12 +102,23 @@ export default function ScannerPage({ params }: { params: { eventId: string } })
     }
   }, [scanStatus]);
   
-  // MOCK SCAN FUNCTIONALITY
-  const handleScanResult = async (guestIdToSimulate: string) => {
-    if (scanStatus === 'scanning') {
-      setScanStatus('loading');
-      try {
-        const guestRef = doc(firestore, 'events', eventId, guestIdToSimulate);
+  const handleScanResult = async (scannedText: string) => {
+    if (scanStatus !== 'scanning') return; // Prevent multiple scans
+
+    let guestIdToSimulate: string;
+    try {
+        const parsed = JSON.parse(scannedText);
+        guestIdToSimulate = parsed.guestId;
+        if(!guestIdToSimulate) throw new Error("Invalid QR code format.");
+    } catch (e) {
+        setScannedData({ name: 'Invalid QR Code', category: '', message: 'This is not a valid event ticket.' });
+        setScanStatus('failure');
+        return;
+    }
+
+    setScanStatus('loading');
+    try {
+        const guestRef = doc(firestore, 'events', eventId, 'guests', guestIdToSimulate);
         const guestSnap = await getDoc(guestRef);
 
         if (!guestSnap.exists()) {
@@ -106,14 +146,6 @@ export default function ScannerPage({ params }: { params: { eventId: string } })
         setScannedData({ name: 'Invalid Scan', category: '', message: error.message || 'Could not validate ticket.' });
         setScanStatus('failure');
       }
-    }
-  };
-  
-  // SIMULATE SCANNING A VALID GUEST
-  const simulateValidScan = () => {
-    // In a real app, you would have a way to select a guest. For this mock, we'll hardcode one.
-    // Replace 'FIRST_GUEST_ID' with an actual guest ID from your Firestore `guests` subcollection for the demo event.
-    handleScanResult('GUEST_ID_PLACEHOLDER');
   };
 
   return (
@@ -121,7 +153,7 @@ export default function ScannerPage({ params }: { params: { eventId: string } })
       <Card className="w-full max-w-md mx-auto relative overflow-hidden">
         <CardContent className="p-0">
           <div className="relative aspect-square w-full bg-black">
-             <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
+             <div id="reader" className="w-full h-full" />
 
             {!hasCameraPermission && (
               <div className="absolute inset-0 flex items-center justify-center p-4 bg-black/80">
@@ -136,7 +168,7 @@ export default function ScannerPage({ params }: { params: { eventId: string } })
 
             <div className={cn(
                 "absolute inset-0 flex flex-col items-center justify-center p-4 text-center text-white transition-all duration-300",
-                scanStatus === 'scanning' && 'bg-black/50',
+                scanStatus === 'scanning' && 'bg-black/50 pointer-events-none',
                 scanStatus === 'success' && 'bg-green-500/90',
                 scanStatus === 'failure' && 'bg-destructive/90',
                 scanStatus === 'loading' && 'bg-black/80 backdrop-blur-sm'
@@ -169,8 +201,6 @@ export default function ScannerPage({ params }: { params: { eventId: string } })
           </div>
         </CardContent>
       </Card>
-      {/* Remove this button in a real application */}
-      <Button onClick={simulateValidScan} className="mt-4" variant="secondary">Simulate Valid Scan (for testing)</Button>
     </div>
   );
 }
