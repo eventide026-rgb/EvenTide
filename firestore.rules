@@ -1,5 +1,4 @@
 
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -88,6 +87,10 @@ service cloud.firestore {
           allow create: if isSignedIn();
           allow update: if isOwner(userId) && request.resource.data.read == true;
         }
+
+        match /contacts/{contactId} {
+            allow read, write: if isOwner(userId);
+        }
       }
 
       match /planners/{plannerId} {
@@ -126,7 +129,7 @@ service cloud.firestore {
             allow read: if isShowOwner(showId) || (isSignedIn() && resource.data.buyerId == request.auth.uid);
             allow list: if isShowOwner(showId) || (isSignedIn() && request.query.where.buyerId == request.auth.uid);
             allow create: if isSignedIn() && request.resource.data.buyerId == request.auth.uid;
-            allow update, delete: if false; // Tickets are immutable
+            allow update, delete: if isShowOwner(showId);
         }
       }
       
