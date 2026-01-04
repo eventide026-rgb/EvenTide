@@ -3,11 +3,13 @@
 
 import { useState, useMemo } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query } from 'firebase/firestore';
+import { collection, query, where, documentId } from 'firebase/firestore';
 import { Input } from '@/components/ui/input';
 import { Contact, Search } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
 import { BusinessCard } from '@/components/planner/business-card';
+import { type Vendor } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type Contact = {
   id: string;
@@ -22,11 +24,31 @@ export default function MyNetworkPage() {
 
   const contactsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
-    // Contacts are stored in a subcollection under the user's document
     return query(collection(firestore, 'users', user.uid, 'contacts'));
   }, [firestore, user]);
 
-  const { data: contacts, isLoading } = useCollection<Contact>(contactsQuery);
+  const { data: contacts, isLoading: isLoadingContacts } = useCollection<Contact>(contactsQuery);
+  const vendorIds = useMemo(() => contacts?.map(c => c.vendorId) || [], [contacts]);
+
+  const vendorsQuery = useMemoFirebase(() => {
+    if (!firestore || vendorIds.length === 0) return null;
+    return query(collection(firestore, 'vendors'), where(documentId(), 'in', vendorIds));
+  }, [firestore, vendorIds]);
+
+  const { data: vendors, isLoading: isLoadingVendors } = useCollection<Vendor>(vendorsQuery);
+
+  const filteredVendors = useMemo(() => {
+    if (!vendors) return [];
+    if (!debouncedSearchTerm) return vendors;
+    const lowercasedFilter = debouncedSearchTerm.toLowerCase();
+    return vendors.filter(
+      (vendor) =>
+        vendor.name.toLowerCase().includes(lowercasedFilter) ||
+        vendor.specialty.toLowerCase().includes(lowercasedFilter)
+    );
+  }, [vendors, debouncedSearchTerm]);
+  
+  const isLoading = isLoadingContacts || isLoadingVendors;
 
   return (
     <div className="flex flex-col gap-8">
@@ -51,17 +73,20 @@ export default function MyNetworkPage() {
             <BusinessCard.Skeleton key={i} />
           ))}
 
-        {!isLoading && contacts && contacts.map((contact) => (
-          <BusinessCard key={contact.id} contactId={contact.vendorId} searchTerm={debouncedSearchTerm} />
+        {!isLoading && filteredVendors && filteredVendors.map((vendor) => (
+          <BusinessCard key={vendor.id} vendor={vendor} />
         ))}
       </div>
 
-      {!isLoading && (!contacts || contacts.length === 0) && (
+      {!isLoading && (!filteredVendors || filteredVendors.length === 0) && (
         <div className="col-span-full text-center py-16">
           <Contact className="mx-auto h-12 w-12 text-muted-foreground" />
           <h2 className="text-2xl font-bold font-headline mt-4">Your Network is Empty</h2>
           <p className="text-muted-foreground mt-2">
-            Bookmark vendors from the marketplace to add them here.
+            {searchTerm 
+              ? `No contacts match "${searchTerm}".`
+              : "Bookmark vendors from the marketplace to add them here."
+            }
           </p>
         </div>
       )}

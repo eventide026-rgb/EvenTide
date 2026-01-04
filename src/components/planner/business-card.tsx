@@ -25,35 +25,17 @@ import { useToast } from '@/hooks/use-toast';
 import { type Vendor } from '@/lib/types';
 
 type BusinessCardProps = {
-  contactId: string;
-  searchTerm: string;
+  vendor: Vendor;
 };
 
-function BusinessCardComponent({ contactId, searchTerm }: BusinessCardProps) {
+function BusinessCardComponent({ vendor }: BusinessCardProps) {
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
 
-  const vendorRef = useMemoFirebase(() => {
-    if (!firestore || !contactId) return null;
-    return doc(firestore, "vendors", contactId);
-  }, [firestore, contactId]);
-
-  const { data: vendor, isLoading } = useDoc<Vendor>(vendorRef);
-
-  const isVisible = useMemo(() => {
-    if (!searchTerm || !vendor) return true;
-    const lowercasedFilter = searchTerm.toLowerCase();
-    return (
-      vendor.name.toLowerCase().includes(lowercasedFilter) ||
-      vendor.specialty.toLowerCase().includes(lowercasedFilter)
-    );
-  }, [vendor, searchTerm]);
-
   const handleRemove = async () => {
     if (!firestore || !user) return;
-    // The contact document ID is often the same as the vendorId in this design
-    const contactRef = doc(firestore, "users", user.uid, 'contacts', contactId);
+    const contactRef = doc(firestore, "users", user.uid, 'contacts', vendor.id);
     try {
       await deleteDoc(contactRef);
       toast({
@@ -69,14 +51,6 @@ function BusinessCardComponent({ contactId, searchTerm }: BusinessCardProps) {
       });
     }
   };
-
-  if (isLoading) {
-    return <BusinessCardSkeleton />;
-  }
-
-  if (!vendor || !isVisible) {
-    return null;
-  }
 
   return (
     <Card>
