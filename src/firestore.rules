@@ -1,5 +1,4 @@
 
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -54,13 +53,20 @@ service cloud.firestore {
         // Ensure cohostIds is not null before checking
         return isSignedIn() && event.data.cohostIds != null && event.data.cohostIds[request.auth.uid] == true;
       }
+      
+      function isSecurityForEvent(eventId) {
+        // This is a simplified check. A real implementation might check a dedicated 'security' subcollection.
+        let event = getEvent(eventId);
+        return isSignedIn() && event.data.securityPersonnel != null && request.auth.uid in event.data.securityPersonnel;
+      }
 
       function isEventStaff(eventId) {
         let event = getEvent(eventId);
         return isSignedIn() && (
           event.data.ownerId == request.auth.uid ||
           (event.data.plannerIds != null && request.auth.uid in event.data.plannerIds) ||
-          (event.data.cohostIds != null && event.data.cohostIds[request.auth.uid] == true)
+          (event.data.cohostIds != null && event.data.cohostIds[request.auth.uid] == true) ||
+          isSecurityForEvent(eventId)
         );
       }
 
@@ -151,8 +157,9 @@ service cloud.firestore {
             allow read, list: if isEventStaff(eventId) || isEventGuest(eventId, guestId) || isAdmin();
             allow create: if isEventStaff(eventId) || isAdmin();
             allow delete: if isEventStaff(eventId) || isAdmin();
-            allow update: if isEventStaff(eventId) || 
-                           (isEventGuest(eventId, guestId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rsvpStatus']));
+            allow update(writeFields): if isEventStaff(eventId) || 
+                                          (isEventGuest(eventId, guestId) && writeFields.hasOnly(['rsvpStatus'])) ||
+                                          (isSecurityForEvent(eventId) && writeFields.hasOnly(['hasCheckedIn', 'checkInTime']));
         }
 
         match /guestCodes/{guestCode} {
@@ -215,8 +222,8 @@ service cloud.firestore {
 
         match /chat_messages/{messageId} {
             allow read, list: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAdmin();
-            allow create, delete: if isEventStaff(eventId) || (isEventGuest(eventId, request.resource.data.senderId) && isOwner(request.resource.data.senderId));
-            allow update: if false; // Messages are immutable
+            allow create: if (isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid)) && isOwner(request.resource.data.senderId);
+            allow update, delete: if false; // Messages are immutable
         }
 
         match /media/{mediaId} {

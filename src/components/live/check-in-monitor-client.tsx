@@ -3,7 +3,7 @@
 
 import { useMemo, useState } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy } from 'firebase/firestore';
+import { collection, query, where, orderBy, documentId } from 'firebase/firestore';
 import {
   Card,
   CardContent,
@@ -31,21 +31,13 @@ import { Label } from '@/components/ui/label';
 import { Loader2, CheckCircle, Clock, Crown, Star, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import type { Guest } from '@/lib/types';
 
 type Event = {
   id: string;
   name: string;
   ownerId: string;
-};
-
-type Guest = {
-  id: string;
-  guestId: string;
-  name: string;
-  category: string;
-  rsvpStatus: 'Pending' | 'Accepted' | 'Declined';
-  hasCheckedIn: boolean;
-  checkInTime?: any; // Firestore Timestamp
+  plannerIds?: string[];
 };
 
 const categoryPriority: Record<string, number> = {
@@ -69,16 +61,31 @@ export function CheckInMonitorClient() {
   const { user, isUserLoading } = useUser();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
-  const eventsQuery = useMemoFirebase(() => {
+  // This query should get all events the user is either an owner of or a planner for.
+  const ownerEventsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
     return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
   }, [firestore, user?.uid]);
-  const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
+
+  const plannerEventsQuery = useMemoFirebase(() => {
+    if(!firestore || !user?.uid) return null;
+    return query(collection(firestore, 'events'), where('plannerIds', 'array-contains', user.uid));
+  }, [firestore, user?.uid]);
+
+  const { data: ownerEvents, isLoading: isLoadingOwnerEvents } = useCollection<Event>(ownerEventsQuery);
+  const { data: plannerEvents, isLoading: isLoadingPlannerEvents } = useCollection<Event>(plannerEventsQuery);
+
+  const events = useMemo(() => {
+      const allEvents = [...(ownerEvents || []), ...(plannerEvents || [])];
+      return Array.from(new Map(allEvents.map(e => [e.id, e])).values());
+  }, [ownerEvents, plannerEvents]);
+
 
   const guestsQuery = useMemoFirebase(() => {
     if (!firestore || !selectedEventId) return null;
-    return query(collection(firestore, 'events', selectedEventId, 'guests'));
+    return query(collection(firestore, 'events', selectedEventId, 'guests'), orderBy('name'));
   }, [firestore, selectedEventId]);
+
   const { data: guests, isLoading: isLoadingGuests } = useCollection<Guest>(guestsQuery);
   
   const sortedGuests = useMemo(() => {
@@ -88,19 +95,24 @@ export function CheckInMonitorClient() {
       if (a.hasCheckedIn && !b.hasCheckedIn) return -1;
       if (!a.hasCheckedIn && b.hasCheckedIn) return 1;
 
-      // 2. Sort by category priority
+      // 2. If both are checked in, sort by check-in time descending
+      if (a.hasCheckedIn && b.hasCheckedIn && a.checkInTime && b.checkInTime) {
+          return b.checkInTime.toDate().getTime() - a.checkInTime.toDate().getTime();
+      }
+
+      // 3. For those not checked in, sort by category priority
       const priorityA = categoryPriority[a.category] || 99;
       const priorityB = categoryPriority[b.category] || 99;
       if (priorityA !== priorityB) {
         return priorityA - priorityB;
       }
       
-      // 3. Alphabetical by name
+      // 4. Alphabetical by name
       return a.name.localeCompare(b.name);
     });
   }, [guests]);
 
-  const isLoading = isUserLoading || isLoadingEvents;
+  const isLoading = isUserLoading || isLoadingOwnerEvents || isLoadingPlannerEvents;
   const CategoryIcon = ({category}: {category: string}) => {
       const Icon = categoryIcons[category] || User;
       return <Icon className="h-4 w-4 text-muted-foreground" />

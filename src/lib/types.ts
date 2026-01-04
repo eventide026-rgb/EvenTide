@@ -39,5 +39,6 @@ export type Guest = {
   category: string;
   rsvpStatus: 'Pending' | 'Accepted' | 'Declined';
   hasCheckedIn: boolean;
+  checkInTime?: any; // Can be null or a Firestore Timestamp
   serialNumber?: number;
 };
