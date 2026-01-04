@@ -66,7 +66,7 @@ export default function ProgramMenuHubPage() {
                 <CardContent>
                     <Label>Select Event</Label>
                     {isLoading ? (
-                        <div className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /><span>Loading your events...</span></div>
+                        <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /><span>Loading your events...</span></div>
                     ) : (
                         <Select onValueChange={setSelectedEventId} value={selectedEventId || ''}>
                             <SelectTrigger className="w-full md:w-1/2">
