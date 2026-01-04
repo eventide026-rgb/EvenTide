@@ -20,6 +20,7 @@ import { useState } from "react";
 import { useAuth } from "@/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -50,12 +51,8 @@ export function SecurityLoginForm() {
     }
     setIsLoading(true);
     try {
-        // We use the actual signInWithEmailAndPassword to ensure it's a valid user.
-        // The redirection and role check is handled by onAuthStateChanged listener.
         sessionStorage.setItem('isNewLogin', 'true');
         await signInWithEmailAndPassword(auth, values.email, values.password);
-        // Successful sign-in will trigger onAuthStateChanged in useAuthHandler
-        // which will then handle redirection.
     } catch (error: any) {
         let description = "Invalid credentials or user not found.";
         if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
@@ -92,7 +89,15 @@ export function SecurityLoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+                <div className="flex items-center justify-between">
+                    <FormLabel>Password</FormLabel>
+                    <Link
+                    href="/forgot-password"
+                    className="text-sm text-muted-foreground hover:text-primary underline"
+                    >
+                    Forgot password?
+                    </Link>
+              </div>
               <FormControl>
                 <Input type="password" placeholder="••••••••" {...field} />
               </FormControl>

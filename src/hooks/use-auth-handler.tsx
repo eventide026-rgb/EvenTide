@@ -17,6 +17,7 @@ const AUTH_PATHS = [
   '/User-Admin-login',
   '/Content-Admin-login',
   '/editorial-admin-login',
+  '/forgot-password',
 ];
 
 

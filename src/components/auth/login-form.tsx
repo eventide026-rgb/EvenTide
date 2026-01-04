@@ -20,6 +20,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { initiateEmailSignIn } from '@/firebase/non-blocking-login';
 import { useAuth } from '@/firebase';
+import Link from 'next/link';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -90,7 +91,15 @@ export function LoginForm({ loginType }: { loginType?: string }) {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <div className="flex items-center justify-between">
+                <FormLabel>Password</FormLabel>
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-muted-foreground hover:text-primary underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
                 <FormControl>
                   <Input
