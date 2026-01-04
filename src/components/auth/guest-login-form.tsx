@@ -151,19 +151,30 @@ export function GuestLoginForm() {
 
     try {
         const guestCode = values.guestCode.trim();
+        
+        // Step 1: Look up the public guest code.
         const guestCodeRef = doc(firestore, `events/${foundEvent.id}/guestCodes`, guestCode);
-        const guestCodeSnap = await getDoc(guestCodeRef);
+        const guestCodeSnap = await getDoc(guestCodeRef).catch(e => {
+            throw new FirestorePermissionError({ path: guestCodeRef.path, operation: 'get' });
+        });
         
         if (!guestCodeSnap.exists()) {
-            throw new Error("Invalid Guest Code. Please check the code and try again.");
+            throw new Error(`Guest code "${guestCode}" is invalid for this event. Please check the code and try again.`);
         }
 
+        // Step 2: Use the ID from the lookup to find the private guest document.
         const { guestId } = guestCodeSnap.data() as GuestCode;
+        if (!guestId) {
+            throw new Error("Guest code document is misconfigured. Contact host.");
+        }
+
         const guestDocRef = doc(firestore, `events/${foundEvent.id}/guests`, guestId);
-        const guestSnap = await getDoc(guestDocRef);
+        const guestSnap = await getDoc(guestDocRef).catch(e => {
+            throw new FirestorePermissionError({ path: guestDocRef.path, operation: 'get' });
+        });
         
         if (!guestSnap.exists()) {
-            throw new Error("Could not find your guest record. Please contact the event host.");
+            throw new Error("Could not find your guest record after validating your code. Please contact the event host for assistance.");
         }
         
         const guestData = { id: guestSnap.id, ...guestSnap.data() } as Guest;
@@ -178,13 +189,13 @@ export function GuestLoginForm() {
         sessionStorage.setItem('guestEventCode', foundEvent.eventCode || '');
         sessionStorage.setItem('guestCode', guestData.guestCode);
         sessionStorage.setItem('guestName', guestData.name);
-        sessionStorage.setItem('guestId', guestData.id); // This is now the stable document ID
+        sessionStorage.setItem('guestId', guestData.id); // This is the stable document ID
 
         toast({ title: 'Access Granted', description: 'Redirecting...' });
         router.push('/guest-dashboard/my-invitations');
 
     } catch (error: any) {
-        console.error(error);
+        console.error("Guest login error:", error);
         toast({ variant: 'destructive', title: 'Login Failed', description: error.message || 'An unexpected error occurred.' });
     } finally {
         setIsVerifyingGuest(false);
