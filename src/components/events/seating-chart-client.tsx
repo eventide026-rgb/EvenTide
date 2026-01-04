@@ -3,7 +3,7 @@
 
 import { useMemo, useState, useEffect, Suspense } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, documentId, writeBatch, setDoc } from 'firebase/firestore';
+import { collection, query, where, doc, documentId, writeBatch, setDoc, addDoc, getDoc, deleteDoc } from 'firebase/firestore';
 import { Loader2, Armchair, User, Users, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
@@ -39,6 +39,7 @@ type Table = {
 
 type Seat = {
   id: string;
+  tableId: string;
   seatNumber: number;
   guestId?: string;
   guestName?: string;
@@ -131,7 +132,7 @@ function TableDisplay({
   }, [table, seats, guests]);
   
   const handleRemoveGuest = (seat: Seat) => {
-    if (userRole === 'planner') {
+    if (userRole === 'planner' && seat.guestId) {
       onSeatUpdate(table.id, seat.seatNumber, null);
     }
   };
@@ -193,7 +194,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
     if (!firestore || !user?.uid || userRole === 'guest') return null;
     const roleField = userRole === 'owner' ? 'ownerId' : 'plannerIds';
     const operator = userRole === 'owner' ? '==' : 'array-contains';
-    return query(collection(firestore, 'events'), where(roleField, operator, user.uid));
+    return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
   }, [firestore, user, userRole]);
   const { data: events, isLoading: isLoadingEvents } = useCollection<PlannerEvent>(eventsQuery);
 
@@ -268,16 +269,18 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
   const handleSeatUpdate = async (tableId: string, seatNumber: number, guestId: string | null) => {
     if (!firestore || !selectedEventId) return;
     
-    // Find if a seat document already exists for this physical seat
     const existingSeat = allSeats?.find(s => s.tableId === tableId && s.seatNumber === seatNumber);
 
     try {
         if (existingSeat) {
-            // Update existing seat document
             const seatRef = doc(firestore, `events/${selectedEventId}/seats`, existingSeat.id);
-            await setDoc(seatRef, { guestId: guestId }, { merge: true });
+            if (guestId) {
+                await setDoc(seatRef, { guestId: guestId }, { merge: true });
+            } else {
+                // If guestId is null, we are un-assigning. We can just delete the seat document.
+                await deleteDoc(seatRef);
+            }
         } else if (guestId) {
-            // Create a new seat document
             const seatsCol = collection(firestore, `events/${selectedEventId}/seats`);
             await addDoc(seatsCol, { tableId, seatNumber, guestId });
         }
