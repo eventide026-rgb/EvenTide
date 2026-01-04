@@ -42,6 +42,7 @@ import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHeader, TableHead, TableRow } from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
 
 type Event = {
   id: string;
@@ -148,7 +149,7 @@ export default function GiftRegistryPage() {
   const getStatus = (gift: Gift) => {
     if (gift.claimedCount === 0) return <Badge variant="outline">Available</Badge>;
     if (gift.claimedCount < gift.quantity) return <Badge variant="secondary">Partially Claimed</Badge>;
-    return <Badge variant="default">Claimed</Badge>;
+    return <Badge variant="default">Fully Claimed</Badge>;
   }
 
   const isLoading = isUserLoading || isLoadingEvents;
