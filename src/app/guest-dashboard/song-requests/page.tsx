@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where, addDoc, serverTimestamp, orderBy } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
@@ -47,10 +48,10 @@ export default function SongRequestsPage() {
   const [eventId, setEventId] = useState<string | null>(null);
   const [guestName, setGuestName] = useState<string | null>(null);
 
-  useState(() => {
+  useEffect(() => {
     setEventId(sessionStorage.getItem('guestEventId'));
     setGuestName(sessionStorage.getItem('guestName'));
-  });
+  }, []);
 
   const form = useForm<z.infer<typeof requestFormSchema>>({
     resolver: zodResolver(requestFormSchema),
