@@ -37,7 +37,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { signInAnonymously } from 'firebase/auth';
+import { initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -170,7 +170,7 @@ export function GuestLoginForm() {
         
         // If the user isn't already logged in, sign them in anonymously
         if (!auth.currentUser) {
-            await signInAnonymously(auth);
+            initiateAnonymousSignIn(auth);
         }
         
         sessionStorage.setItem('guestEventId', foundEvent.id);
