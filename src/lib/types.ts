@@ -17,14 +17,16 @@ export type Vendor = {
 
 export type PlannerProfile = {
   id: string;
-  name?: string; // Kept for compatibility if some profiles still use it
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   city?: string;
   state?: string;
   bio?: string;
   avatarUrl?: string;
+  websiteUrl?: string;
+  instagramUrl?: string;
+  tiktokUrl?: string;
+  facebookUrl?: string;
 };
 
 export type Guest = {

@@ -11,12 +11,12 @@ import { PublicFooter } from '@/components/layout/public-footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, MapPin, Globe, Instagram, Facebook } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { type PlannerProfile } from '@/components/planner-card';
+import { type PlannerProfile } from '@/lib/types';
 import { TikTokIcon } from '@/components/icons/tiktok';
 import { Button } from '@/components/ui/button';
 
-export default function PlannerPublicPage({ params }: { params: Promise<{ plannerId: string }> }) {
-    const { plannerId } = use(params);
+export default function PlannerPublicPage({ params }: { params: { plannerId: string } }) {
+    const { plannerId } = params;
     const firestore = useFirestore();
 
     const plannerRef = useMemoFirebase(() => {
@@ -37,6 +37,8 @@ export default function PlannerPublicPage({ params }: { params: Promise<{ planne
     if (!planner) {
         return notFound();
     }
+    
+    const plannerName = planner.name || `${planner.firstName} ${planner.lastName}`;
 
     const socialLinks = [
         { href: planner.websiteUrl, icon: Globe, label: 'Website' },
@@ -53,11 +55,11 @@ export default function PlannerPublicPage({ params }: { params: Promise<{ planne
                     <div className="container mx-auto px-4 py-8 md:py-16">
                         <div className="flex flex-col md:flex-row items-center gap-8">
                             <Avatar className="h-32 w-32 border-4 border-primary">
-                                <AvatarImage src={planner.avatarUrl} alt={planner.name} />
-                                <AvatarFallback>{planner.name.charAt(0)}</AvatarFallback>
+                                <AvatarImage src={planner.avatarUrl} alt={plannerName} />
+                                <AvatarFallback>{plannerName.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div className="text-center md:text-left">
-                                <h1 className="text-4xl font-headline font-bold md:text-5xl">{planner.name}</h1>
+                                <h1 className="text-4xl font-headline font-bold md:text-5xl">{plannerName}</h1>
                                 {(planner.city || planner.state) && (
                                      <p className="mt-2 text-lg text-muted-foreground flex items-center justify-center md:justify-start gap-2">
                                         <MapPin className="h-5 w-5"/>
@@ -87,7 +89,7 @@ export default function PlannerPublicPage({ params }: { params: Promise<{ planne
                                 </CardHeader>
                                 <CardContent>
                                     <Button asChild className="w-full">
-                                        <a href={`mailto:${planner.email}`}>Contact {planner.name.split(' ')[0]}</a>
+                                        <a href={`mailto:${planner.email}`}>Contact {plannerName.split(' ')[0]}</a>
                                     </Button>
                                 </CardContent>
                             </Card>
