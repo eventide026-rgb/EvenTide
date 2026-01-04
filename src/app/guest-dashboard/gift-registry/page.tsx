@@ -143,7 +143,8 @@ export default function GiftRegistryPage() {
                 </div>
             ) : (
                 <div className="text-center py-16 border-dashed border-2 rounded-lg">
-                    <p className="text-muted-foreground">The host has not added any gifts to the registry yet.</p>
+                    <Gift className="mx-auto h-12 w-12 text-muted-foreground" />
+                    <p className="text-muted-foreground mt-2">The host has not added any gifts to the registry yet.</p>
                 </div>
             )}
             

@@ -25,7 +25,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -42,6 +41,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 import { Label } from '@/components/ui/label';
+import { Table, TableBody, TableCell, TableHeader, TableHead, TableRow } from '@/components/ui/table';
 
 type Event = {
   id: string;
@@ -193,7 +193,7 @@ export default function GiftRegistryPage() {
                         <CardTitle>Current Registry</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        {isLoadingGifts ? <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" /> : (
+                        {isLoadingGifts ? <div className='flex items-center justify-center h-48'><Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" /></div> : (
                              <div className="rounded-md border">
                                 <Table>
                                     <TableHeader>
@@ -271,7 +271,7 @@ export default function GiftRegistryPage() {
                                  <FormField control={giftForm.control} name="imageUrl" render={({ field }) => (
                                     <FormItem><FormLabel>Image URL (Optional)</FormLabel><FormControl><Input placeholder="https://example.com/image.jpg" {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
-                                <FormField control={giftForm.control} name="description" render={({ field }) => (
+                                 <FormField control={giftForm.control} name="description" render={({ field }) => (
                                     <FormItem><FormLabel>Description (Optional)</FormLabel><FormControl><Textarea placeholder="Any specific details..." {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
                                 <Button type="submit" disabled={giftForm.formState.isSubmitting}>

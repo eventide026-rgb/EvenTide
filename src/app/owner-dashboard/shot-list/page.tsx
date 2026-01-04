@@ -2,8 +2,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
-import { collection, query, where, doc } from 'firebase/firestore';
+import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query, where, doc, setDoc } from 'firebase/firestore';
 import {
   Select,
   SelectContent,
@@ -17,6 +17,10 @@ import { Button } from '@/components/ui/button';
 import { Loader2, Plus, Trash2, Camera, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 type Event = {
   id: string;
@@ -65,12 +69,14 @@ export default function ShotListPage() {
     
     setDocumentNonBlocking(shotListRef, { shots: [...currentShots, newShotData] }, { merge: true });
     setNewShot('');
+    toast({ title: "Shot Added", description: `"${newShot}" has been added to the list.`});
   };
 
   const handleRemoveShot = (shotId: string) => {
-    if (!shotListRef) return;
-    const updatedShots = shotList?.shots.filter(shot => shot.id !== shotId);
+    if (!shotListRef || !shotList?.shots) return;
+    const updatedShots = shotList.shots.filter(shot => shot.id !== shotId);
     setDocumentNonBlocking(shotListRef, { shots: updatedShots }, { merge: true });
+    toast({ title: "Shot Removed"});
   }
 
   const isLoading = isUserLoading || isLoadingEvents;
@@ -122,8 +128,8 @@ export default function ShotListPage() {
                 onChange={(e) => setNewShot(e.target.value)}
                 placeholder="e.g., Bride and groom first look"
               />
-              <Button onClick={handleAddShot}>
-                <Plus className="mr-2 h-4 w-4" /> Add Shot
+              <Button onClick={handleAddShot} disabled={!newShot.trim()}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Shot
               </Button>
             </div>
 
@@ -142,7 +148,7 @@ export default function ShotListPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {shotList && shotList.shots.length > 0 ? (
+                            {shotList && shotList.shots && shotList.shots.length > 0 ? (
                                 shotList.shots.map((shot) => (
                                     <TableRow key={shot.id}>
                                         <TableCell>{shot.description}</TableCell>
@@ -176,5 +182,3 @@ export default function ShotListPage() {
     </div>
   );
 }
-
-    
