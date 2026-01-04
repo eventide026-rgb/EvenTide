@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -27,10 +28,10 @@ import { useState, useEffect } from 'react';
 import { useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { addDoc, collection, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { Loader2, PlusCircle, Trash2, X, Upload } from 'lucide-react';
+import { Loader2, X, Upload } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import Image from 'next/image';
-import { Label } from '../ui/label';
+import { Label } from '@/components/ui/label';
 
 const formSchema = z.object({
     make: z.string().min(2, "Car make is required."),

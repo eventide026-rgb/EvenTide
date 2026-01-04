@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useMemo } from 'react';
@@ -15,8 +16,8 @@ import { CarBookingDialog } from '@/components/car-booking-dialog';
 import { type Car } from '@/components/car-listing-card';
 
 
-export default function CarDetailsPage({ params }: { params: Promise<{ carId: string }> }) {
-    const { carId } = use(params);
+export default function CarDetailsPage({ params }: { params: { carId: string } }) {
+    const { carId } = params;
     const firestore = useFirestore();
     const { user, isUserLoading } = useUser();
 
