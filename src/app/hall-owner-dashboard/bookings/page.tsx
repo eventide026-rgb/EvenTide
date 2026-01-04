@@ -27,6 +27,7 @@ type VenueBooking = {
   eventDate: any;
   numberOfGuests: number;
   status: 'pending' | 'confirmed' | 'declined';
+  userEmail: string;
 };
 
 export default function BookingsPage() {
@@ -46,14 +47,9 @@ export default function BookingsPage() {
     
     const batch = writeBatch(firestore);
     
-    // Update the top-level booking document
     const topLevelBookingRef = doc(firestore, 'venueBookings', booking.id);
     batch.update(topLevelBookingRef, { status: newStatus });
     
-    // Update the booking in the subcollection
-    const subCollectionBookingRef = doc(firestore, 'venues', booking.venueId, 'bookings', booking.id);
-    batch.update(subCollectionBookingRef, { status: newStatus });
-
     try {
       await batch.commit();
       toast({
@@ -94,6 +90,7 @@ export default function BookingsPage() {
               <TableRow>
                 <TableHead>Event Name</TableHead>
                 <TableHead>Venue</TableHead>
+                <TableHead>Client Email</TableHead>
                 <TableHead>Event Date</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -104,6 +101,7 @@ export default function BookingsPage() {
                 <TableRow key={booking.id}>
                   <TableCell>{booking.eventName}</TableCell>
                   <TableCell>{booking.venueName}</TableCell>
+                  <TableCell>{booking.userEmail}</TableCell>
                   <TableCell>
                     {booking.eventDate?.toDate ? format(booking.eventDate.toDate(), 'PPP') : 'Invalid Date'}
                   </TableCell>

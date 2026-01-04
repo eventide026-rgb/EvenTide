@@ -5,6 +5,8 @@ import { useState, useEffect, useMemo } from 'react';
 import {
   collection,
   query,
+  where,
+  or,
 } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { NigerianStatesAndCities } from '@/lib/nigerian-states';

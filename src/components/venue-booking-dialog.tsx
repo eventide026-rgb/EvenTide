@@ -66,7 +66,6 @@ export function VenueBookingDialog({ venue, user, isUserLoading }: VenueBookingD
     try {
       const batch = writeBatch(firestore);
 
-      // Write to top-level collection
       const venueBookingsCol = collection(firestore, 'venueBookings');
       const topLevelBookingRef = doc(venueBookingsCol);
       batch.set(topLevelBookingRef, {...bookingData, id: topLevelBookingRef.id});
