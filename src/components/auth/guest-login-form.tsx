@@ -170,7 +170,7 @@ export function GuestLoginForm() {
         
         // If the user isn't already logged in, sign them in anonymously
         if (!auth.currentUser) {
-            initiateAnonymousSignIn(auth);
+            await initiateAnonymousSignIn(auth);
         }
         
         sessionStorage.setItem('guestEventId', foundEvent.id);
