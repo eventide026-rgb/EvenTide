@@ -41,9 +41,8 @@ export default function MagazineCurationPage() {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     
-    // Query for public events that have already concluded
     return query(
-        collection(firestore, "events"), 
+        collection(firestore, "shows"), 
         where('isPublic', '==', true),
         where('eventDate', '<', yesterday)
     );
@@ -75,8 +74,7 @@ export default function MagazineCurationPage() {
       
       if (!firestore) throw new Error("Firestore not available");
 
-      // Save the generated draft to Firestore
-      const magazineCollection = collection(firestore, "events");
+      const magazineCollection = collection(firestore, "magazineIssues");
       const newDraftDoc = {
         ...result,
         status: 'draft' as const,
@@ -147,3 +145,5 @@ export default function MagazineCurationPage() {
     </div>
   );
 }
+
+      

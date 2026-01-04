@@ -180,3 +180,5 @@ export function MagazinePreview({ draft: initialDraft }: MagazinePreviewProps) {
     </div>
   );
 }
+
+      
