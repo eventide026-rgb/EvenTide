@@ -10,7 +10,7 @@ import { GatepassPreviewCard } from '@/components/stationery/previews/gatepass-p
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-export default function GatepassPreviewPage({ params }: { params: Promise<{ eventId: string }> }) {
+export default function GatepassPreviewPage({ params }: { params: { eventId: string } }) {
     const { eventId } = use(params);
     const firestore = useFirestore();
     const eventRef = useMemoFirebase(() => {

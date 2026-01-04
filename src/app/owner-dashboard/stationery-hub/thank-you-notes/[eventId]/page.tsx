@@ -112,7 +112,7 @@ function ThankYouNotesPageContent({ eventId }: { eventId: string }) {
     );
 }
 
-export default function ThankYouNotesPage({ params }: { params: Promise<{ eventId: string }> }) {
+export default function ThankYouNotesPage({ params }: { params: { eventId: string } }) {
     const { eventId } = use(params);
 
     return (

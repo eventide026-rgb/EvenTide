@@ -39,8 +39,8 @@ function CompletionPageContent({ eventId }: { eventId: string }) {
     );
 }
 
-export default function StationeryCompletionPage({ params }: { params: Promise<{ eventId: string }> }) {
-    const { eventId } = use(params);
+export default function StationeryCompletionPage({ params }: { params: { eventId: string } }) {
+    const { eventId } = params;
 
     return (
         <div className="flex h-full items-center justify-center">
