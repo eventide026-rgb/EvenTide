@@ -154,7 +154,11 @@ service cloud.firestore {
         }
 
         match /guests/{guestId} {
-            allow read, list: if isEventStaff(eventId) || isEventGuest(eventId, guestId) || isAdmin();
+            allow get: if isEventStaff(eventId) || isEventGuest(eventId, guestId) || isAdmin() || 
+                          // Allow unauthenticated read only if guest code matches
+                          (get(/databases/$(database)/documents/events/$(eventId)/guestCodes/$(resource.data.guestCode)).data.guestId == guestId);
+            allow read: if isEventStaff(eventId) || isEventGuest(eventId, guestId) || isAdmin();
+            allow list: if isEventStaff(eventId) || isAdmin();
             allow create: if isEventStaff(eventId) || isAdmin();
             allow delete: if isEventStaff(eventId) || isAdmin();
             allow update(writeFields): if isEventStaff(eventId) || 
@@ -325,3 +329,5 @@ service cloud.firestore {
       }
     }
   }
+
+    
