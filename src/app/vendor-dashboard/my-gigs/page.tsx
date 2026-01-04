@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo } from 'react';
@@ -22,6 +21,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Loader2 } from 'lucide-react';
 import { format, isFuture, isPast } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 type VendorContract = {
   id: string;
@@ -78,6 +79,7 @@ export default function MyGigsPage() {
                   <TableHead>Event</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -91,11 +93,18 @@ export default function MyGigsPage() {
                       <TableCell>
                         {getGigStatus(gig)}
                       </TableCell>
+                       <TableCell className="text-right">
+                        <Button asChild variant="outline" size="sm">
+                          <Link href={`/vendor-dashboard/my-gigs/${gig.id}`}>
+                            View Details
+                          </Link>
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3} className="h-24 text-center">
+                    <TableCell colSpan={4} className="h-24 text-center">
                       You have no active gigs. Respond to proposals to get started.
                     </TableCell>
                   </TableRow>
