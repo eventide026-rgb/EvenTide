@@ -10,7 +10,7 @@ export default function CalendarPage() {
        <Card>
             <CardHeader>
                 <CardTitle>Booking Calendar</CardTitle>
-                <CardDescription>A visual overview of your confirmed vehicle bookings across all your properties.</CardDescription>
+                <CardDescription>A visual overview of your confirmed bookings across all your properties.</CardDescription>
             </CardHeader>
             <CardContent>
                 <HotelCalendar />
@@ -19,3 +19,4 @@ export default function CalendarPage() {
     </div>
   );
 }
+

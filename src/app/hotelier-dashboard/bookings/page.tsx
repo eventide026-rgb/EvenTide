@@ -3,7 +3,7 @@
 
 import { useMemo } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, updateDoc, getDocs, writeBatch } from 'firebase/firestore';
+import { collection, query, where, doc, updateDoc } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -24,6 +24,7 @@ type Booking = {
   userId: string;
   hotelId: string;
   hotelName: string;
+  userEmail: string;
   roomTypeName: string;
   checkInDate: any;
   checkOutDate: any;
@@ -47,14 +48,10 @@ export default function BookingsPage() {
   const handleUpdateStatus = async (booking: Booking, newStatus: 'confirmed' | 'declined') => {
     if (!firestore) return;
     
-    const batch = writeBatch(firestore);
-
-    // Update the top-level booking document
-    const topLevelBookingRef = doc(firestore, 'bookings', booking.id);
-    batch.update(topLevelBookingRef, { status: newStatus });
+    const bookingRef = doc(firestore, 'bookings', booking.id);
     
     try {
-      await batch.commit();
+      await updateDoc(bookingRef, { status: newStatus });
       toast({
         title: 'Booking Updated',
         description: `The booking has been ${newStatus}.`,
@@ -92,6 +89,7 @@ export default function BookingsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Hotel</TableHead>
+                <TableHead>Client Email</TableHead>
                 <TableHead>Room</TableHead>
                 <TableHead>Dates</TableHead>
                 <TableHead>Status</TableHead>
@@ -102,6 +100,7 @@ export default function BookingsPage() {
               {bookings.map((booking) => (
                 <TableRow key={booking.id}>
                   <TableCell>{booking.hotelName}</TableCell>
+                  <TableCell>{booking.userEmail}</TableCell>
                   <TableCell>{booking.roomTypeName}</TableCell>
                   <TableCell>
                     {format(booking.checkInDate.toDate(), 'PPP')} - {format(booking.checkOutDate.toDate(), 'PPP')}

@@ -47,10 +47,17 @@ export function HotelCalendar() {
       where('hotelId', '==', selectedHotelId),
       where('status', '==', 'confirmed'),
       where('checkInDate', '<=', end),
-      where('checkOutDate', '>=', start)
     );
   }, [firestore, selectedHotelId, currentDate]);
-  const { data: bookings, isLoading: isLoadingBookings } = useCollection<Booking>(bookingsQuery);
+
+  const { data: bookingsData, isLoading: isLoadingBookings } = useCollection<Booking>(bookingsQuery);
+
+  const bookings = useMemo(() => {
+    if (!bookingsData) return [];
+    // Filter bookings that have a checkout date before the start of the month, as Firestore can't do this complex query.
+    const start = startOfMonth(currentDate);
+    return bookingsData.filter(b => b.checkOutDate.toDate() >= start);
+  }, [bookingsData, currentDate]);
 
   if (hotels && !selectedHotelId && hotels.length > 0) {
     setSelectedHotelId(hotels[0].id);
@@ -64,13 +71,6 @@ export function HotelCalendar() {
 
   const isLoading = isUserLoading || isLoadingHotels || (selectedHotelId && isLoadingBookings);
 
-  const isDayBooked = (room: RoomType, day: Date) => {
-    return bookings?.find(booking => 
-      booking.roomTypeName === room.name &&
-      isWithinInterval(day, { start: booking.checkInDate.toDate(), end: booking.checkOutDate.toDate() })
-    );
-  };
-  
   const getBookingForDay = (room: RoomType, day: Date) => {
     return bookings?.find(booking => 
       booking.roomTypeName === room.name &&
@@ -118,7 +118,7 @@ export function HotelCalendar() {
                     </div>
                 ))}
             </div>
-            {daysInMonth.map((day, dayIndex) => (
+            {daysInMonth.map((day) => (
               <div key={day.toISOString()} className={cn("text-center", (getDay(day) === 0 || getDay(day) === 6) && 'bg-muted/50' )}>
                 <div className="h-12 border-b flex flex-col items-center justify-center p-1">
                     <span className="text-xs">{['S', 'M', 'T', 'W', 'T', 'F', 'S'][getDay(day)]}</span>
@@ -127,7 +127,7 @@ export function HotelCalendar() {
                 {selectedHotel.roomTypes.map(room => {
                     const booking = getBookingForDay(room, day);
                     return (
-                        <div key={`${room.name}-${dayIndex}`} className="h-12 border-b flex items-center justify-center">
+                        <div key={`${room.name}-${day.toISOString()}`} className="h-12 border-b flex items-center justify-center">
                             {booking ? (
                                 <Tooltip>
                                     <TooltipTrigger asChild>
@@ -155,3 +155,4 @@ export function HotelCalendar() {
     </div>
   );
 }
+
