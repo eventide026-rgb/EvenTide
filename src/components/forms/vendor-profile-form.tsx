@@ -23,9 +23,13 @@ import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Loader2, Globe, Instagram, Facebook } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { TikTokIcon } from '../icons/tiktok';
+import { NigerianStatesAndCities } from '@/lib/nigerian-states';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const profileSchema = z.object({
   name: z.string().min(2, { message: 'Your name or brand name is required.' }),
+  city: z.string().optional(),
+  state: z.string().optional(),
   bio: z.string().max(500, { message: 'Bio cannot exceed 500 characters.' }).optional(),
   websiteUrl: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
   instagramUrl: z.string().url("Please enter a valid URL.").optional().or(z.literal('')),
@@ -51,6 +55,8 @@ export function VendorProfileForm() {
     defaultValues: {
       name: '',
       bio: '',
+      city: '',
+      state: '',
       websiteUrl: '',
       instagramUrl: '',
       tiktokUrl: '',
@@ -60,23 +66,23 @@ export function VendorProfileForm() {
 
   useEffect(() => {
     if (vendorProfile) {
-      form.reset({
-        name: vendorProfile.name,
-        bio: vendorProfile.bio || '',
-        websiteUrl: vendorProfile.websiteUrl || '',
-        instagramUrl: vendorProfile.instagramUrl || '',
-        tiktokUrl: vendorProfile.tiktokUrl || '',
-        facebookUrl: vendorProfile.facebookUrl || '',
-      });
+      form.reset(vendorProfile);
     }
   }, [vendorProfile, form]);
 
+  const selectedState = form.watch('state');
+  const cities = selectedState
+    ? NigerianStatesAndCities.find((s) => s.state === selectedState)?.cities || []
+    : [];
+
   async function onSubmit(values: z.infer<typeof profileSchema>) {
-    if (!vendorDocRef) return;
+    if (!vendorDocRef || !user) return;
     setIsSaving(true);
     try {
       await setDoc(vendorDocRef, {
         ...values,
+        id: user.uid,
+        email: user.email,
         updatedAt: serverTimestamp(),
       }, { merge: true });
 
@@ -119,6 +125,40 @@ export function VendorProfileForm() {
                 </FormItem>
             )}
         />
+        <div className="grid md:grid-cols-2 gap-6">
+            <FormField
+                control={form.control}
+                name="state"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>State</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl><SelectTrigger><SelectValue placeholder="Select State" /></SelectTrigger></FormControl>
+                            <SelectContent>
+                                {NigerianStatesAndCities.map(s => <SelectItem key={s.state} value={s.state}>{s.state}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>City</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value} disabled={!selectedState}>
+                            <FormControl><SelectTrigger><SelectValue placeholder="Select City" /></SelectTrigger></FormControl>
+                            <SelectContent>
+                                {cities.map(city => <SelectItem key={city} value={city}>{city}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+        </div>
         <FormField
             control={form.control}
             name="bio"
