@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview An AI agent to curate a photo gallery for an event.
