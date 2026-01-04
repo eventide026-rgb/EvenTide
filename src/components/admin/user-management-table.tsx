@@ -39,6 +39,10 @@ const availableRoles = [
   'Hotelier',
   'Hall Owner',
   'Car Hire Service',
+  'Ticketier',
+  'Vendor',
+  'Fashion Designer',
+  'Security'
 ];
 
 export function UserManagementTable() {

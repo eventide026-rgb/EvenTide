@@ -37,14 +37,14 @@ export default function TestimonialsPage() {
 
   const testimonialsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, "events"));
+    return query(collection(firestore, "testimonials"));
   }, [firestore]);
 
   const { data: testimonials, isLoading } = useCollection<Testimonial>(testimonialsQuery);
 
   const handleApprove = async (id: string, currentStatus: boolean) => {
     if (!firestore) return;
-    const docRef = doc(firestore, "events", id);
+    const docRef = doc(firestore, "testimonials", id);
     try {
       await updateDoc(docRef, { isApproved: !currentStatus });
       toast({
@@ -63,7 +63,7 @@ export default function TestimonialsPage() {
 
   const handleDelete = async (id: string) => {
     if (!firestore) return;
-    const docRef = doc(firestore, "events", id);
+    const docRef = doc(firestore, "testimonials", id);
     try {
       await deleteDoc(docRef);
       toast({

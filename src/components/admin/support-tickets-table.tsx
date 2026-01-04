@@ -44,7 +44,7 @@ export function SupportTicketsTable() {
 
   const ticketsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, "events"));
+    return query(collection(firestore, "supportTickets"));
   }, [firestore]);
 
   const { data: tickets, isLoading } = useCollection<SupportTicket>(ticketsQuery);
@@ -63,7 +63,7 @@ export function SupportTicketsTable() {
 
   const handleStatusChange = async (ticketId: string, newStatus: string) => {
     if (!firestore) return;
-    const ticketRef = doc(firestore, "events", ticketId);
+    const ticketRef = doc(firestore, "supportTickets", ticketId);
     try {
       await updateDoc(ticketRef, { status: newStatus });
       toast({
@@ -134,7 +134,7 @@ export function SupportTicketsTable() {
                       onValueChange={(value) => handleStatusChange(ticket.id, value)}
                     >
                       <SelectTrigger className="w-[120px]">
-                         <Badge variant={getStatusBadgeVariant(ticket.status)}>{ticket.status}</Badge>
+                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="open">Open</SelectItem>

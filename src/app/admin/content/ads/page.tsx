@@ -38,14 +38,14 @@ export default function AdvertisementsPage() {
 
   const adRequestsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
-    return query(collection(firestore, "events"));
+    return query(collection(firestore, "adRequests"));
   }, [firestore]);
 
   const { data: adRequests, isLoading } = useCollection<AdRequest>(adRequestsQuery);
 
   const handleUpdateStatus = async (id: string, status: AdRequest['status']) => {
     if (!firestore) return;
-    const docRef = doc(firestore, "events", id);
+    const docRef = doc(firestore, "adRequests", id);
     try {
       await updateDoc(docRef, { status });
       toast({
