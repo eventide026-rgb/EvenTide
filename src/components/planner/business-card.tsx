@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -36,7 +36,7 @@ function BusinessCardComponent({ contactId, searchTerm }: BusinessCardProps) {
 
   const vendorRef = useMemoFirebase(() => {
     if (!firestore || !contactId) return null;
-    return doc(firestore, "events", contactId);
+    return doc(firestore, "vendors", contactId);
   }, [firestore, contactId]);
 
   const { data: vendor, isLoading } = useDoc<Vendor>(vendorRef);
@@ -53,7 +53,7 @@ function BusinessCardComponent({ contactId, searchTerm }: BusinessCardProps) {
   const handleRemove = async () => {
     if (!firestore || !user) return;
     // The contact document ID is often the same as the vendorId in this design
-    const contactRef = doc(firestore, "events", user.uid, 'contacts', contactId);
+    const contactRef = doc(firestore, "users", user.uid, 'contacts', contactId);
     try {
       await deleteDoc(contactRef);
       toast({
@@ -95,20 +95,13 @@ function BusinessCardComponent({ contactId, searchTerm }: BusinessCardProps) {
       <CardContent className="space-y-3">
         <Button variant="outline" size="sm" asChild className="w-full justify-start">
           <a href={`mailto:${vendor.email}`}>
-            <Mail className="mr-2" /> {vendor.email}
+            <Mail className="mr-2 h-4 w-4" /> {vendor.email}
           </a>
         </Button>
-        {vendor.phoneNumber && (
-          <Button variant="outline" size="sm" asChild className="w-full justify-start">
-            <a href={`tel:${vendor.phoneNumber}`}>
-              <Phone className="mr-2" /> {vendor.phoneNumber}
-            </a>
-          </Button>
-        )}
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="destructive" size="sm" className="w-full">
-              <Trash2 className="mr-2" /> Remove from Network
+              <Trash2 className="mr-2 h-4 w-4" /> Remove from Network
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>

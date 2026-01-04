@@ -87,6 +87,10 @@ service cloud.firestore {
           allow create: if isSignedIn();
           allow update: if isOwner(userId) && request.resource.data.read == true;
         }
+
+        match /contacts/{contactId} {
+            allow read, write: if isOwner(userId);
+        }
       }
 
       match /planners/{plannerId} {
@@ -239,6 +243,13 @@ service cloud.firestore {
         match /autographs/{autographId} {
             allow read, list: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid);
             allow create: if isEventGuest(eventId, request.auth.uid);
+            allow delete: if isEventStaff(eventId);
+        }
+
+        match /vendorContracts/{contractId} {
+            allow read: if isEventStaff(eventId) || (isSignedIn() && resource.data.vendorId == request.auth.uid);
+            allow create: if isEventStaff(eventId);
+            allow update: if (isSignedIn() && resource.data.vendorId == request.auth.uid) || isEventStaff(eventId);
             allow delete: if isEventStaff(eventId);
         }
       }
