@@ -3,7 +3,7 @@
 
 import { useMemo } from 'react';
 import { useCollection, useCollectionGroup, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, updateDoc } from 'firebase/firestore';
+import { collectionGroup, query, where, doc, updateDoc, documentId } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -46,7 +46,7 @@ export default function ProposalsPage() {
 
   const eventsQuery = useMemoFirebase(() => {
       if(!firestore || eventIds.length === 0) return null;
-      return query(collection(firestore, 'events'), where('__name__', 'in', eventIds));
+      return query(collection(firestore, 'events'), where(documentId(), 'in', eventIds));
   }, [firestore, eventIds]);
   const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
 
@@ -76,6 +76,8 @@ export default function ProposalsPage() {
           </div>
       )
   }
+  
+  const pendingProposals = proposals?.filter(p => p.status === 'pending') || [];
 
   const getEventName = (eventId: string) => {
       return events?.find(e => e.id === eventId)?.name || "An Event";
@@ -98,9 +100,9 @@ export default function ProposalsPage() {
             <CardDescription>New job offers awaiting your response.</CardDescription>
         </CardHeader>
         <CardContent>
-            {proposals && proposals.filter(p => p.status === 'pending').length > 0 ? (
+            {pendingProposals.length > 0 ? (
                 <div className="space-y-4">
-                    {proposals.filter(p => p.status === 'pending').map(proposal => (
+                    {pendingProposals.map(proposal => (
                         <Card key={proposal.id} className="p-4">
                             <div className="grid md:grid-cols-3 gap-4">
                                 <div className="md:col-span-2 space-y-2">

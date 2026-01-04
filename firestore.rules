@@ -183,7 +183,7 @@ service cloud.firestore {
        }
 
        match /guests/{guestId} {
-            allow get: if isEventStaff(eventId) || isEventGuest(eventId, guestId);
+            allow get: if isEventStaff(eventId) || isEventGuest(eventId);
             allow list: if true;
             allow create: if isSignedIn()
                     && request.resource.data.ownerId == request.auth.uid;
@@ -433,10 +433,16 @@ service cloud.firestore {
           allow get, list: if true;
           allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
           allow update, delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
-      }
 
+          match /bookings/{bookingId} {
+              allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.hotelOwnerId == request.auth.uid);
+              allow list: if isSignedIn() && resource.data.hotelOwnerId == request.auth.uid;
+              allow create: if isSignedIn();
+              allow update, delete: if isSignedIn() && resource.data.hotelOwnerId == request.auth.uid;
+          }
+      }
        match /bookings/{bookingId} {
-          allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.hotelOwnerId == request.auth.uid);
+          allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.hotelOwnerId == request.auth.uid);
           allow list, get: if request.auth != null && request.query.where.userId == request.auth.uid;
           allow create: if isSignedIn();
           allow update: if isSignedIn() && resource.data.hotelOwnerId == request.auth.uid;

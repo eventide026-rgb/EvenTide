@@ -1,12 +1,12 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, addDoc, serverTimestamp, doc, writeBatch } from 'firebase/firestore';
+import { collection, query, where, addDoc, serverTimestamp, doc, writeBatch, documentId } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -39,10 +39,14 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { type Vendor } from '@/lib/types';
 
+type EventPlannerAssignment = {
+    id: string;
+    eventId: string;
+};
+
 type Event = {
   id: string;
   name: string;
-  ownerId: string;
 };
 
 const proposalSchema = z.object({
@@ -69,13 +73,17 @@ export function VendorProposalDialog({ vendor }: VendorProposalDialogProps) {
         }
     });
 
-    // In a real app, this would query for events where the current user is the planner.
-    // For now, we query events owned by the user for demonstration.
-    const eventsQuery = useMemoFirebase(() => {
+    const plannerAssignmentsQuery = useMemoFirebase(() => {
         if (!firestore || !user?.uid) return null;
-        return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
+        return query(collection(firestore, 'planners'), where('plannerId', '==', user.uid));
     }, [firestore, user?.uid]);
-    
+    const { data: assignments, isLoading: isLoadingAssignments } = useCollection<EventPlannerAssignment>(plannerAssignmentsQuery);
+    const eventIds = useMemo(() => assignments?.map(a => a.eventId) || [], [assignments]);
+
+    const eventsQuery = useMemoFirebase(() => {
+        if (!firestore || eventIds.length === 0) return null;
+        return query(collection(firestore, 'events'), where(documentId(), 'in', eventIds));
+    }, [firestore, eventIds]);
     const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
 
     const onSubmit = async (values: z.infer<typeof proposalSchema>>) => {
@@ -85,14 +93,13 @@ export function VendorProposalDialog({ vendor }: VendorProposalDialogProps) {
             ...values,
             plannerId: user.uid,
             vendorId: vendor.id,
+            vendorName: vendor.name,
             status: 'pending',
             createdAt: serverTimestamp(),
         }
 
         const batch = writeBatch(firestore);
         
-        // This is a placeholder path. In a real app, you might have a top-level `contracts` collection
-        // or nest it under the event, like /events/{eventId}/contracts/{contractId}
         const contractRef = doc(collection(firestore, 'events', values.eventId, 'vendorContracts'));
         batch.set(contractRef, contractData);
 
@@ -122,11 +129,13 @@ export function VendorProposalDialog({ vendor }: VendorProposalDialogProps) {
             });
         }
     }
+    
+    const isLoading = isLoadingAssignments || isLoadingEvents;
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
-                <Button className="w-full">Invite</Button>
+                <Button className="w-full">Invite to Event</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-lg">
                  <DialogHeader>
@@ -143,10 +152,10 @@ export function VendorProposalDialog({ vendor }: VendorProposalDialogProps) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Select Event</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoadingEvents}>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
                                         <FormControl>
                                         <SelectTrigger>
-                                            <SelectValue placeholder={isLoadingEvents ? "Loading events..." : "Which event is this for?"} />
+                                            <SelectValue placeholder={isLoading ? "Loading events..." : "Which event is this for?"} />
                                         </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
