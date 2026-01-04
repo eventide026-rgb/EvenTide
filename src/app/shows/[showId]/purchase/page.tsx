@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, Suspense, useState, useMemo } from 'react';
@@ -42,12 +43,12 @@ function PurchasePageContents({ showId }: { showId: string }) {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const selectionParam = searchParams.get('selection');
-  const ticketSelection = useMemo((): TicketSelection[] => {
+  const ticketSelection = useMemo((): Omit<TicketSelection, 'tierName' | 'price' | 'total'>[] => {
     if (!selectionParam) return [];
     const pairs = selectionParam.split(',');
     return pairs.map(p => {
         const [tierId, quantity] = p.split(':');
-        return { tierId, quantity: parseInt(quantity, 10), tierName: '', price: 0, total: 0 };
+        return { tierId, quantity: parseInt(quantity, 10) };
     });
   }, [selectionParam]);
 
@@ -60,8 +61,8 @@ function PurchasePageContents({ showId }: { showId: string }) {
 
   const { data: tiers, isLoading: isLoadingTiers } = useCollection<TicketTier>(tiersQuery);
 
-  const populatedSelection = useMemo(() => {
-    if (!tiers) return ticketSelection;
+  const populatedSelection = useMemo((): TicketSelection[] => {
+    if (!tiers) return [];
     return ticketSelection.map(sel => {
         const tier = tiers.find(t => t.id === sel.tierId);
         const price = tier?.price || 0;
