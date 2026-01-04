@@ -42,9 +42,15 @@ service cloud.firestore {
 
         // Guest access — NO auth required
         function isEventGuest(eventId) {
-          return exists(
-            /databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid)
-          );
+            return exists(
+              /databases/$(database)/documents/events/$(eventId)/guests/$(request.auth.uid)
+            );
+        }
+          function isEventGuestByCode(eventId, guestCode) {
+            return exists(
+              /databases/$(database)/documents/events/$(eventId)/guests/$(guestCode)
+            );
+
         }
 
 
@@ -196,19 +202,37 @@ service cloud.firestore {
         
         
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         match /events/{eventId}/guests/{guestId} {
 
-            allow get: if true;
-            allow list: if isEventStaff(eventId);
-            allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
-            allow update: if isEventStaff(eventId)
-                          || (
-                            request.auth != null
-                            && request.auth.uid == guestId
-                            && request.resource.data.diff(resource.data).changedKeys()
-                                 .hasOnly(["rsvpStatus", "rsvpUpdatedAt"])
-                          );
-            allow delete: if isEventStaff(eventId);
+  // Guests can read their own guest record by guest code
+  allow get: if isEventStaff(eventId) || isEventGuestByCode(eventId, guestId);
+
+  // Only staff can list all guests
+  allow list: if isEventStaff(eventId);
+
+  // Staff creates guests
+  allow create: if isEventStaff(eventId);
+
+  // Staff can update anything; guests can update RSVP fields only
+  allow update: if isEventStaff(eventId)
+                || (isEventGuestByCode(eventId, guestId) 
+                    && request.resource.data.diff(resource.data).changedKeys()
+                        .hasOnly(["rsvpStatus", "rsvpUpdatedAt"]));
+
+  // Only staff can delete guests
+  allow delete: if isEventStaff(eventId);
+
             
             
             

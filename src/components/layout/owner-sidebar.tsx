@@ -27,6 +27,7 @@ import {
   User,
   Hotel,
   Building,
+  Shirt,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -75,7 +76,7 @@ const sidebarNav = [
         icon: Briefcase,
         links: [
             { href: "/owner-dashboard/find-planner", label: "Find a Planner", icon: Search },
-            { href: "/owner-dashboard/find-designer", label: "Fashion Hub", icon: Search },
+            { href: "/owner-dashboard/find-designer", label: "Fashion Hub", icon: Shirt },
             { href: "/owner-dashboard/find-hotel", label: "Find a Hotel", icon: Hotel },
             { href: "/owner-dashboard/find-venue", label: "Find a Venue", icon: Building },
         ]

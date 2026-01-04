@@ -17,19 +17,19 @@ export function DesignerCard({ designer }: DesignerCardProps) {
   const reviewCount = 28; // Placeholder
 
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+    <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col group">
       <CardHeader className="p-0">
         <div className="aspect-square relative overflow-hidden">
           <Image
             src={designer.avatarUrl || `https://picsum.photos/seed/${designer.id}/400/400`}
             alt={designer.name}
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </div>
       </CardHeader>
-      <CardContent className="p-4 space-y-3">
-        <div>
+      <CardContent className="p-4 space-y-3 flex-1 flex flex-col">
+        <div className="flex-grow">
             <h3 className="font-bold font-headline text-lg truncate">{designer.name}</h3>
             <Badge variant="outline">{designer.specialty}</Badge>
         </div>
