@@ -92,6 +92,7 @@ type Event = {
   guestCount?: number;
   guestLimit?: number;
   eventCode?: string;
+  eventDate?: any;
 };
 
 const guestFormSchema = z.object({
@@ -178,6 +179,15 @@ function GuestManagementComponent() {
 
   const { data: guests, isLoading: isLoadingGuests } =
     useCollection<Guest>(guestsQuery);
+  
+  const invitationsQuery = useMemoFirebase(() => {
+    if (!firestore || !selectedEventId) return null;
+    return query(collection(firestore, 'events', selectedEventId, 'invitations'));
+  }, [firestore, selectedEventId]);
+
+  const { data: invitations } = useCollection<{guestId: string}>(invitationsQuery);
+  const invitedGuestIds = useMemo(() => new Set(invitations?.map(i => i.guestId)), [invitations]);
+
 
   const isWalkthrough = searchParams.get('walkthrough') === 'true';
 
@@ -329,11 +339,25 @@ function GuestManagementComponent() {
     }
   };
 
-  const handleSendInvitation = (guestName: string) => {
-    toast({
-      title: 'Invitation Sent!',
-      description: `An invitation has been sent to ${guestName}.`,
-    });
+  const handleSendInvitation = async (guest: Guest) => {
+    if (!firestore || !selectedEventId || !selectedEvent || !user) return;
+    const invitationRef = doc(firestore, 'events', selectedEventId, 'invitations', guest.id);
+    
+    try {
+        await setDoc(invitationRef, {
+            guestId: guest.id,
+            guestName: guest.name,
+            sentAt: serverTimestamp(),
+            sentBy: user.uid,
+        });
+        toast({
+            title: 'Invitation Sent!',
+            description: `An invitation has been sent to ${guest.name}.`,
+        });
+    } catch (error) {
+        console.error("Error sending invitation:", error);
+        toast({ variant: 'destructive', title: 'Failed to Send', description: 'Could not send the invitation.'});
+    }
   };
 
   const handleDeleteGuest = async (guest: Guest) => {
@@ -436,7 +460,8 @@ function GuestManagementComponent() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleSendInvitation(guest.name)}
+                            onClick={() => handleSendInvitation(guest)}
+                            disabled={invitedGuestIds.has(guest.id)}
                           >
                             <Send className="h-4 w-4" />
                           </Button>
