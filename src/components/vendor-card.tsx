@@ -2,6 +2,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from './ui/badge';
 import { Star, MapPin, Bookmark } from 'lucide-react';
@@ -12,6 +13,7 @@ import { useUser, useFirestore } from '@/firebase';
 import { doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 type VendorCardProps = {
   vendor: Vendor;
@@ -25,6 +27,10 @@ export function VendorCard({ vendor }: VendorCardProps) {
   const { toast } = useToast();
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
+
+  const isPlannerDashboard = pathname.startsWith('/planner-dashboard');
+  const linkHref = isPlannerDashboard ? `/planner-dashboard/vendor-hub/${vendor.id}` : `/resources/vendors/${vendor.id}`;
 
   useEffect(() => {
     if (!user || !firestore) {
@@ -59,19 +65,21 @@ export function VendorCard({ vendor }: VendorCardProps) {
 
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col group">
-       <CardHeader className="p-0">
+      <CardHeader className="p-0">
         <div className="aspect-square relative overflow-hidden">
-          <Image
-            src={vendor.avatarUrl || `https://picsum.photos/seed/${vendor.id}/400/400`}
-            alt={vendor.name}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-          {user && (
+          <Link href={linkHref} className="absolute inset-0">
+             <Image
+              src={vendor.avatarUrl || `https://picsum.photos/seed/${vendor.id}/400/400`}
+              alt={vendor.name}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          </Link>
+          {isPlannerDashboard && user && (
             <Button
                 variant="secondary"
                 size="icon"
-                className="absolute top-2 right-2 h-8 w-8"
+                className="absolute top-2 right-2 h-8 w-8 z-10"
                 onClick={toggleBookmark}
                 disabled={isLoading}
             >
@@ -98,7 +106,11 @@ export function VendorCard({ vendor }: VendorCardProps) {
                 </div>
             )}
         </div>
-        <VendorProposalDialog vendor={vendor} />
+        {isPlannerDashboard ? (
+             <VendorProposalDialog vendor={vendor} />
+        ) : (
+             <Button className="w-full" asChild><Link href={linkHref}>View Profile</Link></Button>
+        )}
       </CardContent>
     </Card>
   );

@@ -31,8 +31,8 @@ const resourceLinks = [
 const communityLinks = [
     { href: "/guest-login", label: "Guest Login" },
     { href: "/security-login", label: "Security Login" },
-    { href: "#", label: "Find Planners" },
-    { href: "#", "label": "Find Vendors" },
+    { href: "/resources/planners", label: "Find Planners" },
+    { href: "/resources/vendors", "label": "Find Vendors" },
     { href: "/advertise", label: "Advertise" },
 ];
 
