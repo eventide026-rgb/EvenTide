@@ -28,6 +28,7 @@ import { Logo } from "@/components/layout/logo";
 import { useAuth } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
+import { DashboardRedirector } from "@/components/auth/dashboard-redirector";
 
 const navItems = [
   { href: "/hotelier-dashboard", icon: Home, label: "Dashboard" },
@@ -56,6 +57,8 @@ export default function HotelierDashboardLayout({ children }: { children: React.
   };
 
   return (
+    <>
+    <DashboardRedirector expectedRole="Hotelier" />
     <SidebarProvider>
       <div className="flex h-screen w-full flex-row bg-muted/40 overflow-hidden">
         <Sidebar>
@@ -118,5 +121,6 @@ export default function HotelierDashboardLayout({ children }: { children: React.
         </div>
       </div>
     </SidebarProvider>
+    </>
   );
 }

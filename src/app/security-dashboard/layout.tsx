@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/firebase";
 import { signOut } from "firebase/auth";
+import { DashboardRedirector } from "@/components/auth/dashboard-redirector";
 
 export default function SecurityDashboardLayout({
   children,
@@ -26,6 +27,8 @@ export default function SecurityDashboardLayout({
 
 
   return (
+    <>
+    <DashboardRedirector expectedRole="Security" />
     <div className="flex h-screen flex-col bg-secondary">
        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center">
@@ -49,5 +52,6 @@ export default function SecurityDashboardLayout({
         {children}
       </main>
     </div>
+    </>
   );
 }

@@ -46,7 +46,7 @@ import { useUser, useDoc, useFirestore, useMemoFirebase, useAuth } from '@/fireb
 import { doc } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { NotificationBell } from '@/components/layout/notification-bell';
-
+import { DashboardRedirector } from '@/components/auth/dashboard-redirector';
 
 const baseNav = [
     {
@@ -160,7 +160,7 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
   const isGroupActive = (groupLinks: typeof baseNav[0]['links']) => {
     return groupLinks.some(link => {
         if (link.href === "/vendor-dashboard") {
-            return pathname === link.href;
+            return pathname === href;
         }
         return pathname.startsWith(link.href);
     });
@@ -168,6 +168,8 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
 
 
   return (
+    <>
+    <DashboardRedirector expectedRole="Vendor" />
     <TooltipProvider>
       <div className="flex min-h-screen bg-background text-foreground" style={{'--sidebar-width': '25.8rem', '--sidebar-width-mobile': '29rem'} as React.CSSProperties}>
         <aside className="sticky top-0 h-screen w-16 flex flex-col items-center py-4 border-r bg-background z-20">
@@ -260,5 +262,6 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
         </main>
       </div>
     </TooltipProvider>
+    </>
   );
 }

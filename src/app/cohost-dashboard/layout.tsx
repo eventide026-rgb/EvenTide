@@ -25,6 +25,7 @@ import { Logo } from "@/components/layout/logo";
 import { useAuth } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
+import { DashboardRedirector } from "@/components/auth/dashboard-redirector";
 
 const navItems = [
   { href: "/cohost-dashboard", icon: Home, label: "Dashboard" },
@@ -52,6 +53,8 @@ export default function CoHostDashboardLayout({ children }: { children: React.Re
   };
 
   return (
+    <>
+    <DashboardRedirector expectedRole="Co-host" />
     <SidebarProvider>
       <div className="flex h-screen w-full flex-row bg-muted/40 overflow-hidden">
         <Sidebar>
@@ -87,5 +90,6 @@ export default function CoHostDashboardLayout({ children }: { children: React.Re
         </div>
       </div>
     </SidebarProvider>
+    </>
   );
 }

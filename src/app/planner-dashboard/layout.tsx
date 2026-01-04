@@ -29,6 +29,9 @@ import {
   Building,
   Search,
   Settings,
+  Mail,
+  Percent,
+  Vote,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -50,6 +53,7 @@ import {
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { DashboardHeader } from '@/components/layout/dashboard-header';
+import { DashboardRedirector } from '@/components/auth/dashboard-redirector';
 
 const sidebarNav = [
     {
@@ -170,6 +174,8 @@ export default function PlannerDashboardLayout({ children }: { children: React.R
   }
 
   return (
+    <>
+    <DashboardRedirector expectedRole="Planner" />
     <SidebarProvider>
       <div className="flex h-screen w-full flex-row bg-muted/40 overflow-hidden">
         <Sidebar>
@@ -210,5 +216,6 @@ export default function PlannerDashboardLayout({ children }: { children: React.R
         </div>
       </div>
     </SidebarProvider>
+    </>
   );
 }
