@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export default function EditVenuePage({ params }: { params: Promise<{ venueId: string }> }) {
+export default function EditVenuePage({ params }: { params: { venueId: string } }) {
     const { venueId } = use(params);
 
     return (

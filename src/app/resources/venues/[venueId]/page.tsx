@@ -15,7 +15,7 @@ import { CheckCircle, Loader2, Users } from 'lucide-react';
 import { type Venue } from '@/components/venue-listing-card';
 import { VenueBookingDialog } from '@/components/venue-booking-dialog';
 
-export default function VenueDetailsPage({ params }: { params: Promise<{ venueId: string }> }) {
+export default function VenueDetailsPage({ params }: { params: { venueId: string } }) {
     const { venueId } = use(params);
     const firestore = useFirestore();
     const { user, isUserLoading } = useUser();
