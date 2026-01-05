@@ -64,30 +64,32 @@ export function ContactForm() {
 
         const supportTicketsCol = collection(firestore, "supportTickets");
 
-        try {
-            const docRef = await addDoc(supportTicketsCol, ticketData);
-            console.log("Support ticket created with ID: ", docRef.id);
-            toast({
-                title: "Message Sent!",
-                description: "Thank you for reaching out. Our team will get back to you shortly.",
+        addDoc(supportTicketsCol, ticketData)
+            .then((docRef) => {
+                console.log("Support ticket created with ID: ", docRef.id);
+                toast({
+                    title: "Message Sent!",
+                    description: "Thank you for reaching out. Our team will get back to you shortly.",
+                });
+                form.reset();
+            })
+            .catch((error) => {
+                console.error("Error creating support ticket: ", error);
+                const contextualError = new FirestorePermissionError({
+                    path: supportTicketsCol.path,
+                    operation: 'create',
+                    requestResourceData: ticketData,
+                });
+                errorEmitter.emit('permission-error', contextualError);
+                toast({
+                    variant: "destructive",
+                    title: "Uh oh! Something went wrong.",
+                    description: "There was a problem sending your message. Please try again.",
+                });
+            })
+            .finally(() => {
+                setIsLoading(false);
             });
-            form.reset();
-        } catch (error) {
-            console.error("Error creating support ticket: ", error);
-             const contextualError = new FirestorePermissionError({
-                path: supportTicketsCol.path,
-                operation: 'create',
-                requestResourceData: ticketData,
-            });
-            errorEmitter.emit('permission-error', contextualError);
-            toast({
-                variant: "destructive",
-                title: "Uh oh! Something went wrong.",
-                description: "There was a problem sending your message. Please try again.",
-            });
-        } finally {
-            setIsLoading(false);
-        }
     }
 
     return (

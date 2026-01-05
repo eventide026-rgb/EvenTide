@@ -69,30 +69,32 @@ export function TestimonialForm() {
 
         const testimonialsCol = collection(firestore, "testimonials");
 
-        try {
-            const docRef = await addDoc(testimonialsCol, testimonialData);
-            console.log("Testimonial submitted with ID: ", docRef.id);
-            toast({
-                title: "Submission Received!",
-                description: "Thank you for your feedback. Your testimonial is awaiting review.",
+        addDoc(testimonialsCol, testimonialData)
+            .then((docRef) => {
+                console.log("Testimonial submitted with ID: ", docRef.id);
+                toast({
+                    title: "Submission Received!",
+                    description: "Thank you for your feedback. Your testimonial is awaiting review.",
+                });
+                form.reset();
+            })
+            .catch((error) => {
+                console.error("Error adding document: ", error);
+                 const contextualError = new FirestorePermissionError({
+                    path: testimonialsCol.path,
+                    operation: 'create',
+                    requestResourceData: testimonialData,
+                });
+                errorEmitter.emit('permission-error', contextualError);
+                toast({
+                    variant: "destructive",
+                    title: "Uh oh! Something went wrong.",
+                    description: "There was a problem with your submission. Please try again.",
+                });
+            })
+            .finally(() => {
+                setIsLoading(false);
             });
-            form.reset();
-        } catch (error) {
-            console.error("Error adding document: ", error);
-             const contextualError = new FirestorePermissionError({
-                path: testimonialsCol.path,
-                operation: 'create',
-                requestResourceData: testimonialData,
-            });
-            errorEmitter.emit('permission-error', contextualError);
-            toast({
-                variant: "destructive",
-                title: "Uh oh! Something went wrong.",
-                description: "There was a problem with your submission. Please try again.",
-            });
-        } finally {
-            setIsLoading(false);
-        }
     }
 
     return (
