@@ -77,7 +77,7 @@ export function BookingDialog({ hotel, roomType, user, isUserLoading }: BookingD
         description: 'The hotelier has been notified. You will receive an update on your request shortly.',
       });
       setIsOpen(false);
-      form.reset();
+      resetForm();
     } catch (error) {
       console.error('Error creating booking:', error);
       toast({
@@ -102,11 +102,9 @@ export function BookingDialog({ hotel, roomType, user, isUserLoading }: BookingD
     );
   }
 
-  const form = {
-      reset: () => {
-          setDateRange(undefined);
-          setGuests(1);
-      }
+  const resetForm = () => {
+      setDateRange(undefined);
+      setGuests(1);
   }
 
   return (

@@ -98,7 +98,7 @@ export function HotelForm({ hotelId }: HotelFormProps) {
         name: "roomTypes",
     });
 
-     const { fields: imageUrlFields, append: appendImageUrl, remove: removeImageUrl } = useFieldArray({
+     const { remove: removeImageUrl } = useFieldArray({
         control: form.control,
         name: "imageUrls",
     });
@@ -297,52 +297,43 @@ export function HotelForm({ hotelId }: HotelFormProps) {
                 />
                 
                  <div className="space-y-4">
-                    <FormLabel>Hotel Images</FormLabel>
+                    <Label>Hotel Images</Label>
                     <FormDescription>Upload or add links to images of your property.</FormDescription>
-                    
-                    <div className='flex gap-2'>
-                        <Button type="button" variant="outline" asChild>
-                            <Label htmlFor="image-upload" className="cursor-pointer">
-                                <Upload className="mr-2 h-4 w-4" />
-                                Choose Images
-                            </Label>
-                        </Button>
-                        <Button type="button" variant="outline" size="sm" onClick={() => appendImageUrl("")}>
-                            <PlusCircle className="mr-2 h-4 w-4" /> Add by URL
-                        </Button>
-                        <FormControl>
-                            <Input id="image-upload" type="file" multiple accept="image/*" className="hidden" onChange={handleFileChange} />
-                        </FormControl>
-                    </div>
-
-                    <div className="space-y-2">
-                        {imageUrlFields.map((field, index) => (
-                            <FormField
-                                key={field.id}
-                                control={form.control}
-                                name={`imageUrls.${index}`}
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <div className="flex items-center gap-2">
-                                            {field.value.startsWith('data:image') ? (
-                                                <div className="flex items-center gap-2 w-full">
-                                                    <Image src={field.value} alt={`Preview ${index}`} width={40} height={40} className="rounded-md h-10 w-10 object-cover"/>
-                                                    <Input value="Uploaded Image" readOnly className="flex-1" />
-                                                </div>
-                                            ) : (
-                                                <FormControl><Input placeholder="https://example.com/image.jpg" {...field} /></FormControl>
-                                            )}
-                                            <Button type="button" variant="ghost" size="icon" onClick={() => removeImageUrl(index)}>
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                    <FormControl>
+                        <Input id="image-upload" type="file" multiple accept="image/*" className="hidden" onChange={handleFileChange} />
+                    </FormControl>
+                    <Button type="button" variant="outline" asChild>
+                        <Label htmlFor="image-upload" className="cursor-pointer">
+                            <Upload className="mr-2 h-4 w-4" />
+                            Choose Images
+                        </Label>
+                    </Button>
+                     <FormField
+                        control={form.control}
+                        name="imageUrls"
+                        render={() => <FormMessage />}
+                    />
+                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {imageUrls.map((url, index) => (
+                            <div key={index} className="relative group aspect-video">
+                                <Image
+                                    src={url}
+                                    alt={`Hotel image ${index + 1}`}
+                                    fill
+                                    className="object-cover rounded-md border"
+                                />
+                                <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => removeImageUrl(index)}
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
                         ))}
                     </div>
-                     <FormField control={form.control} name="imageUrls" render={() => (<FormMessage />)} />
                 </div>
 
 

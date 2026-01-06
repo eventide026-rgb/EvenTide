@@ -4,7 +4,7 @@
 import { useMemo, useState } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
-import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight, Edit } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -17,6 +17,7 @@ import { eachDayOfInterval, endOfMonth, format, startOfMonth, isWithinInterval, 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
 import { type Hotel, type RoomType } from '../hotel-listing-card';
+import Link from 'next/link';
 
 type Booking = {
   id: string;
@@ -85,16 +86,25 @@ export function HotelCalendar() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-         <Select onValueChange={setSelectedHotelId} value={selectedHotelId || ''} disabled={isLoadingHotels}>
-            <SelectTrigger className="w-full md:w-1/3">
-                <SelectValue placeholder="Select a hotel..." />
-            </SelectTrigger>
-            <SelectContent>
-                {hotels?.map(hotel => (
-                    <SelectItem key={hotel.id} value={hotel.id}>{hotel.name}</SelectItem>
-                ))}
-            </SelectContent>
-        </Select>
+         <div className="flex gap-2 w-full md:w-auto">
+            <Select onValueChange={setSelectedHotelId} value={selectedHotelId || ''} disabled={isLoadingHotels}>
+                <SelectTrigger className="w-full md:w-64">
+                    <SelectValue placeholder="Select a hotel..." />
+                </SelectTrigger>
+                <SelectContent>
+                    {hotels?.map(hotel => (
+                        <SelectItem key={hotel.id} value={hotel.id}>{hotel.name}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+             {selectedHotelId && (
+                <Button variant="outline" asChild>
+                    <Link href={`/hotelier-dashboard/my-hotels/${selectedHotelId}/edit`}>
+                        <Edit className="mr-2 h-4 w-4" /> Edit Hotel
+                    </Link>
+                </Button>
+            )}
+         </div>
         <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" onClick={handlePrevMonth}><ChevronLeft/></Button>
             <span className="font-semibold text-lg w-36 text-center">{format(currentDate, 'MMMM yyyy')}</span>
@@ -155,4 +165,3 @@ export function HotelCalendar() {
     </div>
   );
 }
-
