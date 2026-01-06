@@ -25,10 +25,11 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/layout/logo";
-import { useAuth } from "@/firebase";
+import { useAuth, useUser } from "@/firebase";
 import { signOut } from "firebase/auth";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { DashboardRedirector } from "@/components/auth/dashboard-redirector";
+import { useEffect, useState } from "react";
 
 const navItems = [
   { href: "/car-hire-dashboard", icon: Home, label: "Dashboard" },
@@ -41,6 +42,15 @@ export default function CarHireDashboardLayout({ children }: { children: React.R
   const pathname = usePathname();
   const auth = useAuth();
   const router = useRouter();
+  const { user } = useUser();
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+        // Fallback to a default name if display name is not set
+        setUserName(user.displayName || sessionStorage.getItem('userName') || "Car Hire Service");
+    }
+  }, [user]);
 
   const handleSignOut = async () => {
     if (auth) {
@@ -94,12 +104,12 @@ export default function CarHireDashboardLayout({ children }: { children: React.R
                           tooltip={{ children: 'Profile' }}
                       >
                           <Avatar className="h-8 w-8">
-                              <AvatarImage src="https://picsum.photos/seed/car-hire/100/100" alt="Car Hire Service" />
-                              <AvatarFallback>C</AvatarFallback>
+                              <AvatarImage src={`https://picsum.photos/seed/${user?.uid}/100`} alt={userName || ''} />
+                              <AvatarFallback>{userName ? userName.charAt(0) : 'C'}</AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col text-left">
-                              <span className="font-semibold">Prestige Rentals</span>
-                              <span className="text-xs text-muted-foreground">cars@eventide.app</span>
+                              <span className="font-semibold">{userName}</span>
+                              <span className="text-xs text-muted-foreground">{user?.email}</span>
                           </div>
                       </SidebarMenuButton>
                   </Link>

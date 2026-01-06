@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { CarListingCard } from '@/components/car-listing-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { type Car } from '@/components/car-listing-card';
+import { PlusCircle } from 'lucide-react';
 
 export default function MyCarsPage() {
   const { user, isUserLoading } = useUser();
@@ -31,7 +32,10 @@ export default function MyCarsPage() {
           <p className="text-muted-foreground">Manage your vehicle listings.</p>
         </div>
         <Button asChild>
-          <Link href="/car-hire-dashboard/my-cars/new">Add New Car</Link>
+          <Link href="/car-hire-dashboard/my-cars/new">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Add New Car
+          </Link>
         </Button>
       </div>
 
@@ -56,7 +60,7 @@ export default function MyCarsPage() {
           {!isLoading && myCars && myCars.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {myCars.map((car) => (
-                <CarListingCard key={car.id} car={car} />
+                <CarListingCard key={car.id} car={car} isDashboard />
               ))}
             </div>
           )}
@@ -66,7 +70,10 @@ export default function MyCarsPage() {
               <h3 className="text-xl font-semibold">You haven't listed any cars yet.</h3>
               <p className="text-muted-foreground mt-2 mb-4">Click the button below to add your first vehicle.</p>
               <Button asChild>
-                <Link href="/car-hire-dashboard/my-cars/new">Add New Car</Link>
+                <Link href="/car-hire-dashboard/my-cars/new">
+                   <PlusCircle className="mr-2 h-4 w-4" />
+                   Add New Car
+                </Link>
               </Button>
             </div>
           )}

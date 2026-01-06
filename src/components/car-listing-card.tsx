@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -23,11 +24,14 @@ export type Car = {
 
 type CarListingCardProps = {
   car: Car;
+  isDashboard?: boolean;
 };
 
-export function CarListingCard({ car }: CarListingCardProps) {
+export function CarListingCard({ car, isDashboard = false }: CarListingCardProps) {
+  const linkHref = isDashboard ? `/car-hire-dashboard/my-cars/${car.id}/edit` : `/resources/cars/${car.id}`;
+  
   return (
-    <Link href={`/resources/cars/${car.id}`} className="group block">
+    <Link href={linkHref} className="group block">
       <Card className="overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl">
         <CardHeader className="p-0">
           <div className="aspect-video relative overflow-hidden">
