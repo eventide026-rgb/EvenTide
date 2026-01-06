@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -25,6 +26,8 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, PenSquare, Send } from 'lucide-react';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 type Autograph = {
   id: string;
@@ -74,9 +77,20 @@ export default function AutographWallPage() {
         createdAt: serverTimestamp(),
     };
 
-    await addDoc(collection(firestore, 'events', eventId, 'autographs'), autographData);
-    toast({ title: 'Message Left!', description: 'Thank you for your kind words.' });
-    form.reset();
+    try {
+        const autographsCol = collection(firestore, 'events', eventId, 'autographs');
+        await addDoc(autographsCol, autographData);
+        toast({ title: 'Message Left!', description: 'Thank you for your kind words.' });
+        form.reset();
+    } catch (error) {
+        console.error("Error adding autograph: ", error);
+        const contextualError = new FirestorePermissionError({
+            path: `events/${eventId}/autographs`,
+            operation: 'create',
+            requestResourceData: autographData,
+        });
+        errorEmitter.emit('permission-error', contextualError);
+    }
   };
   
   const isLoading = isUserLoading || isLoadingAutographs;

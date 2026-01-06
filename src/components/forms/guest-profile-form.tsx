@@ -21,6 +21,8 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { Guest } from '@/lib/types';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 const profileSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -64,22 +66,28 @@ export function GuestProfileForm() {
   async function onSubmit(values: z.infer<typeof profileSchema>) {
     if (!guestDocRef) return;
     setIsSaving(true);
+    const updatedData = { name: values.name };
+
     try {
-      await updateDoc(guestDocRef, {
-        name: values.name,
-      });
+      await updateDoc(guestDocRef, updatedData);
       sessionStorage.setItem('guestName', values.name);
       toast({
         title: 'Profile Updated',
         description: 'Your name has been updated for this event.',
       });
     } catch (error) {
-      console.error('Error updating guest profile:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Update Failed',
-        description: 'Could not save your changes. Please try again.',
-      });
+        console.error("Error updating guest profile:", error);
+        const permissionError = new FirestorePermissionError({
+            path: guestDocRef.path,
+            operation: 'update',
+            requestResourceData: updatedData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        toast({
+            variant: 'destructive',
+            title: 'Update Failed',
+            description: 'Could not save your changes. Please try again.',
+        });
     } finally {
       setIsSaving(false);
     }
