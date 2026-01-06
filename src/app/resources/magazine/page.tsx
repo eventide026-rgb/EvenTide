@@ -2,78 +2,57 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { collection, query, where } from "firebase/firestore";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const initialIssues = [
-    {
-        href: "#",
-        date: "October 2024",
-        title: "The Art of the Gathering",
-        image: PlaceHolderImages.find(img => img.id === 'africansFun1')
-    },
-    {
-        href: "#",
-        date: "September 2024",
-        title: "Harvest of Connections",
-        image: PlaceHolderImages.find(img => img.id === 'gardenParty')
-    },
-    {
-        href: "#",
-        date: "August 2024",
-        title: "Summer Soirees & City Lights",
-        image: PlaceHolderImages.find(img => img.id === 'eventHall')
-    },
-    {
-        href: "#",
-        date: "July 2024",
-        title: "Aso-Ebi & Allegiance",
-        image: PlaceHolderImages.find(img => img.id === 'africansFun2')
-    },
-];
+type Issue = {
+    id: string;
+    title: string;
+    introduction: string;
+    status: 'draft' | 'published';
+    eventSummaries: { eventName: string; summary: string }[];
+    // For now, we'll assume the first event's image is the cover
+};
 
-const olderIssues = [
-    {
-        href: "#",
-        date: "June 2024",
-        title: "The Chairman's Gala",
-        image: {
-            "id": "olderGala",
-            "description": "An elegant gala event with dramatic lighting.",
-            "imageUrl": "https://picsum.photos/seed/gala/400/600",
-            "imageHint": "elegant gala"
-        }
-    },
-    {
-        href: "#",
-        date: "May 2024",
-        title: "Vendor Spotlight: The Culinary Artists",
-        image: {
-            "id": "olderFood",
-            "description": "A close up of beautifully plated food at an event.",
-            "imageUrl": "https://picsum.photos/seed/eventfood/400/600",
-            "imageHint": "event food"
-        }
-    }
-]
+function MagazineCover({ issue }: { issue: Issue }) {
+    // In a real app, the cover image would be a dedicated field.
+    // For now, we'll generate a consistent one based on the ID.
+    const imageUrl = `https://picsum.photos/seed/${issue.id}/400/600`;
+    return (
+         <Link href={`/resources/magazine/${issue.id}`} key={issue.id} className="group block">
+            <div className="overflow-hidden rounded-lg shadow-md group-hover:shadow-2xl transition-shadow duration-300">
+                <Image
+                    src={imageUrl}
+                    alt={issue.title}
+                    width={400}
+                    height={600}
+                    className="w-full object-cover aspect-[3/4] transition-transform duration-300 group-hover:scale-105"
+                />
+            </div>
+            <div className="mt-4">
+                <p className="text-sm text-muted-foreground">{new Date(issue.createdAt?.toDate()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+                <h3 className="text-lg font-bold font-headline mt-1 group-hover:text-primary transition-colors">{issue.title}</h3>
+            </div>
+        </Link>
+    )
+}
 
 
 export default function MagazinePage() {
-    const [issues, setIssues] = useState(initialIssues);
-    const [isLoading, setIsLoading] = useState(false);
-    const [hasLoadedMore, setHasLoadedMore] = useState(false);
+    const firestore = useFirestore();
+    
+    const issuesQuery = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return query(collection(firestore, "magazineIssues"), where('status', '==', 'published'));
+    }, [firestore]);
 
-    const handleLoadMore = () => {
-        setIsLoading(true);
-        setTimeout(() => {
-            setIssues(prev => [...prev, ...olderIssues]);
-            setIsLoading(false);
-            setHasLoadedMore(true);
-        }, 1500);
-    }
-
+    const { data: issues, isLoading } = useCollection<Issue>(issuesQuery);
+    
     return (
         <section className="bg-secondary py-16 md:py-24">
             <div className="container mx-auto px-4">
@@ -88,37 +67,25 @@ export default function MagazinePage() {
                         </Button>
                     </div>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                    {issues.map((issue, index) => (
-                        <Link href={issue.href} key={index} className="group block">
-                            <div className="overflow-hidden rounded-lg shadow-md group-hover:shadow-2xl transition-shadow duration-300">
-                                {issue.image && (
-                                    <Image
-                                        src={issue.image.imageUrl}
-                                        alt={issue.image.description}
-                                        width={400}
-                                        height={600}
-                                        className="w-full object-cover aspect-[3/4] transition-transform duration-300 group-hover:scale-105"
-                                        data-ai-hint={issue.image.imageHint}
-                                    />
-                                )}
-                            </div>
-                            <div className="mt-4">
-                                <p className="text-sm text-muted-foreground">{issue.date}</p>
-                                <h3 className="text-lg font-bold font-headline mt-1 group-hover:text-primary transition-colors">{issue.title}</h3>
-                            </div>
-                        </Link>
-                    ))}
-                </div>
                 
-                {!hasLoadedMore && (
-                    <div className="text-center mt-12">
-                        <Button onClick={handleLoadMore} disabled={isLoading} size="lg">
-                            {isLoading ? "Loading..." : "Load More Issues"}
-                        </Button>
+                {isLoading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                        {[...Array(4)].map((_, i) => (
+                           <div key={i} className="space-y-2">
+                             <Skeleton className="w-full aspect-[3/4]" />
+                             <Skeleton className="h-4 w-1/3" />
+                             <Skeleton className="h-6 w-2/3" />
+                           </div>
+                        ))}
                     </div>
+                ) : issues && issues.length > 0 ? (
+                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                        {issues.map((issue) => <MagazineCover key={issue.id} issue={issue} />)}
+                    </div>
+                ) : (
+                    <p className="text-center text-muted-foreground py-16">No issues have been published yet.</p>
                 )}
+
             </div>
         </section>
     );

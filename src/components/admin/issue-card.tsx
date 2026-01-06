@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
-export type IssueStatus = 'Draft' | 'Preview' | 'Published';
+export type IssueStatus = 'Draft' | 'Published';
 
 export type Issue = {
   title: string;
@@ -31,7 +32,6 @@ export function IssueCard({ issue }: IssueCardProps) {
             <Badge
                 variant={
                     issue.status === 'Published' ? 'default' :
-                    issue.status === 'Preview' ? 'secondary' :
                     'outline'
                 }
                 className={cn(issue.status === 'Published' && 'bg-green-600 hover:bg-green-600/80')}

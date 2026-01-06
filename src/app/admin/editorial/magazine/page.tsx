@@ -1,9 +1,10 @@
 
 'use client';
 
-import { useState } from 'react';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, where, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useCollection, useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query, where, addDoc, serverTimestamp, doc } from 'firebase/firestore';
 import { Card, CardDescription, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, Sparkles } from 'lucide-react';
@@ -14,7 +15,7 @@ import {
 } from '@/ai/flows/curate-community-magazine';
 import { MagazinePreview } from '@/components/admin/magazine-preview';
 
-type Event = {
+type Show = {
     id: string;
     name: string;
     description: string;
@@ -30,11 +31,27 @@ export type MagazineIssue = MagazineCurationOutput & {
     publishedAt?: any;
 }
 
-export default function MagazineCurationPage() {
+function MagazineCurationPageContent() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [magazineDraft, setMagazineDraft] = useState<MagazineIssue | null>(null);
+  const searchParams = useSearchParams();
+  const issueId = searchParams.get('issueId');
+
+  const issueDocRef = useMemoFirebase(() => {
+    if(!firestore || !issueId) return null;
+    return doc(firestore, 'magazineIssues', issueId);
+  }, [firestore, issueId]);
+  
+  const {data: loadedIssue, isLoading: isLoadingIssue} = useDoc<MagazineIssue>(issueDocRef);
+  
+  useEffect(() => {
+      if(loadedIssue) {
+          setMagazineDraft(loadedIssue);
+      }
+  }, [loadedIssue]);
+
 
   const publicEventsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -48,7 +65,7 @@ export default function MagazineCurationPage() {
     );
   }, [firestore]);
 
-  const { data: publicEvents, isLoading: isLoadingEvents } = useCollection<Event>(publicEventsQuery);
+  const { data: publicEvents, isLoading: isLoadingEvents } = useCollection<Show>(publicEventsQuery);
 
   const handleGenerateDraft = async () => {
     if (!publicEvents || publicEvents.length === 0) {
@@ -124,15 +141,14 @@ export default function MagazineCurationPage() {
           </Button>
         </CardHeader>
         <CardContent>
-          {isLoading && (
+          {isLoading || isLoadingIssue ? (
              <div className="flex flex-col items-center justify-center py-16">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <p className="mt-4 text-muted-foreground">Eni is curating the latest issue...</p>
+                <p className="mt-4 text-muted-foreground">Eni is working...</p>
              </div>
-          )}
-          {!isLoading && magazineDraft ? (
+          ) : magazineDraft ? (
             <MagazinePreview draft={magazineDraft} />
-          ) : !isLoading && (
+          ) : (
              <div className="text-center py-16 border-dashed border-2 rounded-lg">
                 <h3 className="text-xl font-semibold">Generate an issue to begin</h3>
                  <p className="text-muted-foreground mt-2 max-w-md mx-auto">
@@ -146,4 +162,10 @@ export default function MagazineCurationPage() {
   );
 }
 
-      
+export default function MagazineCurationPage() {
+    return (
+        <Suspense fallback={<div className="flex h-64 w-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+            <MagazineCurationPageContent />
+        </Suspense>
+    )
+}

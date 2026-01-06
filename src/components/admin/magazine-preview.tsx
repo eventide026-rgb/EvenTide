@@ -31,9 +31,10 @@ export function MagazinePreview({ draft: initialDraft }: MagazinePreviewProps) {
 
   const handleSummaryChange = (index: number, value: string) => {
      setDraft(prev => {
-        const newSummaries = [...prev!.eventSummaries];
+        if (!prev) return prev;
+        const newSummaries = [...prev.eventSummaries];
         newSummaries[index].summary = value;
-        return { ...prev!, eventSummaries: newSummaries };
+        return { ...prev, eventSummaries: newSummaries };
     });
   }
 
@@ -180,5 +181,3 @@ export function MagazinePreview({ draft: initialDraft }: MagazinePreviewProps) {
     </div>
   );
 }
-
-      
