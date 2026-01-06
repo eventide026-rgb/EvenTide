@@ -22,6 +22,14 @@ import {
   Paintbrush,
   Shirt,
   Music,
+  Shield,
+  Hotel,
+  Building,
+  Search,
+  Settings,
+  Mail,
+  Percent,
+  Vote,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';

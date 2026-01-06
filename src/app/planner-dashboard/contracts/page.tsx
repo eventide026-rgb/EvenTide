@@ -3,7 +3,7 @@
 
 import { useState, useMemo } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, updateDoc, deleteDoc, documentId } from 'firebase/firestore';
+import { collection, query, where, doc, updateDoc, deleteDoc, documentId, orderBy } from 'firebase/firestore';
 import {
   Card,
   CardContent,
@@ -31,7 +31,6 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Trash2, MessageSquare, UserX, Search } from 'lucide-react';
-import { format } from 'date-fns';
 import Link from 'next/link';
 
 type EventPlannerAssignment = {

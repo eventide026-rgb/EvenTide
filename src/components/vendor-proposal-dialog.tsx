@@ -75,7 +75,7 @@ export function VendorProposalDialog({ vendor }: VendorProposalDialogProps) {
 
     const plannerAssignmentsQuery = useMemoFirebase(() => {
         if (!firestore || !user?.uid) return null;
-        return query(collection(firestore, 'planners'), where('plannerId', '==', user.uid));
+        return query(collection(firestore, 'planners', user.uid, 'assignments'), where('status', '==', 'accepted'));
     }, [firestore, user?.uid]);
     const { data: assignments, isLoading: isLoadingAssignments } = useCollection<EventPlannerAssignment>(plannerAssignmentsQuery);
     const eventIds = useMemo(() => assignments?.map(a => a.eventId) || [], [assignments]);
