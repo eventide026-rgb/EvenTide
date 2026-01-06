@@ -126,7 +126,6 @@ export function UserManagementTable() {
                     <Select
                       value={user.role}
                       onValueChange={(value) => handleRoleChange(user.id, value)}
-                      disabled={!availableRoles.includes(user.role)}
                     >
                       <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Select a role" />
