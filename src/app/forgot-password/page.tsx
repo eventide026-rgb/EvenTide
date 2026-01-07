@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -64,7 +65,7 @@ export default function ForgotPasswordPage() {
         variant: 'destructive',
         title: 'Request Failed',
         description:
-          'Could not send a password reset email. Please ensure the email address is correct and registered.',
+          error.message || 'Could not send a password reset email. Please ensure the email address is correct and registered.',
       });
     } finally {
       setIsLoading(false);

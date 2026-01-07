@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -49,7 +50,7 @@ export function TestimonialForm() {
         },
     });
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof formSchema>>) {
         if (!firestore) {
             toast({
                 variant: "destructive",
@@ -66,7 +67,7 @@ export function TestimonialForm() {
             createdAt: new Date(),
         };
 
-        const testimonialsCol = collection(firestore, "events");
+        const testimonialsCol = collection(firestore, "testimonials");
 
         addDoc(testimonialsCol, testimonialData)
             .then((docRef) => {
