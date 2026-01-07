@@ -162,7 +162,7 @@ service cloud.firestore {
             allow create: if isEventStaff(eventId) || isAdmin();
             allow delete: if isEventStaff(eventId) || isAdmin();
             allow update(writeFields): if isEventStaff(eventId) || 
-                                          (isEventGuest(eventId, guestId) && writeFields.hasOnly(['rsvpStatus'])) ||
+                                          (isEventGuest(eventId, guestId) && writeFields.hasOnly(['rsvpStatus', 'name'])) ||
                                           (isSecurityForEvent(eventId) && writeFields.hasOnly(['hasCheckedIn', 'checkInTime']));
         }
 
