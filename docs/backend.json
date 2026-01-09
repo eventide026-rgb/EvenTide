@@ -255,6 +255,22 @@
         },
         "required": ["id", "eventId", "ownerId", "designerId", "description", "budget", "status"]
     },
+    "VendorContract": {
+        "title": "VendorContract",
+        "type": "object",
+        "description": "Represents a formal proposal from a Planner to a Vendor for a specific service.",
+        "properties": {
+            "id": { "type": "string" },
+            "eventId": { "type": "string" },
+            "plannerId": { "type": "string" },
+            "vendorId": { "type": "string" },
+            "vendorName": { "type": "string" },
+            "serviceDescription": { "type": "string", "description": "A clear description of the service required." },
+            "proposedPayment": { "type": "number", "description": "The payment offered for the service in Naira." },
+            "status": { "type": "string", "enum": ["pending", "accepted", "declined", "dropped_out", "completed"], "description": "The status of the proposal." }
+        },
+        "required": ["id", "eventId", "plannerId", "vendorId", "serviceDescription", "proposedPayment", "status"]
+    },
     "TicketTier": {
       "title": "TicketTier",
       "type": "object",
@@ -977,6 +993,18 @@
         }
       },
       {
+          "path": "/events/{eventId}/vendorContracts/{contractId}",
+          "definition": {
+              "entityName": "VendorContract",
+              "schema": { "$ref": "#/backend/entities/VendorContract" },
+              "description": "Stores service proposals from planners to vendors for an event.",
+              "params": [
+                  { "name": "eventId", "description": "The unique identifier of the event." },
+                  { "name": "contractId", "description": "The unique identifier of the vendor contract." }
+              ]
+          }
+      },
+      {
         "path": "/events/{eventId}/guests/{guestId}",
         "definition": {
           "entityName": "Guest",
@@ -1137,5 +1165,3 @@
     "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging. Public, ticketed shows created by Ticketiers are stored in a top-level `/shows` collection, separating them from private events created by Hosts, which are stored in the `/events` collection. This structural segregation improves query performance and simplifies security rules. User data is kept in a separate `/users` collection, and public Ticketier profiles are in `/ticketiers`, both secured by path-based ownership. Subcollections for shows (like `ticketTiers` and `tickets`) and events (like `guests` and `planners`) are nested under their parent documents, ensuring data locality and enabling targeted queries and security. A dedicated `notifications` subcollection under each user provides a private, real-time channel for alerts."
   }
 }
-
-      
