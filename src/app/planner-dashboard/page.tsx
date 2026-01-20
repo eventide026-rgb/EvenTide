@@ -7,8 +7,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Briefcase,
   Calendar,
@@ -16,7 +16,7 @@ import {
   Clock,
   MoreVertical,
   Users,
-} from 'lucide-react';
+} from "lucide-react";
 import Link from 'next/link';
 import { useState, useMemo, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -26,7 +26,7 @@ import {
   useUser,
   useMemoFirebase,
 } from '@/firebase';
-import { collection, query, where, doc, documentId } from 'firebase/firestore';
+import { collection, query, where, doc, documentId, orderBy, limit } from 'firebase/firestore';
 import { Countdown } from '@/components/countdown';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, isFuture, isToday } from 'date-fns';
@@ -119,6 +119,7 @@ export default function PlannerDashboardPage() {
 
 
   const guestCount = guests?.length ?? 0;
+  const checkedInCount = guests?.filter(g => g.hasCheckedIn).length ?? 0;
   const rsvpRate = selectedEvent?.guestCapacity
     ? Math.round((guestCount / selectedEvent.guestCapacity) * 100)
     : 0;
@@ -216,6 +217,29 @@ export default function PlannerDashboardPage() {
                   <Countdown date={selectedEvent.date} />
                 </CardContent>
               </Card>
+
+              <div className="grid grid-cols-2 gap-6">
+                 <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium flex items-center gap-2"><Users className="h-4 w-4" /> Total Guests</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">
+                            {isLoadingGuests ? <Loader2 className="h-6 w-6 animate-spin"/> : `${guestCount} / ${selectedEvent.guestCapacity}`}
+                        </div>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium flex items-center gap-2"><CheckSquare className="h-4 w-4" /> Check-ins</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">
+                             {isLoadingGuests ? <Loader2 className="h-6 w-6 animate-spin" /> : `${checkedInCount} / ${guestCount}`}
+                        </div>
+                    </CardContent>
+                </Card>
+              </div>
 
                <Card>
                 <CardHeader>

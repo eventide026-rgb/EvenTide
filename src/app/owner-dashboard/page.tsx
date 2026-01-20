@@ -9,9 +9,9 @@ import Link from "next/link";
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { useCollection, useFirestore, useUser, useMemoFirebase } from "@/firebase";
-import { collection, query, where } from "firebase/firestore";
+import { collection, query, where, orderBy, limit } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
-import { isToday, isFuture } from 'date-fns';
+import { isToday, isFuture, format } from 'date-fns';
 import { Countdown } from '@/components/countdown';
 
 type Event = {
@@ -26,8 +26,15 @@ type Event = {
 
 type Guest = {
     id: string;
+    hasCheckedIn: boolean;
 }
 
+type Task = {
+    id: string;
+    title: string;
+    dueDate?: any;
+    status: 'To Do' | 'In Progress' | 'Completed';
+}
 
 export default function OwnerDashboardPage() {
     const { user, isUserLoading } = useUser();
@@ -70,9 +77,23 @@ export default function OwnerDashboardPage() {
         if (!firestore || !selectedEventId) return null;
         return query(collection(firestore, 'events', selectedEventId, 'guests'));
     }, [firestore, selectedEventId]);
-
     const { data: guests, isLoading: isLoadingGuests } = useCollection<Guest>(guestsQuery);
+
+    const tasksQuery = useMemoFirebase(() => {
+        if (!firestore || !selectedEventId) return null;
+        return query(
+            collection(firestore, 'events', selectedEventId, 'tasks'),
+            where('status', '!=', 'Completed'),
+            orderBy('status'),
+            orderBy('dueDate', 'asc'),
+            limit(5)
+        );
+    }, [firestore, selectedEventId]);
+    const { data: tasks, isLoading: isLoadingTasks } = useCollection<Task>(tasksQuery);
+
+
     const guestCount = guests?.length ?? 0;
+    const checkedInCount = guests?.filter(g => g.hasCheckedIn).length ?? 0;
     const rsvpRate = selectedEvent?.guestCapacity ? Math.round((guestCount / selectedEvent.guestCapacity) * 100) : 0;
 
 
@@ -83,7 +104,7 @@ export default function OwnerDashboardPage() {
     }, [events, selectedEventId]);
     
     const isLoading = isUserLoading || isLoadingEvents;
-
+    const isLoadingDetails = isLoadingGuests || isLoadingTasks;
 
     return (
         <div className="h-full flex flex-col">
@@ -136,7 +157,7 @@ export default function OwnerDashboardPage() {
                         </CardContent>
                     </Card>
                 </div>
-                <div className="lg:col-span-8 xl:col-span-9">
+                <div className="lg:col-span-8 xl:col-span-9 space-y-6">
                     {isLoading && !selectedEvent ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 content-start">
                             <Skeleton className="h-40 md:col-span-2" />
@@ -146,6 +167,7 @@ export default function OwnerDashboardPage() {
                             <Skeleton className="h-24" />
                         </div>
                     ) : selectedEvent ? (
+                        <>
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 content-start">
                             <Card className="md:col-span-2">
                                 <CardHeader className="flex flex-row items-start justify-between">
@@ -197,10 +219,35 @@ export default function OwnerDashboardPage() {
                                     <CardTitle className="text-sm font-medium flex items-center gap-2"><CheckCircle className="h-4 w-4" /> Check-ins</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold">0 / {guestCount}</div>
+                                    <div className="text-2xl font-bold">
+                                        {isLoadingGuests ? <Loader2 className="h-6 w-6 animate-spin" /> : `${checkedInCount} / ${guestCount}`}
+                                    </div>
                                 </CardContent>
                             </Card>
                         </div>
+                         <Card>
+                            <CardHeader>
+                                <CardTitle>Upcoming Tasks</CardTitle>
+                                <CardDescription>A read-only view of your planner's next tasks.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                {isLoadingDetails ? <Loader2 className="h-6 w-6 animate-spin" /> : (
+                                    tasks && tasks.length > 0 ? (
+                                        <ul className="space-y-2">
+                                            {tasks.map(task => (
+                                                <li key={task.id} className="flex items-center justify-between text-sm p-2 rounded-md bg-muted/50">
+                                                    <span className="font-medium">{task.title}</span>
+                                                    <span className="text-muted-foreground text-xs">{task.dueDate ? `Due: ${format(task.dueDate.toDate(), 'MMM dd')}` : ''}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <p className="text-sm text-muted-foreground">No pending tasks for this event.</p>
+                                    )
+                                )}
+                            </CardContent>
+                        </Card>
+                        </>
                     ) : (
                          <div className="text-center py-16 border-dashed border-2 rounded-lg">
                             <h3 className="text-xl font-semibold">No Event Selected</h3>
