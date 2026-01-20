@@ -3,7 +3,7 @@
 
 import { useMemo } from 'react';
 import { useCollection, useCollectionGroup, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collectionGroup, query, where, doc, updateDoc, documentId } from 'firebase/firestore';
+import { collectionGroup, query, where, doc, updateDoc, documentId, arrayUnion, writeBatch } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -14,6 +14,7 @@ type Proposal = {
   id: string; // The contract ID
   eventId: string;
   plannerId: string;
+  vendorId: string;
   serviceDescription: string;
   proposedPayment: number;
   status: 'pending' | 'accepted' | 'declined' | 'completed';
@@ -51,10 +52,22 @@ export default function ProposalsPage() {
   const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
 
   const handleUpdateStatus = async (proposal: Proposal, status: 'accepted' | 'declined') => {
-    if (!firestore) return;
+    if (!firestore || !user) return;
+    
     const contractRef = doc(firestore, 'events', proposal.eventId, 'vendorContracts', proposal.id);
+    const eventRef = doc(firestore, 'events', proposal.eventId);
+    const batch = writeBatch(firestore);
+    
+    batch.update(contractRef, { status });
+
+    if (status === 'accepted') {
+        batch.update(eventRef, {
+            acceptedVendorIds: arrayUnion(proposal.vendorId)
+        });
+    }
+
     try {
-        await updateDoc(contractRef, { status });
+        await batch.commit();
         toast({
             title: `Proposal ${status}`,
             description: "The event planner has been notified of your decision.",
@@ -131,3 +144,5 @@ export default function ProposalsPage() {
     </div>
   );
 }
+
+    

@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useMemo } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
+import { collectionGroup, query, where } from 'firebase/firestore';
 import {
   Card,
   CardContent,
@@ -38,7 +39,7 @@ export default function MyGigsPage() {
 
   const gigsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
-    return query(collection(firestore, 'vendorContracts'), where('vendorId', '==', user.uid), where('status', '==', 'accepted'));
+    return query(collectionGroup(firestore, 'vendorContracts'), where('vendorId', '==', user.uid), where('status', '==', 'accepted'));
   }, [firestore, user?.uid]);
 
   const { data: gigs, isLoading } = useCollection<VendorContract>(gigsQuery);
@@ -117,3 +118,5 @@ export default function MyGigsPage() {
     </Card>
   );
 }
+
+    

@@ -60,6 +60,11 @@ service cloud.firestore {
         return isSignedIn() && event.data.securityPersonnel != null && request.auth.uid in event.data.securityPersonnel;
       }
 
+      function isAcceptedVendor(eventId) {
+        let event = getEvent(eventId);
+        return isSignedIn() && event.data.acceptedVendorIds != null && request.auth.uid in event.data.acceptedVendorIds;
+      }
+
       function isEventStaff(eventId) {
         let event = getEvent(eventId);
         return isSignedIn() && (
@@ -232,7 +237,7 @@ service cloud.firestore {
 
         match /media/{mediaId} {
             allow read, list: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAdmin();
-            allow create: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid);
+            allow create: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAcceptedVendor(eventId);
             allow delete: if isEventStaff(eventId) || isOwner(resource.data.uploaderId);
             allow update: if false;
         }
@@ -255,7 +260,7 @@ service cloud.firestore {
         
         match /autographs/{autographId} {
             allow read, list: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid);
-            allow create: if isEventGuest(eventId, request.resource.data.guestId);
+            allow create: if isEventGuest(eventId, request.auth.uid);
             allow delete: if isEventStaff(eventId);
         }
 
@@ -330,3 +335,5 @@ service cloud.firestore {
       }
     }
   }
+
+    
