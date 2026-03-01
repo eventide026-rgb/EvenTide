@@ -2,6 +2,25 @@
 
 Welcome to the EvenTide platform documentation. This file provides an overview of the platform's entry point and core user experience.
 
+## The EvenTide Logo: A Visual Identity
+
+The EvenTide logo is a masterclass in minimalist yet evocative branding, designed to represent the platform's core mission: the intersection of timeless celebration and modern technology.
+
+### Visual Composition
+The logo consists of the word **"EvenTide"** rendered in a bold, sophisticated serif typeface (**Playfair Display**). This choice of font communicates elegance, heritage, and the high-quality nature of the events managed on the platform. The capitalization of the "T" emphasizes the two halves of the name, suggesting the natural flow and rhythm of a perfectly timed celebration.
+
+### Color and Gradient
+The most striking feature of the logo is its dynamic color treatment. It employs a vibrant horizontal gradient that transitions seamlessly from a **bright sky blue** to a **warm, sun-kissed golden yellow**. 
+
+*   **Blue**: Represents the calm, professional planning and the technological intelligence provided by Eni.
+*   **Yellow**: Represents the warmth of community, the joy of celebration, and the "golden hour" of an unforgettable moment.
+
+### Symbolic Meaning
+The gradient itself is a visual metaphor for the "tide" mentioned in the platform's name. It suggests the transition of light during a day of festivities—moving from the crisp clarity of the planning phases into the warm, glowing success of the actual event.
+
+### Digital Execution
+The logo is implemented as a high-performance CSS element using a linear gradient background clipped to the text. This ensures the branding remains sharp, accessible, and vibrant on every screen, from mobile scanners to high-resolution desktop displays.
+
 ## The Landing Page Header: A Detailed Overview
 
 The EvenTide landing page header is a sophisticated, highly functional navigation component designed to be both visually striking and intuitive. It serves as the primary gateway to the platform's diverse resources and marketplaces.
