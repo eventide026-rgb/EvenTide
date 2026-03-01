@@ -70,7 +70,7 @@ Recognizing the diverse ecosystem of event management, a specialized section det
 - **Guests & Security:** Personalized digital assets and secure check-ins.
 
 ### Transparent Monetization: Pricing Tiers
-The page concludes with a clear presentation of five distinct pricing tiers. Each card outlines the guest limits, included roles (planners, co-hosts, security), and key features, allowing users to find the package that perfectly fits the scale of their occasion.
+The page concludes with a clear presentation of five distinct pricing tiers. Each card outlines the guest limits, included roles (planners, co-hosts, security), and key features, allowing users to find the package that perfectly fits the scale of your occasion.
 
 ### Aesthetic and Tone
 The entire landing page employs a sophisticated dark theme with a palette of deep blues and vibrant accents. The typography is a blend of modern sans-serif for clarity and elegant serif for headlines, reflecting the platform's commitment to both technological innovation and timeless celebration.
