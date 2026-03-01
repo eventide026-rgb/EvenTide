@@ -75,6 +75,31 @@ The page concludes with a clear presentation of five distinct pricing tiers. Eac
 ### Aesthetic and Tone
 The entire landing page employs a sophisticated dark theme with a palette of deep blues and vibrant accents. The typography is a blend of modern sans-serif for clarity and elegant serif for headlines, reflecting the platform's commitment to both technological innovation and timeless celebration.
 
+## The Contact Us Page: A Detailed Overview
+
+The **Contact Us** page is the primary support gateway for EvenTide users, designed to facilitate clear communication between the community and the platform administrators.
+
+### Visual Architecture
+The page is set against a subtle, professional secondary background that provides visual separation from the high-energy landing page. The core of the experience is a centered, high-contrast Card component that employs a backdrop blur effect and a refined border, maintaining the platform's premium "dark mode" aesthetic.
+
+### Functional Form Design
+At the heart of the page is a robust, validated contact form. It captures four essential data points:
+- **Identity:** The user's full name.
+- **Connectivity:** A verified email address for correspondence.
+- **Intent:** A concise subject line to categorize the inquiry.
+- **Detail:** A multi-line message area allowing for deep contextual explanations of the user's needs.
+
+The form employs real-time client-side validation (via **Zod** and **React Hook Form**), ensuring that all required information is present and correctly formatted before submission.
+
+### Backend Intelligence: Support Tickets
+Submitting the form initiates a secure, non-blocking write operation to the **Firestore** database. Each submission is transformed into a structured `supportTicket` document, which includes:
+- **Priority Management:** Every ticket is automatically assigned a `medium` priority and an `open` status.
+- **Temporal Tracking:** A precise `createdAt` timestamp is recorded for SLA monitoring.
+- **Administrative Visibility:** These tickets are instantly surfaced in the **User Admin** dashboard, where administrators can track, update statuses (e.g., to "In Progress" or "Closed"), and manage resolutions.
+
+### Error Resilience
+The page is integrated with EvenTide's global error-handling architecture. In the rare event of a database permission issue, the system generates a rich, contextual **FirestorePermissionError**, ensuring that the incident is logged and surfaced correctly for rapid debugging by the technical team.
+
 ## The Landing Page Footer: A Detailed Overview
 
 The EvenTide landing page footer is a comprehensive navigational hub designed to provide persistent access to all corners of the platform while reinforcing the brand's identity.
