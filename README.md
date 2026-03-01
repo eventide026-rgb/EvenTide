@@ -95,6 +95,29 @@ The heart of the page is a dynamic, multi-step form that intelligently adjusts t
 - **Data Synchronization**: Upon successful authentication, the system initializes the user's profile in **Firestore**. For marketplace roles, additional documents are created in specialized collections to populate their public storefronts.
 - **Intelligent Redirection**: Once the account is created, the system automatically routes the user to their specific functional workspace based on their assigned role.
 
+## The Login Page: A Detailed Overview
+
+The **Login** page (`/login`) is the secure entry point for EvenTide's registered users, providing access to role-specific dashboards.
+
+### Visual Architecture
+The login experience is centered within a high-contrast **Card** component, set against a subtle secondary background to minimize distractions. The **EvenTide Logo** is prominently displayed at the top, immediately establishing brand authority.
+
+### Authentication Mechanics
+- **Credential Input**: Users provide their registered **Email** and **Password**.
+- **Security Features**: The password field includes a dynamic **visibility toggle** (Eye icon), allowing users to verify their input before submission.
+- **Non-Blocking Logic**: The page utilizes a non-blocking sign-in utility that relies on a global **Auth Listener** to handle results, ensuring the UI remains responsive during the authentication process.
+
+### Intelligent Redirection
+The login process is tightly integrated with EvenTide's role-based access control system:
+- **Profile Retrieval**: Upon successful authentication, the system fetches the user's **Role** from **Firestore**.
+- **Dynamic Routing**: The application automatically routes the user to their designated workspace (e.g., a Planner is sent to `/planner-dashboard`). 
+- **Automatic Guards**: Authenticated users are automatically redirected away from the login page if they try to access it manually.
+
+### User Experience Enhancements
+- **Search Parameter Awareness**: The form can detect and pre-fill an email address passed via URL parameters.
+- **Interactive Feedback**: The "Sign In" button includes a loading spinner to indicate processing.
+- **Recovery Path**: Clear links are provided for **Password Reset** and new user **Registration**.
+
 ## The Contact Us Page: A Detailed Overview
 
 The **Contact Us** page is the primary support gateway for EvenTide users, designed to facilitate clear communication between the community and the platform administrators.
