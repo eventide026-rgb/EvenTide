@@ -75,6 +75,26 @@ The page concludes with a clear presentation of five distinct pricing tiers. Eac
 ### Aesthetic and Tone
 The entire landing page employs a sophisticated dark theme with a palette of deep blues and vibrant accents. The typography is a blend of modern sans-serif for clarity and elegant serif for headlines, reflecting the platform's commitment to both technological innovation and timeless celebration.
 
+## The Sign Up Page: A Detailed Overview
+
+The **Sign Up** page (`/signup`) is the primary onboarding gateway for all user roles within the EvenTide ecosystem. It is designed to be both secure and adaptive, capturing specific information based on the user's intended role.
+
+### Visual Architecture
+The page adheres to EvenTide's "dark mode" aesthetic, centered within a professional **Card** component on a subtle secondary background. It prominently features the **EvenTide Logo**, anchoring the onboarding process in the platform's brand identity.
+
+### Adaptive Registration Workflow
+The heart of the page is a dynamic, multi-step form that intelligently adjusts to the user's selection:
+
+- **Core Identity**: Every user provides their **First Name**, **Last Name**, **Email**, and a secure **Password** (minimum 8 characters).
+- **Role Selection**: A critical step where users define their primary function on the platform. EvenTide supports nine distinct roles including Owners, Planners, Vendors, and specialized service providers like Hoteliers.
+- **Conditional Logic**: The form dynamically expands based on the selected role. For instance, **Ticketiers** must provide a **Promoter Name**, while **Vendors** must select their professional **Specialty**.
+
+### Technical Implementation & Security
+- **Validation**: Real-time client-side validation is enforced via **Zod**, ensuring data integrity before account creation.
+- **Authentication**: Account creation is handled securely through **Firebase Authentication**.
+- **Data Synchronization**: Upon successful authentication, the system initializes the user's profile in **Firestore**. For marketplace roles, additional documents are created in specialized collections to populate their public storefronts.
+- **Intelligent Redirection**: Once the account is created, the system automatically routes the user to their specific functional workspace based on their assigned role.
+
 ## The Contact Us Page: A Detailed Overview
 
 The **Contact Us** page is the primary support gateway for EvenTide users, designed to facilitate clear communication between the community and the platform administrators.
