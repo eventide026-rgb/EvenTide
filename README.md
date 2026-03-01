@@ -77,21 +77,26 @@ The entire landing page employs a sophisticated dark theme with a palette of dee
 
 ## The Landing Page Footer: A Detailed Overview
 
-The EvenTide landing page footer is a comprehensive, five-column navigational hub designed to provide persistent access to all corners of the platform while reinforcing the brand's identity.
+The EvenTide landing page footer is a comprehensive navigational hub designed to provide persistent access to all corners of the platform while reinforcing the brand's identity.
 
 ### Brand Presence
-The footer's first column prominently features the EvenTide Logo alongside a clear, concise tagline: "AI-powered event management for unforgettable moments." This anchors the entire section in the platform's core mission.
+The footer begins with a clear statement of identity, featuring the **EvenTide Logo** alongside its core tagline: *"AI-powered event management for unforgettable moments."* This anchors the entire section in the platform's mission.
 
 ### Comprehensive Navigation
-The footer organizes the platform's extensive resources into five logical columns:
-- **Resources:** Links to educational content like "What is EvenTide," "How to Use EvenTide," and "Meet Eni."
-- **Community:** Role-specific entry points including Guest and Security logins, and search tools for Planners and Vendors.
-- **Magazine:** Direct access to the full archive of the Community Magazine and the Editor's desk.
-- **Marketplace:** Entry points for transactional services like buying tickets or finding hotels, venues, and cars.
-- **Legal:** Standard compliance links including Privacy Policy, Terms of Service, and a direct Contact Us link.
+The footer organizes the platform's extensive resources into five logical, high-level columns:
+- **Resources:** Links to educational content including "What is EvenTide," "How to Use," "Meet Eni," and the "About Us" page.
+- **Community:** Role-specific portals including Guest and Security logins, search tools for Planners and Vendors, and avenues for engagement like submitting testimonials or advertising.
+- **Magazine:** Direct access to the full archive of the Community Magazine and the "From the Editor" column.
+- **Marketplace:** Entry points for all transactional services, from buying show tickets to finding hotels, venues, and car hire services.
+- **Legal:** Essential compliance and support links, including the Privacy Policy, Terms of Service, and a direct "Contact Us" link.
 
-### Social and Legal Anchor
-At the very base of the page, the footer provides a clean, horizontal bar containing the copyright notice and a set of social icons (Twitter, GitHub, LinkedIn). This ensures that professional and social connections are always within reach.
+### Footer Item Layout: Technical Specification
+The footer is engineered with a responsive grid architecture to ensure clarity across all devices:
+
+*   **Grid Structure**: The main container uses a 12-column grid on large screens. The brand identity block spans 4 columns, while the navigation matrix spans the remaining 8 columns.
+*   **Navigation Matrix**: Within the navigation area, a nested grid displays 2 columns on mobile and expands to a 5-column layout on medium screens and above.
+*   **Visual Hierarchy**: Category headers use the **Space Grotesk** typeface in a bold weight. Link items use a smaller, legible font size with a hover-active transition that changes the text color from a muted tone to the primary brand accent.
+*   **Baseline Bar**: A final horizontal bar uses a flexible flex-box layout to separate the left-aligned copyright notice from the right-aligned social media icon suite.
 
 ### Aesthetic Consistency
-Maintaining the platform's sophisticated look, the footer uses a subtle secondary background with a refined top border, ensuring it remains distinct from the main content while blending seamlessly with the overall design.
+Maintaining the platform's sophisticated look, the footer uses a subtle secondary background with a refined top border, ensuring it remains distinct from the main content while blending seamlessly into the overall dark-themed aesthetic.
