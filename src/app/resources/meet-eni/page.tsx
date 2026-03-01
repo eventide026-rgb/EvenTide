@@ -1,5 +1,6 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Bot, Brush, ChefHat, LayoutGrid, Sparkles, Users } from "lucide-react";
+import { BookOpen, Bot, Brush, ChefHat, LayoutGrid, Sparkles, Users, Quote, PenTool, Zap } from "lucide-react";
 
 const eniCapabilities = [
     {
@@ -7,7 +8,7 @@ const eniCapabilities = [
         description: "Eni handles the creative heavy-lifting, ensuring every piece of event communication is beautiful, poetic, and culturally resonant.",
         features: [
             {
-                icon: <Brush className="h-6 w-6 text-primary" />,
+                icon: <Brush className="h-6 -6 text-primary" />,
                 title: "The Invitation Designer",
                 details: "Eni analyzes your event theme and colors to generate a stunning, unique, and culturally relevant background for your invitation cards and digital stationery."
             },
@@ -57,6 +58,24 @@ const eniCapabilities = [
     }
 ]
 
+const voiceTraits = [
+    {
+        title: "Poetic & Celebratory",
+        description: "Eni avoids dry, functional text. Whether she's writing an invitation or a welcome note, her prose is evocative, uplifting, and celebratory of human connection.",
+        icon: <Quote className="h-5 w-5 text-accent" />
+    },
+    {
+        title: "Culturally Resonant",
+        description: "Deeply rooted in Nigerian and African richness, Eni understands the importance of heritage, using language that is both sophisticated and culturally relevant.",
+        icon: <PenTool className="h-5 w-5 text-accent" />
+    },
+    {
+        title: "Role-Adaptive",
+        description: "Eni shifts her 'voice' to fit the task. She can be your warm event hostess, your world-class executive chef, or your meticulous logistical coordinator.",
+        icon: <Zap className="h-5 w-5 text-accent" />
+    }
+]
+
 export default function MeetEniPage() {
     return (
         <div className="bg-secondary py-16 md:py-24">
@@ -67,21 +86,35 @@ export default function MeetEniPage() {
                     </div>
                     <h1 className="text-4xl font-headline font-bold md:text-5xl">Meet Eni, The AI Soul of EvenTide</h1>
                     <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-                        Eni is more than just an algorithm. It&apos;s a sophisticated creative partner designed to bring intelligence, efficiency, and a touch of Nigerian poetic flair to your event planning experience.
+                        Eni is more than just an algorithm. It's a sophisticated creative partner designed to bring intelligence, efficiency, and a touch of Nigerian poetic flair to your event planning experience.
                     </p>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-8 mb-16 max-w-5xl mx-auto">
+                    {voiceTraits.map((trait) => (
+                        <Card key={trait.title} className="bg-background/50 border-accent/20">
+                            <CardHeader className="flex-row items-center gap-3">
+                                {trait.icon}
+                                <CardTitle className="text-xl font-headline">{trait.title}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-sm text-muted-foreground leading-relaxed">{trait.description}</p>
+                            </CardContent>
+                        </Card>
+                    ))}
                 </div>
                 
                 <div className="space-y-12 max-w-4xl mx-auto">
                     {eniCapabilities.map((capability) => (
-                        <Card key={capability.persona} className="bg-background/30 border-border/50 backdrop-blur-sm">
+                        <Card key={capability.persona} className="bg-background/30 border-border/50 backdrop-blur-sm shadow-xl">
                             <CardHeader>
                                 <CardTitle className="text-3xl font-headline">{capability.persona}</CardTitle>
-                                <CardDescription>{capability.description}</CardDescription>
+                                <CardDescription className="text-base">{capability.description}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
                                 {capability.features.map((feature) => (
                                      <div key={feature.title} className="flex items-start gap-4">
-                                        <div className="bg-primary/10 p-3 rounded-full">
+                                        <div className="bg-primary/10 p-3 rounded-full flex-shrink-0">
                                             {feature.icon}
                                         </div>
                                         <div>
@@ -95,8 +128,8 @@ export default function MeetEniPage() {
                     ))}
                 </div>
 
-                 <Card className="max-w-4xl mx-auto mt-12 bg-muted/50">
-                    <CardContent className="p-8 text-center text-xl font-medium text-foreground/80">
+                 <Card className="max-w-4xl mx-auto mt-12 bg-primary/10 border-primary/20">
+                    <CardContent className="p-8 text-center text-xl font-medium text-foreground/80 leading-relaxed">
                         <p>Eni is woven into the fabric of EvenTide, acting as a tireless, creative, and intelligent partner, allowing you to focus on what you do best: creating unforgettable moments.</p>
                     </CardContent>
                 </Card>
