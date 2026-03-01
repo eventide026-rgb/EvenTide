@@ -55,3 +55,24 @@ The page concludes with a clear presentation of five distinct pricing tiers. Eac
 
 ### Aesthetic and Tone
 The entire landing page employs a sophisticated dark theme with a palette of deep blues and vibrant accents. The typography is a blend of modern sans-serif for clarity and elegant serif for headlines, reflecting the platform's commitment to both technological innovation and timeless celebration.
+
+## The Landing Page Footer: A Detailed Overview
+
+The EvenTide landing page footer is a comprehensive, five-column navigational hub designed to provide persistent access to all corners of the platform while reinforcing the brand's identity.
+
+### Brand Presence
+The footer's first column prominently features the EvenTide Logo alongside a clear, concise tagline: "AI-powered event management for unforgettable moments." This anchors the entire section in the platform's core mission.
+
+### Comprehensive Navigation
+The footer organizes the platform's extensive resources into five logical columns:
+- **Resources:** Links to educational content like "What is EvenTide," "How to Use EvenTide," and "Meet Eni."
+- **Community:** Role-specific entry points including Guest and Security logins, and search tools for Planners and Vendors.
+- **Magazine:** Direct access to the full archive of the Community Magazine and the Editor's desk.
+- **Marketplace:** Entry points for transactional services like buying tickets or finding hotels, venues, and cars.
+- **Legal:** Standard compliance links including Privacy Policy, Terms of Service, and a direct Contact Us link.
+
+### Social and Legal Anchor
+At the very base of the page, the footer provides a clean, horizontal bar containing the copyright notice and a set of social icons (Twitter, GitHub, LinkedIn). This ensures that professional and social connections are always within reach.
+
+### Aesthetic Consistency
+Maintaining the platform's sophisticated look, the footer uses a subtle secondary background with a refined top border, ensuring it remains distinct from the main content while blending seamlessly with the overall design.
