@@ -231,6 +231,58 @@ On the day of the event, the dashboard transforms into an operational monitor:
 - **Manual Check-in Tool**: A search-and-verify interface for handling VIP arrivals or guests without digital passes.
 - **Live Check-in Monitor**: A high-speed manifest showing real-time arrivals, sorted by category and arrival time.
 
+## The Event Planner Dashboard Sidebar: A Detailed Breakdown
+
+The Event Planner Dashboard utilizes a "Group & Flyout" navigation pattern to house its extensive suite of professional tools. Each primary icon in the sidebar represents a core functional domain, revealing a specific popover menu with targeted operational links when clicked.
+
+### 1. My Workspace (Icon: Home)
+This group centralizes the planner's daily administrative and strategic tools:
+- **Dashboard**: The primary control center with upcoming task feeds and the active gig selector.
+- **Notifications**: A dedicated inbox for real-time updates from clients, vendors, and the event team.
+- **Invitations**: A hub to review and respond to new event management proposals.
+- **Calendar**: A unified view of all assigned event dates, task deadlines, and appointments.
+- **Analytics**: Performance insights focusing on guest engagement and RSVP trends.
+- **My Network**: A private repository of the planner's bookmarked and trusted vendor contacts.
+
+### 2. Event Management (Icon: Settings)
+The core operational suite for executing celebrations:
+- **Assigned Events**: A portfolio view of all "gigs" the planner is currently managing.
+- **Program & Menu**: Integrated tools for drafting event schedules and culinary plans (including AI drafting).
+- **Seating Chart**: An interactive, drag-and-drop designer for guest placement.
+- **Mood Board**: A visual workspace for theme curation with AI-powered creative suggestions.
+- **Stationery Hub**: Full access to the Studio to manage the event's branding and invitation cards.
+- **Tasks**: A Kanban-style task board for tracking the event's technical to-do list.
+
+### 3. Marketplace (Icon: Briefcase)
+Discovery gateways for sourcing event requirements:
+- **Vendor Hub**: Search and vet professional service providers across all specialties.
+- **Fashion Designers**: A targeted search for specialist designers for custom event attire.
+- **Hotel Hub**: Locate and request bookings for guest accommodations.
+- **Venue Hub**: Discover and book event halls, gardens, and spaces.
+
+### 4. People Management (Icon: Users)
+Tools for coordinating the diverse groups involved in an event:
+- **Guest List**: Granular management of the attendee roster, including categorization and check-in status.
+- **Event Polls**: Creation and monitoring of live interactive polls for guest engagement.
+- **Song Requests**: A live moderation queue for music requests submitted by guests.
+- **Team**: Oversight of the co-hosts and security personnel assigned to the event.
+- **Vendor Contracts**: A specialized tracking system for proposals and active vendor service agreements.
+
+### 5. Financials (Icon: CreditCard)
+The authoritative source for event financial data:
+- **Budget & Expenses**: A real-time logger for tracking payments, category costs, and total event spend.
+
+### 6. Communication (Icon: MessageCircle)
+Real-time interaction channels:
+- **Announcements**: The control center for broadcasting live text updates to the guest community.
+- **Chat**: Integrated collaboration rooms for team discussions and specific vendor coordination.
+
+### 7. Live Operations (Icon: CheckSquare)
+Operational tools for the day of the event:
+- **Check-in Monitor**: A live, high-speed manifest showing real-time guest arrivals.
+- **Manual Check-in**: A search-and-verify tool for managing entries without digital passes.
+- **Security Roster**: Management of on-site security teams and scanner activation protocols.
+
 ## The Marketplace: Show Tickets & Discovery
 
 The **"Show Tickets"** feature is the lead transactional service within the Marketplace. It is designed to transform casual visitors into event attendees through a seamless discovery-to-purchase pipeline.
