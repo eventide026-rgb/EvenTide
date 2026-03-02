@@ -88,6 +88,33 @@ The headline *"Plan Your Event Stylishly"* is part of a reactive cycle.
 - **Buy Tickets**: The "Marketplace" shortcut.
 - **I am a Guest**: The "Attendee" portal.
 
+## Landing Page Header: Technical Specification
+
+The landing page header is a reactive navigation component designed to provide persistent access to the platform's resources while adapting its visual profile based on user interaction.
+
+### 1. Structural Attributes
+- **Branding**: The EvenTide logo is fixed to the left, utilizing the brand's signature linear gradient.
+- **Intelligent Navigation**: Desktop users access deep-link categories (Resources, Community, Magazine, Marketplace) via `Popover` components that feature rich previews and image hints.
+- **Authentication Gateway**: A right-aligned button group for "Login" and "Sign Up" is housed in a distinct, semi-transparent container.
+- **Mobile Strategy**: On smaller viewports, the horizontal navigation is collapsed into a responsive `Sheet` (hamburger menu) to maintain focus on the content.
+
+### 2. Dimensions & Visual Style
+- **Core Height**: The navigation container is fixed at `h-12` (3rem / 48px).
+- **Glassmorphism**: The header utilizes `bg-background/60` with a `backdrop-blur-lg` effect, ensuring readability over complex hero backgrounds.
+- **Subtle Definition**: A minimal `border-border/40` provides a crisp boundary without adding visual weight.
+
+### 3. Vertical Scroll Behavior (Floating to Fixed Transformation)
+The header implements a dynamic state-based transition triggered by the user's vertical scroll position (`window.scrollY`).
+
+- **Initial State (At Top)**:
+    - **Position**: Floating `top-4` with an offset from the browser edge.
+    - **Shape**: A high-impact "Pill" design using `rounded-full`.
+    - **Width**: Constrained to `max-w-screen-lg` for a focused, boutique feel.
+- **Active State (Scrolled > 0)**:
+    - **Position**: Snaps to `top-0` at the absolute edge of the viewport.
+    - **Shape**: Transitions to a traditional "Bar" design with `rounded-none`.
+    - **Width**: Expands to `max-w-none` (100% viewport width) and removes horizontal borders (`border-x-0`) to create a seamless navigational anchor.
+
 ## Personalized Successful Login: The User Experience
 
 ### 1. Identity Resolution & Data Fetching
