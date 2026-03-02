@@ -15,584 +15,160 @@ The platform serves as a complete lifecycle solution, offering:
 *   **Secure Execution**: Modern on-site tools including QR-based digital gate passes, scanner activation for security teams, and live check-in monitors.
 *   **Digital Storytelling**: An AI-curated community magazine that transforms the memories of public celebrations into a lasting digital archive.
 
+## The EvenTide Logo: Technical Specification
+
+The logo is a precise execution of the brand's core values, utilizing a specific combination of typography and color to create a memorable identity.
+
+### 1. Typography (The Font)
+- **Typeface**: **Playfair Display** (Serif).
+- **Weight**: **Bold** (700).
+- **Narrative Purpose**: Chosen for its classical elegance and high-contrast strokes, this font communicates the "masterpiece" quality of the events managed on the platform. It provides a timeless anchor against the modern UI.
+
+### 2. Color Palette (The Gradient)
+The logo features a vibrant horizontal linear gradient that flows from left to right:
+- **Start Color**: **Sky Blue** (Tailwind `blue-400` / `#60A5FA`). Represents clarity, technology, and the calm professional planning phase.
+- **End Color**: **Golden Yellow** (Tailwind `yellow-300` / `#FDE047`). Represents the warmth of celebration, joy, and the successful "golden hour" of an event.
+- **Execution**: The gradient is applied using `bg-clip-text`, making the colors live within the letterforms themselves against the dark background.
+
+### 3. Sizing (The Scale)
+- **Base Size**: **text-lg** (1.125rem / 18px).
+- **Usage**: While the base component is standardized at `text-lg` for navigation headers, it scales up to **text-2xl** or **text-4xl** on high-impact landing sections and login cards to maintain brand authority.
+
 ## Typography: A Multi-Layered Visual Language
 
-EvenTide employs a carefully curated selection of typefaces to establish its unique brand identity—a blend of timeless African elegance and cutting-edge technological innovation.
+EvenTide employs a carefully curated selection of typefaces beyond the logo to establish its unique brand identity.
 
 ### 1. The Anchor of Elegance: Playfair Display (Serif)
 - **Role**: The primary brand typeface.
 - **Usage**: Used exclusively for the EvenTide logo and high-impact section headings.
-- **Narrative Purpose**: This sophisticated serif typeface communicates heritage, prestige, and the "masterpiece" quality of the events managed on the platform. It provides a classical counterpoint to the modern UI elements.
 
 ### 2. The Modern Interface: Space Grotesk (Sans-serif)
 - **Role**: The headline and navigational anchor.
 - **Usage**: Used for secondary headlines, dashboard category labels, and primary UI navigation items.
-- **Narrative Purpose**: Space Grotesk introduces a technical, "future-forward" feel. Its geometric clarity represents the precision and intelligence of **Eni**, ensuring the interface feels like a high-performance tool.
 
 ### 3. The Clarity Standard: Inter (Sans-serif)
 - **Role**: The workhorse body font.
 - **Usage**: The default typeface for all descriptive text, form fields, and data-heavy dashboard components.
-- **Narrative Purpose**: Chosen for its exceptional readability on screens of all sizes, Inter ensures that complex logistical data and poetic AI messages are consumed effortlessly by the user.
 
 ### 4. The Human Touch: Caveat (Cursive)
 - **Role**: The stylized "handwritten" accent.
 - **Usage**: Used specifically for elements requiring a personal touch, such as the messages on the **Autograph Wall**.
-- **Narrative Purpose**: Caveat brings a sense of warmth and individual presence to the digital experience, mimicking the feel of a physical guestbook and celebrating the human connection at the heart of every event.
 
 ## The Hero Experience: Vision & Dynamic Branding
 
-The Hero section of the EvenTide landing page is engineered to create an immediate emotional and professional impact. It uses a combination of high-fidelity visual storytelling and dynamic interface logic to position the platform as a premier AI partner.
+The Hero section of the EvenTide landing page is engineered to create an immediate emotional and professional impact.
 
 ### 1. The Dynamic Headline Logic
-The headline *"Plan Your Event Stylishly"* is part of a reactive cycle designed to emphasize the multi-faceted benefits of the platform.
+The headline *"Plan Your Event Stylishly"* is part of a reactive cycle.
 - **Functionality**: The system employs a React `useEffect` hook combined with a `setInterval` (cycling every 2500ms) to rotate through a curated list of descriptors: **Effortlessly**, **Stylishly**, **Beautifully**, and **Perfectly**.
-- **Visual Feedback**: Each transition uses a CSS gradient text treatment (Sky Blue to Golden Yellow) that matches the EvenTide logo, ensuring brand consistency while providing a sense of "living" technology.
-- **Narrative Purpose**: By rotating these specific words, the platform communicates that it doesn't just manage logistics; it elevates the *aesthetic and quality* of the event.
+- **Visual Feedback**: Each transition uses the same Sky Blue to Golden Yellow gradient treatment as the EvenTide logo, ensuring brand consistency.
 
 ### 2. The Narrative Anchor (Sub-headline)
-The sub-headline—*"Welcome to EvenTide, your AI-powered partner for flawless event management. From intimate gatherings to grand galas, we bring your vision to life with intuitive tools and expert assistance."*—serves as the platform's primary value proposition.
-- **The "Partner" Concept**: Unlike traditional software, EvenTide is positioned as an active participant (a "partner"), hinting at the supportive role of **Eni**.
-- **Scalability**: The mention of "intimate gatherings to grand galas" establishes that the system's logic is robust enough to handle varying complexities, from a private dinner to a 1,000-guest festival.
-- **The Vision-to-Reality Pipeline**: It explicitly states the platform's goal: taking an abstract "vision" and using "intuitive tools" to execute it flawlessly.
+*"Welcome to EvenTide, your AI-powered partner for flawless event management. From intimate gatherings to grand galas, we bring your vision to life with intuitive tools and expert assistance."*
 
 ### 3. Immediate Action Gateways
-The Hero experience concludes with three distinct, high-visibility call-to-action (CTA) buttons that intelligently route users based on their intent:
-- **Create an Event**: The primary "Host" entry point, leading directly to the Sign-Up and Event Creation Wizard.
-- **Buy Tickets**: The "Marketplace" shortcut, immediately surfacing public shows for attendees.
-- **I am a Guest**: The "Attendee" portal, designed for those arriving with an Event Code from an invitation.
+- **Create an Event**: The primary "Host" entry point.
+- **Buy Tickets**: The "Marketplace" shortcut.
+- **I am a Guest**: The "Attendee" portal.
 
 ## Personalized Successful Login: The User Experience
 
-EvenTide prioritizes a high-touch, personalized experience from the moment a user signs in. The "Successful Login" flow is not just a technical redirect; it is a coordinated sequence of events designed to make the transition into the workspace feel welcoming and efficient.
-
 ### 1. Identity Resolution & Data Fetching
-Immediately upon Firebase Authentication success, the global **Auth Handler** fetches the user's comprehensive profile from the `/users` collection. This allows the system to resolve the user's **First Name** and their specific **Role** before any UI changes occur.
+Immediately upon Firebase Authentication success, the global **Auth Handler** fetches the user's comprehensive profile from the `/users` collection to resolve their **First Name** and **Role**.
 
 ### 2. Welcoming Visual Confirmation
-Rather than a silent redirect, EvenTide provides immediate positive feedback through a personalized **Toast Notification**.
-- **Personalized Addressing**: The system uses the retrieved name to greet the user directly (e.g., *"Welcome back, Funke! Redirecting..."*).
-- **Contextual Tone**: The notification acknowledges the successful entry into the ecosystem, reinforcing the platform's "warm hostess" persona.
+The system provides immediate feedback through a personalized **Toast Notification** (e.g., *"Welcome back, Funke! Redirecting..."*).
 
 ### 3. Intelligent Workspace Routing
-Once identity is confirmed, the system employs the **Role-Dashboard Mapping** to automatically navigate the user to their designated command center. 
-- An **Event Owner** is routed to their strategic oversight dashboard.
-- A **Professional Planner** is taken to their gig management interface.
-- A **Guest** is directed straight to their personalized invitation and digital asset wallet.
-
-### 4. Zero-Latency Session Persistence
-To ensure the personalized feel continues throughout the session without "flicker" or constant database calls, EvenTide caches the user's name and role in `sessionStorage`. This enables the **Dashboard Header** and **Sidebar** to display the user's name and role badge instantaneously as they navigate through various planning and management tools.
-
-## The EvenTide Logo: A Visual Identity
-
-The EvenTide logo is a masterclass in minimalist yet evocative branding, designed to represent the platform's core mission: the intersection of timeless celebration and modern technology.
-
-### Visual Composition
-The logo consists of the word **"EvenTide"** rendered in a bold, sophisticated serif typeface (**Playfair Display**). This choice of font communicates elegance, heritage, and the high-quality nature of the events managed on the platform. The capitalization of the "T" emphasizes the two halves of the name, suggesting the natural flow and rhythm of a perfectly timed celebration.
-
-### Color and Gradient
-The most striking feature of the logo is its dynamic color treatment. It employs a vibrant horizontal gradient that transitions seamlessly from a **bright sky blue** to a **warm, sun-kissed golden yellow**. 
-
-*   **Blue**: Represents the calm, professional planning and the technological intelligence provided by Eni.
-*   **Yellow**: Represents the warmth of community, the joy of celebration, and the "golden hour" of an unforgettable moment.
-
-### Symbolic Meaning
-The gradient itself is a visual metaphor for the "tide" mentioned in the platform's name. It suggests the transition of light during a day of festivities—moving from the crisp clarity of the planning phases into the warm, glowing success of the actual event.
-
-### Digital Execution
-The logo is implemented as a high-performance CSS element using a linear gradient background clipped to the text. This ensures the branding remains sharp, accessible, and vibrant on every screen, from mobile scanners to high-resolution desktop displays.
-
-## The Landing Page Header: A Detailed Overview
-
-The EvenTide landing page header is a sophisticated, highly functional navigation component designed to be both visually striking and intuitive. It serves as the primary gateway to the platform's diverse resources and marketplaces.
-
-### Dynamic "Floating" Design
-The header employs a modern, reactive layout. When the user is at the top of the page, the header "floats" with generous padding and a pill-shaped, fully rounded border. As the user scrolls down, it seamlessly transitions into a sleek, full-width fixed bar. This transition is enhanced by a backdrop blur effect and a semi-transparent background, ensuring it remains legible against any section of the landing page.
-
-### Multi-Layered Navigation
-The primary navigation is organized into four distinct, image-rich dropdowns using a sophisticated "popover" pattern:
-- **Resources:** A gateway to educational content, including "How to Use EvenTide" and the "Meet Eni" feature showcase.
-- **Community:** Centralizes access for different user roles, featuring login portals for Guests and Security, and search tools for Planners and Vendors.
-- **Magazine:** Provides direct access to the latest and archived issues of the AI-curated community magazine.
-- **Marketplace:** A hub for transactional features, allowing users to buy tickets for shows or find hotels, venues, and car hire services.
-
-Each of these dropdowns is visually anchored by a high-quality preview image that reflects the section's theme, providing immediate visual context.
-
-### Role-Specific Call-to-Actions
-On the right side of the header, primary actions are clearly defined. In the desktop view, "Login" and "Sign Up" buttons are housed in a distinct, bordered pill container. For mobile users, a clean hamburger menu opens a dedicated sidebar ("Sheet") that presents the full navigation hierarchy and provides specialized login buttons for Owners, Guests, and Security personnel.
-
-## Resources: "What is EvenTide?"
-
-Located as the primary entry in the **Resources** dropdown of the landing page header, the "What is EvenTide?" link serves as the platform's intellectual and philosophical anchor. 
-
-### Visual Presentation
-Within the header's navigation, this item is presented inside a modern popover component. It is visually context-mapped to a cinematic, wide-angle image of a decorated gala hall, signifying the high-quality, professional standards the platform upholds. This visual anchoring helps transition the user's mindset from simple utility to the "masterpiece" level of event planning.
-
-### The Manifesto Page (`/resources/what-is-eventide`)
-Clicking this link takes the user to a dedicated manifesto that defines the project's identity. The page is anchored by a central vision statement: *"To be Nigeria’s premier event ecosystem — where technology, creativity, and culture converge to create unforgettable experiences and world‑class storytelling."*
-
-### The Four Pillars of the Mission
-EvenTide's purpose is further defined through four strategic pillars:
-*   **Empowerment**: Providing intuitive, high-performance tools that allow anyone to plan events with the precision of a professional.
-*   **Storytelling**: Moving beyond logistics to transform events into rich, shareable digital narratives.
-*   **Innovation**: Utilizing the platform's AI soul, Eni, to automate the tedious and elevate the creative aspects of celebration.
-*   **Connection**: Building a secure, vetted network where hosts can find the perfect partners for their vision.
-
-### Cultural Positioning
-The resource emphasizes that EvenTide is not just a utility, but a **cultural archive**. It is designed to preserve the vibrancy of Nigerian celebrations, ensuring that the stories behind the moments are captured and archived for the future.
+- **Event Owner**: Routed to the strategic oversight dashboard.
+- **Professional Planner**: Taken to the gig management interface.
+- **Guest**: Directed to their personalized invitation and digital asset wallet.
 
 ## Smart Authentication & Role-Based Dashboard Architecture
 
-EvenTide employs a centralized, intelligent redirection system that ensures users are always in the correct workspace. This "smart login" logic is built on three core pillars:
-
 ### 1. The Global Auth Handler (`useAuthHandler`)
-This is the "brain" of the redirection system. It resides in the root layout and listens continuously for changes in the user's authentication state via Firebase. 
-- **Identity Resolution**: Upon login, it immediately fetches the user's comprehensive profile from the `/users` collection.
-- **Role Detection**: It extracts the `role` property (e.g., 'Planner', 'Hotelier', 'Super Admin').
-- **Session Persistence**: It caches the role and name in `sessionStorage`. This allows for instantaneous, flicker-free UI changes during the same session without waiting for repeated database fetches.
+Resides in the root layout and listens for changes in auth state. It extracts the `role` and caches it in `sessionStorage` for instantaneous UI updates.
 
 ### 2. The Role-Dashboard Mapping
-The platform maintains a strict, centralized map (`ROLE_DASHBOARD_MAP`) that defines the relationship between a user's role and their destination URL. This ensures consistency—every "Hall Owner" is always routed to `/hall-owner-dashboard`, and every "Ticketier" to `/ticketier-dashboard`. This mapping is used for both initial login redirection and ongoing navigational protection.
+The platform maintains a strict `ROLE_DASHBOARD_MAP` that defines the relationship between a user's role and their destination URL.
 
 ### 3. Layout Security Guards (`DashboardRedirector`)
-To prevent unauthorized "deep-linking" (e.g., a Vendor trying to manually access the Owner dashboard), every dashboard layout is wrapped in a `DashboardRedirector` component.
-- **Validation**: It checks the user's Firestore role against the `expectedRole` defined for that specific layout.
-- **Enforcement**: If a mismatch is detected, it automatically "ejects" the user and redirects them to their correct home dashboard.
-- **Loading State**: It manages the "Auth Gap"—the brief moment during hydration when the user's identity is being verified—by displaying a centered loading spinner, preventing unauthorized content from flashing on screen.
+Prevents unauthorized "deep-linking" by checking the user's Firestore role against the `expectedRole` defined for that specific layout.
 
 ## The Event Owner Dashboard: A Comprehensive Overview
 
-The **Event Owner Dashboard** is the centralized command center for hosts, providing 360-degree oversight of their entire event portfolio. It is designed to balance high-level strategic data with deep-dive creative and operational tools.
+The centralized command center for hosts, providing 360-degree oversight of their entire event portfolio.
 
-### 1. The Command Center (Main Dashboard)
-Upon entry, the owner is presented with a high-impact overview of their active events:
-- **Event Switcher**: A persistent sidebar allows owners to toggle between different celebrations, instantly updating all dashboard metrics.
-- **Real-Time KPIs**: A suite of visual cards provides immediate data on the "Health" of the selected event, including **Total Guest Capacity**, **RSVP Rates**, and **Live Check-in Progress**.
-- **Dynamic Countdown**: A primary visual anchor that displays the time remaining until the event begins, keeping the timeline top-of-mind.
-- **Planner Oversight**: A read-only feed of the planner's upcoming tasks, ensuring the owner is always aware of logistical progress without needing to micromanage.
+### 1. The Command Center
+- **Event Switcher**: Toggles between different celebrations.
+- **Real-Time KPIs**: Data on Guest Capacity, RSVP Rates, and Live Check-ins.
+- **Dynamic Countdown**: Displays time remaining until the event.
+- **Planner Oversight**: Read-only feed of the planner's upcoming tasks.
 
 ## The Event Owner Dashboard Sidebar: A Detailed Breakdown
 
-The Event Owner Dashboard employs a structured sidebar navigation that uses a grouping and flyout pattern to organize its extensive suite of tools. Each icon in the main sidebar represents a functional category, which when clicked, reveals a specific popover menu containing targeted links.
-
 ### 1. My Workspace (Icon: Home)
-This group contains the core operational tools for daily oversight:
-- **Dashboard**: The primary command center with real-time KPIs and the event switcher.
-- **Analytics**: Deep-dive data visualizations on guest engagement and RSVP trends.
-- **Calendar**: A unified view of event dates, task deadlines, and appointments.
+- **Dashboard**: Main command center.
+- **Analytics**: Deep-dive guest engagement trends.
+- **Calendar**: Unified view of dates and deadlines.
 
 ### 2. Event Planning (Icon: PartyPopper)
-The "creative suite" for managing the event's visual and experiential details:
-- **Stationery Hub**: Central control for branding, including the AI Invitation Studio and Gatepass previews.
-- **Program & Menu**: A read-only viewer to monitor the schedule and culinary plans created by the planner.
-- **Seating Chart**: A visual layout of the hall showing assigned guest placement.
-- **Gift Registry**: Management of the host's wishlist and monetary gift details.
-- **Shot List**: A checklist of must-have photos for the event photographer.
-- **Media Library**: A repository for all uploaded photos and AI-curated galleries.
-- **Song Requests**: A moderation queue for guest-submitted music requests.
-
-### 3. People Management (Icon: Users)
-Tools for managing the individuals involved in the occasion:
-- **Guests**: The authoritative guest list for adding, editing, and categorizing attendees.
-- **Team**: The roster for inviting and managing Planners, Co-hosts, and Security personnel.
-
-### 4. Marketplace (Icon: Briefcase)
-Gateways to discover and book professional services:
-- **Find a Planner**: Search and vet professional planners on the EvenTide network.
-- **Fashion Hub**: Discover and commission bespoke fashion designers.
-- **Find a Hotel**: Locate and request bookings for guest accommodations.
-- **Find a Venue**: Browse and secure halls or gardens for the event.
-
-### 5. Operations (Icon: Settings)
-Tactical monitoring of the backend planning process:
-- **Contracts & Tasks**: Oversight of active vendor proposals and the planner's task progress.
-- **Expenses**: A real-time tracker for the event's budget and payment statuses.
-
-### 6. Communication (Icon: MessageCircle)
-Real-time interaction tools for the event team and guests:
-- **Announcements**: The broadcast center for sending live updates to guest dashboards.
-- **Chat**: Integrated rooms for main team collaboration and specific vendor discussions.
-
-### 7. Live Event (Icon: ShieldCheck)
-Operational monitoring for the day of the celebration:
-- **Check-in Monitor**: A live manifest showing guest arrivals and current hall capacity.
-
-### 8. Settings (Icon: Settings)
-Administrative and configuration tools:
-- **My Account**: Management of personal profile information shared across the platform.
-- **Account & Billing**: Subscription management and pricing plan upgrades.
+- **Stationery Hub**: Control for branding and AI Invitation Studio.
+- **Program & Menu**: Monitoring schedule and culinary plans.
+- **Seating Chart**: Visual layout of assigned guest placement.
+- **Gift Registry**: Management of wishlist and monetary gift details.
+- **Shot List**: Photographer's checklist.
+- **Media Library**: Shared repository for photos.
+- **Song Requests**: Guest-submitted music moderation.
 
 ## The Event Planner Dashboard: A Professional Workspace
 
-The **Event Planner Dashboard** is a high-performance environment designed for tactical execution and logistical mastery. Unlike the Owner's strategic overview, this dashboard provides planners with the granular controls needed to manage multiple "gigs" simultaneously.
-
 ### 1. Gig Management & Intake
-The dashboard serves as the planner's primary business interface:
-- **Invitation Hub**: A centralized location to review, accept, or decline job offers from event owners. 
-- **Conflict Detection**: The system intelligently flags date clashes when accepting new gigs, protecting the planner's professional schedule.
-- **Active Gigs Portfolio**: A specialized sidebar allowing planners to jump between their accepted events, with each view tailored to that specific project's requirements.
+- **Invitation Hub**: Review and respond to new job offers.
+- **Conflict Detection**: Flags date clashes when accepting new gigs.
 
 ### 2. AI-Assisted Creative Drafting
-Planners leverage Eni to handle complex creative logic:
-- **Program & Menu Architects**: Specialized builders that allow planners to generate intelligent first drafts of event programs and menus based on event type, cuisine style, and MC requirements.
-- **Interactive Mood Board**: A visual workspace where planners can curate themes and receive AI-generated design suggestions to refine the event's aesthetic.
-- **Stationery Hub**: Full access to the Invitation Studio to manage the event's branding on behalf of the owner.
+- **Program & Menu Architects**: Generate intelligent first drafts.
+- **Interactive Mood Board**: Visual workspace for theme curation.
 
 ### 3. Detailed Operational Control
-The "engine room" of the dashboard includes precision tools for every stage of planning:
-- **Interactive Seating Chart**: A drag-and-drop designer for arranging guests at tables, with real-time feedback on capacity and category placement.
-- **The Task Board**: A full Kanban-style board for tracking the event's to-do list, allowing planners to assign tasks to team members and monitor progress.
-- **Budget & Expense Logger**: The authoritative source for financial tracking, where planners log expenses and categorize payments to maintain transparency for the host.
-
-### 4. Marketplace & Network Integration
-The dashboard bridges the gap between discovery and contracting:
-- **Vendor Marketplace Hub**: Advanced search tools to find, vet, and bookmark professionals.
-- **Network Management**: A "My Network" contact repository for storing and managing trusted vendor relationships across different events.
-- **Contract Management**: A specialized pipeline for sending formal proposals to vendors and tracking their acceptance status.
-
-### 5. Live Event Execution
-On the day of the event, the dashboard transforms into an operational monitor:
-- **Security & Check-in Roster**: Management of the on-site security team, including the generation of unique scanner activation codes.
-- **Manual Check-in Tool**: A search-and-verify interface for handling VIP arrivals or guests without digital passes.
-- **Live Check-in Monitor**: A high-speed manifest showing real-time arrivals, sorted by category and arrival time.
-
-## The Event Planner Dashboard Sidebar: A Detailed Breakdown
-
-The Event Planner Dashboard utilizes a "Group & Flyout" navigation pattern to house its extensive suite of professional tools. Each primary icon in the sidebar represents a core functional domain, revealing a specific popover menu with targeted operational links when clicked.
-
-### 1. My Workspace (Icon: Home)
-This group centralizes the planner's daily administrative and strategic tools:
-- **Dashboard**: The primary control center with upcoming task feeds and the active gig selector.
-- **Notifications**: A dedicated inbox for real-time updates from clients, vendors, and the event team.
-- **Invitations**: A hub to review and respond to new event management proposals.
-- **Calendar**: A unified view of all assigned event dates, task deadlines, and appointments.
-- **Analytics**: Performance insights focusing on guest engagement and RSVP trends.
-- **My Network**: A private repository of the planner's bookmarked and trusted vendor contacts.
-
-### 2. Event Management (Icon: Settings)
-The core operational suite for executing celebrations:
-- **Assigned Events**: A portfolio view of all "gigs" the planner is currently managing.
-- **Program & Menu**: Integrated tools for drafting event schedules and culinary plans (including AI drafting).
-- **Seating Chart**: An interactive, drag-and-drop designer for guest placement.
-- **Mood Board**: A visual workspace for theme curation with AI-powered creative suggestions.
-- **Stationery Hub**: Full access to the Studio to manage the event's branding and invitation cards.
-- **Tasks**: A Kanban-style task board for tracking the event's technical to-do list.
-
-### 3. Marketplace (Icon: Briefcase)
-Discovery gateways for sourcing event requirements:
-- **Vendor Hub**: Search and vet professional service providers across all specialties.
-- **Fashion Designers**: A territory search for specialist designers for custom event attire.
-- **Hotel Hub**: Locate and request bookings for guest accommodations.
-- **Venue Hub**: Discover and book event halls, gardens, and spaces.
-
-### 4. People Management (Icon: Users)
-Tools for coordinating the diverse groups involved in an event:
-- **Guest List**: Granular management of the attendee roster, including categorization and check-in status.
-- **Event Polls**: Creation and monitoring of live interactive polls for guest engagement.
-- **Song Requests**: A live moderation queue for music requests submitted by guests.
-- **Team**: Oversight of the co-hosts and security personnel assigned to the event.
-- **Vendor Contracts**: A specialized tracking system for proposals and active vendor service agreements.
-
-### 5. Financials (Icon: CreditCard)
-The authoritative source for event financial data:
-- **Budget & Expenses**: A real-time logger for tracking payments, category costs, and total event spend.
-
-### 6. Communication (Icon: MessageCircle)
-Real-time interaction channels:
-- **Announcements**: The control center for broadcasting live text updates to the guest community.
-- **Chat**: Integrated collaboration rooms for team discussions and specific vendor coordination.
-
-### 7. Live Operations (Icon: CheckSquare)
-Operational tools for the day of the event:
-- **Check-in Monitor**: A live, high-speed manifest showing real-time guest arrivals.
-- **Manual Check-in**: A search-and-verify tool for managing entries without digital passes.
-- **Security Roster**: Management of on-site security teams and scanner activation protocols.
+- **Interactive Seating Chart**: Drag-and-drop guest placement.
+- **The Task Board**: Kanban-style board for tracking to-dos.
+- **Budget Logger**: Authoritative source for financial tracking.
 
 ## The Marketplace: Show Tickets & Discovery
 
-The **"Show Tickets"** feature is the lead transactional service within the Marketplace. It is designed to transform casual visitors into event attendees through a seamless discovery-to-purchase pipeline.
+### 1. Discovery Hub
+Clicking from the header leads to the **Shows Marketplace** (`/shows`), a public billboard for Ticketiers to showcase events.
 
-### Header Integration & Visual Discovery
-Within the landing page header, the **Marketplace** dropdown serves as the primary entry point. The "Show Tickets" link is prominently featured and is visually contextualized by a high-quality image of an active event venue. This visual anchoring is designed to trigger an immediate emotional connection with the user's desire for entertainment and community.
+### 2. The Purchase Pipeline
+1. **Show Details**: Rich descriptions and previews.
+2. **Tier Selection**: General, VIP, or Table selection with availability tracking.
+3. **Secure Checkout**: Atomic write operations to generate unique tickets.
 
-### The Discovery Hub
-Clicking through from the header leads the user to the **Shows Marketplace** (`/shows`). This central hub acts as a public billboard for "Ticketiers" (Promoters) to showcase their upcoming events. It features:
-- **Searchable Inventory**: A real-time search interface allowing users to find shows by name or location.
-- **Show Cards**: High-impact visual cards that display the event date, venue, and a "Tickets Available" badge, ensuring key information is visible at a glance.
+## The Marketplace: Hotel, Venue, and Car Hire
 
-### The Purchase Pipeline
-Once a show is selected, the system guides the user through a structured, secure selection process:
-1.  **Show Details**: A deep-dive page providing rich descriptions and multiple image previews.
-2.  **Tier Selection**: A dedicated widget where users can select quantities from various ticket tiers (e.g., General, VIP, Table) with real-time availability tracking.
-3.  **Secure Checkout**: A summary view that calculates the grand total before initiating a secure, atomic write operation to the database to generate the tickets.
-4.  **Instant Fulfillment**: Successful transactions culminate in a confirmation page where users can immediately view their unique, scannable digital tickets.
+### 1. Geographical Discovery
+Marketplaces for Hotels and Venues feature robust filtering by **Nigerian State and City** to ensure localized convenience.
 
-### Relationship to the Footer
-The platform maintains a persistent **"Buy Tickets"** link in the "Marketplace" column of the site-wide footer. This provides a functional redundancy:
-- While the **Header Dropdown** is designed for high-visibility discovery and "top-of-page" engagement, the **Footer Item** acts as a site-wide shortcut.
-- This ensures that if a user has scrolled to the bottom of any informational page (like "Privacy" or "About Us") and decides they are ready to explore events, they have an immediate path back to the marketplace without needing to scroll back to the top.
-- Both entry points converge on the same `/shows` discovery hub, maintaining a consistent and predictable user journey.
+### 2. Car Hire Services
+Allows users to filter by **Make, Model, or Year**, facilitating premium arrivals and guest shuttles.
 
-## The Marketplace: Hotel Accommodations
+## Resources: "What is EvenTide?" & Manifesto
 
-The **"Find a Hotel"** feature is a core logistical pillar of the EvenTide Marketplace, designed to provide seamless lodging solutions for event attendees and planning teams.
-
-### Geographical Discovery
-The Hotel Marketplace (`/resources/hotels`) is built for localized discovery. It features a robust search interface that allows users to filter accommodations by **Nigerian State and City**. This ensures that guests can find high-quality stays within minutes of their event venue, reducing travel friction and enhancing the overall celebration experience.
-
-### The Hotel Storefront Experience
-Each listing in the marketplace serves as a professional storefront for "Hoteliers." The hotel detail page provides:
-- **Rich Media**: High-definition image carousels showcasing the property's exterior and interior.
-- **Detailed Inventory**: A breakdown of specific room types (e.g., Standard Double, Executive Suite) with associated pricing and guest capacity.
-- **Amenity Index**: Clear icons indicating essential services such as Wi-Fi, Air Conditioning, Pool, and Gym facilities.
-
-### The Secure Booking Pipeline
-The system employs a guided, secure booking request flow:
-1.  **Selection**: The user identifies a desired room type and enters the booking dialog.
-2.  **Date Validation**: An interactive calendar allows the user to select their check-in and check-out dates. The system prevents the selection of past dates and ensures a valid date range is provided.
-3.  **Real-Time Pricing**: As dates are selected, the system automatically calculates the total rental price based on the number of nights, providing immediate financial transparency.
-4.  **Request Submission**: Submitting the form creates a secure, non-blocking record in the `bookings` collection. This initiates a real-time notification to the property owner.
-
-### Integrated Management
-For property owners, this feature is tightly integrated with the **Hotelier Dashboard**. From there, they can manage their listings, view a unified booking calendar, and officially "Confirm" or "Decline" incoming requests, keeping the entire transactional lifecycle within the EvenTide ecosystem.
-
-## The Marketplace: Venue Discovery & Booking
-
-The **"Find a Venue"** feature is the cornerstone of EvenTide's event logistics, providing a centralized hub for discovering and securing high-quality spaces for any celebration.
-
-### Smart Geographical Filtering
-The Venue Marketplace (`/resources/venues`) leverages a robust filtering system. Users can search by **Nigerian State and City**, ensuring that planners can find the perfect hall or garden within their desired locale. This localized approach is created for managing guest logistics and coordinating with local vendors.
-
-### The Venue Storefront Experience
-Each venue listing acts as a comprehensive digital storefront for "Hall Owners." The detail page provides:
-- **High-Fidelity Media**: A carousel of high-resolution images showcasing the venue's entrance, main hall, and unique architectural features.
-- **Capacity & Scale**: A prominent badge indicates the venue's guest capacity, helping planners immediately vet spaces based on their event's scale.
-- **Technical Index**: A detailed breakdown of available amenities (e.g., Parking, Power Backup, AC) and specific features (e.g., Built-in Stage, Sound System, VIP Lounge).
-
-### The Guided Booking Request Flow
-The platform facilitates a professional, multi-stage booking request process:
-1.  **Event Context**: The user provides their event's name and estimated guest count.
-2.  **Date Availability**: An interactive calendar allows the user to select their desired event date. The system automatically restricts selections to future dates.
-3.  **Atomic Submission**: Submitting the request initiates a secure, non-blocking write to the `venueBookings` collection. This creates a unified record that is instantly visible to both the requester and the Hall Owner.
-4.  **Real-Time Notification**: The Hall Owner receives an immediate notification, allowing them to review the request alongside their existing booking calendar.
-
-### Hall Owner Integration
-This marketplace is the primary revenue engine for Hall Owners. Through their dedicated **Hall Owner Dashboard**, they can manage their public listings, monitor incoming requests, and officially "Confirm" or "Decline" bookings, ensuring their calendar is always accurate and their business is managed efficiently.
-
-## The Marketplace: Car Hire Services
-
-The **"Find a Car"** feature is EvenTide's solution for premium event transportation, ensuring that hosts, VIPs, and attendees can arrange grand arrivals and seamless logistical support.
-
-### The Fleet Discovery Hub
-The Car Marketplace (`/resources/cars`) serves as a public gallery for "Car Hire Services" to showcase their available vehicles. It features a high-performance search interface that allows users to filter the fleet by **Make, Model, or Year**. This ensures that users can find the specific aesthetic or functional vehicle required for their occasion—from luxury sedans for bridal parties to robust SUVs for guest shuttles.
-
-### The Vehicle Storefront Experience
-Each vehicle listing provides a comprehensive overview designed to build trust and facilitate quick decision-making:
-- **Multi-Angle Visuals**: High-resolution image carousels allowing users to inspect the vehicle's interior and exterior.
-- **Feature Index**: A clear list of vehicle specifications such as Air Conditioning, Automatic Transmission, Bluetooth connectivity, and leather interiors.
-- **Transparent Daily Rates**: A prominent badge displays the price per day, allowing for immediate budget assessment.
-
-### The Secure Rental Pipeline
-The system facilitates a professional, automated booking request flow:
-1.  **Date Range Selection**: Using an interactive calendar, users select their required pickup and return dates. The system prevents the selection of past dates and ensures a valid rental duration.
-2.  **Automated Price Calculation**: As dates are selected, the system instantly calculates the total rental cost based on the number of days, providing complete financial clarity before the request is sent.
-3.  **Atomic Request Submission**: Submitting the request creates a secure record in the `carBookings` collection. This record includes the client's email, the specific vehicle, and the requested dates.
-4.  **Real-Time Engagement**: The service provider receives an instant notification via their dashboard, allowing them to officially "Confirm" or "Decline" the request based on their current fleet availability.
-
-### Service Provider Integration
-This marketplace is the primary business interface for car hire companies. Through their dedicated **Car Hire Dashboard**, they can manage their public fleet listings, track incoming requests, and view a unified booking calendar, keeping their operations organized and professional within the EvenTide ecosystem.
-
-## The Landing Page: A Detailed Overview
-
-The EvenTide landing page is a sophisticated, multi-layered experience designed to communicate the platform's unique blend of cultural richness and AI-driven intelligence.
-
-### The Hero Experience
-The journey begins with a high-impact visual section featuring a cinematic, wide-angle view of a grand event hall. Overlaid on this image are dynamic, rotating headlines that emphasize the platform's ability to help users plan their events effortlessly, stylishly, and perfectly. The tone is set immediately as one of premium quality and seamless ease.
-
-### Strategic Narrative: How It Works
-A dedicated section breaks down the complex process of event management into a simple, four-step narrative. This uses clean, modern iconography to guide the user through the lifecycle of an event: from initial creation and AI-powered design to guest list building and final, secure execution on the day of the celebration.
-
-### Visual Manifesto
-A striking, full-width section features a vibrant image of a celebratory gathering, serving as a visual manifesto for the platform’s core belief: bringing people together beautifully. It anchors the technology in its human and cultural purpose.
-
-### Interactive AI Showcase: Meet Eni
-The landing page features an interactive demonstration of Eni, the platform's AI soul. Users can select an event type and witness Eni’s poetic and celebratory writing style firsthand as she generates a personalized welcome message for a hypothetical guest. This section highlights the "soul" of the platform's intelligence.
-
-### Social Validation: Testimonials
-A grid of testimonials from event owners, professional planners, and security heads provides social proof. Each testimonial includes an avatar and a specific perspective on how the platform has transformed their professional workflow or event experience.
-
-### Role-Based Value Propositions
-Recognising the diverse ecosystem of event management, a specialized section details the specific benefits for every participant:
-- **Owners:** Master dashboard oversight and budget tracking.
-- **Planners:** Seamless team collaboration and guest communication.
-- **Vendors:** Portfolio showcasing and streamlined contracting.
-- **Guests & Security:** Personalized digital assets and secure check-ins.
-
-### Transparent Monetization: Pricing Tiers
-The page concludes with a clear presentation of five distinct pricing tiers. Each card outlines the guest limits, included roles (planners, co-hosts, security), and key features, allowing users to find the package that perfectly fits the scale of your occasion.
-
-### Aesthetic and Tone
-The entire landing page employs a sophisticated dark theme with a palette of deep blues and vibrant accents. The typography is a blend of modern sans-serif for clarity and elegant serif for headlines, reflecting the platform's commitment to both technological innovation and timeless celebration.
-
-## The Sign Up Page: A Detailed Overview
-
-The **Sign Up** page (`/signup`) is the primary onboarding gateway for all user roles within the EvenTide ecosystem. It is designed to be both secure and adaptive, capturing specific information based on the user's intended role.
-
-### Visual Architecture
-The page adheres to EvenTide's "dark mode" aesthetic, centered within a professional **Card** component on a subtle secondary background. It prominently features the **EvenTide Logo**, anchoring the onboarding process in the platform's brand identity.
-
-### Adaptive Registration Workflow
-The heart of the page is a dynamic, multi-step form that intelligently adjusts to the user's selection:
-
-- **Core Identity**: Every user provides their **First Name**, **Last Name**, **Email**, and a secure **Password** (minimum 8 characters).
-- **Role Selection**: A critical step where users define their primary function on the platform. EvenTide supports nine distinct roles including Owners, Planners, Vendors, and specialized service providers like Hoteliers.
-- **Conditional Logic**: The form dynamically expands based on the selected role. For instance, **Ticketiers** must provide a **Promoter Name**, while **Vendors** must select their professional **Specialty**.
-
-### Technical Implementation & Security
-- **Validation**: Real-time client-side validation is enforced via **Zod**, ensuring data integrity before account creation.
-- **Authentication**: Account creation is handled securely through **Firebase Authentication**.
-- **Data Synchronization**: Upon successful authentication, the system initializes the user's profile in **Firestore**. For marketplace roles, additional documents are created in specialized collections to populate their public storefronts.
-- **Intelligent Redirection**: Once the account is created, the system automatically routes the user to their specific functional workspace based on their assigned role.
-
-## The Login Page: A Detailed Overview
-
-The **Login** page (`/login`) is the secure entry point for EvenTide's registered users, providing access to role-specific dashboards.
-
-### Visual Architecture
-The login experience is centered within a high-contrast **Card** component, set against a subtle secondary background to minimize distractions. The **EvenTide Logo** is prominently displayed at the top, immediately establishing brand authority.
-
-### Authentication Mechanics
-- **Credential Input**: Users provide their registered **Email** and **Password**.
-- **Security Features**: The password field includes a dynamic **visibility toggle** (Eye icon), allowing users to verify their input before submission.
-- **Non-Blocking Logic**: The page utilizes a non-blocking sign-in utility that relies on a global **Auth Listener** to handle results, ensuring the UI remains responsive during the authentication process.
-
-### Intelligent Redirection
-The login process is tightly integrated with EvenTide's role-based access control system:
-- **Profile Retrieval**: Upon successful authentication, the system fetches the user's **Role** from **Firestore**.
-- **Dynamic Routing**: The application automatically routes the user to their designated workspace (e.g., a Planner is sent to `/planner-dashboard`). 
-- **Automatic Guards**: Authenticated users are automatically redirected away from the login page if they try to access it manually.
-
-### User Experience Enhancements
-- **Search Parameter Awareness**: The form can detect and pre-fill an email address passed via URL parameters.
-- **Interactive Feedback**: The "Sign In" button includes a loading spinner to indicate processing.
-- **Recovery Path**: Clear links are provided for **Password Reset** and new user **Registration**.
-
-## The Contact Us Page: A Detailed Overview
-
-The **Contact Us** page is the primary support gateway for EvenTide users, designed to facilitate clear communication between the community and the platform administrators.
-
-### Visual Architecture
-The page is set against a subtle, professional secondary background that provides visual separation from the high-energy landing page. The core of the experience is a centered, high-contrast Card component that employs a backdrop blur effect and a refined border, maintaining the platform's premium "dark mode" aesthetic.
-
-### Functional Form Design
-At the heart of the page is a robust, validated contact form. It captures four essential data points:
-- **Identity:** The user's full name.
-- **Connectivity:** A verified email address for correspondence.
-- **Intent:** A concise subject line to categorize the inquiry.
-- **Detail:** A multi-line message area allowing for deep contextual explanations of the user's needs.
-
-The form employs real-time client-side validation (via **Zod** and **React Hook Form**), ensuring that all required information is present and correctly formatted before submission.
-
-### Backend Intelligence: Support Tickets
-Submitting the form initiates a secure, non-blocking write operation to the **Firestore** database. Each submission is transformed into a structured `supportTicket` document, which includes:
-- **Priority Management:** Every ticket is automatically assigned a `medium` priority and an `open` status.
-- **Temporal Tracking:** A precise `createdAt` timestamp is recorded for SLA monitoring.
-- **Administrative Visibility:** These tickets are instantly surfaced in the **User Admin** dashboard, where administrators can track, update statuses (e.g., to "In Progress" or "Closed"), and manage resolutions.
-
-### Error Resilience
-The page is integrated with EvenTide's global error-handling architecture. In the rare event of a database permission issue, the system generates a rich, contextual **FirestorePermissionError**, ensuring that the incident is logged and surfaced correctly for rapid debugging by the technical team.
+The Manifesto defines EvenTide as Nigeria’s premier event ecosystem where technology, creativity, and culture converge. Its four pillars are **Empowerment**, **Storytelling**, **Innovation**, and **Connection**.
 
 ## Advertisement & Sponsorship Opportunities
 
-EvenTide provides a professional avenue for brands, vendors, and service providers to showcase their offerings to a curated community of event owners and professionals.
-
-### The Proposal Gateway
-Prospective partners can access the **Advertise with Us** page (`/advertise`) to submit a formal sponsorship proposal. The system uses a dedicated, validated intake form to capture:
-- **Partner Identity**: Business name and primary contact details.
-- **Campaign Intent**: A concise subject line for the campaign.
-- **Creative Concept**: A detailed description of the advertising idea, intended target audience, and desired placement.
-
-### Administrative Vetting & Oversight
-Submitting a proposal initiates a secure workflow in the **Firestore** database, creating a record in the `adRequests` collection with a `pending` status. 
-- **Centralized Review**: These requests are instantly visible to **Content Admins** via their administrative dashboard.
-- **Status Management**: Admins can review the detailed concepts and officially **Approve** or **Reject** the proposals.
-- **Security & Integrity**: The system enforces strict security rules, ensuring that only authenticated users can submit requests and only authorized admins can modify their status.
-
-### Integrated Placement
-Once a proposal is approved, it becomes a candidate for strategic placement within the EvenTide ecosystem:
-- **Magazine Integration**: Approved sponsors are featured in the "Internal Advertisement" section of the **EvenTide Community Magazine**, where Eni (the AI Editor-in-Chief) incorporates the brand concept into the magazine's poetic and sophisticated layout.
-- **Dashboard Visibility**: Top-tier partners may be highlighted in specialized sections of the Owner and Planner dashboards, providing maximum visibility at the point of decision-making.
-
-## Resources: Share Your Experience (Testimonials)
-
-The **Submit a Testimonial** page (`/resources/submit-testimonial`) is a vital component of EvenTide’s community-building efforts, providing a space for users to voice their success stories and professional feedback.
-
-### User Interaction
-The page features a focused, validated form that collects:
-- **Identity**: The user's name or brand name.
-- **Platform Perspective**: A role selection (Owner, Planner, Vendor, or Guest) that provides context to the feedback.
-- **The Narrative**: A detailed testimonial describing how EvenTide impacted their event or workflow.
-
-### The Moderation Pipeline
-Testimonials are not automatically published. Instead, they enter a structured moderation workflow:
-1.  **Submission**: Data is written to the `testimonials` collection with an `isApproved` flag set to `false`.
-2.  **Administrative Review**: **Content Admins** access these submissions through their dedicated dashboard (`/admin/content/testimonials`).
-3.  **Validation & Approval**: Admins can vet the feedback for authenticity and tone. Approved testimonials are then dynamically surfaced in the social proof section of the platform’s landing page.
-
-### Technical Integrity
-The form uses **React Hook Form** and **Zod** for robust client-side validation, ensuring that all submissions are complete and meaningful. The integration with EvenTide’s global error-handling architecture ensures that any database issues are contextualized and surfaced for rapid resolution.
-
-## The Landing Page Footer: A Detailed Overview
-
-The EvenTide landing page footer is a comprehensive navigational hub designed to provide persistent access to all corners of the platform while reinforcing the brand's identity.
-
-### Brand Presence
-The footer begins with a clear statement of identity, featuring the **EvenTide Logo** alongside its core tagline: *"AI-powered event management for unforgettable moments."* This anchors the entire section in the platform's mission.
-
-### Comprehensive Navigation
-The footer organizes the platform's extensive resources into five logical, high-level columns:
-- **Resources:** Links to educational content including "What is EvenTide," "How to Use," "Meet Eni," and the "About Us" page.
-- **Community:** Role-specific portals including Guest and Security logins, search tools for Planners and Vendors, and avenues for engagement like submitting testimonials or advertising.
-- **Magazine:** Direct access to the full archive of the Community Magazine and the "From the Editor" column.
-- **Marketplace:** Entry points for all transactional services, from buying show tickets to finding hotels, venues, and car hire services.
-- **Legal:** Essential compliance and support links, including the Privacy Policy, Terms of Service, and a direct "Contact Us" link.
-
-### Footer Item Layout: Technical Specification
-The footer is engineered with a responsive grid architecture to ensure clarity across all devices:
-
-*   **Grid Structure**: The main container uses a 12-column grid on large screens. The brand identity block spans 4 columns, while the navigation matrix spans the remaining 8 columns.
-*   **Navigation Matrix**: Within the navigation area, a nested grid displays 2 columns on mobile and expands to a 5-column layout on medium screens and above.
-*   **Visual Hierarchy**: Category headers use the **Space Grotesk** typeface in a bold weight. Link items use a smaller, legible font size with a hover-active transition that changes the text color from a muted tone to the primary brand accent.
-*   **Baseline Bar**: A final horizontal bar uses a flexible flex-box layout to separate the left-aligned copyright notice from the right-aligned social media icon suite.
-
-### Aesthetic Consistency
-Maintaining the platform's sophisticated look, the footer uses a subtle secondary background with a refined top border, ensuring it remains distinct from the main content while blending seamlessly into the overall dark-themed aesthetic.
+Prospective partners can submit formal proposals via the **Advertise with Us** page. Approved sponsors are integrated into the AI-curated magazine and high-visibility sections of platform dashboards.
 
 ## The Event Creation & Stationery Onboarding Lifecycle
 
-EvenTide employs a meticulously designed, guided walkthrough that transforms the complex task of event planning into a structured, rewarding journey. This process ensures that every event is born with a clear identity and professional digital assets.
-
 ### Phase 1: The Event Creation Wizard
-The journey begins at `/owner-dashboard/create-event`, a multi-step "Stepper" interface that breaks down initial setup into logical chunks:
-1.  **Core Details**: Capturing the event's name and a rich description.
-2.  **Theme & AI Identity**: Here, the user selects an event type (e.g., Wedding, Gala) and defines the **Primary and Secondary brand colors**. Simultaneously, Eni generates a unique **Event Code**, the master key for all future guest and team interactions.
-3.  **Logistics**: Setting the date, time, and physical venue.
-4.  **Team Initialization**: The user can immediately search for a professional Planner by email to invite them to the project.
+A multi-step stepper for Core Details, Theme & Colors, and Planner Assignment.
 
-### Phase 2: Building the Foundation (The "Walkthrough" Mode)
-Upon finalizing the wizard, the system enters a specialized **Walkthrough Mode**. It redirects the user to the **Guest Management** dashboard with a `?walkthrough=true` parameter.
--   **Guided Guest Building**: A contextual alert explains the importance of the guest list. The user adds their first attendees, and the system automatically generates unique **Guest Codes** and scannable **QR identifiers** for each person.
--   **Team Assembly**: From Guest Management, the user is prompted to "Assemble Your Team," navigating to the **Team Roster** to manage co-hosts and security personnel.
+### Phase 2: Building the Foundation
+Contextual walkthroughs for building the Guest List and assembling the Team.
 
-### Phase 3: The Stationery Hub & Invitation Studio
-Once the "people" foundation is set, the system directs the user to the **Stationery Hub**. This is the creative center where the event's visual brand is finalised.
--   **Design Once, Apply Everywhere**: The user enters the **Invitation Studio**. Using the colors defined in the wizard, the user establishes a "Master Theme."
--   **Eni's Creative Input**: The user can choose from a gallery of templates or provide a text prompt to **Eni**, who uses AI to generate a unique, stunning background design.
--   **Global Serialization**: Once the master invitation background and typography are saved, the system **automatically propagates** these design choices across all other event cards: the Digital Gate Pass, the Program Card, and the Menu.
-
-### Phase 4: Final Previews & Completion
-The journey concludes with a series of high-fidelity previews:
-1.  **Gate Pass Preview**: Seeing the scannable digital ticket guests will use.
-2.  **Program & Menu Previews**: Reviewing the layouts that will eventually be filled with content by the Planner.
-3.  **Completion**: The cycle ends on a celebratory page with a visual "fireworks" effect, marking the transition from "Setup" to "Active Management."
-
-This structured lifecycle ensures that every Event Owner, regardless of their technical or design background, can launch a professional, branded, and operationally ready event in minutes.
+### Phase 3: The Stationery Hub
+The creative center for "Design Once, Apply Everywhere," where AI generates master backgrounds that propagate to Gate Passes, Programs, and Menus.
