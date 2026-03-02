@@ -309,6 +309,25 @@ Once a proposal is approved, it becomes a candidate for strategic placement with
 - **Magazine Integration**: Approved sponsors are featured in the "Internal Advertisement" section of the **EvenTide Community Magazine**, where Eni (the AI Editor-in-Chief) incorporates the brand concept into the magazine's poetic and sophisticated layout.
 - **Dashboard Visibility**: Top-tier partners may be highlighted in specialized sections of the Owner and Planner dashboards, providing maximum visibility at the point of decision-making.
 
+## Resources: Share Your Experience (Testimonials)
+
+The **Submit a Testimonial** page (`/resources/submit-testimonial`) is a vital component of EvenTide’s community-building efforts, providing a space for users to voice their success stories and professional feedback.
+
+### User Interaction
+The page features a focused, validated form that collects:
+- **Identity**: The user's name or brand name.
+- **Platform Perspective**: A role selection (Owner, Planner, Vendor, or Guest) that provides context to the feedback.
+- **The Narrative**: A detailed testimonial describing how EvenTide impacted their event or workflow.
+
+### The Moderation Pipeline
+Testimonials are not automatically published. Instead, they enter a structured moderation workflow:
+1.  **Submission**: Data is written to the `testimonials` collection with an `isApproved` flag set to `false`.
+2.  **Administrative Review**: **Content Admins** access these submissions through their dedicated dashboard (`/admin/content/testimonials`).
+3.  **Validation & Approval**: Admins can vet the feedback for authenticity and tone. Approved testimonials are then dynamically surfaced in the social proof section of the platform’s landing page.
+
+### Technical Integrity
+The form uses **React Hook Form** and **Zod** for robust client-side validation, ensuring that all submissions are complete and meaningful. The integration with EvenTide’s global error-handling architecture ensures that any database issues are contextualized and surfaced for rapid resolution.
+
 ## The Landing Page Footer: A Detailed Overview
 
 The EvenTide landing page footer is a comprehensive navigational hub designed to provide persistent access to all corners of the platform while reinforcing the brand's identity.
