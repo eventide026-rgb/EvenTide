@@ -1,6 +1,6 @@
 # EvenTide - Your Event, Reimagined
 
-Welcome to the EvenTide platform documentation. This file provides an overview of the platform's entry point and core user experience.
+Welcome to the EvenTide platform documentation. This file provides an overview of the platform's entry point, core user experience, and the comprehensive event creation lifecycle.
 
 ## The EvenTide Logo: A Visual Identity
 
@@ -168,3 +168,33 @@ The footer is engineered with a responsive grid architecture to ensure clarity a
 
 ### Aesthetic Consistency
 Maintaining the platform's sophisticated look, the footer uses a subtle secondary background with a refined top border, ensuring it remains distinct from the main content while blending seamlessly into the overall dark-themed aesthetic.
+
+## The Event Creation & Stationery Onboarding Lifecycle
+
+EvenTide employs a meticulously designed, guided walkthrough that transforms the complex task of event planning into a structured, rewarding journey. This process ensures that every event is born with a clear identity and professional digital assets.
+
+### Phase 1: The Event Creation Wizard
+The journey begins at `/owner-dashboard/create-event`, a multi-step "Stepper" interface that breaks down initial setup into logical chunks:
+1.  **Core Details**: Capturing the event's name and a rich description.
+2.  **Theme & AI Identity**: Here, the user selects an event type (e.g., Wedding, Gala) and defines the **Primary and Secondary brand colors**. Simultaneously, Eni generates a unique **Event Code**, the master key for all future guest and team interactions.
+3.  **Logistics**: Setting the date, time, and physical venue.
+4.  **Team Initialization**: The user can immediately search for a professional Planner by email to invite them to the project.
+
+### Phase 2: Building the Foundation (The "Walkthrough" Mode)
+Upon finalizing the wizard, the system enters a specialized **Walkthrough Mode**. It redirects the user to the **Guest Management** dashboard with a `?walkthrough=true` parameter.
+-   **Guided Guest Building**: A contextual alert explains the importance of the guest list. The user adds their first attendees, and the system automatically generates unique **Guest Codes** and scannable **QR identifiers** for each person.
+-   **Team Assembly**: From Guest Management, the user is prompted to "Assemble Your Team," navigating to the **Team Roster** to manage co-hosts and security personnel.
+
+### Phase 3: The Stationery Hub & Invitation Studio
+Once the "people" foundation is set, the system directs the user to the **Stationery Hub**. This is the creative center where the event's visual brand is finalized.
+-   **Design Once, Apply Everywhere**: The user enters the **Invitation Studio**. Using the colors defined in the wizard, the user establishes a "Master Theme."
+-   **Eni's Creative Input**: The user can choose from a gallery of templates or provide a text prompt to **Eni**, who uses AI to generate a unique, stunning background design.
+-   **Global Synchronization**: Once the master invitation background and typography are saved, the system **automatically propagates** these design choices across all other event cards: the Digital Gate Pass, the Program Card, and the Menu.
+
+### Phase 4: Final Previews & Completion
+The journey concludes with a series of high-fidelity previews:
+1.  **Gate Pass Preview**: Seeing the scannable digital ticket guests will use.
+2.  **Program & Menu Previews**: Reviewing the layouts that will eventually be filled with content by the Planner.
+3.  **Completion**: The cycle ends on a celebratory page with a visual "fireworks" effect, marking the transition from "Setup" to "Active Management."
+
+This structured lifecycle ensures that every Event Owner, regardless of their technical or design background, can launch a professional, branded, and operationally ready event in minutes.
