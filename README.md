@@ -22,17 +22,34 @@ The logo is a precise execution of the brand's core values, utilizing a specific
 ### 1. Typography (The Font)
 - **Typeface**: **Playfair Display** (Serif).
 - **Weight**: **Bold** (700).
-- **Narrative Purpose**: Chosen for its classical elegance and high-contrast strokes, this font communicates the "masterpiece" quality of the events managed on the platform. It provides a timeless anchor against the modern UI.
+- **Narrative Purpose**: Chosen for its classical elegance and high-contrast strokes, this font communicates the "masterpiece" quality of the events managed on the platform.
 
 ### 2. Color Palette (The Gradient)
 The logo features a vibrant horizontal linear gradient that flows from left to right:
-- **Start Color**: **Sky Blue** (Tailwind `blue-400` / `#60A5FA`). Represents clarity, technology, and the calm professional planning phase.
-- **End Color**: **Golden Yellow** (Tailwind `yellow-300` / `#FDE047`). Represents the warmth of celebration, joy, and the successful "golden hour" of an event.
-- **Execution**: The gradient is applied using `bg-clip-text`, making the colors live within the letterforms themselves against the dark background.
+- **Start Color**: **Sky Blue** (Tailwind `blue-400` / `#60A5FA`). Represents clarity and technology.
+- **End Color**: **Golden Yellow** (Tailwind `yellow-300` / `#FDE047`). Represents the warmth of celebration.
+- **Execution**: Applied using `bg-clip-text`, making the colors live within the letterforms.
 
 ### 3. Sizing (The Scale)
 - **Base Size**: **text-lg** (1.125rem / 18px).
-- **Usage**: While the base component is standardized at `text-lg` for navigation headers, it scales up to **text-2xl** or **text-4xl** on high-impact landing sections and login cards to maintain brand authority.
+- **Impact Scaling**: Scales up to **text-4xl** on high-impact landing sections.
+
+## Hero Headline: Technical Specification
+
+The headline *"Plan Your Event Effortlessly"* (and its rotating variations) is the primary visual hook of the landing page.
+
+### 1. Primary Typography
+- **Typeface**: **Space Grotesk** (Sans-serif).
+- **Weight**: **Extrabold** (800).
+- **Narrative Purpose**: A modern, technical typeface that balances the classical serif of the logo, representing the "high-performance technology" side of EvenTide.
+
+### 2. The Dynamic Word ("Effortlessly", etc.)
+The rotating word is treated with the signature brand gradient to draw the eye and emphasize the ease of use.
+- **Implementation**: CSS `background-clip: text` with `text-color: transparent`.
+- **Color Codes**:
+    - **Primary (Sky Blue)**: `HSL(225, 73%, 57%)` (Hex `#4169E1`).
+    - **Accent (Golden Yellow)**: `HSL(45, 100%, 51%)` (Hex `#FFD700`).
+- **Logic**: A React `useEffect` hook cycles these words every 2500ms, using a CSS `transition` for smooth opacity and color shifts.
 
 ## Typography: A Multi-Layered Visual Language
 
@@ -44,7 +61,7 @@ EvenTide employs a carefully curated selection of typefaces beyond the logo to e
 
 ### 2. The Modern Interface: Space Grotesk (Sans-serif)
 - **Role**: The headline and navigational anchor.
-- **Usage**: Used for secondary headlines, dashboard category labels, and primary UI navigation items.
+- **Usage**: Used for secondary headlines, dashboard category labels, and the main hero headline.
 
 ### 3. The Clarity Standard: Inter (Sans-serif)
 - **Role**: The workhorse body font.
@@ -107,6 +124,8 @@ The centralized command center for hosts, providing 360-degree oversight of thei
 
 ## The Event Owner Dashboard Sidebar: A Detailed Breakdown
 
+The sidebar uses a "Group & Flyout" navigation pattern to maximize screen real estate while keeping deep tools accessible via popover menus.
+
 ### 1. My Workspace (Icon: Home)
 - **Dashboard**: Main command center.
 - **Analytics**: Deep-dive guest engagement trends.
@@ -123,18 +142,20 @@ The centralized command center for hosts, providing 360-degree oversight of thei
 
 ## The Event Planner Dashboard: A Professional Workspace
 
+Designed for high-performance job management, the planner dashboard provides the tactical tools necessary to deliver a world-class celebration.
+
 ### 1. Gig Management & Intake
 - **Invitation Hub**: Review and respond to new job offers.
 - **Conflict Detection**: Flags date clashes when accepting new gigs.
 
 ### 2. AI-Assisted Creative Drafting
-- **Program & Menu Architects**: Generate intelligent first drafts.
-- **Interactive Mood Board**: Visual workspace for theme curation.
+- **Program & Menu Architects**: Generate intelligent first drafts based on cuisine or schedule needs.
+- **Interactive Mood Board**: Visual workspace for theme curation with AI-suggested complementary items.
 
 ### 3. Detailed Operational Control
-- **Interactive Seating Chart**: Drag-and-drop guest placement.
-- **The Task Board**: Kanban-style board for tracking to-dos.
-- **Budget Logger**: Authoritative source for financial tracking.
+- **Interactive Seating Chart**: Drag-and-drop guest placement onto visual tables.
+- **The Task Board**: Kanban-style board for tracking to-dos, synchronized with the host's view.
+- **Budget Logger**: Authoritative source for financial tracking and expense management.
 
 ## The Marketplace: Show Tickets & Discovery
 
@@ -156,7 +177,17 @@ Allows users to filter by **Make, Model, or Year**, facilitating premium arrival
 
 ## Resources: "What is EvenTide?" & Manifesto
 
-The Manifesto defines EvenTide as Nigeria’s premier event ecosystem where technology, creativity, and culture converge. Its four pillars are **Empowerment**, **Storytelling**, **Innovation**, and **Connection**.
+The **Manifesto** page is the philosophical home of the platform. It defines EvenTide as Nigeria’s premier event ecosystem where technology, creativity, and culture converge. Its four pillars are:
+- **Empowerment**: Providing intuitive tools for creators.
+- **Storytelling**: Transforming every event into a narrative.
+- **Innovation**: Leveraging AI to redefine the possible.
+- **Connection**: Building a community of hosts and vendors.
+
+## Public Resources: Submit a Testimonial
+
+The `/resources/submit-testimonial` page allows users to share their EvenTide experience.
+- **The Form**: A validated interface collecting the user's name, role, and success story.
+- **Moderation Pipeline**: Submissions are stored in a `testimonials` collection with a `pending` status, requiring administrative approval before appearing publicly.
 
 ## Advertisement & Sponsorship Opportunities
 
