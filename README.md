@@ -114,6 +114,29 @@ The platform facilitates a professional, multi-stage booking request process:
 ### Hall Owner Integration
 This marketplace is the primary revenue engine for Hall Owners. Through their dedicated **Hall Owner Dashboard**, they can manage their public listings, monitor incoming requests, and officially "Confirm" or "Decline" bookings, ensuring their calendar is always accurate and their business is managed efficiently.
 
+## The Marketplace: Car Hire Services
+
+The **"Find a Car"** feature is EvenTide's solution for premium event transportation, ensuring that hosts, VIPs, and attendees can arrange grand arrivals and seamless logistical support.
+
+### The Fleet Discovery Hub
+The Car Marketplace (`/resources/cars`) serves as a public gallery for "Car Hire Services" to showcase their available vehicles. It features a high-performance search interface that allows users to filter the fleet by **Make, Model, or Year**. This ensures that users can find the specific aesthetic or functional vehicle required for their occasion—from luxury sedans for bridal parties to robust SUVs for guest shuttles.
+
+### The Vehicle Storefront Experience
+Each vehicle listing provides a comprehensive overview designed to build trust and facilitate quick decision-making:
+- **Multi-Angle Visuals**: High-resolution image carousels allowing users to inspect the vehicle's interior and exterior.
+- **Feature Index**: A clear list of vehicle specifications such as Air Conditioning, Automatic Transmission, Bluetooth connectivity, and leather interiors.
+- **Transparent Daily Rates**: A prominent badge displays the price per day, allowing for immediate budget assessment.
+
+### The Secure Rental Pipeline
+The system facilitates a professional, automated booking request flow:
+1.  **Date Range Selection**: Using an interactive calendar, users select their required pickup and return dates. The system prevents the selection of past dates and ensures a valid rental duration.
+2.  **Automated Price Calculation**: As dates are selected, the system instantly calculates the total rental cost based on the number of days, providing complete financial clarity before the request is sent.
+3.  **Atomic Request Submission**: Submitting the request creates a secure record in the `carBookings` collection. This record includes the client's email, the specific vehicle, and the requested dates.
+4.  **Real-Time Engagement**: The service provider receives an instant notification via their dashboard, allowing them to officially "Confirm" or "Decline" the request based on their current fleet availability.
+
+### Service Provider Integration
+This marketplace is the primary business interface for car hire companies. Through their dedicated **Car Hire Dashboard**, they can manage their public fleet listings, track incoming requests, and view a unified booking calendar, keeping their operations organized and professional within the EvenTide ecosystem.
+
 ## The Landing Page: A Detailed Overview
 
 The EvenTide landing page is a sophisticated, multi-layered experience designed to communicate the platform's unique blend of cultural richness and AI-driven intelligence.
