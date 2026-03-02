@@ -55,8 +55,22 @@ Each of these dropdowns is visually anchored by a high-quality preview image tha
 ### Role-Specific Call-to-Actions
 On the right side of the header, primary actions are clearly defined. In the desktop view, "Login" and "Sign Up" buttons are housed in a distinct, bordered pill container. For mobile users, a clean hamburger menu opens a dedicated sidebar ("Sheet") that presents the full navigation hierarchy and provides specialized login buttons for Owners, Guests, and Security personnel.
 
-### Visual Branding
-The header prominently features the EvenTide Logo, rendered with a vibrant gradient that mirrors the platform's "primary to accent" color palette. This branding remains consistent and centered in the mobile view, maintaining a premium feel across all devices.
+## Resources: "What is EvenTide?"
+
+Accessible via the primary **Resources** dropdown in the header, the "What is EvenTide" link serves as the platform's philosophical foundation. It directs users to a dedicated manifesto page (`/resources/what-is-eventide`) that defines the project's core identity beyond its functional tools.
+
+### The EvenTide Manifesto
+The page is anchored by a central manifesto: *"To be Nigeria’s premier event ecosystem — where technology, creativity, and culture converge to create unforgettable experiences and world‑class storytelling."*
+
+### The Four Pillars of Mission
+EvenTide's purpose is further defined through four strategic pillars:
+*   **Empowerment**: Providing intuitive tools that lower the barrier to entry for professional-grade event planning.
+*   **Storytelling**: Moving beyond logistics to transform events into rich, shareable digital narratives.
+*   **Innovation**: Utilizing AI (Eni) to automate the tedious and elevate the creative aspects of celebration.
+*   **Connection**: Building a secure, vetted network where hosts can find the perfect partners for their vision.
+
+### Cultural Positioning
+The resource emphasizes that EvenTide is not just a utility, but a **cultural archive**. It is designed to preserve the vibrancy of Nigerian celebrations, ensuring that the stories behind the moments are captured and archived for the future.
 
 ## Smart Authentication & Role-Based Dashboard Architecture
 
@@ -76,12 +90,6 @@ To prevent unauthorized "deep-linking" (e.g., a Vendor trying to manually access
 - **Validation**: It checks the user's Firestore role against the `expectedRole` defined for that specific layout.
 - **Enforcement**: If a mismatch is detected, it automatically "ejects" the user and redirects them to their correct home dashboard.
 - **Loading State**: It manages the "Auth Gap"—the brief moment during hydration when the user's identity is being verified—by displaying a centered loading spinner, preventing unauthorized content from flashing on screen.
-
-### Initial Login Workflow
-1.  **Entry**: User submits credentials on the unified `/login` page.
-2.  **Authentication**: Firebase validates the credentials.
-3.  **Redirection**: The `useAuthHandler` detects the success, identifies the role as 'Planner', and uses the map to trigger a `router.replace('/planner-dashboard')`.
-4.  **Landing**: The user lands on their role-specific dashboard, with all their specific tools (Analytics, Program Planner, etc.) ready for use.
 
 ## The Marketplace: Show Tickets & Discovery
 
