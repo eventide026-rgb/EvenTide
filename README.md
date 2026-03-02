@@ -123,7 +123,41 @@ To ensure a stress-free celebration, the dashboard provides clear visibility int
 - **Expense Tracking**: A real-time log of the event's budget, categorised by status (Paid/Unpaid) to provide complete financial transparency.
 - **Live Check-in Monitor**: A high-performance interface for use on the day of the event, showing a real-time manifest of guest arrivals.
 
-In summary, the Event Owner Dashboard transforms the host from a stressed coordinator into an empowered director, providing the perfect blend of creative control and logistical transparency.
+## The Event Planner Dashboard: A Professional Workspace
+
+The **Event Planner Dashboard** is a high-performance environment designed for tactical execution and logistical mastery. Unlike the Owner's strategic overview, this dashboard provides planners with the granular controls needed to manage multiple "gigs" simultaneously.
+
+### 1. Gig Management & Intake
+The dashboard serves as the planner's primary business interface:
+- **Invitation Hub**: A centralized location to review, accept, or decline job offers from event owners. 
+- **Conflict Detection**: The system intelligently flags date clashes when accepting new gigs, protecting the planner's professional schedule.
+- **Active Gigs Portfolio**: A specialized sidebar allowing planners to jump between their accepted events, with each view tailored to that specific project's requirements.
+
+### 2. AI-Assisted Creative Drafting
+Planners leverage Eni to handle complex creative logic:
+- **Program & Menu Architects**: Specialized builders that allow planners to generate intelligent first drafts of event programs and menus based on event type, cuisine style, and MC requirements.
+- **Interactive Mood Board**: A visual workspace where planners can curate themes and receive AI-generated design suggestions to refine the event's aesthetic.
+- **Stationery Hub**: Full access to the Invitation Studio to manage the event's branding on behalf of the owner.
+
+### 3. Detailed Operational Control
+The "engine room" of the dashboard includes precision tools for every stage of planning:
+- **Interactive Seating Chart**: A drag-and-drop designer for arranging guests at tables, with real-time feedback on capacity and category placement.
+- **The Task Board**: A full Kanban-style board for tracking the event's to-do list, allowing planners to assign tasks to team members and monitor progress.
+- **Budget & Expense Logger**: The authoritative source for financial tracking, where planners log expenses and categorize payments to maintain transparency for the host.
+
+### 4. Marketplace & Network Integration
+The dashboard bridges the gap between discovery and contracting:
+- **Vendor Marketplace Hub**: Advanced search tools to find, vet, and bookmark professionals.
+- **Network Management**: A "My Network" contact repository for storing and managing trusted vendor relationships across different events.
+- **Contract Management**: A specialized pipeline for sending formal proposals to vendors and tracking their acceptance status.
+
+### 5. Live Event Execution
+On the day of the event, the dashboard transforms into an operational monitor:
+- **Security & Check-in Roster**: Management of the on-site security team, including the generation of unique scanner activation codes.
+- **Manual Check-in Tool**: A search-and-verify interface for handling VIP arrivals or guests without digital passes.
+- **Live Check-in Monitor**: A high-speed manifest showing real-time arrivals, sorted by category and arrival time.
+
+In summary, the Event Planner Dashboard is a comprehensive "Event OS," providing the professional planner with every tool needed to transition from initial concept to a perfectly executed reality.
 
 ## The Marketplace: Show Tickets & Discovery
 
