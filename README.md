@@ -280,7 +280,7 @@ The core operational suite for executing celebrations:
 ### 3. Marketplace (Icon: Briefcase)
 Discovery gateways for sourcing event requirements:
 - **Vendor Hub**: Search and vet professional service providers across all specialties.
-- **Fashion Designers**: A targeted search for specialist designers for custom event attire.
+- **Fashion Designers**: A territory search for specialist designers for custom event attire.
 - **Hotel Hub**: Locate and request bookings for guest accommodations.
 - **Venue Hub**: Discover and book event halls, gardens, and spaces.
 
