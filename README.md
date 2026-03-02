@@ -126,23 +126,56 @@ Upon entry, the owner is presented with a high-impact overview of their active e
 - **Dynamic Countdown**: A primary visual anchor that displays the time remaining until the event begins, keeping the timeline top-of-mind.
 - **Planner Oversight**: A read-only feed of the planner's upcoming tasks, ensuring the owner is always aware of logistical progress without needing to micromanage.
 
-### 2. Creative & Brand Management
-The dashboard serves as the gateway to EvenTide's creative suite:
-- **Stationery Hub**: The central location for finalising the event's visual identity, including the AI-powered Invitation Studio and previews for Gate Passes and Menus.
-- **Media Library**: A curated repository where owners can review photos and videos uploaded by guests and vendors, and use Eni to create automated highlight galleries.
-- **Mood Board**: A shared space to visualize the event's aesthetic theme, enhanced by AI-generated design suggestions.
+## The Event Owner Dashboard Sidebar: A Detailed Breakdown
 
-### 3. People & Logistics Oversight
-Owners maintain complete control over the "Who" and the "Where":
-- **Guest Management**: A robust tool for building and categorising guest lists, monitoring RSVPs, and manually adjusting check-in statuses.
-- **Team Roster**: The interface for assembling the professional team, allowing owners to search for and invite Planners, Co-hosts, and Security personnel.
-- **Marketplace Hub**: Direct access to EvenTide's specialized marketplaces to find and vet Venues, Hotels, Car Hire services, and Fashion Designers.
+The Event Owner Dashboard employs a structured sidebar navigation that uses a grouping and flyout pattern to organize its extensive suite of tools. Each icon in the main sidebar represents a functional category, which when clicked, reveals a specific popover menu containing targeted links.
 
-### 4. Operational & Financial Monitoring
-To ensure a stress-free celebration, the dashboard provides clear visibility into backend operations:
-- **Contract Oversight**: A dedicated view to monitor the status of all vendor proposals and fashion commissions initiated by the planning team.
-- **Expense Tracking**: A real-time log of the event's budget, categorised by status (Paid/Unpaid) to provide complete financial transparency.
-- **Live Check-in Monitor**: A high-performance interface for use on the day of the event, showing a real-time manifest of guest arrivals.
+### 1. My Workspace (Icon: Home)
+This group contains the core operational tools for daily oversight:
+- **Dashboard**: The primary command center with real-time KPIs and the event switcher.
+- **Analytics**: Deep-dive data visualizations on guest engagement and RSVP trends.
+- **Calendar**: A unified view of event dates, task deadlines, and appointments.
+
+### 2. Event Planning (Icon: PartyPopper)
+The "creative suite" for managing the event's visual and experiential details:
+- **Stationery Hub**: Central control for branding, including the AI Invitation Studio and Gatepass previews.
+- **Program & Menu**: A read-only viewer to monitor the schedule and culinary plans created by the planner.
+- **Seating Chart**: A visual layout of the hall showing assigned guest placement.
+- **Gift Registry**: Management of the host's wishlist and monetary gift details.
+- **Shot List**: A checklist of must-have photos for the event photographer.
+- **Media Library**: A repository for all uploaded photos and AI-curated galleries.
+- **Song Requests**: A moderation queue for guest-submitted music requests.
+
+### 3. People Management (Icon: Users)
+Tools for managing the individuals involved in the occasion:
+- **Guests**: The authoritative guest list for adding, editing, and categorizing attendees.
+- **Team**: The roster for inviting and managing Planners, Co-hosts, and Security personnel.
+
+### 4. Marketplace (Icon: Briefcase)
+Gateways to discover and book professional services:
+- **Find a Planner**: Search and vet professional planners on the EvenTide network.
+- **Fashion Hub**: Discover and commission bespoke fashion designers.
+- **Find a Hotel**: Locate and request bookings for guest accommodations.
+- **Find a Venue**: Browse and secure halls or gardens for the event.
+
+### 5. Operations (Icon: Settings)
+Tactical monitoring of the backend planning process:
+- **Contracts & Tasks**: Oversight of active vendor proposals and the planner's task progress.
+- **Expenses**: A real-time tracker for the event's budget and payment statuses.
+
+### 6. Communication (Icon: MessageCircle)
+Real-time interaction tools for the event team and guests:
+- **Announcements**: The broadcast center for sending live updates to guest dashboards.
+- **Chat**: Integrated rooms for main team collaboration and specific vendor discussions.
+
+### 7. Live Event (Icon: ShieldCheck)
+Operational monitoring for the day of the celebration:
+- **Check-in Monitor**: A live manifest showing guest arrivals and current hall capacity.
+
+### 8. Settings (Icon: Settings)
+Administrative and configuration tools:
+- **My Account**: Management of personal profile information shared across the platform.
+- **Account & Billing**: Subscription management and pricing plan upgrades.
 
 ## The Event Planner Dashboard: A Professional Workspace
 
