@@ -15,6 +15,30 @@ The platform serves as a complete lifecycle solution, offering:
 *   **Secure Execution**: Modern on-site tools including QR-based digital gate passes, scanner activation for security teams, and live check-in monitors.
 *   **Digital Storytelling**: An AI-curated community magazine that transforms the memories of public celebrations into a lasting digital archive.
 
+## Typography: A Multi-Layered Visual Language
+
+EvenTide employs a carefully curated selection of typefaces to establish its unique brand identity—a blend of timeless African elegance and cutting-edge technological innovation.
+
+### 1. The Anchor of Elegance: Playfair Display (Serif)
+- **Role**: The primary brand typeface.
+- **Usage**: Used exclusively for the EvenTide logo and high-impact section headings.
+- **Narrative Purpose**: This sophisticated serif typeface communicates heritage, prestige, and the "masterpiece" quality of the events managed on the platform. It provides a classical counterpoint to the modern UI elements.
+
+### 2. The Modern Interface: Space Grotesk (Sans-serif)
+- **Role**: The headline and navigational anchor.
+- **Usage**: Used for secondary headlines, dashboard category labels, and primary UI navigation items.
+- **Narrative Purpose**: Space Grotesk introduces a technical, "future-forward" feel. Its geometric clarity represents the precision and intelligence of **Eni**, ensuring the interface feels like a high-performance tool.
+
+### 3. The Clarity Standard: Inter (Sans-serif)
+- **Role**: The workhorse body font.
+- **Usage**: The default typeface for all descriptive text, form fields, and data-heavy dashboard components.
+- **Narrative Purpose**: Chosen for its exceptional readability on screens of all sizes, Inter ensures that complex logistical data and poetic AI messages are consumed effortlessly by the user.
+
+### 4. The Human Touch: Caveat (Cursive)
+- **Role**: The stylized "handwritten" accent.
+- **Usage**: Used specifically for elements requiring a personal touch, such as the messages on the **Autograph Wall**.
+- **Narrative Purpose**: Caveat brings a sense of warmth and individual presence to the digital experience, mimicking the feel of a physical guestbook and celebrating the human connection at the heart of every event.
+
 ## The Hero Experience: Vision & Dynamic Branding
 
 The Hero section of the EvenTide landing page is engineered to create an immediate emotional and professional impact. It uses a combination of high-fidelity visual storytelling and dynamic interface logic to position the platform as a premier AI partner.
@@ -98,7 +122,7 @@ On the right side of the header, primary actions are clearly defined. In the des
 
 ## Resources: "What is EvenTide?"
 
-Located as the primary entry in the **Resources** dropdown of the landing page header, the "What is EvenTide" link serves as the platform's intellectual and philosophical anchor. 
+Located as the primary entry in the **Resources** dropdown of the landing page header, the "What is EvenTide?" link serves as the platform's intellectual and philosophical anchor. 
 
 ### Visual Presentation
 Within the header's navigation, this item is presented inside a modern popover component. It is visually context-mapped to a cinematic, wide-angle image of a decorated gala hall, signifying the high-quality, professional standards the platform upholds. This visual anchoring helps transition the user's mindset from simple utility to the "masterpiece" level of event planning.
@@ -122,7 +146,7 @@ EvenTide employs a centralized, intelligent redirection system that ensures user
 
 ### 1. The Global Auth Handler (`useAuthHandler`)
 This is the "brain" of the redirection system. It resides in the root layout and listens continuously for changes in the user's authentication state via Firebase. 
-- **Identity Resolution**: Upon login, it immediately fetches the user's comprehensive profile from the `/users` collection in Firestore.
+- **Identity Resolution**: Upon login, it immediately fetches the user's comprehensive profile from the `/users` collection.
 - **Role Detection**: It extracts the `role` property (e.g., 'Planner', 'Hotelier', 'Super Admin').
 - **Session Persistence**: It caches the role and name in `sessionStorage`. This allows for instantaneous, flicker-free UI changes during the same session without waiting for repeated database fetches.
 
