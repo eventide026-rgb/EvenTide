@@ -88,6 +88,30 @@ The headline *"Plan Your Event Stylishly"* is part of a reactive cycle.
 - **Buy Tickets**: The "Marketplace" shortcut.
 - **I am a Guest**: The "Attendee" portal.
 
+## The "How It Works" Section: A Four-Step Lifecycle
+
+The "How It Works" section provides a high-level roadmap for new users, breaking down the sophisticated event management journey into four logical, manageable phases.
+
+### 1. Architectural Layout
+- **Visual Strategy**: Implemented as a responsive grid of `Card` components. Each card utilizes a thematic `Lucide` icon in the brand's primary color to provide instant visual categorization.
+- **Style**: Set against a `bg-secondary` background to provide subtle visual separation from the Hero and CTA sections.
+
+### 2. Phase 1: Create Your Event
+- **Focus**: The transition from abstract idea to digital entity.
+- **Execution**: Highlights the intuitive data-entry interfaces for core event parameters (Date, Time, Venue), positioning EvenTide as an efficient starting point for any celebration.
+
+### 3. Phase 2: Design with AI
+- **Focus**: The intersection of creativity and automation.
+- **Execution**: Formally introduces **Eni** as a design partner. This step emphasizes the platform's ability to generate stunning, unique invitation cards and cohesive branding assets based on the user's chosen theme.
+
+### 4. Phase 3: Manage Your Guests
+- **Focus**: Strategic oversight and communication.
+- **Execution**: Highlights the dashboard as a centralized "Command Center" for the guest list. It emphasizes categorization (VIP, Guest, etc.) and the ease of multi-channel communication to ensure high RSVP rates.
+
+### 5. Phase 4: Execute Flawlessly
+- **Focus**: Day-of operations and secure coordination.
+- **Execution**: Showcases the platform's utility during the event itself. This includes the QR-based gate pass system for security teams, real-time broadasts for announcements, and the live check-in monitor for organizers.
+
 ## Landing Page Header: Technical Specification
 
 The landing page header is a reactive navigation component designed to provide persistent access to the platform's resources while adapting its visual profile based on user interaction.
