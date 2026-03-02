@@ -43,6 +43,31 @@ On the right side of the header, primary actions are clearly defined. In the des
 ### Visual Branding
 The header prominently features the EvenTide Logo, rendered with a vibrant gradient that mirrors the platform's "primary to accent" color palette. This branding remains consistent and centered in the mobile view, maintaining a premium feel across all devices.
 
+## The Marketplace: Show Tickets & Discovery
+
+The **"Show Tickets"** feature is the lead transactional service within the Marketplace. It is designed to transform casual visitors into event attendees through a seamless discovery-to-purchase pipeline.
+
+### Header Integration & Visual Discovery
+Within the landing page header, the **Marketplace** dropdown serves as the primary entry point. The "Show Tickets" link is prominently featured and is visually contextualized by a high-quality image of an active event venue. This visual anchoring is designed to trigger an immediate emotional connection with the user's desire for entertainment and community.
+
+### The Discovery Hub
+Clicking through from the header leads the user to the **Shows Marketplace** (`/shows`). This central hub acts as a public billboard for "Ticketiers" (Promoters) to showcase their upcoming events. It features:
+- **Searchable Inventory**: A real-time search interface allowing users to find shows by name or location.
+- **Show Cards**: High-impact visual cards that display the event date, venue, and a "Tickets Available" badge, ensuring key information is visible at a glance.
+
+### The Purchase Pipeline
+Once a show is selected, the system guides the user through a structured, secure selection process:
+1.  **Show Details**: A deep-dive page providing rich descriptions and multiple image previews.
+2.  **Tier Selection**: A dedicated widget where users can select quantities from various ticket tiers (e.g., General, VIP, Table) with real-time availability tracking.
+3.  **Secure Checkout**: A summary view that calculates the grand total before initiating a secure, atomic write operation to the database to generate the tickets.
+4.  **Instant Fulfillment**: Successful transactions culminate in a confirmation page where users can immediately view their unique, scannable digital tickets.
+
+### Relationship to the Footer
+The platform maintains a persistent **"Buy Tickets"** link in the "Marketplace" column of the site-wide footer. This provides a functional redundancy:
+- While the **Header Dropdown** is designed for high-visibility discovery and "top-of-page" engagement, the **Footer Item** acts as a site-wide shortcut.
+- This ensures that if a user has scrolled to the bottom of any informational page (like "Privacy" or "About Us") and decides they are ready to explore events, they have an immediate path back to the marketplace without needing to scroll back to the top.
+- Both entry points converge on the same `/shows` discovery hub, maintaining a consistent and predictable user journey.
+
 ## The Landing Page: A Detailed Overview
 
 The EvenTide landing page is a sophisticated, multi-layered experience designed to communicate the platform's unique blend of cultural richness and AI-driven intelligence.
