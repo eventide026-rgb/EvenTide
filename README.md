@@ -43,6 +43,31 @@ On the right side of the header, primary actions are clearly defined. In the des
 ### Visual Branding
 The header prominently features the EvenTide Logo, rendered with a vibrant gradient that mirrors the platform's "primary to accent" color palette. This branding remains consistent and centered in the mobile view, maintaining a premium feel across all devices.
 
+## Smart Authentication & Role-Based Dashboard Architecture
+
+EvenTide employs a centralized, intelligent redirection system that ensures users are always in the correct workspace. This "smart login" logic is built on three core pillars:
+
+### 1. The Global Auth Handler (`useAuthHandler`)
+This is the "brain" of the redirection system. It resides in the root layout and listens continuously for changes in the user's authentication state via Firebase. 
+- **Identity Resolution**: Upon login, it immediately fetches the user's comprehensive profile from the `/users` collection in Firestore.
+- **Role Detection**: It extracts the `role` property (e.g., 'Planner', 'Hotelier', 'Super Admin').
+- **Session Persistence**: It caches the role and name in `sessionStorage`. This allows for instantaneous, flicker-free UI changes during the same session without waiting for repeated database fetches.
+
+### 2. The Role-Dashboard Mapping
+The platform maintains a strict, centralized map (`ROLE_DASHBOARD_MAP`) that defines the relationship between a user's role and their destination URL. This ensures consistency—every "Hall Owner" is always routed to `/hall-owner-dashboard`, and every "Ticketier" to `/ticketier-dashboard`. This mapping is used for both initial login redirection and ongoing navigational protection.
+
+### 3. Layout Security Guards (`DashboardRedirector`)
+To prevent unauthorized "deep-linking" (e.g., a Vendor trying to manually access the Owner dashboard), every dashboard layout is wrapped in a `DashboardRedirector` component.
+- **Validation**: It checks the user's Firestore role against the `expectedRole` defined for that specific layout.
+- **Enforcement**: If a mismatch is detected, it automatically "ejects" the user and redirects them to their correct home dashboard.
+- **Loading State**: It manages the "Auth Gap"—the brief moment during hydration when the user's identity is being verified—by displaying a centered loading spinner, preventing unauthorized content from flashing on screen.
+
+### Initial Login Workflow
+1.  **Entry**: User submits credentials on the unified `/login` page.
+2.  **Authentication**: Firebase validates the credentials.
+3.  **Redirection**: The `useAuthHandler` detects the success, identifies the role as 'Planner', and uses the map to trigger a `router.replace('/planner-dashboard')`.
+4.  **Landing**: The user lands on their role-specific dashboard, with all their specific tools (Analytics, Program Planner, etc.) ready for use.
+
 ## The Marketplace: Show Tickets & Discovery
 
 The **"Show Tickets"** feature is the lead transactional service within the Marketplace. It is designed to transform casual visitors into event attendees through a seamless discovery-to-purchase pipeline.
