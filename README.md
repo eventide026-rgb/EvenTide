@@ -91,6 +91,29 @@ The system employs a guided, secure booking request flow:
 ### Integrated Management
 For property owners, this feature is tightly integrated with the **Hotelier Dashboard**. From there, they can manage their listings, view a unified booking calendar, and officially "Confirm" or "Decline" incoming requests, keeping the entire transactional lifecycle within the EvenTide ecosystem.
 
+## The Marketplace: Venue Discovery & Booking
+
+The **"Find a Venue"** feature is the cornerstone of EvenTide's event logistics, providing a centralized hub for discovering and securing high-quality spaces for any celebration.
+
+### Smart Geographical Filtering
+The Venue Marketplace (`/resources/venues`) leverages a robust filtering system. Users can search by **Nigerian State and City**, ensuring that planners can find the perfect hall or garden within their desired locale. This localized approach is critical for managing guest logistics and coordinating with local vendors.
+
+### The Venue Storefront Experience
+Each venue listing acts as a comprehensive digital storefront for "Hall Owners." The detail page provides:
+- **High-Fidelity Media**: A carousel of high-resolution images showcasing the venue's entrance, main hall, and unique architectural features.
+- **Capacity & Scale**: A prominent badge indicates the venue's guest capacity, helping planners immediately vet spaces based on their event's scale.
+- **Technical Index**: A detailed breakdown of available amenities (e.g., Parking, Power Backup, AC) and specific features (e.g., Built-in Stage, Sound System, VIP Lounge).
+
+### The Guided Booking Request Flow
+The platform facilitates a professional, multi-stage booking request process:
+1.  **Event Context**: The user provides their event's name and estimated guest count.
+2.  **Date Availability**: An interactive calendar allows the user to select their desired event date. The system automatically restricts selections to future dates.
+3.  **Atomic Submission**: Submitting the request initiates a secure, non-blocking write to the `venueBookings` collection. This creates a unified record that is instantly visible to both the requester and the Hall Owner.
+4.  **Real-Time Notification**: The Hall Owner receives an immediate notification, allowing them to review the request alongside their existing booking calendar.
+
+### Hall Owner Integration
+This marketplace is the primary revenue engine for Hall Owners. Through their dedicated **Hall Owner Dashboard**, they can manage their public listings, monitor incoming requests, and officially "Confirm" or "Decline" bookings, ensuring their calendar is always accurate and their business is managed efficiently.
+
 ## The Landing Page: A Detailed Overview
 
 The EvenTide landing page is a sophisticated, multi-layered experience designed to communicate the platform's unique blend of cultural richness and AI-driven intelligence.
