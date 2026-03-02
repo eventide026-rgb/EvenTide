@@ -1,6 +1,21 @@
 # EvenTide - Your Event, Reimagined
 
-Welcome to the EvenTide platform documentation. This file provides an overview of the platform's entry point, core user experience, and the comprehensive event creation lifecycle.
+Welcome to the EvenTide platform documentation. This file provides an overview of the platform's purpose, core user experience, and technical architecture.
+
+## What is EvenTide?
+
+EvenTide is a sophisticated, AI-powered event management ecosystem designed to redefine how celebrations are planned, managed, and remembered. Rooted in Nigerian and African cultural richness, it combines high-performance technology with an elegant, user-centric interface to empower event owners, professional planners, and service providers.
+
+At its core, EvenTide is driven by **Eni**, the platform's "AI soul," who acts as a poetic creative director and a meticulous logistical coordinator. Whether it's generating unique invitation designs, curating live photo galleries, or providing intelligent menu suggestions, Eni ensures that every detail reflects the elegance and importance of the occasion.
+
+The platform serves as a complete lifecycle solution, offering:
+*   **A Unified Marketplace**: A centralized hub for discovering and booking premium venues, hotels, car hire services, and vetted vendors.
+*   **Public Event Commerce**: A specialized workspace for promoters (Ticketiers) to list shows and sell digital tickets to a wide audience.
+*   **Collaborative Planning**: Real-time tools for team assembly, task tracking, budget management, and integrated communication.
+*   **Secure Execution**: Modern on-site tools including QR-based digital gate passes, scanner activation for security teams, and live check-in monitors.
+*   **Digital Storytelling**: An AI-curated community magazine that transforms the memories of public celebrations into a lasting digital archive.
+
+In essence, EvenTide is where technology meets timeless celebration, providing the tools to turn every vision into a perfectly executed reality.
 
 ## The EvenTide Logo: A Visual Identity
 
