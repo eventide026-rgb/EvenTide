@@ -57,16 +57,19 @@ On the right side of the header, primary actions are clearly defined. In the des
 
 ## Resources: "What is EvenTide?"
 
-Accessible via the primary **Resources** dropdown in the header, the "What is EvenTide" link serves as the platform's philosophical foundation. It directs users to a dedicated manifesto page (`/resources/what-is-eventide`) that defines the project's core identity beyond its functional tools.
+Located as the primary entry in the **Resources** dropdown of the landing page header, the "What is EvenTide" link serves as the platform's intellectual and philosophical anchor. 
 
-### The EvenTide Manifesto
-The page is anchored by a central manifesto: *"To be Nigeria’s premier event ecosystem — where technology, creativity, and culture converge to create unforgettable experiences and world‑class storytelling."*
+### Visual Presentation
+Within the header's navigation, this item is presented inside a modern popover component. It is visually context-mapped to a cinematic, wide-angle image of a decorated gala hall, signifying the high-quality, professional standards the platform upholds. This visual anchoring helps transition the user's mindset from simple utility to the "masterpiece" level of event planning.
 
-### The Four Pillars of Mission
+### The Manifesto Page (`/resources/what-is-eventide`)
+Clicking this link takes the user to a dedicated manifesto that defines the project's identity. The page is anchored by a central vision statement: *"To be Nigeria’s premier event ecosystem — where technology, creativity, and culture converge to create unforgettable experiences and world‑class storytelling."*
+
+### The Four Pillars of the Mission
 EvenTide's purpose is further defined through four strategic pillars:
-*   **Empowerment**: Providing intuitive tools that lower the barrier to entry for professional-grade event planning.
+*   **Empowerment**: Providing intuitive, high-performance tools that allow anyone to plan events with the precision of a professional.
 *   **Storytelling**: Moving beyond logistics to transform events into rich, shareable digital narratives.
-*   **Innovation**: Utilizing AI (Eni) to automate the tedious and elevate the creative aspects of celebration.
+*   **Innovation**: Utilizing the platform's AI soul, Eni, to automate the tedious and elevate the creative aspects of celebration.
 *   **Connection**: Building a secure, vetted network where hosts can find the perfect partners for their vision.
 
 ### Cultural Positioning
@@ -144,7 +147,7 @@ For property owners, this feature is tightly integrated with the **Hotelier Dash
 The **"Find a Venue"** feature is the cornerstone of EvenTide's event logistics, providing a centralized hub for discovering and securing high-quality spaces for any celebration.
 
 ### Smart Geographical Filtering
-The Venue Marketplace (`/resources/venues`) leverages a robust filtering system. Users can search by **Nigerian State and City**, ensuring that planners can find the perfect hall or garden within their desired locale. This localized approach is critical for managing guest logistics and coordinating with local vendors.
+The Venue Marketplace (`/resources/venues`) leverages a robust filtering system. Users can search by **Nigerian State and City**, ensuring that planners can find the perfect hall or garden within their desired locale. This localized approach is created for managing guest logistics and coordinating with local vendors.
 
 ### The Venue Storefront Experience
 Each venue listing acts as a comprehensive digital storefront for "Hall Owners." The detail page provides:
