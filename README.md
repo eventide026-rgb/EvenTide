@@ -68,6 +68,29 @@ The platform maintains a persistent **"Buy Tickets"** link in the "Marketplace" 
 - This ensures that if a user has scrolled to the bottom of any informational page (like "Privacy" or "About Us") and decides they are ready to explore events, they have an immediate path back to the marketplace without needing to scroll back to the top.
 - Both entry points converge on the same `/shows` discovery hub, maintaining a consistent and predictable user journey.
 
+## The Marketplace: Hotel Accommodations
+
+The **"Find a Hotel"** feature is a core logistical pillar of the EvenTide Marketplace, designed to provide seamless lodging solutions for event attendees and planning teams.
+
+### Geographical Discovery
+The Hotel Marketplace (`/resources/hotels`) is built for localized discovery. It features a robust search interface that allows users to filter accommodations by **Nigerian State and City**. This ensures that guests can find high-quality stays within minutes of their event venue, reducing travel friction and enhancing the overall celebration experience.
+
+### The Hotel Storefront Experience
+Each listing in the marketplace serves as a professional storefront for "Hoteliers." The hotel detail page provides:
+- **Rich Media**: High-definition image carousels showcasing the property's exterior and interior.
+- **Detailed Inventory**: A breakdown of specific room types (e.g., Standard Double, Executive Suite) with associated pricing and guest capacity.
+- **Amenity Index**: Clear icons indicating essential services such as Wi-Fi, Air Conditioning, Pool, and Gym facilities.
+
+### The Secure Booking Pipeline
+The system employs a guided, secure booking request flow:
+1.  **Selection**: The user identifies a desired room type and enters the booking dialog.
+2.  **Date Validation**: An interactive calendar allows the user to select their check-in and check-out dates. The system prevents the selection of past dates and ensures a valid date range is provided.
+3.  **Real-Time Pricing**: As dates are selected, the system automatically calculates the total rental price based on the number of nights, providing immediate financial transparency.
+4.  **Request Submission**: Submitting the form creates a secure, non-blocking record in the `bookings` collection. This initiates a real-time notification to the property owner.
+
+### Integrated Management
+For property owners, this feature is tightly integrated with the **Hotelier Dashboard**. From there, they can manage their listings, view a unified booking calendar, and officially "Confirm" or "Decline" incoming requests, keeping the entire transactional lifecycle within the EvenTide ecosystem.
+
 ## The Landing Page: A Detailed Overview
 
 The EvenTide landing page is a sophisticated, multi-layered experience designed to communicate the platform's unique blend of cultural richness and AI-driven intelligence.
