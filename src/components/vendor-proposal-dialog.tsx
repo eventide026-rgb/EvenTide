@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -86,7 +85,7 @@ export function VendorProposalDialog({ vendor }: VendorProposalDialogProps) {
     }, [firestore, eventIds]);
     const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
 
-    const onSubmit = async (values: z.infer<typeof proposalSchema>>) => {
+    const onSubmit = async (values: z.infer<typeof proposalSchema>) => {
         if(!user || !firestore) return;
 
         const contractData = {

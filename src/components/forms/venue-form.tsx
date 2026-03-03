@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
@@ -89,7 +88,7 @@ export function VenueForm({ venueId }: VenueFormProps) {
         }
     }, [existingVenueData, form]);
 
-    const { fields: imageUrlFields, append: appendImageUrl, remove: removeImageUrl, replace: replaceImageUrls } = useFieldArray({
+    const { fields: imageUrlFields, remove: removeImageUrl } = useFieldArray({
         control: form.control,
         name: "imageUrls",
     });
@@ -180,11 +179,6 @@ export function VenueForm({ venueId }: VenueFormProps) {
             reader.readAsDataURL(file);
         });
     };
-
-    const removeImageUrl = (indexToRemove: number) => {
-        const currentImages = form.getValues('imageUrls');
-        form.setValue('imageUrls', currentImages.filter((_, index) => index !== indexToRemove));
-    }
 
     if (isLoadingVenue && isEditMode) {
         return <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
