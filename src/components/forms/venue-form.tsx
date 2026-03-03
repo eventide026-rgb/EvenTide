@@ -88,7 +88,7 @@ export function VenueForm({ venueId }: VenueFormProps) {
         }
     }, [existingVenueData, form]);
 
-    const { fields: imageUrlFields, remove: removeImageUrl } = useFieldArray({
+    const { fields: imageUrlFields, remove: removeImg } = useFieldArray({
         control: form.control,
         name: "imageUrls",
     });
@@ -297,7 +297,7 @@ export function VenueForm({ venueId }: VenueFormProps) {
                                     variant="destructive"
                                     size="icon"
                                     className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    onClick={() => removeImageUrl(index)}
+                                    onClick={() => removeImg(index)}
                                 >
                                     <X className="h-4 w-4" />
                                 </Button>
