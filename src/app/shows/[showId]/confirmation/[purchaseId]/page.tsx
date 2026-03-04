@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, Suspense } from 'react';
@@ -15,7 +14,7 @@ type Show = {
     name: string;
 }
 
-type Ticket = {
+type TicketData = {
     id: string;
     tierName: string;
     ticketCode: string;
@@ -37,7 +36,7 @@ function ConfirmationPageContents({ showId, purchaseId }: { showId: string, purc
         );
     }, [firestore, showId, purchaseId, user]);
     
-    const { data: tickets, isLoading: isLoadingTickets } = useCollection<Ticket>(ticketsQuery);
+    const { data: tickets, isLoading: isLoadingTickets } = useCollection<TicketData>(ticketsQuery);
 
     const isLoading = isUserLoading || isLoadingShow || isLoadingTickets;
 
@@ -76,11 +75,12 @@ function ConfirmationPageContents({ showId, purchaseId }: { showId: string, purc
     )
 }
 
-export default function ConfirmationPage({ params }: { params: { showId: string, purchaseId: string } }) {
+export default function ConfirmationPage({ params }: { params: Promise<{ showId: string, purchaseId: string }> }) {
+    const { showId, purchaseId } = use(params);
     return (
         <div className="container mx-auto px-4 py-12">
             <Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-                <ConfirmationPageContents showId={params.showId} purchaseId={params.purchaseId} />
+                <ConfirmationPageContents showId={showId} purchaseId={purchaseId} />
             </Suspense>
         </div>
     );
