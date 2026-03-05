@@ -27,22 +27,19 @@ import { useAuth, useFirestore } from "@/firebase";
 import { 
   createUserWithEmailAndPassword,
 } from 'firebase/auth';
-import { setDoc, doc, serverTimestamp, writeBatch, collection } from "firebase/firestore";
+import { setDoc, doc, serverTimestamp, writeBatch } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
 import { errorEmitter } from "@/firebase/error-emitter";
 import { FirestorePermissionError } from "@/firebase/errors";
-import { VendorSpecialties } from "@/lib/placeholder-images";
 import { ROLE_DASHBOARD_MAP } from "@/constants/role-dashboard-map";
-
 
 const formSchema = z.object({
   firstName: z.string().min(2, { message: "First name is required." }),
   lastName: z.string().min(2, { message: "Last name is required." }),
   email: z.string().email({ message: "Please enter a valid email." }),
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
-  role: z.enum(["Owner", "Planner", "Hotelier", "Hall Owner", "Car Hire Service", "Ticketier", "Vendor", "Fashion Designer", "Security"], { required_error: "You need to select a role." }),
+  role: z.enum(["Owner", "Planner", "Hotelier", "Hall Owner", "Car Hire Service", "Ticketier", "Security"], { required_error: "You need to select a role." }),
   promoterName: z.string().optional(),
-  vendorSpecialty: z.string().optional(),
 }).refine(data => {
     if (data.role === 'Ticketier') {
         return !!data.promoterName && data.promoterName.length >= 2;
@@ -51,14 +48,6 @@ const formSchema = z.object({
 }, {
     message: "Promoter name is required for Ticketiers.",
     path: ["promoterName"],
-}).refine(data => {
-    if (data.role === 'Vendor') {
-        return !!data.vendorSpecialty;
-    }
-    return true;
-}, {
-    message: "Please select a vendor specialty.",
-    path: ["vendorSpecialty"],
 });
 
 export function SignUpForm() {
@@ -109,10 +98,6 @@ export function SignUpForm() {
                 createdAt: serverTimestamp(),
             };
             
-            if (values.role === 'Vendor' || values.role === 'Fashion Designer') {
-                userProfileData.specialty = values.role === 'Fashion Designer' ? 'Fashion Designer' : values.vendorSpecialty;
-            }
-            
             const userDocRef = doc(firestore, "users", user.uid);
             batch.set(userDocRef, userProfileData);
 
@@ -128,18 +113,6 @@ export function SignUpForm() {
                 batch.set(ticketierDocRef, ticketierProfileData);
             }
             
-            if (values.role === 'Vendor' || values.role === 'Fashion Designer') {
-                const vendorData = {
-                    id: user.uid,
-                    name: `${values.firstName} ${values.lastName}`,
-                    email: values.email,
-                    specialty: userProfileData.specialty,
-                    createdAt: serverTimestamp(),
-                };
-                const vendorDocRef = doc(firestore, 'vendors', user.uid);
-                batch.set(vendorDocRef, vendorData);
-            }
-
             await batch.commit().catch((error) => {
                  const contextualError = new FirestorePermissionError({
                     path: 'batch write',
@@ -158,15 +131,12 @@ export function SignUpForm() {
             
             const destination = ROLE_DASHBOARD_MAP[values.role] || "/owner-dashboard";
             router.push(destination);
-
         }
 
     } catch (error: any) {
       let description = "An unexpected error occurred. Please try again.";
       if (error.code === 'auth/email-already-in-use') {
         description = "This email address is already in use. Please log in or use a different email.";
-      } else if (error.message.startsWith("Failed to create user profile")) {
-        description = error.message;
       }
       toast({
         variant: "destructive",
@@ -251,8 +221,6 @@ export function SignUpForm() {
                 <SelectContent>
                   <SelectItem value="Owner">Event Owner</SelectItem>
                   <SelectItem value="Planner">Event Planner</SelectItem>
-                  <SelectItem value="Vendor">Vendor (Photographer, Caterer, etc.)</SelectItem>
-                  <SelectItem value="Fashion Designer">Fashion Designer</SelectItem>
                   <SelectItem value="Hotelier">Hotelier</SelectItem>
                   <SelectItem value="Hall Owner">Venue / Hall Owner</SelectItem>
                   <SelectItem value="Car Hire Service">Car Hire Service</SelectItem>
@@ -275,30 +243,6 @@ export function SignUpForm() {
                         <Input placeholder="e.g., Vibes on Vibes Ent." {...field} />
                     </FormControl>
                     <FormMessage />
-                    </FormItem>
-                )}
-            />
-        )}
-        {role === "Vendor" && (
-            <FormField
-                control={form.control}
-                name="vendorSpecialty"
-                render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Vendor Specialty</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select your specialty" />
-                            </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                {VendorSpecialties.map(specialty => (
-                                    <SelectItem key={specialty} value={specialty}>{specialty}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
                     </FormItem>
                 )}
             />

@@ -1,10 +1,7 @@
-
 'use client';
 
 import {
-  Briefcase,
   Calendar,
-  CheckSquare,
   Contact,
   CreditCard,
   FileText,
@@ -16,22 +13,16 @@ import {
   Bell,
   LogOut,
   User,
-  Camera,
   ClipboardList,
-  Upload,
   ChefHat,
-  Mic,
-  Paintbrush,
-  Shirt,
-  Music,
   Shield,
   Hotel,
   Building,
-  Search,
   Settings,
   Mail,
   Percent,
   Vote,
+  Music,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -65,27 +56,23 @@ const sidebarNav = [
             { href: "/planner-dashboard/invitations", label: "Invitations", icon: Mail },
             { href: "/planner-dashboard/calendar", label: "Calendar", icon: Calendar },
             { href: "/planner-dashboard/analytics", label: "Analytics", icon: Percent },
-            { href: "/planner-dashboard/my-network", label: "My Network", icon: Contact },
         ]
     },
     {
-        title: "Event Management",
+        title: "Event Planning",
         icon: Settings,
         links: [
-            { href: "/planner-dashboard/events", label: "Assigned Events", icon: Briefcase },
-            { href: "/planner-dashboard/program-menu", label: "Program & Menu", icon: FileText },
+            { href: "/planner-dashboard/events", label: "Assigned Events", icon: FileText },
+            { href: "/planner-dashboard/program-menu", label: "Program & Menu", icon: ClipboardList },
             { href: "/planner-dashboard/seating-chart", label: "Seating Chart", icon: Users },
             { href: "/planner-dashboard/mood-board", label: "Mood Board", icon: Palette },
-            { href: "/planner-dashboard/stationery-hub", label: "Stationery Hub", icon: Palette },
-            { href: "/planner-dashboard/tasks", label: "Tasks", icon: ClipboardList },
+            { href: "/planner-dashboard/tasks", label: "Task Board", icon: ClipboardList },
         ]
     },
     {
         title: "Marketplace",
-        icon: Briefcase,
+        icon: Building,
         links: [
-            { href: "/planner-dashboard/vendor-hub", label: "Vendor Hub", icon: Search },
-            { href: "/planner-dashboard/fashion-designers", label: "Fashion Designers", icon: Shirt },
             { href: "/planner-dashboard/hotels", label: "Hotel Hub", icon: Hotel },
             { href: "/planner-dashboard/venues", label: "Venue Hub", icon: Building },
         ]
@@ -97,8 +84,7 @@ const sidebarNav = [
             { href: "/planner-dashboard/guests", label: "Guest List", icon: Users },
             { href: "/planner-dashboard/polls", label: "Event Polls", icon: Vote },
             { href: "/planner-dashboard/song-requests", label: "Song Requests", icon: Music },
-            { href: "/planner-dashboard/team", label: "Team", icon: Contact },
-            { href: "/planner-dashboard/contracts", label: "Vendor Contracts", icon: FileText },
+            { href: "/planner-dashboard/team", label: "Team Coordination", icon: Contact },
         ]
     },
     {
@@ -118,15 +104,14 @@ const sidebarNav = [
     },
     {
         title: "Live Operations",
-        icon: CheckSquare,
+        icon: Shield,
         links: [
-            { href: "/planner-dashboard/checkin-monitor", label: "Check-in Monitor", icon: CheckSquare },
-            { href: "/planner-dashboard/manual-checkin", label: "Manual Check-in", icon: CheckSquare },
+            { href: "/planner-dashboard/checkin-monitor", label: "Check-in Monitor", icon: ClipboardList },
+            { href: "/planner-dashboard/manual-checkin", label: "Manual Check-in", icon: ClipboardList },
             { href: "/planner-dashboard/security-roster", label: "Security Roster", icon: Shield },
         ]
     },
 ];
-
 
 const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
     const pathname = usePathname();
@@ -139,9 +124,9 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
     };
 
     return (
-        <>
-            <h3 className="px-3 py-2 text-sm font-semibold text-muted-foreground">{navGroup.title}</h3>
-            <ul>
+        <div className="p-2">
+            <h3 className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{navGroup.title}</h3>
+            <ul className="space-y-1">
                  {navGroup.links.map(link => (
                     <li key={link.href}>
                          <Link
@@ -157,7 +142,7 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
                     </li>
                 ))}
             </ul>
-        </>
+        </div>
     )
 }
 
@@ -167,7 +152,7 @@ export default function PlannerDashboardLayout({ children }: { children: React.R
   const isGroupActive = (groupLinks: typeof sidebarNav[0]['links']) => {
     return groupLinks.some(link => {
         if (link.href === "/planner-dashboard") {
-            return pathname === href;
+            return pathname === link.href;
         }
         return pathname.startsWith(link.href);
     });
@@ -199,7 +184,7 @@ export default function PlannerDashboardLayout({ children }: { children: React.R
                             <span>{group.title}</span>
                         </SidebarMenuButton>
                         </PopoverTrigger>
-                        <PopoverContent side="right" align="start" className="ml-2 w-56 p-0">
+                        <PopoverContent side="right" align="start" className="ml-2 w-56 p-0 shadow-xl">
                             <FlyoutMenu navGroup={group} />
                         </PopoverContent>
                     </Popover>

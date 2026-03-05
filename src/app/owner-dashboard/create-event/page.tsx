@@ -1,9 +1,7 @@
-
-
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm, FormProvider, type FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Stepper, Step } from '@/components/wizards/stepper';
@@ -14,16 +12,14 @@ import { AssignPlannerStep, assignPlannerSchema } from '@/components/wizards/cre
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useUser } from '@/firebase';
-import { addDoc, collection, serverTimestamp, doc, writeBatch } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, doc, writeBatch, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useBeforeUnload } from '@/hooks/use-before-unload';
-
 
 const steps: Step[] = [
   { id: '01', name: 'Core Details', fields: ['name', 'description'] },
@@ -43,17 +39,21 @@ const getInitialValues = () => {
     if (typeof window !== 'undefined') {
         const savedData = localStorage.getItem('event-wizard-form');
         if (savedData) {
-            const parsedData = JSON.parse(savedData);
-            if (parsedData.eventDate) {
-                 parsedData.eventDate = new Date(parsedData.eventDate);
+            try {
+                const parsedData = JSON.parse(savedData);
+                if (parsedData.eventDate) {
+                    parsedData.eventDate = new Date(parsedData.eventDate);
+                }
+                return parsedData;
+            } catch (e) {
+                console.error("Error parsing saved form data", e);
             }
-            return parsedData;
         }
     }
     return {
         name: "",
         description: "",
-        eventType: "Wedding",
+        eventType: "Wedding" as const,
         primaryColor: "#4169E1",
         secondaryColor: "#D4AF37",
         location: "",
@@ -120,37 +120,63 @@ export default function CreateEventWizardPage() {
         setIsSubmitting(true);
 
         const eventsCollection = collection(firestore, "events");
+        const newEventRef = doc(eventsCollection);
+        const eventId = newEventRef.id;
+
         const eventData = {
-            ...data,
+            eventId: eventId,
             ownerId: user.uid,
             eventCode: eventCode,
-            createdAt: serverTimestamp(),
+            name: data.name,
+            description: data.description,
+            eventType: data.eventType,
+            primaryColor: data.primaryColor,
+            secondaryColor: data.secondaryColor,
+            location: data.location,
             eventDate: data.eventDate,
+            createdAt: serverTimestamp(),
             guestCount: 0,
-            guestLimit: 20, // Default for new events
+            guestLimit: 20, 
             imageUrls: [`https://picsum.photos/seed/${eventCode}/1200/800`],
             plannerIds: data.plannerId ? [data.plannerId] : [],
+            cohostIds: {},
         };
         
         try {
-            const newEventRef = await addDoc(eventsCollection, eventData);
+            await setDoc(newEventRef, eventData);
             
-            // If a planner was assigned, send them a notification in a separate non-blocking write.
             if (data.plannerId) {
                 const batch = writeBatch(firestore);
-                const plannerAssignmentRef = doc(firestore, "events", newEventRef.id, "planners", data.plannerId);
-                batch.set(plannerAssignmentRef, { status: 'pending' });
+                
+                // Track assignments for the planner globally
+                const plannerAssignmentRef = doc(firestore, "planners", data.plannerId, "assignments", eventId);
+                batch.set(plannerAssignmentRef, { 
+                    id: eventId,
+                    eventId: eventId, 
+                    status: 'pending',
+                    invitedAt: serverTimestamp() 
+                });
+
+                // Track planners for the event
+                const eventPlannerRef = doc(firestore, "events", eventId, "planners", data.plannerId);
+                batch.set(eventPlannerRef, { 
+                    id: data.plannerId,
+                    plannerId: data.plannerId,
+                    status: 'pending',
+                    invitedAt: serverTimestamp()
+                });
 
                 const plannerNotificationRef = doc(collection(firestore, 'users', data.plannerId, 'notifications'));
                 batch.set(plannerNotificationRef, {
+                    id: plannerNotificationRef.id,
                     message: `You've been invited by ${user.displayName || user.email} to plan the event: "${data.name}".`,
                     link: '/planner-dashboard/invitations',
                     read: false,
                     createdAt: serverTimestamp(),
                     userId: data.plannerId
                 });
-                // Commit this separately. It's not critical for event creation itself.
-                batch.commit().catch(console.error);
+                
+                await batch.commit().catch(console.error);
             }
             
             toast({
@@ -171,8 +197,16 @@ export default function CreateEventWizardPage() {
         } finally {
             setIsSubmitting(false);
         }
-    }
+    };
 
+    const onInvalid = (errors: FieldErrors<FormData>) => {
+        console.error("Form Validation Errors:", errors);
+        toast({
+            variant: "destructive",
+            title: "Check Required Fields",
+            description: "Please ensure all steps are completed correctly before finalizing.",
+        });
+    };
 
     return (
         <FormProvider {...methods}>
@@ -190,7 +224,7 @@ export default function CreateEventWizardPage() {
                         </div>
                     </CardHeader>
                      <CardContent>
-                        <form onSubmit={methods.handleSubmit(onFinalSubmit)}>
+                        <form onSubmit={methods.handleSubmit(onFinalSubmit, onInvalid)}>
                             {currentStep === 0 && <CoreDetailsStep />}
                             {currentStep === 1 && <ThemeAndAiStep />}
                             {currentStep === 2 && <LogisticsStep />}
@@ -206,7 +240,7 @@ export default function CreateEventWizardPage() {
                     {currentStep < steps.length - 1 ? (
                         <Button onClick={handleNext}>Next</Button>
                     ) : (
-                        <Button onClick={methods.handleSubmit(onFinalSubmit)} disabled={isSubmitting}>
+                        <Button onClick={methods.handleSubmit(onFinalSubmit, onInvalid)} disabled={isSubmitting}>
                             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Finalize & Create Event
                         </Button>

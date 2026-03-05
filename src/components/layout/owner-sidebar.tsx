@@ -1,10 +1,7 @@
-
 'use client';
 
 import {
-  Briefcase,
   Calendar,
-  CheckSquare,
   Contact,
   CreditCard,
   Gift,
@@ -15,7 +12,6 @@ import {
   Palette,
   PartyPopper,
   Percent,
-  Search,
   Settings,
   Users,
   Bell,
@@ -27,7 +23,6 @@ import {
   User,
   Hotel,
   Building,
-  Shirt,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -73,10 +68,9 @@ const sidebarNav = [
     },
     {
         title: "Marketplace",
-        icon: Briefcase,
+        icon: Building,
         links: [
-            { href: "/owner-dashboard/find-planner", label: "Find a Planner", icon: Search },
-            { href: "/owner-dashboard/find-designer", label: "Fashion Hub", icon: Shirt },
+            { href: "/owner-dashboard/find-planner", label: "Find a Planner", icon: PartyPopper },
             { href: "/owner-dashboard/find-hotel", label: "Find a Hotel", icon: Hotel },
             { href: "/owner-dashboard/find-venue", label: "Find a Venue", icon: Building },
         ]
@@ -85,7 +79,7 @@ const sidebarNav = [
         title: "Operations",
         icon: Settings,
         links: [
-            { href: "/owner-dashboard/contracts-tasks", label: "Contracts & Tasks", icon: FileText },
+            { href: "/owner-dashboard/contracts-tasks", label: "Track Progress", icon: FileText },
             { href: "/owner-dashboard/expenses", label: "Expenses", icon: CreditCard },
         ]
     },
@@ -101,7 +95,7 @@ const sidebarNav = [
         title: "Live Event",
         icon: ShieldCheck,
         links: [
-            { href: "/owner-dashboard/checkin-monitor", label: "Check-in Monitor", icon: CheckSquare },
+            { href: "/owner-dashboard/checkin-monitor", label: "Check-in Monitor", icon: ShieldCheck },
         ]
     },
     {

@@ -1,9 +1,6 @@
-
 export const ROLE_DASHBOARD_MAP: Record<string, string> = {
   Owner: '/owner-dashboard',
   Planner: '/planner-dashboard',
-  Vendor: '/vendor-dashboard',
-  'Fashion Designer': '/vendor-dashboard',
   Hotelier: '/hotelier-dashboard',
   'Hall Owner': '/hall-owner-dashboard',
   'Car Hire Service': '/car-hire-dashboard',
