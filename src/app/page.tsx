@@ -59,7 +59,7 @@ const testimonials = [
     avatar: 'https://picsum.photos/seed/tunde/100/100',
   },
   {
-    quote: 'As a planner, the ability to collaborate with vendors and my team in one place is invaluable. Highly recommended!',
+    quote: 'As a planner, the ability to collaborate with team members and my team in one place is invaluable. Highly recommended!',
     name: 'Chioma Nwosu',
     role: 'Planner',
     avatar: 'https://picsum.photos/seed/chioma/100/100',
@@ -105,7 +105,7 @@ const pricingTiers = [
     {
         name: "Basic Hub",
         price: "₦10,000",
-        description: "Professional orchestration for up to 100 guests.",
+        description: "Professional orchestration for growing events.",
         features: [
             "Up to 100 Guests", 
             "Team Collaboration (Co-hosts)", 
@@ -127,7 +127,7 @@ const pricingTiers = [
     {
         name: "Premium Edge",
         price: "₦50,000",
-        description: "AI-enhanced legacy building.",
+        description: "AI-enhanced legacy building and reporting.",
         features: [
             "Up to 500 Guests", 
             "Eni AI Stationery Studio", 

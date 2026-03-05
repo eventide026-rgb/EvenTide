@@ -30,7 +30,7 @@ import { FirestorePermissionError } from "@/firebase/errors";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Please enter your name or business name." }),
-  role: z.enum(["Event Owner / Host", "Planner", "Vendor", "Guest"], {
+  role: z.enum(["Event Owner / Host", "Planner", "Guest"], {
     required_error: "You need to select your role.",
   }),
   testimonial: z.string().min(20, { message: "Testimonial must be at least 20 characters." }),
@@ -124,7 +124,6 @@ export function TestimonialForm() {
                                 <SelectContent>
                                     <SelectItem value="Event Owner / Host">Event Owner / Host</SelectItem>
                                     <SelectItem value="Planner">Planner</SelectItem>
-                                    <SelectItem value="Vendor">Vendor</SelectItem>
                                     <SelectItem value="Guest">Guest</SelectItem>
                                 </SelectContent>
                             </Select>
