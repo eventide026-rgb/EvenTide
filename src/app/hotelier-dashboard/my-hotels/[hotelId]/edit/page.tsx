@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use } from 'react';
@@ -32,7 +31,7 @@ export default function EditHotelPage({ params }: { params: Promise<{ hotelId: s
                 <CardContent>
                     <HotelForm hotelId={hotelId} />
                 </CardContent>
-            </div>
+            </Card>
         </div>
     );
 }

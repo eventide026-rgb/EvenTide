@@ -59,11 +59,6 @@ service cloud.firestore {
         return isSignedIn() && event.data.securityPersonnel != null && request.auth.uid in event.data.securityPersonnel;
       }
 
-      function isAcceptedVendor(eventId) {
-        let event = getEvent(eventId);
-        return isSignedIn() && event.data.acceptedVendorIds != null && request.auth.uid in event.data.acceptedVendorIds;
-      }
-
       function isEventStaff(eventId) {
         let event = getEvent(eventId);
         return isSignedIn() && (
@@ -106,7 +101,6 @@ service cloud.firestore {
 
       match /planners/{plannerId} {
           allow read: if isOwner(plannerId) || isAdmin();
-          // Allow event owners to create assignment documents for planners
           allow write: if isOwner(plannerId) || isSignedIn() || isAdmin();
 
           match /assignments/{assignmentId} {
@@ -160,7 +154,6 @@ service cloud.firestore {
         allow list: if isSignedIn();
         
         match /planners/{plannerId} {
-            // Allow event staff or the planner themselves to manage assignments
             allow create: if isSignedIn(); 
             allow read, list: if isEventStaff(eventId) || isAdmin() || isOwner(plannerId);
             allow update, delete: if isEventStaff(eventId) || isAdmin() || isOwner(plannerId);
@@ -168,7 +161,6 @@ service cloud.firestore {
 
         match /guests/{guestId} {
             allow get: if isEventStaff(eventId) || (isSignedIn() && request.auth.uid == guestId) || isAdmin() || 
-                          // Allow unauthenticated read only if guest code matches
                           (get(/databases/$(database)/documents/events/$(eventId)/guestCodes/$(resource.data.guestCode)).data.guestId == guestId);
             allow read: if isEventStaff(eventId) || (isSignedIn() && request.auth.uid == guestId) || isAdmin();
             allow list: if isEventStaff(eventId) || isAdmin();
@@ -180,7 +172,7 @@ service cloud.firestore {
         }
 
         match /guestCodes/{guestCode} {
-            allow read: if true; // Publicly readable for login
+            allow read: if true; 
             allow create, update, delete: if isEventStaff(eventId) || isAdmin();
         }
 
@@ -240,7 +232,7 @@ service cloud.firestore {
         match /chat_messages/{messageId} {
             allow read, list: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAdmin();
             allow create: if (isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid)) && isOwner(request.resource.data.senderId);
-            allow update, delete: if false; // Messages are immutable
+            allow update, delete: if false; 
         }
 
         match /media/{mediaId} {
@@ -275,7 +267,7 @@ service cloud.firestore {
         match /vendorContracts/{contractId} {
             allow read: if isEventStaff(eventId) || (isSignedIn() && resource.data.vendorId == request.auth.uid);
             allow create: if isEventStaff(eventId);
-            allow update: if (isSignedIn() && resource.data.vendorId == request.auth.uid) || isEventStaff(eventId);
+            allow update: if (isSignedIn() && request.auth.uid == resource.data.vendorId) || isEventStaff(eventId);
             allow delete: if isEventStaff(eventId);
         }
       }

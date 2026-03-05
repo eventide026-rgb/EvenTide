@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
@@ -89,7 +88,7 @@ export function VenueForm({ venueId }: VenueFormProps) {
         }
     }, [existingVenueData, form]);
 
-    const { fields: imageUrlFields, remove: removeImg } = useFieldArray({
+    const { fields: imageUrlFields, append: appendImg, remove: removeImg } = useFieldArray({
         control: form.control,
         name: "imageUrls",
     });

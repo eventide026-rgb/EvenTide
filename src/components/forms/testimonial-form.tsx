@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -70,7 +69,8 @@ export function TestimonialForm() {
         const testimonialsCol = collection(firestore, "testimonials");
 
         try {
-            await addDoc(testimonialsCol, testimonialData);
+            const docRef = await addDoc(testimonialsCol, testimonialData);
+            console.log("Testimonial submitted with ID: ", docRef.id);
             toast({
                 title: "Submission Received!",
                 description: "Thank you for your feedback. Your testimonial is awaiting review.",
