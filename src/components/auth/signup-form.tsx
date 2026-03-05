@@ -137,6 +137,8 @@ export function SignUpForm() {
       let description = "An unexpected error occurred. Please try again.";
       if (error.code === 'auth/email-already-in-use') {
         description = "This email address is already in use. Please log in or use a different email.";
+      } else if (error.message.startsWith("Failed to create user profile")) {
+        description = error.message;
       }
       toast({
         variant: "destructive",

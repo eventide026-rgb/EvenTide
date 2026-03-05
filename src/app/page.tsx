@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import Image from 'next/image';
@@ -99,62 +97,58 @@ const roleBenefits = [
 
 const pricingTiers = [
     {
-        name: "Free",
+        name: "Free Starter",
         price: "₦0",
-        description: "For small, intimate gatherings and personal events.",
+        description: "The boutique entrance for intimate gatherings.",
         features: [
             "Up to 20 Guests", 
-            "Digital Invitations", 
-            "QR Code Gate Passes"
+            "Basic Digital Registry", 
+            "Standard Validation"
         ],
         isPopular: false,
     },
     {
-        name: "Standard",
-        price: "₦45,000",
-        description: "Ideal for weddings, birthdays, and corporate events.",
+        name: "Basic Hub",
+        price: "₦10,000",
+        description: "Professional orchestration for growing events.",
         features: [
-            "Up to 150 Guests", 
-            "1 Planner", 
-            "4 Co-hosts", 
-            "2 Security Personnel"
+            "Up to 100 Guests", 
+            "Team Collaboration (Co-hosts)", 
+            "Standard Analytics"
+        ],
+        isPopular: false,
+    },
+    {
+        name: "Standard Flow",
+        price: "₦25,000",
+        description: "The ecosystem benchmark for flawless planning.",
+        features: [
+            "Up to 250 Guests", 
+            "Full Marketplace Integration", 
+            "Advanced Budget Ledger"
         ],
         isPopular: true,
     },
     {
-        name: "Gold",
-        price: "₦80,000",
-        description: "For larger events and professional planners.",
-        features: [
-            "Up to 300 Guests", 
-            "1 Planner", 
-            "8 Co-hosts", 
-            "4 Security Personnel"
-        ],
-        isPopular: false,
-    },
-    {
-        name: "Platinum",
-        price: "₦120,000",
-        description: "The ultimate package for grand occasions.",
+        name: "Premium Edge",
+        price: "₦50,000",
+        description: "AI-enhanced legacy building and reporting.",
         features: [
             "Up to 500 Guests", 
-            "1 Planner", 
-            "16 Co-hosts", 
-            "8 Security Personnel", 
-            "Unlimited VIPs"
+            "Eni AI Stationery Studio", 
+            "AI-curated Magazine",
+            "Live Reporting"
         ],
         isPopular: false,
     },
     {
-        name: "Festival",
-        price: "₦200,000",
-        description: "Engineered for large-scale public events.",
+        name: "Enterprise Elite",
+        price: "₦100,000",
+        description: "Maximum scale for grand galas.",
         features: [
-            "Up to 1,000 Guests", 
-            "1 Planner", 
-            "Unlimited Co-hosts", 
-            "16 Security Personnel"
+            "Up to 5,000 Guests", 
+            "White-labeling & Custom Branding", 
+            "Dedicated Technical Concierge"
         ],
         isPopular: false,
     },
@@ -217,7 +211,7 @@ export default function Home() {
             <h1 className="text-4xl font-headline font-extrabold tracking-tight md:text-6xl lg:text-7xl text-shadow-lg leading-tight">
               Plan Your Event
               <br />
-              <span className="bg-gradient-to-r from-primary to-accent text-transparent bg-clip-text transition-all duration-300">
+              <span className="bg-gradient-to-r from-blue-400 to-yellow-300 text-transparent bg-clip-text transition-all duration-300">
                 {rotatingWords[currentIndex]}
               </span>
             </h1>
@@ -433,7 +427,7 @@ export default function Home() {
                   </CardContent>
                   <CardFooter>
                      <Button className="w-full" variant={tier.isPopular ? "default" : "outline"}>
-                        {tier.name === "Free" ? "Get Started" : "Choose " + tier.name}
+                        {tier.name === "Free Starter" ? "Get Started" : "Choose " + tier.name}
                      </Button>
                   </CardFooter>
                 </Card>
@@ -465,4 +459,3 @@ export default function Home() {
     </div>
   );
 }
-
