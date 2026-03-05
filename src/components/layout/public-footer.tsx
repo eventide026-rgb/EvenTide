@@ -1,4 +1,3 @@
-
 import { Twitter, Github, Linkedin } from 'lucide-react';
 import Link from 'next/link';
 import { Logo } from './logo';
@@ -22,9 +21,7 @@ const footerLinks = {
         { href: "/guest-login", label: "Guest Login" },
         { href: "/security-login", label: "Security Login" },
         { href: "/resources/planners", label: "Find Planners" },
-        { href: "/resources/vendors", "label": "Find Vendors" },
         { href: "/resources/submit-testimonial", label: "Submit a Testimonial" },
-        { href: "/advertise", label: "Advertise" },
     ],
     magazine: [
         { href: "/resources/magazine", label: "View All Issues" },

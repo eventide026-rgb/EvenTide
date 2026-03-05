@@ -35,33 +35,6 @@ const fullSchema = coreDetailsSchema
 
 type FormData = z.infer<typeof fullSchema>;
 
-const getInitialValues = () => {
-    if (typeof window !== 'undefined') {
-        const savedData = localStorage.getItem('event-wizard-form');
-        if (savedData) {
-            try {
-                const parsedData = JSON.parse(savedData);
-                if (parsedData.eventDate) {
-                    parsedData.eventDate = new Date(parsedData.eventDate);
-                }
-                return parsedData;
-            } catch (e) {
-                console.error("Error parsing saved form data", e);
-            }
-        }
-    }
-    return {
-        name: "",
-        description: "",
-        eventType: "Wedding" as const,
-        primaryColor: "#4169E1",
-        secondaryColor: "#D4AF37",
-        location: "",
-        eventDate: undefined,
-        plannerId: '',
-    };
-};
-
 export default function CreateEventWizardPage() {
     const [currentStep, setCurrentStep] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,10 +46,34 @@ export default function CreateEventWizardPage() {
 
     const methods = useForm<FormData>({
         resolver: zodResolver(fullSchema),
-        defaultValues: getInitialValues(),
+        defaultValues: {
+            name: "",
+            description: "",
+            eventType: "Wedding" as const,
+            primaryColor: "#4169E1",
+            secondaryColor: "#D4AF37",
+            location: "",
+            eventDate: undefined,
+            plannerId: '',
+        },
     });
 
-    const { trigger, watch, formState: { isDirty } } = methods;
+    const { trigger, watch, formState: { isDirty }, reset } = methods;
+
+    useEffect(() => {
+        const savedData = localStorage.getItem('event-wizard-form');
+        if (savedData) {
+            try {
+                const parsedData = JSON.parse(savedData);
+                if (parsedData.eventDate) {
+                    parsedData.eventDate = new Date(parsedData.eventDate);
+                }
+                reset(parsedData);
+            } catch (e) {
+                console.error("Error parsing saved form data", e);
+            }
+        }
+    }, [reset]);
 
     useBeforeUnload(isDirty, "You have unsaved changes. Are you sure you want to leave?");
 

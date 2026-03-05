@@ -78,8 +78,8 @@ function EventDetails({ eventId }: { eventId: string }) {
                         <Calendar className="h-4 w-4 text-muted-foreground"/>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-lg font-bold">{format(event.eventDate.toDate(), 'PPP')}</p>
-                        <p className="text-xs text-muted-foreground">{format(event.eventDate.toDate(), 'p')}</p>
+                        <p className="text-lg font-bold">{event.eventDate?.toDate ? format(event.eventDate.toDate(), 'PPP') : 'N/A'}</p>
+                        <p className="text-xs text-muted-foreground">{event.eventDate?.toDate ? format(event.eventDate.toDate(), 'p') : 'N/A'}</p>
                     </CardContent>
                 </Card>
                  <Card>

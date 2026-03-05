@@ -119,9 +119,9 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
     };
 
     return (
-        <>
-            <h3 className="px-3 py-2 text-sm font-semibold text-muted-foreground">{navGroup.title}</h3>
-            <ul>
+        <div className="p-2">
+            <h3 className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{navGroup.title}</h3>
+            <ul className="space-y-1">
                  {navGroup.links.map(link => (
                     <li key={link.href}>
                          <Link
@@ -137,7 +137,7 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
                     </li>
                 ))}
             </ul>
-        </>
+        </div>
     )
 }
 
@@ -174,7 +174,7 @@ export function OwnerDashboardSidebar() {
                             <span>{group.title}</span>
                         </SidebarMenuButton>
                         </PopoverTrigger>
-                        <PopoverContent side="right" align="start" className="ml-2 w-56 p-0">
+                        <PopoverContent side="right" align="start" className="ml-2 w-56 p-0 shadow-xl">
                             <FlyoutMenu navGroup={group} />
                         </PopoverContent>
                     </Popover>

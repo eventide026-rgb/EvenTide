@@ -93,7 +93,7 @@ export default function ScannerPage({ params }: { params: Promise<{ eventId: str
   }, [handleScanResult]);
 
   const onScanFailure = (error: Html5QrcodeError) => {
-    // Silent failure for frequent scanning attempts
+    // Silent failure
   };
 
   useEffect(() => {

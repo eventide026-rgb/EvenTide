@@ -122,12 +122,6 @@ service cloud.firestore {
           allow update, delete: if isOwner(ticketierId) || isAdmin();
       }
 
-      match /vendors/{vendorId} {
-          allow get, list: if true;
-          allow create: if request.auth.uid == vendorId;
-          allow update, delete: if isOwner(vendorId) || isAdmin();
-      }
-
       match /shows/{showId} {
         allow read, list: if true;
         allow create: if isEventOwnerOnCreate();
@@ -205,12 +199,6 @@ service cloud.firestore {
           allow update, delete: if isEventStaff(eventId) || isAdmin();
         }
 
-        match /fashionContracts/{contractId} {
-            allow create: if isEventOwner(eventId) || isEventPlanner(eventId);
-            allow read, update: if isEventStaff(eventId) || isOwner(resource.data.designerId);
-            allow delete: if isEventOwner(eventId);
-        }
-      
         match /program/{docId} {
           allow read: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAdmin();
           allow write: if isEventStaff(eventId) || isAdmin();
@@ -261,13 +249,6 @@ service cloud.firestore {
         match /autographs/{autographId} {
             allow read, list: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid);
             allow create: if isEventGuest(eventId, request.auth.uid);
-            allow delete: if isEventStaff(eventId);
-        }
-
-        match /vendorContracts/{contractId} {
-            allow read: if isEventStaff(eventId) || (isSignedIn() && resource.data.vendorId == request.auth.uid);
-            allow create: if isEventStaff(eventId);
-            allow update: if (isSignedIn() && request.auth.uid == resource.data.vendorId) || isEventStaff(eventId);
             allow delete: if isEventStaff(eventId);
         }
       }

@@ -81,12 +81,7 @@ const roleBenefits = [
     {
         icon: <Users className="h-8 w-8 text-primary" />,
         title: "Planners",
-        features: ["Collaborate with vendors and co-hosts.", "Utilize AI for design and content creation.", "Manage guest lists and communication seamlessly."]
-    },
-    {
-        icon: <Palette className="h-8 w-8 text-primary" />,
-        title: "Vendors & Designers",
-        features: ["Showcase your portfolio to event owners.", "Receive and manage job invitations.", "Communicate directly with planners."]
+        features: ["Collaborate with team members and co-hosts.", "Utilize AI for design and content creation.", "Manage guest lists and communication seamlessly."]
     },
     {
         icon: <ShieldCheck className="h-8 w-8 text-primary" />,
@@ -110,7 +105,7 @@ const pricingTiers = [
     {
         name: "Basic Hub",
         price: "₦10,000",
-        description: "Professional orchestration for growing events.",
+        description: "Professional orchestration for up to 100 guests.",
         features: [
             "Up to 100 Guests", 
             "Team Collaboration (Co-hosts)", 
@@ -132,7 +127,7 @@ const pricingTiers = [
     {
         name: "Premium Edge",
         price: "₦50,000",
-        description: "AI-enhanced legacy building and reporting.",
+        description: "AI-enhanced legacy building.",
         features: [
             "Up to 500 Guests", 
             "Eni AI Stationery Studio", 
@@ -368,7 +363,7 @@ export default function Home() {
                         EvenTide is designed to empower every role involved in making an event a success.
                     </p>
                 </div>
-                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {roleBenefits.map((role) => (
                         <Card key={role.title} className="border-accent border-2 bg-primary/20 transition-transform transition-shadow duration-300 hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-accent/20">
                             <CardHeader className="flex-row items-center gap-4">

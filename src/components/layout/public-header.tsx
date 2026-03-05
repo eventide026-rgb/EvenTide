@@ -1,24 +1,15 @@
-
 'use client';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { ChevronDown, Menu, Ticket } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { ChevronDown, Menu } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Logo } from './logo';
-
-const navLinks: { label: string, href: string }[] = [];
 
 const resourceLinks = [
     { href: "/resources/what-is-eventide", label: "What is EvenTide" },
@@ -32,8 +23,6 @@ const communityLinks = [
     { href: "/guest-login", label: "Guest Login" },
     { href: "/security-login", label: "Security Login" },
     { href: "/resources/planners", label: "Find Planners" },
-    { href: "/resources/vendors", "label": "Find Vendors" },
-    { href: "/advertise", label: "Advertise" },
 ];
 
 const magazineLinks = [
@@ -71,7 +60,6 @@ const HeaderContent = () => {
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-64 p-2">
-            
               {resourceImage && (
               <div className="relative h-24 w-full mb-2 rounded-md overflow-hidden">
                 <Image 
@@ -83,7 +71,6 @@ const HeaderContent = () => {
                 />
               </div>
             )}
-            
             <div className="grid gap-1">
               {resourceLinks.map(link => (
                 <Link 
@@ -187,10 +174,6 @@ const HeaderContent = () => {
             </div>
           </PopoverContent>
         </Popover>
-
-        {navLinks.map(link => (
-          <Link key={link.label} href={link.href} className="transition-colors hover:text-foreground/80 text-foreground/60">{link.label}</Link>
-        ))}
       </nav>
       <div className="flex flex-1 items-center justify-end space-x-2">
         <div className="hidden md:flex items-center space-x-1 rounded-full border bg-background/80 p-1">
@@ -213,22 +196,12 @@ const HeaderContent = () => {
                 <Link href="/" className="flex items-center space-x-2">
                     <Logo />
                 </Link>
-                <Link href="#" className="text-muted-foreground hover:text-foreground">Resources</Link>
-                <Link href="#" className="text-muted-foreground hover:text-foreground">Community</Link>
-                <Link href="/resources/magazine" className="text-muted-foreground hover:text-foreground">Magazine</Link>
-                <Link href="#" className="text-muted-foreground hover:text-foreground">Marketplace</Link>
-                {navLinks.map(link => (
-                    <Link key={link.label} href={link.label} className="text-muted-foreground hover:text-foreground">{link.label}</Link>
-                ))}
-                <div className="flex flex-col space-y-2 pt-6">
+                <div className="flex flex-col space-y-4 pt-6">
                     <Button asChild>
-                        <Link href="/login">Owner / Planner Login</Link>
+                        <Link href="/login">Login</Link>
                     </Button>
                     <Button asChild>
-                        <Link href="/guest-login">Guest Login</Link>
-                    </Button>
-                    <Button asChild>
-                        <Link href="/security-login">Security Login</Link>
+                        <Link href="/signup">Sign Up</Link>
                     </Button>
                 </div>
                 </nav>
@@ -245,11 +218,11 @@ export function PublicHeader() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsAtTop(window.scrollY === 0);
+      setIsAtTop(window.scrollY < 20);
     };
 
     window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Check initial position
+    handleScroll();
 
     return () => {
       window.removeEventListener('scroll', handleScroll);
