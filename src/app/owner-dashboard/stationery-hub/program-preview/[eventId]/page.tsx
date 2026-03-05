@@ -57,7 +57,7 @@ function ProgramPreviewPageContent({ eventId }: { eventId: string }) {
     );
 }
 
-export default function ProgramPreviewPage({ params }: { params: { eventId: string } }) {
+export default function ProgramPreviewPage({ params }: { params: Promise<{ eventId: string }> }) {
     const { eventId } = use(params);
 
     return (

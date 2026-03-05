@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, use } from 'react';
 import { ScanLine, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -11,8 +11,8 @@ import { type Guest } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Html5QrcodeScanner, Html5Qrcode } from 'html5-qrcode';
-import { Html5QrcodeError, Html5QrcodeResult } from 'html5-qrcode/core';
+import { Html5Qrcode } from 'html5-qrcode';
+import { type Html5QrcodeError, type Html5QrcodeResult } from 'html5-qrcode/core';
 
 type ScanStatus = 'scanning' | 'success' | 'failure' | 'loading';
 type ScannedGuest = {
@@ -21,8 +21,8 @@ type ScannedGuest = {
     message?: string;
 }
 
-export default function ScannerPage({ params }: { params: { eventId: string } }) {
-  const { eventId } = params;
+export default function ScannerPage({ params }: { params: Promise<{ eventId: string }> }) {
+  const { eventId } = use(params);
   const router = useRouter();
   const [scanStatus, setScanStatus] = useState<ScanStatus>('scanning');
   const [scannedData, setScannedData] = useState<ScannedGuest | null>(null);
@@ -43,66 +43,7 @@ export default function ScannerPage({ params }: { params: { eventId: string } })
     }
   }, [eventId, router, toast]);
 
-  const onScanSuccess = useCallback((decodedText: string, result: Html5QrcodeResult) => {
-    handleScanResult(decodedText);
-  }, [firestore, eventId, scanStatus]);
-
-  const onScanFailure = (error: Html5QrcodeError) => {
-    // This function is called frequently, so we typically don't log every "error".
-    // "QR code not found" is a common one we can ignore.
-  };
-
-  useEffect(() => {
-    const getCameraAndStartScanner = async () => {
-        try {
-            await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-            setHasCameraPermission(true);
-
-            if (!scannerRef.current) {
-                const scanner = new Html5Qrcode('reader');
-                scannerRef.current = scanner;
-                scanner.start(
-                    { facingMode: "environment" },
-                    { fps: 10, qrbox: { width: 250, height: 250 } },
-                    onScanSuccess,
-                    onScanFailure
-                ).catch(err => {
-                    console.error("Failed to start scanner", err);
-                    toast({ variant: 'destructive', title: 'Scanner Error', description: 'Could not start the QR code scanner.' });
-                });
-            }
-        } catch (error) {
-            console.error('Error accessing camera:', error);
-            setHasCameraPermission(false);
-            toast({
-              variant: 'destructive',
-              title: 'Camera Access Denied',
-              description: 'Please enable camera permissions in your browser settings to use this feature.',
-            });
-        }
-    }
-
-    getCameraAndStartScanner();
-
-    return () => {
-        if (scannerRef.current && scannerRef.current.isScanning) {
-            scannerRef.current.stop().catch(err => console.error("Failed to stop scanner", err));
-        }
-    };
-  }, [onScanSuccess]);
-
-
-  useEffect(() => {
-    if (scanStatus !== 'scanning') {
-      const timer = setTimeout(() => {
-        setScanStatus('scanning');
-        setScannedData(null);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [scanStatus]);
-  
-  const handleScanResult = async (scannedText: string) => {
+  const handleScanResult = useCallback(async (scannedText: string) => {
     if (scanStatus !== 'scanning') return; // Prevent multiple scans
 
     let guestIdToSimulate: string;
@@ -146,7 +87,65 @@ export default function ScannerPage({ params }: { params: { eventId: string } })
         setScannedData({ name: 'Invalid Scan', category: '', message: error.message || 'Could not validate ticket.' });
         setScanStatus('failure');
       }
+  }, [firestore, eventId, scanStatus]);
+
+  const onScanSuccess = useCallback((decodedText: string, result: Html5QrcodeResult) => {
+    handleScanResult(decodedText);
+  }, [handleScanResult]);
+
+  const onScanFailure = (error: Html5QrcodeError) => {
+    // Silent failure for frequent scanning attempts
   };
+
+  useEffect(() => {
+    const getCameraAndStartScanner = async () => {
+        try {
+            await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+            setHasCameraPermission(true);
+
+            if (!scannerRef.current) {
+                const scanner = new Html5Qrcode('reader');
+                scannerRef.current = scanner;
+                scanner.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    onScanSuccess,
+                    onScanFailure
+                ).catch(err => {
+                    console.error("Failed to start scanner", err);
+                    toast({ variant: 'destructive', title: 'Scanner Error', description: 'Could not start the QR code scanner.' });
+                });
+            }
+        } catch (error) {
+            console.error('Error accessing camera:', error);
+            setHasCameraPermission(false);
+            toast({
+              variant: 'destructive',
+              title: 'Camera Access Denied',
+              description: 'Please enable camera permissions in your browser settings to use this feature.',
+            });
+        }
+    }
+
+    getCameraAndStartScanner();
+
+    return () => {
+        if (scannerRef.current && scannerRef.current.isScanning) {
+            scannerRef.current.stop().catch(err => console.error("Failed to stop scanner", err));
+        }
+    };
+  }, [onScanSuccess, toast]);
+
+
+  useEffect(() => {
+    if (scanStatus !== 'scanning') {
+      const timer = setTimeout(() => {
+        setScanStatus('scanning');
+        setScannedData(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [scanStatus]);
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center p-4">

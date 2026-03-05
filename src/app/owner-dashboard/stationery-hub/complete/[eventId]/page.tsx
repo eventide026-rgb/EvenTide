@@ -2,8 +2,7 @@
 'use client';
 
 import { use, Suspense } from 'react';
-import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { useUser } from '@/firebase';
 import { Loader2, PartyPopper } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,7 +22,7 @@ function CompletionPageContent({ eventId }: { eventId: string }) {
                     </div>
                     <CardTitle className="mt-4 text-3xl font-headline">Setup Complete!</CardTitle>
                     <CardDescription>
-                        That's it, {user?.displayName || 'User'}! You can now interact with your planner and designer to make your event a resounding success.
+                        That's it, {user?.displayName || 'User'}! You can now interact with your planner and team to make your event a resounding success.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -39,8 +38,8 @@ function CompletionPageContent({ eventId }: { eventId: string }) {
     );
 }
 
-export default function StationeryCompletionPage({ params }: { params: { eventId: string } }) {
-    const { eventId } = params;
+export default function StationeryCompletionPage({ params }: { params: Promise<{ eventId: string }> }) {
+    const { eventId } = use(params);
 
     return (
         <div className="flex h-full items-center justify-center">

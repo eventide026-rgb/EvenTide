@@ -1,7 +1,7 @@
 
 'use client';
 
-import { use, useMemo } from 'react';
+import React, { use, useMemo } from 'react';
 import { doc } from 'firebase/firestore';
 import { useFirestore, useDoc, useUser, useMemoFirebase } from '@/firebase';
 import { notFound } from 'next/navigation';
@@ -21,7 +21,7 @@ const amenityIcons: { [key: string]: React.ElementType } = {
   'Restaurant': Coffee,
   'Gym': Dumbbell,
   'Parking': Car,
-  'Pool': () => <span>🏊</span>, // Lucide doesn't have a great pool icon
+  'Pool': () => <span>🏊</span>,
 };
 
 export default function HotelDetailsPage({ params }: { params: Promise<{ hotelId: string }> }) {
@@ -34,7 +34,7 @@ export default function HotelDetailsPage({ params }: { params: Promise<{ hotelId
         return doc(firestore, 'hotels', hotelId);
     }, [firestore, hotelId]);
 
-    const { data: hotel, isLoading: isLoadingHotel, error } = useDoc<Hotel>(hotelRef);
+    const { data: hotel, isLoading: isLoadingHotel } = useDoc<Hotel>(hotelRef);
 
     const isLoading = isUserLoading || isLoadingHotel;
 

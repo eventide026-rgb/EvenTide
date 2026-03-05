@@ -86,7 +86,7 @@ export function VendorProposalDialog({ vendor }: VendorProposalDialogProps) {
     }, [firestore, eventIds]);
     const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
 
-    const onSubmit = async (values: z.infer<typeof proposalSchema>>) => {
+    const onSubmit = async (values: z.infer<typeof proposalSchema>) => {
         if(!user || !firestore) return;
 
         const contractData = {
@@ -137,7 +137,7 @@ export function VendorProposalDialog({ vendor }: VendorProposalDialogProps) {
             <DialogTrigger asChild>
                 <Button className="w-full">Invite to Event</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-lg">
+            <DialogContent className="sm:max-w-[425px]">
                  <DialogHeader>
                     <DialogTitle>Invite {vendor.name}</DialogTitle>
                     <DialogDescription>
@@ -175,7 +175,7 @@ export function VendorProposalDialog({ vendor }: VendorProposalDialogProps) {
                                 <FormItem>
                                     <FormLabel>Service Description</FormLabel>
                                     <FormControl>
-                                        <Textarea rows={3} placeholder="e.g., Full-day photography coverage from 10 AM to 10 PM, including a pre-event shoot." {...field} />
+                                        <Textarea rows={3} placeholder="e.g., Full-day photography coverage..." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>

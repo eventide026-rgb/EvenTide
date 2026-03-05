@@ -18,10 +18,6 @@ import {
   ArrowLeft,
   Calendar,
   MapPin,
-  ClipboardList,
-  ChefHat,
-  Paintbrush,
-  Camera,
   Loader2,
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -44,36 +40,15 @@ type UserProfile = {
     specialty: string;
 }
 
-const toolMap: Record<string, { icon: React.ElementType, label: string, href: string }> = {
-    "Photographer": { icon: Camera, label: "View Shot List", href: "/vendor-dashboard/shot-list" },
-    "Videographer": { icon: Camera, label: "View Shot List", href: "/vendor-dashboard/shot-list" },
-    "Caterer": { icon: ChefHat, label: "View Menu", href: "/vendor-dashboard/menu-planner" },
-    "Decorator": { icon: Paintbrush, label: "View Mood Board", href: "/vendor-dashboard/mood-board" },
-};
-
 function GigDetailPageContent({ contractId }: { contractId: string }) {
   const firestore = useFirestore();
   const { user } = useUser();
 
   const contractRef = useMemoFirebase(() => {
     if (!firestore || !contractId) return null;
-    // This is a simplification. In a real-world scenario with many contracts,
-    // we would need to know the eventId to construct the path directly,
-    // or perform a collectionGroup query. For this app structure, we assume
-    // the contractId is unique enough, but this is not scalable.
-    // A better path would be /vendorContracts/{contractId} at the root.
-    // For now, we will assume we can find it. This part of the code is illustrative.
-    
-    // This is a placeholder for a more robust query.
-    // To make this work, we'd need to know the eventId.
-    // A real implementation would pass eventId in the URL or query params.
-    // Let's assume for now the contract is in a top-level collection for demo purposes.
-    // In our actual structure it is nested, making this lookup hard without eventId.
-    // Let's pretend we can get it for the UI.
     return doc(firestore, 'vendorContracts', contractId);
   }, [firestore, contractId]);
   
-  // This is a mock-up since the above query is not robust.
   const { data: contract, isLoading: isLoadingContract } = useDoc<VendorContract>(contractRef);
   
   const eventRef = useMemoFirebase(() => {
@@ -89,15 +64,12 @@ function GigDetailPageContent({ contractId }: { contractId: string }) {
   const { data: userProfile, isLoading: isLoadingProfile } = useDoc<UserProfile>(userProfileRef);
   
   const isLoading = isLoadingContract || isLoadingEvent || isLoadingProfile;
-  const tool = userProfile ? toolMap[userProfile.specialty] : null;
 
   if (isLoading) {
     return <div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
 
   if (!contract) {
-    // In a real app, you might have a more graceful not-found state,
-    // but this simulates what would happen if the direct doc lookup fails.
     return (
         <Card>
             <CardHeader>
@@ -139,28 +111,14 @@ function GigDetailPageContent({ contractId }: { contractId: string }) {
             <p className="text-muted-foreground">{contract.serviceDescription}</p>
           </CardContent>
         </Card>
-        {tool && (
-            <Card className="flex flex-col justify-center items-center text-center">
-                <CardHeader>
-                    <div className="mx-auto bg-primary/10 p-4 rounded-full">
-                        <tool.icon className="h-8 w-8 text-primary" />
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <CardTitle>{tool.label}</CardTitle>
-                    <Button asChild className="mt-4">
-                        <Link href={`${tool.href}?eventId=${contract.eventId}`}>{tool.label}</Link>
-                    </Button>
-                </CardContent>
-            </Card>
-        )}
       </div>
     </div>
   );
 }
 
 
-export default function GigDetailPage({ params }: { params: { contractId: string } }) {
+export default function GigDetailPage({ params }: { params: Promise<{ contractId: string }> }) {
+  const { contractId } = use(params);
   return (
     <div className="space-y-6">
        <Button variant="outline" size="sm" asChild>
@@ -171,7 +129,7 @@ export default function GigDetailPage({ params }: { params: { contractId: string
         </Button>
 
         <Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-            <GigDetailPageContent contractId={params.contractId} />
+            <GigDetailPageContent contractId={contractId} />
         </Suspense>
     </div>
   )

@@ -8,8 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export default function EditCarPage({ params }: { params: { carId: string } }) {
-    const { carId } = params;
+export default function EditCarPage({ params }: { params: Promise<{ carId: string }> }) {
+    const { carId } = use(params);
 
     return (
         <div className="flex flex-col gap-4">

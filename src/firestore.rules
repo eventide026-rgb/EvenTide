@@ -101,7 +101,14 @@ service cloud.firestore {
       }
 
       match /planners/{plannerId} {
-          allow read, write: if isOwner(plannerId) || isAdmin();
+          allow read: if isOwner(plannerId) || isAdmin();
+          allow write: if isOwner(plannerId) || isSignedIn() || isAdmin();
+
+          match /assignments/{assignmentId} {
+              allow read, list: if isOwner(plannerId) || isAdmin();
+              allow create: if isSignedIn();
+              allow update: if isOwner(plannerId) || isAdmin(); 
+          }
       }
 
       match /plannerProfiles/{plannerId} {
@@ -148,14 +155,13 @@ service cloud.firestore {
         allow list: if isSignedIn();
         
         match /planners/{plannerId} {
-            allow create: if isEventOwner(eventId);
-            allow read, list: if isEventStaff(eventId) || isAdmin();
-            allow update, delete: if isEventStaff(eventId) || isAdmin();
+            allow create: if isSignedIn(); 
+            allow read, list: if isEventStaff(eventId) || isAdmin() || isOwner(plannerId);
+            allow update, delete: if isEventStaff(eventId) || isAdmin() || isOwner(plannerId);
         }
 
         match /guests/{guestId} {
             allow get: if isEventStaff(eventId) || (isSignedIn() && request.auth.uid == guestId) || isAdmin() || 
-                          // Allow unauthenticated read only if guest code matches
                           (get(/databases/$(database)/documents/events/$(eventId)/guestCodes/$(resource.data.guestCode)).data.guestId == guestId);
             allow read: if isEventStaff(eventId) || (isSignedIn() && request.auth.uid == guestId) || isAdmin();
             allow list: if isEventStaff(eventId) || isAdmin();
@@ -167,7 +173,7 @@ service cloud.firestore {
         }
 
         match /guestCodes/{guestCode} {
-            allow read: if true; // Publicly readable for login
+            allow read: if true; 
             allow create, update, delete: if isEventStaff(eventId) || isAdmin();
         }
 
@@ -227,7 +233,7 @@ service cloud.firestore {
         match /chat_messages/{messageId} {
             allow read, list: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAdmin();
             allow create: if (isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid)) && isOwner(request.resource.data.senderId);
-            allow update, delete: if false; // Messages are immutable
+            allow update, delete: if false; 
         }
 
         match /media/{mediaId} {
@@ -243,8 +249,8 @@ service cloud.firestore {
 
         match /announcements/{announcementId} {
           allow read: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAdmin();
-          create: if isEventStaff(eventId) || isAdmin();
-          update, delete: if isEventStaff(eventId) || isAdmin();
+          allow create: if isEventStaff(eventId) || isAdmin();
+          allow update, delete: if isEventStaff(eventId) || isAdmin();
         }
 
         match /polls/{pollId} {

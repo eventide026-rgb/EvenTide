@@ -57,7 +57,7 @@ function MenuPreviewPageContent({ eventId }: { eventId: string }) {
     );
 }
 
-export default function MenuPreviewPage({ params }: { params: { eventId: string } }) {
+export default function MenuPreviewPage({ params }: { params: Promise<{ eventId: string }> }) {
     const { eventId } = use(params);
 
     return (

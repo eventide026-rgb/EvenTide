@@ -1,4 +1,3 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -106,7 +105,15 @@ service cloud.firestore {
       }
 
       match /planners/{plannerId} {
-          allow read, write: if isOwner(plannerId) || isAdmin();
+          allow read: if isOwner(plannerId) || isAdmin();
+          // Allow event owners to create assignment documents for planners
+          allow write: if isOwner(plannerId) || isSignedIn() || isAdmin();
+
+          match /assignments/{assignmentId} {
+              allow read, list: if isOwner(plannerId) || isAdmin();
+              allow create: if isSignedIn();
+              allow update: if isOwner(plannerId) || isAdmin(); 
+          }
       }
 
       match /plannerProfiles/{plannerId} {
@@ -153,9 +160,10 @@ service cloud.firestore {
         allow list: if isSignedIn();
         
         match /planners/{plannerId} {
-            allow create: if isEventOwner(eventId);
-            allow read, list: if isEventStaff(eventId) || isAdmin();
-            allow update, delete: if isEventStaff(eventId) || isAdmin();
+            // Allow event staff or the planner themselves to manage assignments
+            allow create: if isSignedIn(); 
+            allow read, list: if isEventStaff(eventId) || isAdmin() || isOwner(plannerId);
+            allow update, delete: if isEventStaff(eventId) || isAdmin() || isOwner(plannerId);
         }
 
         match /guests/{guestId} {
@@ -237,7 +245,7 @@ service cloud.firestore {
 
         match /media/{mediaId} {
             allow read, list: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAdmin();
-            allow create: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAcceptedVendor(eventId);
+            allow create: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid);
             allow delete: if isEventStaff(eventId) || isOwner(resource.data.uploaderId);
             allow update: if false;
         }
@@ -248,8 +256,8 @@ service cloud.firestore {
 
         match /announcements/{announcementId} {
           allow read: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAdmin();
-          create: if isEventStaff(eventId) || isAdmin();
-          update, delete: if isEventStaff(eventId) || isAdmin();
+          allow create: if isEventStaff(eventId) || isAdmin();
+          allow update, delete: if isEventStaff(eventId) || isAdmin();
         }
 
         match /polls/{pollId} {
@@ -335,5 +343,3 @@ service cloud.firestore {
       }
     }
   }
-
-    

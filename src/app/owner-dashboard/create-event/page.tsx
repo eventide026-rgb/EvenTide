@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -148,7 +149,6 @@ export default function CreateEventWizardPage() {
             if (data.plannerId) {
                 const batch = writeBatch(firestore);
                 
-                // Track assignments for the planner globally
                 const plannerAssignmentRef = doc(firestore, "planners", data.plannerId, "assignments", eventId);
                 batch.set(plannerAssignmentRef, { 
                     id: eventId,
@@ -157,7 +157,6 @@ export default function CreateEventWizardPage() {
                     invitedAt: serverTimestamp() 
                 });
 
-                // Track planners for the event
                 const eventPlannerRef = doc(firestore, "events", eventId, "planners", data.plannerId);
                 batch.set(eventPlannerRef, { 
                     id: data.plannerId,

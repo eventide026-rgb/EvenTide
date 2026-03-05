@@ -25,7 +25,7 @@ export type EventColors = {
     accent: string;
 };
 
-export default function InvitationStudioPage({ params }: { params: { eventId: string } }) {
+export default function InvitationStudioPage({ params }: { params: Promise<{ eventId: string }> }) {
     const { eventId } = use(params);
     const firestore = useFirestore();
     const eventRef = useMemoFirebase(() => {

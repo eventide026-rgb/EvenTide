@@ -1,22 +1,21 @@
 
 'use client';
 
-import { use, useMemo } from 'react';
-import { doc, collection, query, where } from 'firebase/firestore';
-import { useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
+import { use } from 'react';
+import { doc } from 'firebase/firestore';
+import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import { PublicHeader } from '@/components/layout/public-header';
 import { PublicFooter } from '@/components/layout/public-footer';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, MapPin, Globe, Instagram, Facebook } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { type PlannerProfile } from '@/lib/types';
 import { TikTokIcon } from '@/components/icons/tiktok';
 import { Button } from '@/components/ui/button';
 
-export default function PlannerPublicPage({ params }: { params: { plannerId: string } }) {
-    const { plannerId } = params;
+export default function PlannerPublicPage({ params }: { params: Promise<{ plannerId: string }> }) {
+    const { plannerId } = use(params);
     const firestore = useFirestore();
 
     const plannerRef = useMemoFirebase(() => {
@@ -38,7 +37,7 @@ export default function PlannerPublicPage({ params }: { params: { plannerId: str
         return notFound();
     }
     
-    const plannerName = planner.name || `${planner.firstName} ${planner.lastName}`;
+    const plannerName = planner.name || `${planner.firstName || ''} ${planner.lastName || ''}`.trim() || 'Professional Planner';
 
     const socialLinks = [
         { href: planner.websiteUrl, icon: Globe, label: 'Website' },

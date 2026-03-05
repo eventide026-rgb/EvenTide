@@ -89,7 +89,7 @@ export function VenueForm({ venueId }: VenueFormProps) {
         }
     }, [existingVenueData, form]);
 
-    const { fields: imageUrlFields, append: appendImageUrl, remove: removeImageUrl, replace: replaceImageUrls } = useFieldArray({
+    const { fields: imageUrlFields, remove: removeImg } = useFieldArray({
         control: form.control,
         name: "imageUrls",
     });
@@ -180,11 +180,6 @@ export function VenueForm({ venueId }: VenueFormProps) {
             reader.readAsDataURL(file);
         });
     };
-
-    const removeImageUrl = (indexToRemove: number) => {
-        const currentImages = form.getValues('imageUrls');
-        form.setValue('imageUrls', currentImages.filter((_, index) => index !== indexToRemove));
-    }
 
     if (isLoadingVenue && isEditMode) {
         return <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
@@ -303,7 +298,7 @@ export function VenueForm({ venueId }: VenueFormProps) {
                                     variant="destructive"
                                     size="icon"
                                     className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    onClick={() => removeImageUrl(index)}
+                                    onClick={() => removeImg(index)}
                                 >
                                     <X className="h-4 w-4" />
                                 </Button>

@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { generateThankYouNote } from '@/ai/flows/generate-thank-you-note';
 
@@ -112,7 +113,7 @@ function ThankYouNotesPageContent({ eventId }: { eventId: string }) {
     );
 }
 
-export default function ThankYouNotesPage({ params }: { params: { eventId: string } }) {
+export default function ThankYouNotesPage({ params }: { params: Promise<{ eventId: string }> }) {
     const { eventId } = use(params);
 
     return (

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, use } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -36,8 +36,8 @@ type Event = {
   securityCode?: string;
 }
 
-export default function ActivateScannerPage({ params }: { params: { eventId: string } }) {
-    const { eventId } = params;
+export default function ActivateScannerPage({ params }: { params: Promise<{ eventId: string }> }) {
+    const { eventId } = use(params);
     const { toast } = useToast();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -72,7 +72,7 @@ export default function ActivateScannerPage({ params }: { params: { eventId: str
             router.push(`/security-dashboard/${eventId}/scanner`);
         } else {
             toast({
-                variant: 'destructive',
+                variant: "destructive",
                 title: 'Invalid Code',
                 description: 'The security code is incorrect. Please check with the event manager.',
             });

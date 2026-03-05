@@ -1,16 +1,16 @@
 
 'use client';
 
-import { use, useMemo } from 'react';
+import { use } from 'react';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { GatepassPreviewCard } from '@/components/stationery/previews/gatepass-preview';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-export default function GatepassPreviewPage({ params }: { params: { eventId: string } }) {
+export default function GatepassPreviewPage({ params }: { params: Promise<{ eventId: string }> }) {
     const { eventId } = use(params);
     const firestore = useFirestore();
     const eventRef = useMemoFirebase(() => {

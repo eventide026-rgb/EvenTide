@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Loader2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { EventCard, type Event as Show } from '@/components/event-card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type TicketierProfile = {
     id: string;

@@ -32,7 +32,7 @@ export default function EditHotelPage({ params }: { params: Promise<{ hotelId: s
                 <CardContent>
                     <HotelForm hotelId={hotelId} />
                 </CardContent>
-            </Card>
+            </div>
         </div>
     );
 }
