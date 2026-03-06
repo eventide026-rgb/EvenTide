@@ -271,7 +271,7 @@ export default function Home() {
         {/* Bringing People Together Section */}
         <section className="py-16 md:py-24">
           <div className="container mx-auto px-4">
-            <div className="relative max-w-4xl mx-auto aspect-video rounded-lg overflow-hidden">
+            <div className="relative max-w-4xl mx-auto aspect-video rounded-lg overflow-hidden border">
                 {partyTableImage && (
                     <Image
                         src={partyTableImage.imageUrl}
@@ -282,7 +282,7 @@ export default function Home() {
                     />
                 )}
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                    <h2 className="text-4xl md:text-5xl font-headline font-bold text-white text-center shadow-lg">
+                    <h2 className="text-4xl md:text-5xl font-headline font-bold text-white text-center shadow-lg p-4">
                         Bringing People Together, Beautifully.
                     </h2>
                 </div>
@@ -346,7 +346,7 @@ export default function Home() {
                   <CardContent className="pt-6 flex-1">
                     <p className="text-muted-foreground italic">&quot;{testimonial.quote}&quot;</p>
                   </CardContent>
-                   <CardHeader className="flex-row gap-4 items-center pt-4">
+                   <CardHeader className="flex-row gap-4 items-center pt-4 border-t bg-muted/30">
                     <Avatar>
                       <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
                       <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
@@ -399,7 +399,7 @@ export default function Home() {
         <section id="pricing" className="py-16 md:py-24">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-headline font-bold md:text-4xl">Pricing Plans for Every Event</h2>
+              <h2 className="text-3xl font-headline font-bold md:text-4xl text-foreground">Pricing Plans for Every Event</h2>
               <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
                 Choose the perfect plan that fits the scale of your event.
               </p>
@@ -407,7 +407,7 @@ export default function Home() {
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 items-start">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
-                  "flex flex-col transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl relative", 
+                  "flex flex-col transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl relative h-full", 
                   tier.isPopular && "border-2 border-primary shadow-lg shadow-primary/20"
                 )}>
                   {tier.isPopular && <Badge className="absolute -top-3 right-4">Popular</Badge>}
@@ -416,7 +416,7 @@ export default function Home() {
                      <div className="flex items-baseline gap-1">
                       <p className="text-4xl font-bold">{tier.price}</p>
                     </div>
-                    <CardDescription>{tier.description}</CardDescription>
+                    <CardDescription className="min-h-[40px]">{tier.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="flex-1">
                     <ul className="space-y-3">
@@ -428,8 +428,8 @@ export default function Home() {
                       ))}
                     </ul>
                   </CardContent>
-                  <CardFooter>
-                     <Button className="w-full" variant={tier.isPopular ? "default" : "outline"}>
+                  <CardFooter className="pt-6">
+                     <Button className="w-full font-bold" variant={tier.isPopular ? "default" : "outline"}>
                         {tier.name === "Free Starter" ? "Get Started" : "Choose " + tier.name}
                      </Button>
                   </CardFooter>
@@ -449,7 +449,7 @@ export default function Home() {
               Join EvenTide today and experience the future of event management.
             </p>
             <div className="mt-8">
-              <Button asChild size="lg" className="font-bold">
+              <Button asChild size="lg" className="font-bold shadow-lg">
                 <Link href="/signup">
                   Start Planning Now <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>

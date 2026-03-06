@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   Accordion,
   AccordionContent,
@@ -22,7 +22,7 @@ import { generateInvitationCard } from '@/ai/flows/invitation-card-design';
 import { StationeryDesigns } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { ScrollArea } from '../ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 
 type ControlPanelProps = {
     eventId: string;
@@ -48,6 +48,7 @@ export function ControlPanel({
     const { toast } = useToast();
     const router = useRouter();
     const firestore = useFirestore();
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [aiPrompt, setAiPrompt] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
@@ -79,6 +80,20 @@ export function ControlPanel({
         const backgroundProp = `${activeTab}Background` as keyof Stationery;
         setStationery(prev => ({ ...prev, [backgroundProp]: url }));
     }
+
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                if (typeof reader.result === 'string') {
+                    handleSetBackground(reader.result);
+                    toast({ title: "Background uploaded!" });
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const handleGenerate = async () => {
         setIsGenerating(true);
@@ -123,7 +138,17 @@ export function ControlPanel({
                                 <ScrollArea className="h-48">
                                     <div className="grid grid-cols-3 gap-2">
                                     {StationeryDesigns.map(design => (
-                                        <button key={design.id} className="aspect-[2/3] relative rounded-md overflow-hidden group border-2 border-transparent hover:border-primary" onClick={() => handleSetBackground(design.imageUrl)}>
+                                        <button 
+                                            key={design.id} 
+                                            type="button"
+                                            className={cn(
+                                                "aspect-[2/3] relative rounded-md overflow-hidden group border-2 transition-all",
+                                                initialStationery[`${activeTab}Background` as keyof Stationery] === design.imageUrl 
+                                                    ? "border-primary ring-2 ring-primary ring-offset-1" 
+                                                    : "border-transparent hover:border-primary/50"
+                                            )} 
+                                            onClick={() => handleSetBackground(design.imageUrl)}
+                                        >
                                             <Image src={design.imageUrl} alt={design.name} fill className="object-cover"/>
                                             <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
                                         </button>
@@ -135,14 +160,28 @@ export function ControlPanel({
                                 <Label htmlFor='ai-prompt'>AI Generation</Label>
                                 <div className="flex gap-2">
                                     <Input id="ai-prompt" value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} placeholder="e.g., royal blue and gold abstract" />
-                                    <Button onClick={handleGenerate} disabled={isGenerating}>
+                                    <Button type="button" onClick={handleGenerate} disabled={isGenerating}>
                                         {isGenerating ? <Loader2 className="h-4 w-4 animate-spin"/> : <Sparkles className="h-4 w-4" />}
                                     </Button>
                                 </div>
                              </div>
                               <div className="space-y-2">
                                 <Label htmlFor='upload'>Upload Your Own</Label>
-                                <Button variant="outline" className="w-full" disabled><Upload className="mr-2 h-4 w-4" /> Upload (Coming Soon)</Button>
+                                <input 
+                                    type="file" 
+                                    ref={fileInputRef} 
+                                    className="hidden" 
+                                    accept="image/*" 
+                                    onChange={handleFileUpload} 
+                                />
+                                <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    className="w-full" 
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
+                                    <Upload className="mr-2 h-4 w-4" /> Upload Background
+                                </Button>
                             </div>
                         </AccordionContent>
                     </AccordionItem>
@@ -164,16 +203,22 @@ export function ControlPanel({
                          <AccordionContent className="space-y-4">
                              <div className="space-y-2">
                                 <Label>Typography</Label>
-                                <p className="text-sm text-muted-foreground">Global font styles (Coming Soon).</p>
+                                <p className="text-sm text-muted-foreground italic">Global font styles linked to master theme.</p>
                              </div>
                              <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor='primary-color'>Primary Color</Label>
-                                    <Input id="primary-color" type="color" value={initialColors.primary} onChange={e => setColors(c => ({...c, primary: e.target.value}))} />
+                                    <div className="flex gap-2">
+                                        <Input id="primary-color" type="color" className="w-12 p-1 h-10" value={initialColors.primary} onChange={e => setColors(c => ({...c, primary: e.target.value}))} />
+                                        <Input value={initialColors.primary} onChange={e => setColors(c => ({...c, primary: e.target.value}))} className="font-mono text-xs" />
+                                    </div>
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor='accent-color'>Accent Color</Label>
-                                    <Input id="accent-color" type="color" value={initialColors.accent} onChange={e => setColors(c => ({...c, accent: e.target.value}))} />
+                                    <div className="flex gap-2">
+                                        <Input id="accent-color" type="color" className="w-12 p-1 h-10" value={initialColors.accent} onChange={e => setColors(c => ({...c, accent: e.target.value}))} />
+                                        <Input value={initialColors.accent} onChange={e => setColors(c => ({...c, accent: e.target.value}))} className="font-mono text-xs" />
+                                    </div>
                                 </div>
                              </div>
                          </AccordionContent>

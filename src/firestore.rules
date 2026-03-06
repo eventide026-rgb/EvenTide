@@ -44,18 +44,15 @@ service cloud.firestore {
 
       function isEventPlanner(eventId) {
         let event = getEvent(eventId);
-        // Ensure plannerIds is not null before checking
         return isSignedIn() && event.data.plannerIds != null && request.auth.uid in event.data.plannerIds;
       }
 
       function isEventCohost(eventId) {
         let event = getEvent(eventId);
-        // Ensure cohostIds is not null before checking
         return isSignedIn() && event.data.cohostIds != null && event.data.cohostIds[request.auth.uid] == true;
       }
       
       function isSecurityForEvent(eventId) {
-        // This is a simplified check. A real implementation might check a dedicated 'security' subcollection.
         let event = getEvent(eventId);
         return isSignedIn() && event.data.securityPersonnel != null && request.auth.uid in event.data.securityPersonnel;
       }
@@ -71,7 +68,6 @@ service cloud.firestore {
       }
 
        function isEventGuest(eventId, guestId) {
-          // Check if the authenticated user is the guest in question
           return isSignedIn() && request.auth.uid == guestId;
        }
       // --- End of Event-Scoped Helper Functions ---
@@ -85,7 +81,7 @@ service cloud.firestore {
       // --- Start of Security Rule Definitions ---
       match /users/{userId} {
         allow read: if isOwner(userId) || isAdmin();
-        allow create: if isOwner(userId) || request.auth == null; // Allow creation for new users
+        allow create: if isOwner(userId) || request.auth == null; 
         allow update, delete: if isOwner(userId) || isAdmin();
         allow list: if isSignedIn();
 
@@ -161,15 +157,10 @@ service cloud.firestore {
         }
 
         match /guests/{guestId} {
-            allow get: if isEventStaff(eventId) || (isSignedIn() && request.auth.uid == guestId) || isAdmin() || 
-                          (get(/databases/$(database)/documents/events/$(eventId)/guestCodes/$(resource.data.guestCode)).data.guestId == guestId);
-            allow read: if isEventStaff(eventId) || (isSignedIn() && request.auth.uid == guestId) || isAdmin();
-            allow list: if isEventStaff(eventId) || isAdmin();
+            allow get, read, list: if isEventStaff(eventId) || (isSignedIn() && request.auth.uid == guestId) || isAdmin();
             allow create: if isEventStaff(eventId) || isAdmin();
             allow delete: if isEventStaff(eventId) || isAdmin();
-            allow update(writeFields): if isEventStaff(eventId) || 
-                                          (isEventGuest(eventId, guestId) && writeFields.hasOnly(['rsvpStatus', 'name'])) ||
-                                          (isSecurityForEvent(eventId) && writeFields.hasOnly(['hasCheckedIn', 'checkInTime']));
+            allow update: if isEventStaff(eventId) || (isSignedIn() && request.auth.uid == guestId) || isAdmin();
         }
 
         match /guestCodes/{guestCode} {
