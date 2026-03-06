@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, use } from 'react';
@@ -24,6 +25,8 @@ export type EventColors = {
     accent: string;
 };
 
+export type CardType = 'invitation' | 'gatepass' | 'program' | 'menu';
+
 export default function InvitationStudioPage({ params }: { params: Promise<{ eventId: string }> }) {
     const { eventId } = use(params);
     const firestore = useFirestore();
@@ -36,6 +39,7 @@ export default function InvitationStudioPage({ params }: { params: Promise<{ eve
 
     const [stationery, setStationery] = useState<Stationery>({});
     const [colors, setColors] = useState<EventColors>({ primary: '#000000', accent: '#FFFFFF' });
+    const [activeTab, setActiveTab] = useState<CardType>('invitation');
     
     useEffect(() => {
         if (event) {
@@ -65,10 +69,18 @@ export default function InvitationStudioPage({ params }: { params: Promise<{ eve
                     setStationery={setStationery}
                     initialColors={colors}
                     setColors={setColors}
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
                 />
             </div>
             <div className="lg:col-span-2">
-                <PreviewArea stationery={stationery} colors={colors} event={event} />
+                <PreviewArea 
+                    stationery={stationery} 
+                    colors={colors} 
+                    event={event} 
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                />
             </div>
         </div>
     );

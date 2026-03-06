@@ -17,14 +17,12 @@ import { useRouter } from "next/navigation";
 import { useFirestore } from '@/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { Loader2, Sparkles, Upload } from "lucide-react";
-import type { Stationery, EventColors } from '@/app/owner-dashboard/stationery-hub/invitation-studio/[eventId]/page';
+import type { Stationery, EventColors, CardType } from '@/app/owner-dashboard/stationery-hub/invitation-studio/[eventId]/page';
 import { generateInvitationCard } from '@/ai/flows/invitation-card-design';
 import { StationeryDesigns } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { ScrollArea } from '../ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-
-type CardType = 'invitation' | 'gatepass' | 'program' | 'menu';
 
 type ControlPanelProps = {
     eventId: string;
@@ -33,14 +31,24 @@ type ControlPanelProps = {
     setStationery: React.Dispatch<React.SetStateAction<Stationery>>;
     initialColors: EventColors;
     setColors: React.Dispatch<React.SetStateAction<EventColors>>;
+    activeTab: CardType;
+    setActiveTab: (tab: CardType) => void;
 };
 
-export function ControlPanel({ eventId, event, initialStationery, setStationery, initialColors, setColors }: ControlPanelProps) {
+export function ControlPanel({ 
+    eventId, 
+    event, 
+    initialStationery, 
+    setStationery, 
+    initialColors, 
+    setColors,
+    activeTab,
+    setActiveTab
+}: ControlPanelProps) {
     const { toast } = useToast();
     const router = useRouter();
     const firestore = useFirestore();
 
-    const [activeCard, setActiveCard] = useState<CardType>('invitation');
     const [aiPrompt, setAiPrompt] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -68,7 +76,7 @@ export function ControlPanel({ eventId, event, initialStationery, setStationery,
     };
     
     const handleSetBackground = (url: string) => {
-        const backgroundProp = `${activeCard}Background` as keyof Stationery;
+        const backgroundProp = `${activeTab}Background` as keyof Stationery;
         setStationery(prev => ({ ...prev, [backgroundProp]: url }));
     }
 
@@ -102,7 +110,7 @@ export function ControlPanel({ eventId, event, initialStationery, setStationery,
                     <AccordionItem value="item-1">
                         <AccordionTrigger>Background Control</AccordionTrigger>
                         <AccordionContent className="space-y-4">
-                             <Tabs value={activeCard} onValueChange={(value) => setActiveCard(value as CardType)}>
+                             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as CardType)}>
                                 <TabsList className="grid w-full grid-cols-4">
                                     <TabsTrigger value="invitation">Invite</TabsTrigger>
                                     <TabsTrigger value="gatepass">Pass</TabsTrigger>
