@@ -16,8 +16,8 @@ import { Button } from '@/components/ui/button';
 import { VendorProposalDialog } from '@/components/vendor-proposal-dialog';
 import Image from 'next/image';
 
-export default function PlannerVendorDetailPage({ params }: { params: { vendorId: string } }) {
-    const { vendorId } = params;
+export default function PlannerVendorDetailPage({ params }: { params: Promise<{ vendorId: string }> }) {
+    const { vendorId } = use(params);
     const firestore = useFirestore();
     const router = useRouter();
 

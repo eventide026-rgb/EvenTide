@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, Suspense } from 'react';
@@ -73,7 +74,7 @@ function EventDetails({ eventId }: { eventId: string }) {
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                  <Card>
-                    <CardHeader className="flex-row items-center justify-between pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-medium">Date</CardTitle>
                         <Calendar className="h-4 w-4 text-muted-foreground"/>
                     </CardHeader>
@@ -83,7 +84,7 @@ function EventDetails({ eventId }: { eventId: string }) {
                     </CardContent>
                 </Card>
                  <Card>
-                    <CardHeader className="flex-row items-center justify-between pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-medium">Location</CardTitle>
                         <MapPin className="h-4 w-4 text-muted-foreground"/>
                     </CardHeader>
@@ -92,7 +93,7 @@ function EventDetails({ eventId }: { eventId: string }) {
                     </CardContent>
                 </Card>
                  <Card>
-                    <CardHeader className="flex-row items-center justify-between pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-medium">Guests</CardTitle>
                         <Users className="h-4 w-4 text-muted-foreground"/>
                     </CardHeader>
@@ -102,7 +103,7 @@ function EventDetails({ eventId }: { eventId: string }) {
                     </CardContent>
                 </Card>
                  <Card>
-                    <CardHeader className="flex-row items-center justify-between pb-2">
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
                         <CardTitle className="text-sm font-medium">Theme</CardTitle>
                         <Palette className="h-4 w-4 text-muted-foreground"/>
                     </CardHeader>
