@@ -23,6 +23,7 @@ import { StationeryDesigns } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { ScrollArea } from '../ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
+import { cn } from '@/lib/utils';
 
 type ControlPanelProps = {
     eventId: string;
@@ -201,10 +202,6 @@ export function ControlPanel({
                     <AccordionItem value="item-3">
                         <AccordionTrigger>Global Appearance</AccordionTrigger>
                          <AccordionContent className="space-y-4">
-                             <div className="space-y-2">
-                                <Label>Typography</Label>
-                                <p className="text-sm text-muted-foreground italic">Global font styles linked to master theme.</p>
-                             </div>
                              <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor='primary-color'>Primary Color</Label>

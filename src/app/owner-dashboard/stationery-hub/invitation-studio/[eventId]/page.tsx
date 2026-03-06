@@ -30,6 +30,7 @@ export type CardType = 'invitation' | 'gatepass' | 'program' | 'menu';
 export default function InvitationStudioPage({ params }: { params: Promise<{ eventId: string }> }) {
     const { eventId } = use(params);
     const firestore = useFirestore();
+    
     const eventRef = useMemoFirebase(() => {
         if (!firestore) return null;
         return doc(firestore, 'events', eventId);

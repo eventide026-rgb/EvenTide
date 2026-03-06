@@ -39,7 +39,7 @@ const formSchema = z.object({
   lastName: z.string().min(2, { message: "Last name is required." }),
   email: z.string().email({ message: "Please enter a valid email." }),
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
-  role: z.enum(["Owner", "Planner", "Hotelier", "Hall Owner", "Car Hire Service", "Ticketier", "Security"], { required_error: "You need to select a role." }),
+  role: z.enum(["Owner", "Planner", "Hotelier", "Hall Owner", "Car Hire Service", "Ticketier", "Security", "Fashion Designer"], { required_error: "You need to select a role." }),
   promoterName: z.string().optional(),
 }).refine(data => {
     if (data.role === 'Ticketier') {
@@ -113,6 +113,18 @@ export function SignUpForm() {
                 const ticketierDocRef = doc(firestore, "ticketiers", user.uid);
                 batch.set(ticketierDocRef, ticketierProfileData);
             }
+
+            if (values.role === 'Fashion Designer') {
+                const vendorData = {
+                    id: user.uid,
+                    name: `${values.firstName} ${values.lastName}`,
+                    email: values.email,
+                    specialty: "Fashion Designer",
+                    createdAt: serverTimestamp(),
+                };
+                const vendorRef = doc(firestore, "vendors", user.uid);
+                batch.set(vendorRef, vendorData);
+            }
             
             await batch.commit().catch((error) => {
                  const contextualError = new FirestorePermissionError({
@@ -138,8 +150,6 @@ export function SignUpForm() {
       let description = "An unexpected error occurred. Please try again.";
       if (error.code === 'auth/email-already-in-use') {
         description = "This email address is already in use. Please log in or use a different email.";
-      } else if (error.message.startsWith("Failed to create user profile")) {
-        description = error.message;
       }
       toast({
         variant: "destructive",
@@ -228,6 +238,7 @@ export function SignUpForm() {
                   <SelectItem value="Hall Owner">Venue / Hall Owner</SelectItem>
                   <SelectItem value="Car Hire Service">Car Hire Service</SelectItem>
                   <SelectItem value="Ticketier">Ticketier / Promoter</SelectItem>
+                  <SelectItem value="Fashion Designer">Fashion Designer</SelectItem>
                   <SelectItem value="Security">Security Personnel</SelectItem>
                 </SelectContent>
               </Select>

@@ -150,11 +150,15 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
     return doc(firestore, 'users', user.uid);
   }, [firestore, user]);
 
-  const { data: userProfile } = useDoc<{specialty?: string}>(userDocRef);
+  const { data: userProfile } = useDoc<{specialty?: string, role?: string}>(userDocRef);
 
   useEffect(() => {
-    if (userProfile && userProfile.specialty) {
-        setSpecialty(userProfile.specialty);
+    if (userProfile) {
+        if (userProfile.role === 'Fashion Designer') {
+            setSpecialty('Fashion Designer');
+        } else if (userProfile.specialty) {
+            setSpecialty(userProfile.specialty);
+        }
     }
   }, [userProfile]);
 
@@ -179,9 +183,9 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
 
   return (
     <>
-    <DashboardRedirector expectedRole="Vendor" />
+    <DashboardRedirector expectedRole={userProfile?.role || 'Vendor'} />
     <TooltipProvider>
-      <div className="flex min-h-screen bg-background text-foreground" style={{'--sidebar-width': '25.8rem', '--sidebar-width-mobile': '29rem'} as React.CSSProperties}>
+      <div className="flex min-h-screen bg-background text-foreground">
         <aside className="sticky top-0 h-screen w-16 flex flex-col items-center py-4 border-r bg-background z-20">
           <Link href="/vendor-dashboard">
             <Logo />

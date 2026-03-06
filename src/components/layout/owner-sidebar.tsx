@@ -75,6 +75,7 @@ const sidebarNav = [
             { href: "/owner-dashboard/find-planner", label: "Find a Planner", icon: PartyPopper },
             { href: "/owner-dashboard/find-hotel", label: "Find a Hotel", icon: Hotel },
             { href: "/owner-dashboard/find-venue", label: "Find a Venue", icon: Building },
+            { href: "/owner-dashboard/find-designer", label: "Fashion Hub", icon: Users },
         ]
     },
      {
