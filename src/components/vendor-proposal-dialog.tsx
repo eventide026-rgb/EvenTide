@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -109,7 +108,7 @@ export function VendorProposalDialog({ vendor }: VendorProposalDialogProps) {
             link: `/vendor-dashboard/proposals`,
             read: false,
             createdAt: serverTimestamp(),
-            userId: designer.id
+            userId: vendor.id
         });
 
         try {

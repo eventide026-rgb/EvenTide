@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -12,6 +11,7 @@ import {
   Users,
   Wand2,
   ChevronRight,
+  Shield,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -85,9 +85,14 @@ const roleBenefits = [
         features: ["Collaborate with team members and co-hosts.", "Utilize AI for design and content creation.", "Manage guest lists and communication seamlessly."]
     },
     {
-        icon: <ShieldCheck className="h-8 w-8 text-primary" />,
-        title: "Guests & Security",
-        features: ["Receive personalized digital invitations.", "Securely check-in with a unique QR code.", "Stay updated with real-time announcements."]
+        icon: <Users className="h-8 w-8 text-primary" />,
+        title: "Guests",
+        features: ["Receive personalized digital invitations.", "RSVP effortlessly and view event details.", "Stay updated with real-time announcements."]
+    },
+    {
+        icon: <Shield className="h-8 w-8 text-primary" />,
+        title: "Security",
+        features: ["Validate guest passes with QR scanning.", "Monitor live check-ins and venue capacity.", "Access control with secure activation codes."]
     }
 ];
 
@@ -364,7 +369,7 @@ export default function Home() {
                         EvenTide is designed to empower every role involved in making an event a success.
                     </p>
                 </div>
-                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
                     {roleBenefits.map((role) => (
                         <Card key={role.title} className="border-accent border-2 bg-primary/20 transition-transform transition-shadow duration-300 hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-accent/20">
                             <CardHeader className="flex-row items-center gap-4">
