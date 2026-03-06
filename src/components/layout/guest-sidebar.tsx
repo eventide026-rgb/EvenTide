@@ -62,7 +62,7 @@ const sidebarNav = [
     },
 ];
 
-const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
+const FlyoutMenu = ({ navGroup, onClose }: { navGroup: typeof sidebarNav[0], onClose: () => void }) => {
     const pathname = usePathname();
 
     const isLinkActive = (href: string) => {
@@ -73,13 +73,14 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
     };
 
     return (
-        <>
+        <div className="p-2">
             <h3 className="px-3 py-2 text-sm font-semibold text-muted-foreground">{navGroup.title}</h3>
-            <ul>
+            <ul className="space-y-1">
                  {navGroup.links.map(link => (
                     <li key={link.href}>
                          <Link
                             href={link.href}
+                            onClick={onClose}
                             className={cn(
                                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
                                 isLinkActive(link.href) ? "bg-accent text-accent-foreground" : "text-foreground/80"
@@ -91,7 +92,7 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
                     </li>
                 ))}
             </ul>
-        </>
+        </div>
     )
 }
 
@@ -101,6 +102,7 @@ export function GuestDashboardSidebar() {
   const router = useRouter();
   const { user } = useUser();
   const [guestName, setGuestName] = useState<string | null>(null);
+  const [openPopover, setOpenPopover] = useState<string | null>(null);
 
   useEffect(() => {
     if(user) {
@@ -138,7 +140,7 @@ export function GuestDashboardSidebar() {
                     <SidebarMenu>
                     {sidebarNav.map(group => (
                     <SidebarMenuItem key={group.title}>
-                        <Popover>
+                        <Popover open={openPopover === group.title} onOpenChange={(open) => setOpenPopover(open ? group.title : null)}>
                             <PopoverTrigger asChild>
                             <SidebarMenuButton
                                 tooltip={{ children: group.title }}
@@ -148,8 +150,8 @@ export function GuestDashboardSidebar() {
                                 <span>{group.title}</span>
                             </SidebarMenuButton>
                             </PopoverTrigger>
-                            <PopoverContent side="right" align="start" className="ml-2 w-56 p-0">
-                                <FlyoutMenu navGroup={group} />
+                            <PopoverContent side="right" align="start" className="ml-2 w-56 p-0 shadow-xl">
+                                <FlyoutMenu navGroup={group} onClose={() => setOpenPopover(null)} />
                             </PopoverContent>
                         </Popover>
                     </SidebarMenuItem>

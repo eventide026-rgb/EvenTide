@@ -103,7 +103,7 @@ const specialtyNavs: Record<string, {href: string, label: string, icon: React.El
 }
 
 
-const FlyoutMenu = ({ navGroup }: { navGroup: typeof baseNav[0] }) => {
+const FlyoutMenu = ({ navGroup, onClose }: { navGroup: typeof baseNav[0], onClose: () => void }) => {
     const pathname = usePathname();
     const isLinkActive = (href: string) => {
         if (href === "/vendor-dashboard") {
@@ -112,13 +112,14 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof baseNav[0] }) => {
         return pathname.startsWith(href);
     };
     return (
-        <>
-            <h3 className="px-3 py-2 text-sm font-semibold text-muted-foreground">{navGroup.title}</h3>
-            <ul>
+        <div className="p-2">
+            <h3 className="px-3 py-2 text-sm font-semibold text-muted-foreground uppercase tracking-wider">{navGroup.title}</h3>
+            <ul className="space-y-1">
                  {navGroup.links.map(link => (
                     <li key={link.href}>
                          <Link
                             href={link.href}
+                            onClick={onClose}
                             className={cn(
                                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
                                 isLinkActive(link.href) ? "bg-accent text-accent-foreground" : "text-foreground/80"
@@ -130,7 +131,7 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof baseNav[0] }) => {
                     </li>
                 ))}
             </ul>
-        </>
+        </div>
     )
 }
 
@@ -142,6 +143,7 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
   const router = useRouter();
 
   const [specialty, setSpecialty] = useState("");
+  const [openPopover, setOpenPopover] = useState<string | null>(null);
 
   const userDocRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;
@@ -168,7 +170,7 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
   const isGroupActive = (groupLinks: typeof baseNav[0]['links']) => {
     return groupLinks.some(link => {
         if (link.href === "/vendor-dashboard") {
-            return pathname === href;
+            return pathname === link.href;
         }
         return pathname.startsWith(link.href);
     });
@@ -189,7 +191,7 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
             <ul className="space-y-2">
               {baseNav.map(group => (
                 <li key={group.title}>
-                  <Popover>
+                  <Popover open={openPopover === group.title} onOpenChange={(open) => setOpenPopover(open ? group.title : null)}>
                     <Tooltip>
                       <PopoverTrigger asChild>
                         <TooltipTrigger asChild>
@@ -209,8 +211,8 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
                         {group.title}
                       </TooltipContent>
                     </Tooltip>
-                    <PopoverContent side="right" align="start" className="ml-2 w-56 p-2 hidden md:block">
-                       <FlyoutMenu navGroup={group} />
+                    <PopoverContent side="right" align="start" className="ml-2 w-56 p-0 hidden md:block shadow-xl">
+                       <FlyoutMenu navGroup={group} onClose={() => setOpenPopover(null)} />
                     </PopoverContent>
                   </Popover>
                 </li>

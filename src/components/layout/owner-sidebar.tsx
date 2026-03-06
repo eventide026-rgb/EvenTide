@@ -35,6 +35,7 @@ import {
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/layout/logo';
+import { useState } from 'react';
 
 const sidebarNav = [
     {
@@ -109,7 +110,7 @@ const sidebarNav = [
     }
 ];
 
-const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
+const FlyoutMenu = ({ navGroup, onClose }: { navGroup: typeof sidebarNav[0], onClose: () => void }) => {
     const pathname = usePathname();
 
     const isLinkActive = (href: string) => {
@@ -127,6 +128,7 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
                     <li key={link.href}>
                          <Link
                             href={link.href}
+                            onClick={onClose}
                             className={cn(
                                 "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
                                 isLinkActive(link.href) ? "bg-accent text-accent-foreground" : "text-foreground/80"
@@ -144,6 +146,8 @@ const FlyoutMenu = ({ navGroup }: { navGroup: typeof sidebarNav[0] }) => {
 
 export function OwnerDashboardSidebar() {
     const pathname = usePathname();
+    const [openPopover, setOpenPopover] = useState<string | null>(null);
+
     const isGroupActive = (groupLinks: typeof sidebarNav[0]['links']) => {
         return groupLinks.some(link => {
             if (link.href === "/owner-dashboard" || link.href === "/account") {
@@ -165,7 +169,7 @@ export function OwnerDashboardSidebar() {
             <SidebarMenu>
                 {sidebarNav.map(group => (
                 <SidebarMenuItem key={group.title}>
-                    <Popover>
+                    <Popover open={openPopover === group.title} onOpenChange={(open) => setOpenPopover(open ? group.title : null)}>
                         <PopoverTrigger asChild>
                         <SidebarMenuButton
                             tooltip={{ children: group.title }}
@@ -176,7 +180,7 @@ export function OwnerDashboardSidebar() {
                         </SidebarMenuButton>
                         </PopoverTrigger>
                         <PopoverContent side="right" align="start" className="ml-2 w-56 p-0 shadow-xl">
-                            <FlyoutMenu navGroup={group} />
+                            <FlyoutMenu navGroup={group} onClose={() => setOpenPopover(null)} />
                         </PopoverContent>
                     </Popover>
                 </SidebarMenuItem>
