@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -6,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, addDoc, serverTimestamp, doc, writeBatch, documentId } from 'firebase/firestore';
+import { collection, query, where, doc, writeBatch, documentId, serverTimestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -105,6 +104,7 @@ export function VendorProposalDialog({ vendor }: VendorProposalDialogProps) {
 
         const notificationRef = doc(collection(firestore, 'users', vendor.id, 'notifications'));
         batch.set(notificationRef, {
+            id: notificationRef.id,
             message: `You have a new job proposal for an event.`,
             link: `/vendor-dashboard/proposals`,
             read: false,

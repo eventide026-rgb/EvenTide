@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -13,6 +12,7 @@ import {
   Wand2,
   ChevronRight,
   Shield,
+  QrCode,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -86,7 +86,7 @@ const roleBenefits = [
         features: ["Collaborate with team members and co-hosts.", "Utilize AI for design and content creation.", "Manage guest lists and communication seamlessly."]
     },
     {
-        icon: <Users className="h-8 w-8 text-primary" />,
+        icon: <QrCode className="h-8 w-8 text-primary" />,
         title: "Guests",
         features: ["Receive personalized digital invitations.", "RSVP effortlessly and view event details.", "Stay updated with real-time announcements."]
     },

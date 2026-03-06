@@ -1,37 +1,36 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
 
 export const Countdown = ({ date }: { date?: string }) => {
-    if (!date) return null;
-    
-    const calculateTimeLeft = () => {
-        const difference = +new Date(date) - +new Date();
-        let timeLeft = {days: 0, hours: 0, minutes: 0};
-        if (difference > 0) {
-            timeLeft = {
-                days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-                hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-                minutes: Math.floor((difference / 1000 / 60) % 60),
-            };
-        }
-        return timeLeft;
-    };
-
-    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+    const [timeLeft, setTimeLeft] = useState<{days: number, hours: number, minutes: number} | null>(null);
 
     useEffect(() => {
+        if (!date) return;
+
+        const calculateTimeLeft = () => {
+            const difference = +new Date(date) - +new Date();
+            if (difference > 0) {
+                return {
+                    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+                    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+                    minutes: Math.floor((difference / 1000 / 60) % 60),
+                };
+            }
+            return { days: 0, hours: 0, minutes: 0 };
+        };
+
+        // Initial calculation
+        setTimeLeft(calculateTimeLeft());
+
         const timer = setInterval(() => {
             setTimeLeft(calculateTimeLeft());
-        }, 60000); // Update every minute
-        
-        // Also update immediately when the date prop changes
-        setTimeLeft(calculateTimeLeft());
+        }, 60000);
 
         return () => clearInterval(timer);
     }, [date]);
 
+    if (!timeLeft) return null;
 
     return (
         <div className="flex space-x-4">

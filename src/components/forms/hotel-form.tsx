@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
@@ -98,7 +97,7 @@ export function HotelForm({ hotelId }: HotelFormProps) {
         name: "roomTypes",
     });
 
-     const { remove: removeImageUrl } = useFieldArray({
+     const { remove: removeImg } = useFieldArray({
         control: form.control,
         name: "imageUrls",
     });
@@ -327,7 +326,7 @@ export function HotelForm({ hotelId }: HotelFormProps) {
                                     variant="destructive"
                                     size="icon"
                                     className="absolute -top-2 -right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    onClick={() => removeImageUrl(index)}
+                                    onClick={() => removeImg(index)}
                                 >
                                     <X className="h-4 w-4" />
                                 </Button>
