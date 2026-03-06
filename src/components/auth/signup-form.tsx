@@ -51,7 +51,8 @@ const formSchema = z.object({
     "Fashion Designer", 
     "DJ/Musician", 
     "Photographer", 
-    "Videographer"
+    "Videographer",
+    "Decorator"
   ], { required_error: "You need to select a role." }),
   promoterName: z.string().optional(),
 }).refine(data => {
@@ -128,7 +129,7 @@ export function SignUpForm() {
             }
 
             // Create Vendor Profile for service roles
-            const vendorRoles = ["MC/Host", "Caterer", "Fashion Designer", "DJ/Musician", "Photographer", "Videographer"];
+            const vendorRoles = ["MC/Host", "Caterer", "Fashion Designer", "DJ/Musician", "Photographer", "Videographer", "Decorator"];
             if (vendorRoles.includes(values.role)) {
                 const vendorData = {
                     id: user.uid,
@@ -261,6 +262,7 @@ export function SignUpForm() {
                   <SelectItem value="DJ/Musician">DJ / Musician</SelectItem>
                   <SelectItem value="Photographer">Photographer</SelectItem>
                   <SelectItem value="Videographer">Videographer</SelectItem>
+                  <SelectItem value="Decorator">Decorator</SelectItem>
                   <SelectItem value="Security">Security Personnel</SelectItem>
                 </SelectContent>
               </Select>

@@ -48,7 +48,7 @@ const HeaderContent = () => {
   const hotelsImage = getImage('venueHall');
 
   return (
-    <div className="container flex h-12 items-center">
+    <div className="container flex h-12 items-center px-4">
       <Link href="/" className="mr-6 flex items-center space-x-2">
         <Logo />
       </Link>
@@ -232,13 +232,13 @@ export function PublicHeader() {
 
   return (
     <header className={cn(
-        "sticky top-0 z-50 w-full transition-all duration-300",
+        "fixed left-0 right-0 z-50 w-full transition-all duration-300",
         isAtTop ? "top-4" : "top-0"
     )}>
        <div
         className={cn(
-          "container max-w-screen-lg rounded-full border border-border/40 bg-background/60 p-1 shadow-lg backdrop-blur-lg transition-all duration-300 mx-auto",
-          isAtTop ? "rounded-full" : "rounded-none max-w-none border-x-0"
+          "container rounded-full border border-border/40 bg-background/60 p-1 shadow-lg backdrop-blur-lg transition-all duration-300 mx-auto",
+          isAtTop ? "max-w-screen-lg rounded-full" : "max-w-none rounded-none border-x-0"
         )}
       >
         <HeaderContent />

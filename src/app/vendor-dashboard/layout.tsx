@@ -143,7 +143,7 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
 
   useEffect(() => {
     if (userProfile) {
-        if (["Fashion Designer", "Caterer", "DJ/Musician", "Photographer", "Videographer", "MC/Host"].includes(userProfile.role || "")) {
+        if (["Fashion Designer", "Caterer", "DJ/Musician", "Photographer", "Videographer", "MC/Host", "Decorator"].includes(userProfile.role || "")) {
             setSpecialty(userProfile.role || "");
         } else if (userProfile.specialty) {
             setSpecialty(userProfile.specialty);
@@ -198,9 +198,6 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
                           </Button>
                         </TooltipTrigger>
                       </PopoverTrigger>
-                      <TooltipContent side="right" className="md:hidden">
-                        {group.title}
-                      </TooltipContent>
                     </Tooltip>
                     <PopoverContent side="right" align="start" className="ml-2 w-56 p-0 hidden md:block shadow-xl">
                        <FlyoutMenu navGroup={group} onClose={() => setOpenPopover(null)} />

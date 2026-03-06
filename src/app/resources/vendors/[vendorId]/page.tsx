@@ -16,7 +16,8 @@ import { Button } from '@/components/ui/button';
 import { VendorProposalDialog } from '@/components/vendor-proposal-dialog';
 
 export default function VendorPublicPage({ params }: { params: Promise<{ vendorId: string }> }) {
-    const { vendorId } = use(params);
+    const resolvedParams = use(params);
+    const vendorId = resolvedParams.vendorId;
     const firestore = useFirestore();
     const router = useRouter();
 
@@ -62,7 +63,7 @@ export default function VendorPublicPage({ params }: { params: Promise<{ vendorI
                                 <p className="text-xl font-semibold text-primary mt-1">{vendor.specialty}</p>
                                 {(vendor.city || vendor.state) && (
                                      <p className="mt-2 text-lg text-muted-foreground flex items-center justify-center md:justify-start gap-2">
-                                        <MapPin className="h-5 w-5"/>
+                                        <MapPin className="h-4 w-4"/>
                                         {vendor.city}, {vendor.state}
                                     </p>
                                 )}

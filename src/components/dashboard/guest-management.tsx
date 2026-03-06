@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
 import {
   useCollection,
   useDoc,
@@ -105,8 +104,8 @@ function GuestManagementComponent() {
   const plannerAssignmentsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
     return query(
-      collection(firestore, 'planners', user.uid, 'assignments'),
-      where('status', '==', 'accepted')
+      collection(firestore, 'planners'),
+      where('plannerId', '==', user.uid)
     );
   }, [firestore, user?.uid]);
   const { data: assignments } = useCollection(plannerAssignmentsQuery);

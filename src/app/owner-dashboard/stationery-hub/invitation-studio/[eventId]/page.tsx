@@ -27,7 +27,8 @@ export type EventColors = {
 export type CardType = 'invitation' | 'gatepass' | 'program' | 'menu';
 
 export default function InvitationStudioPage({ params }: { params: Promise<{ eventId: string }> }) {
-    const { eventId } = use(params);
+    const resolvedParams = use(params);
+    const eventId = resolvedParams.eventId;
     const firestore = useFirestore();
     
     const eventRef = useMemoFirebase(() => {
