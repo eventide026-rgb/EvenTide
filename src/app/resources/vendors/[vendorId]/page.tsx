@@ -1,24 +1,24 @@
-
 'use client';
 
-import { use, useMemo } from 'react';
+import { use } from 'react';
 import { doc } from 'firebase/firestore';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { notFound } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { PublicHeader } from '@/components/layout/public-header';
 import { PublicFooter } from '@/components/layout/public-footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, MapPin, Globe, Instagram, Facebook } from 'lucide-react';
+import { Loader2, MapPin, Globe, Instagram, Facebook, ArrowLeft } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { type Vendor } from '@/lib/types';
 import { TikTokIcon } from '@/components/icons/tiktok';
 import { Button } from '@/components/ui/button';
 import { VendorProposalDialog } from '@/components/vendor-proposal-dialog';
 
-export default function VendorPublicPage({ params }: { params: { vendorId: string } }) {
-    const { vendorId } = params;
+export default function VendorPublicPage({ params }: { params: Promise<{ vendorId: string }> }) {
+    const { vendorId } = use(params);
     const firestore = useFirestore();
+    const router = useRouter();
 
     const vendorRef = useMemoFirebase(() => {
         if (!firestore || !vendorId) return null;

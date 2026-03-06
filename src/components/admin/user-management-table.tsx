@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -42,6 +41,7 @@ const availableRoles = [
   'Ticketier',
   'Vendor',
   'Fashion Designer',
+  'Caterer',
   'Security'
 ];
 
