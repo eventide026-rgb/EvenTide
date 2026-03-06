@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, Suspense } from 'react';
@@ -129,11 +128,10 @@ function EventDetails({ eventId }: { eventId: string }) {
 }
 
 export default function EventDetailsPage({ params }: { params: Promise<{ eventId: string }> }) {
-    const { eventId } = use(params);
-
+    const resolvedParams = use(params);
     return (
         <Suspense fallback={<div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin"/></div>}>
-            <EventDetails eventId={eventId} />
+            <EventDetails eventId={resolvedParams.eventId} />
         </Suspense>
     );
 }

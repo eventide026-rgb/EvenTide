@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy, documentId } from 'firebase/firestore';
+import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query, where, orderBy, doc } from 'firebase/firestore';
 import {
   Card,
   CardContent,
@@ -61,7 +60,6 @@ export function CheckInMonitorClient() {
   const { user, isUserLoading } = useUser();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
-  // This query should get all events the user is either an owner of or a planner for.
   const ownerEventsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
     return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
@@ -91,23 +89,19 @@ export function CheckInMonitorClient() {
   const sortedGuests = useMemo(() => {
     if (!guests) return [];
     return [...guests].sort((a, b) => {
-      // 1. Sort by check-in status (checked-in first)
       if (a.hasCheckedIn && !b.hasCheckedIn) return -1;
       if (!a.hasCheckedIn && b.hasCheckedIn) return 1;
 
-      // 2. If both are checked in, sort by check-in time descending
       if (a.hasCheckedIn && b.hasCheckedIn && a.checkInTime && b.checkInTime) {
           return b.checkInTime.toDate().getTime() - a.checkInTime.toDate().getTime();
       }
 
-      // 3. For those not checked in, sort by category priority
       const priorityA = categoryPriority[a.category] || 99;
       const priorityB = categoryPriority[b.category] || 99;
       if (priorityA !== priorityB) {
         return priorityA - priorityB;
       }
       
-      // 4. Alphabetical by name
       return a.name.localeCompare(b.name);
     });
   }, [guests]);

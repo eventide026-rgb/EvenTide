@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -77,6 +76,7 @@ const sidebarNav = [
         links: [
             { href: "/planner-dashboard/hotels", label: "Hotel Hub", icon: Hotel },
             { href: "/planner-dashboard/venues", label: "Venue Hub", icon: Building },
+            { href: "/planner-dashboard/vendor-hub", label: "Vendor Hub", icon: Users },
         ]
     },
     {

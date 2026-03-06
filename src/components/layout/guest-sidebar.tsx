@@ -1,16 +1,12 @@
-
 'use client';
 
 import {
   Gift,
-  Heart,
   Home,
   LayoutDashboard,
   LogOut,
-  MessageCircle,
   Music,
   Palette,
-  ScanLine,
   User,
   Image as ImageIcon,
   PenSquare,
@@ -36,7 +32,6 @@ import {
 } from '@/components/ui/sidebar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { DashboardHeader } from '@/components/layout/dashboard-header';
 import { useEffect, useState } from 'react';
 
 const sidebarNav = [

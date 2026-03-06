@@ -83,7 +83,7 @@ const roleBenefits = [
     {
         icon: <Users className="h-8 w-8 text-primary" />,
         title: "Planners",
-        features: ["Collaborate with team members and co-hosts.", "Utilize AI for design and content creation.", "Manage guest lists and communication seamlessly."]
+        features: ["Collaborate with team members and co-hosts.", "Utilize AI for design and content creation.", "Manage guest lists and communication."]
     },
     {
         icon: <QrCode className="h-8 w-8 text-primary" />,
@@ -93,7 +93,7 @@ const roleBenefits = [
     {
         icon: <Shield className="h-8 w-8 text-primary" />,
         title: "Security",
-        features: ["Validate guest passes with QR scanning.", "Monitor live check-ins and venue capacity.", "Access control with secure activation codes."]
+        features: ["Validate guest passes with QR scanning.", "Monitor live check-ins and capacity.", "Access control with secure activation codes."]
     }
 ];
 
@@ -244,7 +244,7 @@ export default function Home() {
         <section id="how-it-works" className="py-16 md:py-24 bg-secondary">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-headline font-bold md:text-4xl">How It Works</h2>
+              <h2 className="text-3xl font-headline font-bold md:text-4xl text-foreground">How It Works</h2>
               <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
                 A simple, streamlined process from concept to execution.
               </p>
@@ -267,105 +267,11 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Bringing People Together Section */}
-        <section className="py-16 md:py-24">
-          <div className="container mx-auto px-4">
-            <div className="relative max-w-4xl mx-auto aspect-video rounded-lg overflow-hidden border">
-                {partyTableImage && (
-                    <Image
-                        src={partyTableImage.imageUrl}
-                        alt={partyTableImage.description}
-                        fill
-                        className="object-cover"
-                        data-ai-hint={partyTableImage.imageHint}
-                    />
-                )}
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                    <h2 className="text-4xl md:text-5xl font-headline font-bold text-white text-center shadow-lg p-4">
-                        Bringing People Together, Beautifully.
-                    </h2>
-                </div>
-            </div>
-          </div>
-        </section>
-
-
-        {/* Interactive AI Demo Section */}
-        <section id="ai-demo" className="py-16 md:py-24 bg-secondary">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-headline font-bold md:text-4xl">Meet Eni, Your AI Assistant</h2>
-              <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-                Experience the power of AI. Generate a personalized welcome message instantly.
-              </p>
-            </div>
-            <Card className="max-w-2xl mx-auto p-6 sm:p-8">
-              <div className="grid sm:grid-cols-3 gap-4 items-end">
-                <div className="sm:col-span-2 space-y-2">
-                   <Label htmlFor="eventType">Event Type</Label>
-                   <Select value={eventType} onValueChange={setEventType}>
-                    <SelectTrigger id="eventType" className="w-full">
-                      <SelectValue placeholder="Select an event type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Wedding">Wedding</SelectItem>
-                      <SelectItem value="Conference">Conference</SelectItem>
-                      <SelectItem value="Birthday Party">Birthday Party</SelectItem>
-                      <SelectItem value="Corporate Gala">Corporate Gala</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button onClick={handleGenerateText} disabled={isLoading} className="w-full">
-                  <Wand2 className="mr-2 h-4 w-4" />
-                  {isLoading ? 'Generating...' : 'Generate Text'}
-                </Button>
-              </div>
-              <Textarea
-                className="mt-4 h-32"
-                placeholder="Eni's message will appear here..."
-                value={generatedMessage}
-                readOnly
-              />
-            </Card>
-          </div>
-        </section>
-
-        {/* Social Proof Section */}
-        <section id="testimonials" className="py-16 md:py-24">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-headline font-bold md:text-4xl">Loved by Planners & Hosts</h2>
-              <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-                See what our users are saying about their experience with EvenTide.
-              </p>
-            </div>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {testimonials.map((testimonial, index) => (
-                <Card key={index} className="flex flex-col transition-transform transition-shadow duration-300 hover:scale-105 hover:-translate-y-2 hover:shadow-lg">
-                  <CardContent className="pt-6 flex-1">
-                    <p className="text-muted-foreground italic">&quot;{testimonial.quote}&quot;</p>
-                  </CardContent>
-                   <CardHeader className="flex-row gap-4 items-center pt-4 border-t bg-muted/30">
-                    <Avatar>
-                      <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
-                      <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <CardTitle className="text-base font-bold">{testimonial.name}</CardTitle>
-                      <CardDescription>{testimonial.role}</CardDescription>
-                    </div>
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* Role-Based Benefits Section */}
-        <section id="benefits" className="py-16 md:py-24 bg-secondary">
+        <section id="benefits" className="py-16 md:py-24">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl font-headline font-bold md:text-4xl">A Tool for Everyone on the Team</h2>
+                    <h2 className="text-3xl font-headline font-bold md:text-4xl text-foreground">A Tool for Everyone on the Team</h2>
                     <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
                         EvenTide is designed to empower every role involved in making an event a success.
                     </p>
@@ -393,9 +299,8 @@ export default function Home() {
             </div>
         </section>
 
-
         {/* Pricing Section */}
-        <section id="pricing" className="py-16 md:py-24">
+        <section id="pricing" className="py-16 md:py-24 bg-secondary">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-headline font-bold md:text-4xl text-foreground">Pricing Plans for Every Event</h2>
@@ -439,7 +344,7 @@ export default function Home() {
         </section>
 
         {/* Final CTA Section */}
-        <section className="py-16 md:py-24 bg-secondary">
+        <section className="py-16 md:py-24">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-headline font-bold md:text-4xl text-foreground">
               Ready to Create an Unforgettable Event?

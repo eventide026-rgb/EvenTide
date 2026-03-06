@@ -88,7 +88,7 @@ export function VenueForm({ venueId }: VenueFormProps) {
         }
     }, [existingVenueData, form]);
 
-    const { fields: imageUrlFields, remove: removeImg } = useFieldArray({
+    const { remove: removeImg } = useFieldArray({
         control: form.control,
         name: "imageUrls",
     });
