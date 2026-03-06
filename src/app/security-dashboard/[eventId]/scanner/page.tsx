@@ -94,7 +94,8 @@ export default function ScannerPage({ params }: { params: Promise<{ eventId: str
   }, [handleScanResult]);
 
   const onScanFailure = (error: Html5QrcodeError) => {
-    // Silent failure
+    // This function is called frequently, so we typically don't log every "error".
+    // "QR code not found" is a common one we can ignore.
   };
 
   useEffect(() => {
