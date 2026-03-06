@@ -182,7 +182,7 @@ function GuestManagementComponent() {
     if (!firestore || !selectedEventId || !selectedEvent) return;
 
     if (atCapacity) {
-      toast({ variant: 'destructive', title: 'Guest Limit Reached' });
+      toast({ variant: 'destructive', title: 'Guest Limit Reached', description: "You have reached your plan's guest limit." });
       return;
     }
 
@@ -199,7 +199,7 @@ function GuestManagementComponent() {
       guestCode: guestCode,
       name: values.name,
       email: values.email,
-      phoneNumber: values.phoneNumber,
+      phoneNumber: values.phoneNumber || '',
       category: values.category,
       rsvpStatus: 'Pending' as const,
       hasCheckedIn: false,
@@ -231,7 +231,7 @@ function GuestManagementComponent() {
     const updateData = {
         name: values.name,
         email: values.email,
-        phoneNumber: values.phoneNumber,
+        phoneNumber: values.phoneNumber || '',
         category: values.category,
     };
 
@@ -366,7 +366,10 @@ function GuestManagementComponent() {
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl><SelectTrigger><SelectValue placeholder="Category" /></SelectTrigger></FormControl>
                             <SelectContent>
+                              <SelectItem value="Chairperson">Chairperson</SelectItem>
+                              <SelectItem value="VVIP">VVIP</SelectItem>
                               <SelectItem value="VIP">VIP</SelectItem>
+                              <SelectItem value="Family">Family</SelectItem>
                               <SelectItem value="General">General</SelectItem>
                               <SelectItem value="Staff">Staff</SelectItem>
                             </SelectContent>

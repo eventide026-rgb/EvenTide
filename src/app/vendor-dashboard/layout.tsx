@@ -18,6 +18,7 @@ import {
   Settings,
   Mail,
   Ticket,
+  BookOpen,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -77,7 +78,7 @@ const specialtyNavs: Record<string, {href: string, label: string, icon: React.El
         { href: "/vendor-dashboard/menu-planner", label: "Menu Planner", icon: ChefHat },
     ],
     "MC/Host": [
-        { href: "/vendor-dashboard/program-viewer", label: "Program Viewer", icon: Mail },
+        { href: "/vendor-dashboard/program-viewer", label: "Program Viewer", icon: BookOpen },
     ],
     "Decorator": [
         { href: "/vendor-dashboard/mood-board", label: "Mood Board", icon: Paintbrush },
@@ -142,7 +143,7 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
 
   useEffect(() => {
     if (userProfile) {
-        if (["Fashion Designer", "Caterer", "DJ/Musician", "Photographer", "Videographer"].includes(userProfile.role || "")) {
+        if (["Fashion Designer", "Caterer", "DJ/Musician", "Photographer", "Videographer", "MC/Host"].includes(userProfile.role || "")) {
             setSpecialty(userProfile.role || "");
         } else if (userProfile.specialty) {
             setSpecialty(userProfile.specialty);
