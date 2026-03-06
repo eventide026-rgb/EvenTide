@@ -142,7 +142,7 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
 
   useEffect(() => {
     if (userProfile) {
-        if (["Fashion Designer", "Caterer", "DJ/Musician"].includes(userProfile.role || "")) {
+        if (["Fashion Designer", "Caterer", "DJ/Musician", "Photographer", "Videographer"].includes(userProfile.role || "")) {
             setSpecialty(userProfile.role || "");
         } else if (userProfile.specialty) {
             setSpecialty(userProfile.specialty);
