@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -325,11 +326,6 @@ export function VenueForm({ venueId }: VenueFormProps) {
                             />
                             <Button type="button" onClick={() => handleAddTag('amenities', amenityInput)}>Add</Button>
                         </div>
-                         <Controller
-                            control={form.control}
-                            name="amenities"
-                            render={({ field }) => <FormMessage>{form.formState.errors.amenities?.message}</FormMessage>}
-                         />
                         <div className="flex flex-wrap gap-2 pt-2">
                             {amenities.map(tag => (
                                 <Badge key={tag} variant="secondary" className="flex items-center gap-1">
@@ -359,11 +355,6 @@ export function VenueForm({ venueId }: VenueFormProps) {
                             />
                             <Button type="button" onClick={() => handleAddTag('features', featureInput)}>Add</Button>
                         </div>
-                         <Controller
-                            control={form.control}
-                            name="features"
-                            render={({ field }) => <FormMessage>{form.formState.errors.features?.message}</FormMessage>}
-                         />
                         <div className="flex flex-wrap gap-2 pt-2">
                             {features.map(tag => (
                                 <Badge key={tag} variant="secondary" className="flex items-center gap-1">

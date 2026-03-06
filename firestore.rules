@@ -11,15 +11,6 @@ service cloud.firestore {
         return isSignedIn() && request.auth.uid == userId;
       }
 
-      function isExistingDoc() {
-        return resource != null;
-      }
-
-      function isEventOwnerOnCreate() {
-        // Use this only for event creation where `resource` is null.
-        return isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      }
-      
       function getUserRole(userId) {
           return get(/databases/$(database)/documents/users/$(userId)).data.role;
       }
@@ -43,20 +34,7 @@ service cloud.firestore {
 
       function isEventPlanner(eventId) {
         let event = getEvent(eventId);
-        // Ensure plannerIds is not null before checking
         return isSignedIn() && event.data.plannerIds != null && request.auth.uid in event.data.plannerIds;
-      }
-
-      function isEventCohost(eventId) {
-        let event = getEvent(eventId);
-        // Ensure cohostIds is not null before checking
-        return isSignedIn() && event.data.cohostIds != null && event.data.cohostIds[request.auth.uid] == true;
-      }
-      
-      function isSecurityForEvent(eventId) {
-        // This is a simplified check. A real implementation might check a dedicated 'security' subcollection.
-        let event = getEvent(eventId);
-        return isSignedIn() && event.data.securityPersonnel != null && request.auth.uid in event.data.securityPersonnel;
       }
 
       function isEventStaff(eventId) {
@@ -64,27 +42,19 @@ service cloud.firestore {
         return isSignedIn() && (
           event.data.ownerId == request.auth.uid ||
           (event.data.plannerIds != null && request.auth.uid in event.data.plannerIds) ||
-          (event.data.cohostIds != null && event.data.cohostIds[request.auth.uid] == true) ||
-          isSecurityForEvent(eventId)
+          (event.data.cohostIds != null && event.data.cohostIds[request.auth.uid] == true)
         );
       }
 
        function isEventGuest(eventId, guestId) {
-          // Check if the authenticated user is the guest in question
           return isSignedIn() && request.auth.uid == guestId;
        }
       // --- End of Event-Scoped Helper Functions ---
 
-      function isShowOwner(showId) {
-        let show = get(/databases/$(database)/documents/shows/$(showId));
-        return isSignedIn() && show.data.ownerId == request.auth.uid;
-      }
-      
-
       // --- Start of Security Rule Definitions ---
       match /users/{userId} {
         allow read: if isOwner(userId) || isAdmin();
-        allow create: if isOwner(userId) || request.auth == null; // Allow creation for new users
+        allow create: if isOwner(userId) || request.auth == null; 
         allow update, delete: if isOwner(userId) || isAdmin();
         allow list: if isSignedIn();
 
@@ -110,38 +80,25 @@ service cloud.firestore {
           }
       }
 
-      match /plannerProfiles/{plannerId} {
-          allow get, list: if true;
-          allow create: if request.auth.uid == plannerId;
-          allow update, delete: if isOwner(plannerId) || isAdmin();
-      }
-
-      match /ticketiers/{ticketierId} {
-          allow get, list: if true;
-          allow create: if request.auth.uid == ticketierId;
-          allow update, delete: if isOwner(ticketierId) || isAdmin();
-      }
-
       match /shows/{showId} {
         allow read, list: if true;
-        allow create: if isEventOwnerOnCreate();
-        allow update, delete: if isShowOwner(showId) || isAdmin();
+        allow create: if isSignedIn();
+        allow update, delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
 
         match /ticketTiers/{tierId} {
             allow read, list: if true;
-            allow create, update, delete: if isShowOwner(showId) || isAdmin();
+            allow create, update, delete: if isSignedIn();
         }
 
         match /tickets/{ticketId} {
-            allow read: if isShowOwner(showId) || (isSignedIn() && resource.data.buyerId == request.auth.uid);
-            allow list: if isShowOwner(showId) || (isSignedIn() && request.query.where.buyerId == request.auth.uid);
-            allow create: if isSignedIn() && request.resource.data.buyerId == request.auth.uid;
-            allow update, delete: if isShowOwner(showId);
+            allow read: if (isSignedIn() && (resource.data.buyerId == request.auth.uid || resource.data.ownerId == request.auth.uid)) || isAdmin();
+            allow list: if isSignedIn();
+            allow create: if isSignedIn();
         }
       }
       
       match /events/{eventId} {
-        allow create: if isEventOwnerOnCreate();
+        allow create: if isSignedIn();
         allow get: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid) || isAdmin();
         allow update: if isEventStaff(eventId) || isAdmin();
         allow delete: if isEventOwner(eventId) || isAdmin();
@@ -154,15 +111,12 @@ service cloud.firestore {
         }
 
         match /guests/{guestId} {
-            allow get: if isEventStaff(eventId) || (isSignedIn() && request.auth.uid == guestId) || isAdmin() || 
-                          (get(/databases/$(database)/documents/events/$(eventId)/guestCodes/$(resource.data.guestCode)).data.guestId == guestId);
+            allow get: if isEventStaff(eventId) || (isSignedIn() && request.auth.uid == guestId) || isAdmin();
             allow read: if isEventStaff(eventId) || (isSignedIn() && request.auth.uid == guestId) || isAdmin();
             allow list: if isEventStaff(eventId) || isAdmin();
             allow create: if isEventStaff(eventId) || isAdmin();
             allow delete: if isEventStaff(eventId) || isAdmin();
-            allow update(writeFields): if isEventStaff(eventId) || 
-                                          (isEventGuest(eventId, guestId) && writeFields.hasOnly(['rsvpStatus', 'name'])) ||
-                                          (isSecurityForEvent(eventId) && writeFields.hasOnly(['hasCheckedIn', 'checkInTime']));
+            allow update: if isEventStaff(eventId) || (isEventGuest(eventId, guestId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rsvpStatus', 'name']));
         }
 
         match /guestCodes/{guestCode} {
@@ -228,10 +182,6 @@ service cloud.firestore {
             allow create: if isEventStaff(eventId) || isEventGuest(eventId, request.auth.uid);
             allow delete: if isEventStaff(eventId) || isOwner(resource.data.uploaderId);
             allow update: if false;
-        }
-
-        match /security_codes/{securityCodeId} {
-          allow read, list, create, update, delete: if isEventStaff(eventId) || isAdmin();
         }
 
         match /announcements/{announcementId} {

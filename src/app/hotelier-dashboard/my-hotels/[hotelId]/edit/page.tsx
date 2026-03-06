@@ -1,6 +1,7 @@
+
 'use client';
 
-import { use } from 'react';
+import React, { use } from 'react';
 import { HotelForm } from "@/components/forms/hotel-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
