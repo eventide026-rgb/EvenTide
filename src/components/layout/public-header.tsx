@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -44,7 +43,7 @@ const getImage = (id: string) => {
 
 const HeaderContent = () => {
   const resourceImage = getImage('eventHall');
-  const communityImage = getImage('gardenParty');
+  const communityImage = getImage('africansFun1');
   const magazineImage = getImage('magazineReader');
   const hotelsImage = getImage('venueHall');
 
@@ -238,8 +237,8 @@ export function PublicHeader() {
     )}>
        <div
         className={cn(
-          "container max-w-screen-lg rounded-full border border-border/40 bg-background/60 p-1 shadow-lg backdrop-blur-lg transition-all duration-300",
-          isAtTop ? "rounded-full p-1" : "rounded-none max-w-none border-x-0"
+          "container max-w-screen-lg rounded-full border border-border/40 bg-background/60 p-1 shadow-lg backdrop-blur-lg transition-all duration-300 mx-auto",
+          isAtTop ? "rounded-full" : "rounded-none max-w-none border-x-0"
         )}
       >
         <HeaderContent />

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
@@ -49,11 +48,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from '@/components/ui/alert';
-import {
   Table,
   TableBody,
   TableCell,
@@ -65,21 +59,14 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import {
   Loader2,
-  PlusCircle,
   UserPlus,
-  Info,
   Trash2,
   Edit,
-  Send,
-  Contact,
-  CreditCard,
 } from 'lucide-react';
 import { Label } from '../ui/label';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { Progress } from '../ui/progress';
-import { cn } from '@/lib/utils';
-import Link from 'next/link';
 import type { Guest } from '@/lib/types';
 
 type Event = {
@@ -89,7 +76,6 @@ type Event = {
   guestCount?: number;
   guestLimit?: number;
   eventCode?: string;
-  eventDate?: any;
 };
 
 const guestFormSchema = z.object({
@@ -103,7 +89,6 @@ function GuestManagementComponent() {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
   const { toast } = useToast();
-  const searchParams = useSearchParams();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
 
@@ -174,16 +159,6 @@ function GuestManagementComponent() {
   }, [firestore, selectedEventId]);
 
   const { data: guests, isLoading: isLoadingGuests } = useCollection<Guest>(guestsQuery);
-  
-  const invitationsQuery = useMemoFirebase(() => {
-    if (!firestore || !selectedEventId) return null;
-    return query(collection(firestore, 'events', selectedEventId, 'invitations'));
-  }, [firestore, selectedEventId]);
-
-  const { data: invitations } = useCollection<{guestId: string}>(invitationsQuery);
-  const invitedGuestIds = useMemo(() => new Set(invitations?.map(i => i.guestId)), [invitations]);
-
-  const isWalkthrough = searchParams.get('walkthrough') === 'true';
 
   useEffect(() => {
     if (events && events.length > 0 && !selectedEventId) {
@@ -302,7 +277,6 @@ function GuestManagementComponent() {
     }
   };
 
-  const isLoading = isUserLoading;
   const isFormSubmitting = guestForm.formState.isSubmitting;
   const capacityPercentage = guestLimit > 0 ? (guestCount / guestLimit) * 100 : 0;
 

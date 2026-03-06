@@ -38,7 +38,7 @@ const formSchema = z.object({
   lastName: z.string().min(2, { message: "Last name is required." }),
   email: z.string().email({ message: "Please enter a valid email." }),
   password: z.string().min(8, { message: "Password must be at least 8 characters." }),
-  role: z.enum(["Owner", "Planner", "Hotelier", "Hall Owner", "Car Hire Service", "Ticketier", "Security", "Fashion Designer", "Caterer"], { required_error: "You need to select a role." }),
+  role: z.enum(["Owner", "Planner", "Hotelier", "Hall Owner", "Car Hire Service", "Ticketier", "Security", "Fashion Designer", "Caterer", "DJ/Musician"], { required_error: "You need to select a role." }),
   promoterName: z.string().optional(),
 }).refine(data => {
     if (data.role === 'Ticketier') {
@@ -113,7 +113,9 @@ export function SignUpForm() {
                 batch.set(ticketierDocRef, ticketierProfileData);
             }
 
-            if (values.role === 'Fashion Designer' || values.role === 'Caterer') {
+            // Create Vendor Profile for service roles
+            const vendorRoles = ["Fashion Designer", "Caterer", "DJ/Musician"];
+            if (vendorRoles.includes(values.role)) {
                 const vendorData = {
                     id: user.uid,
                     name: `${values.firstName} ${values.lastName}`,
@@ -241,6 +243,7 @@ export function SignUpForm() {
                   <SelectItem value="Ticketier">Ticketier / Promoter</SelectItem>
                   <SelectItem value="Fashion Designer">Fashion Designer</SelectItem>
                   <SelectItem value="Caterer">Caterer</SelectItem>
+                  <SelectItem value="DJ/Musician">DJ / Musician</SelectItem>
                   <SelectItem value="Security">Security Personnel</SelectItem>
                 </SelectContent>
               </Select>

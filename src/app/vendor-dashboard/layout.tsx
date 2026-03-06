@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -143,8 +142,8 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
 
   useEffect(() => {
     if (userProfile) {
-        if (userProfile.role === 'Fashion Designer' || userProfile.role === 'Caterer') {
-            setSpecialty(userProfile.role);
+        if (["Fashion Designer", "Caterer", "DJ/Musician"].includes(userProfile.role || "")) {
+            setSpecialty(userProfile.role || "");
         } else if (userProfile.specialty) {
             setSpecialty(userProfile.specialty);
         }
@@ -171,8 +170,6 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
 
 
   return (
-    <>
-    <DashboardRedirector expectedRole={userProfile?.role || 'Vendor'} />
     <TooltipProvider>
       <div className="flex min-h-screen bg-background text-foreground">
         <aside className="sticky top-0 h-screen w-16 flex flex-col items-center py-4 border-r bg-background z-20">
@@ -266,6 +263,5 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
         </main>
       </div>
     </TooltipProvider>
-    </>
   );
 }
