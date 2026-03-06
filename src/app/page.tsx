@@ -209,7 +209,7 @@ export default function Home() {
               data-ai-hint={heroImage.imageHint}
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
+          <div className="absolute inset-0 bg-black/80 via-black/50 to-transparent"></div>
           <div className="relative z-10 flex flex-col items-center justify-center h-full text-center p-4">
             <h1 className="text-4xl font-headline font-extrabold tracking-tight md:text-6xl lg:text-7xl text-shadow-lg leading-tight">
               Plan Your Event

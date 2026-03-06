@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,24 +28,23 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { Loader2, PlusCircle, Save, Sparkles, Trash2 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 
 type Event = {
   id: string;
   name: string;
+  ownerId: string;
+  plannerIds?: string[];
+  acceptedVendorIds?: string[];
 };
 
 const dishSchema = z.object({
@@ -77,8 +76,9 @@ type MenuPlannerClientProps = {
     isReadOnly?: boolean;
 };
 
-export function MenuPlannerClient({ eventId, isReadOnly = false }: MenuPlannerClientProps) {
+export function MenuPlannerClient({ eventId, isReadOnly: forceReadOnly = false }: MenuPlannerClientProps) {
   const firestore = useFirestore();
+  const { user } = useUser();
   const { toast } = useToast();
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -87,7 +87,18 @@ export function MenuPlannerClient({ eventId, isReadOnly = false }: MenuPlannerCl
       if (!firestore) return null;
       return doc(firestore, 'events', eventId)
   }, [firestore, eventId]);
-  const { data: event, isLoading: isLoadingEvent } = useDoc<Event>(eventDocRef);
+  const { data: event } = useDoc<Event>(eventDocRef);
+
+  const isEditor = useMemo(() => {
+      if (!event || !user) return false;
+      return (
+          event.ownerId === user.uid || 
+          event.plannerIds?.includes(user.uid) ||
+          event.acceptedVendorIds?.includes(user.uid)
+      );
+  }, [event, user]);
+
+  const isReadOnly = forceReadOnly || !isEditor;
 
   const menuDocRef = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -97,7 +108,7 @@ export function MenuPlannerClient({ eventId, isReadOnly = false }: MenuPlannerCl
 
   const form = useForm<MenuData>({
     resolver: zodResolver(menuSchema),
-    defaultValues: { menuTitle: '', courses: [], drinks: [] },
+    defaultValues: { menuTitle: 'Event Menu', courses: [], drinks: [] },
   });
 
   const aiForm = useForm<z.infer<typeof aiFormSchema>>({
@@ -112,19 +123,17 @@ export function MenuPlannerClient({ eventId, isReadOnly = false }: MenuPlannerCl
   useEffect(() => {
     if (initialMenuData) {
       form.reset(initialMenuData);
-    } else {
-        form.reset({ menuTitle: 'Event Menu', courses: [{title: 'Main Course', dishes: []}], drinks: [] });
     }
   }, [initialMenuData, form]);
 
   useEffect(() => {
-    if (form.isDirty && !isReadOnly && menuDocRef) {
+    if (form.formState.isDirty && !isReadOnly && menuDocRef) {
       const saveChanges = async () => {
         setSaveStatus('saving');
         try {
-          await setDoc(menuDocRef, debouncedFormValues);
+          await setDoc(menuDocRef, debouncedFormValues, { merge: true });
           setSaveStatus('saved');
-          form.reset(debouncedFormValues); // Mark form as not dirty
+          form.reset(debouncedFormValues); 
         } catch (error) {
           console.error("Auto-save failed:", error);
           setSaveStatus('idle');
@@ -139,7 +148,7 @@ export function MenuPlannerClient({ eventId, isReadOnly = false }: MenuPlannerCl
       try {
           const result = await generateMenuSuggestions(values);
           form.reset(result);
-          toast({title: "AI Draft Created", description: "The AI-generated menu has been applied."});
+          toast({title: "AI Draft Created"});
       } catch (error) {
           console.error(error);
           toast({variant: 'destructive', title: "AI Generation Failed"});
@@ -153,8 +162,6 @@ export function MenuPlannerClient({ eventId, isReadOnly = false }: MenuPlannerCl
     const newDishes = [...courses[courseIndex].dishes, { name: '', description: '' }];
     update(courseIndex, { ...courses[courseIndex], dishes: newDishes });
   };
-  
-  const isLoading = isLoadingEvent || isLoadingMenu;
 
   const MainContent = () => (
     <Form {...form}>
@@ -171,7 +178,7 @@ export function MenuPlannerClient({ eventId, isReadOnly = false }: MenuPlannerCl
                             )}/>
                         </AccordionTrigger>
                         <AccordionContent className="space-y-2 pl-2">
-                            {form.getValues(`courses.${index}.dishes`).map((dish, dishIndex) => (
+                            {form.getValues(`courses.${index}.dishes`)?.map((dish, dishIndex) => (
                                  <div key={dishIndex} className="grid grid-cols-12 gap-2">
                                     <FormField control={form.control} name={`courses.${index}.dishes.${dishIndex}.name`} render={({field}) => (
                                         <Input {...field} placeholder="Dish Name" className="col-span-5" readOnly={isReadOnly} />
@@ -198,56 +205,50 @@ export function MenuPlannerClient({ eventId, isReadOnly = false }: MenuPlannerCl
     </Form>
   );
 
-  const PlannerView = () => (
+  if (isLoadingMenu) return <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>;
+
+  return (
      <div className="grid md:grid-cols-3 gap-8 items-start">
-      <div className="md:col-span-2 space-y-4">
+      <div className={cn(isReadOnly ? "md:col-span-3" : "md:col-span-2", "space-y-4")}>
         <Card>
           <CardHeader>
-            <CardTitle>Menu Builder</CardTitle>
             <div className="flex items-center justify-between">
-                 <Label>{event?.name || 'Loading...'}</Label>
-                 {saveStatus === 'saving' && <span className="text-sm flex items-center gap-1 text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin"/>Saving...</span>}
-                 {saveStatus === 'saved' && <span className="text-sm flex items-center gap-1 text-green-600"><Save className="h-3 w-3"/>All changes saved</span>}
+                 <CardTitle>Menu Designer</CardTitle>
+                 {!isReadOnly && (
+                    <div className="flex items-center gap-2">
+                        {saveStatus === 'saving' && <span className="text-sm flex items-center gap-1 text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin"/>Saving...</span>}
+                        {saveStatus === 'saved' && <span className="text-sm flex items-center gap-1 text-green-600"><Save className="h-3 w-3"/>Saved</span>}
+                    </div>
+                 )}
             </div>
           </CardHeader>
           <CardContent>
-            {isLoading ? <Loader2 className="h-8 w-8 animate-spin mx-auto" /> : <MainContent />}
+            <MainContent />
           </CardContent>
         </Card>
       </div>
-       <div className="md:col-span-1">
-         <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-accent"/> Ask Eni for a Draft</CardTitle>
-                <CardDescription>Let the AI assistant generate a complete menu draft for you.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Form {...aiForm}>
-                    <form onSubmit={aiForm.handleSubmit(handleGenerateMenu)} className="space-y-4">
-                        <FormField control={aiForm.control} name="cuisineStyle" render={({field}) => (
-                            <FormItem><FormLabel>Cuisine Style</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>
-                        )}/>
-                         <FormField control={aiForm.control} name="numberOfCourses" render={({field}) => (
-                            <FormItem><FormLabel>Number of Courses</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage/></FormItem>
-                        )}/>
-                        <FormField control={aiForm.control} name="dietaryNotes" render={({field}) => (
-                            <FormItem><FormLabel>Dietary Notes</FormLabel><FormControl><Textarea {...field} placeholder="e.g., Vegetarian options, no nuts" /></FormControl><FormMessage/></FormItem>
-                        )}/>
-                         <Button type="submit" className="w-full" disabled={isGenerating}>
-                            {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
-                            {isGenerating ? 'Generating...' : 'Generate Menu'}
-                        </Button>
-                    </form>
-                </Form>
-            </CardContent>
-         </Card>
-      </div>
+       {!isReadOnly && (
+        <div className="md:col-span-1">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-accent"/> AI Draft</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Form {...aiForm}>
+                        <form onSubmit={aiForm.handleSubmit(handleGenerateMenu)} className="space-y-4">
+                            <FormField control={aiForm.control} name="cuisineStyle" render={({field}) => (
+                                <FormItem><FormLabel>Cuisine</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>
+                            )}/>
+                            <Button type="submit" className="w-full" disabled={isGenerating}>
+                                {isGenerating ? <Loader2 className="animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                                Generate Suggestions
+                            </Button>
+                        </form>
+                    </Form>
+                </CardContent>
+            </Card>
+        </div>
+       )}
     </div>
   );
-
-  if (isLoading) {
-    return <div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin"/></div>
-  }
-
-  return isReadOnly ? <MainContent /> : <PlannerView />;
 }

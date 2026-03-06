@@ -4,32 +4,21 @@
 import {
   Briefcase,
   Calendar,
-  Contact,
   FileText,
   Home,
   LayoutDashboard,
   MessageCircle,
-  Palette,
   Users,
-  Bell,
   LogOut,
-  User,
-  Camera,
-  ClipboardList,
   Upload,
   ChefHat,
-  Mic,
   Paintbrush,
   Shirt,
   Music,
   Shield,
-  Hotel,
-  Building,
-  Search,
   Settings,
   Mail,
-  Percent,
-  Vote,
+  Ticket,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -78,18 +67,18 @@ const baseNav = [
 
 const specialtyNavs: Record<string, {href: string, label: string, icon: React.ElementType}[]> = {
     "Photographer": [
-        { href: "/vendor-dashboard/shot-list", label: "Shot List", icon: ClipboardList },
+        { href: "/vendor-dashboard/shot-list", label: "Shot List", icon: Ticket },
         { href: "/vendor-dashboard/upload-media", label: "Upload Media", icon: Upload },
     ],
     "Videographer": [
-        { href: "/vendor-dashboard/shot-list", label: "Shot List", icon: ClipboardList },
+        { href: "/vendor-dashboard/shot-list", label: "Shot List", icon: Ticket },
         { href: "/vendor-dashboard/upload-media", label: "Upload Media", icon: Upload },
     ],
     "Caterer": [
         { href: "/vendor-dashboard/menu-planner", label: "Menu Planner", icon: ChefHat },
     ],
     "MC/Host": [
-        { href: "/vendor-dashboard/program-viewer", label: "Program Viewer", icon: Mic },
+        { href: "/vendor-dashboard/program-viewer", label: "Program Viewer", icon: Mail },
     ],
     "Decorator": [
         { href: "/vendor-dashboard/mood-board", label: "Mood Board", icon: Paintbrush },
@@ -154,8 +143,8 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
 
   useEffect(() => {
     if (userProfile) {
-        if (userProfile.role === 'Fashion Designer') {
-            setSpecialty('Fashion Designer');
+        if (userProfile.role === 'Fashion Designer' || userProfile.role === 'Caterer') {
+            setSpecialty(userProfile.role);
         } else if (userProfile.specialty) {
             setSpecialty(userProfile.specialty);
         }
@@ -228,6 +217,7 @@ export default function VendorDashboardLayout({ children }: { children: React.Re
                             <TooltipTrigger asChild>
                             <Link
                                 href={link.href}
+                                onClick={() => setOpenPopover(null)}
                                 className={cn(
                                     "flex h-10 w-10 items-center justify-center rounded-lg transition-colors hover:bg-accent",
                                     pathname.startsWith(link.href) ? "bg-accent text-accent-foreground" : ""
