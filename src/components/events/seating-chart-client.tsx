@@ -190,8 +190,6 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
   // Fetch events for Planner/Owner to select from
   const eventsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid || userRole === 'guest') return null;
-    const roleField = userRole === 'owner' ? 'ownerId' : 'plannerIds';
-    const operator = userRole === 'owner' ? '==' : 'array-contains';
     return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
   }, [firestore, user, userRole]);
   const { data: events, isLoading: isLoadingEvents } = useCollection<PlannerEvent>(eventsQuery);
@@ -254,7 +252,8 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { over, active } = event;
-    if (over && active.id.startsWith('guest-')) {
+    // Fix: cast id to string to use startsWith
+    if (over && String(active.id).startsWith('guest-')) {
         const guest = active.data.current as Guest;
         const seatData = over.data.current as Seat;
 
