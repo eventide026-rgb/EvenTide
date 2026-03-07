@@ -24,10 +24,22 @@ import { logisticsSchema } from '@/components/wizards/create-event/logistics-ste
 import { assignPlannerSchema } from '@/components/wizards/create-event/assign-planner-step';
 
 // Dynamic imports for heavy wizard steps
-const CoreDetailsStep = dynamic(() => import('@/components/wizards/create-event/core-details-step').then(m => m.CoreDetailsStep), { ssr: false });
-const ThemeAndAiStep = dynamic(() => import('@/components/wizards/create-event/theme-ai-step').then(m => m.ThemeAndAiStep), { ssr: false });
-const LogisticsStep = dynamic(() => import('@/components/wizards/create-event/logistics-step').then(m => m.LogisticsStep), { ssr: false });
-const AssignPlannerStep = dynamic(() => import('@/components/wizards/create-event/assign-planner-step').then(m => m.AssignPlannerStep), { ssr: false });
+const CoreDetailsStep = dynamic(() => import('@/components/wizards/create-event/core-details-step').then(m => m.CoreDetailsStep), { 
+  ssr: false,
+  loading: () => <div className="h-64 flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>
+});
+const ThemeAndAiStep = dynamic(() => import('@/components/wizards/create-event/theme-ai-step').then(m => m.ThemeAndAiStep), { 
+  ssr: false,
+  loading: () => <div className="h-64 flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>
+});
+const LogisticsStep = dynamic(() => import('@/components/wizards/create-event/logistics-step').then(m => m.LogisticsStep), { 
+  ssr: false,
+  loading: () => <div className="h-64 flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>
+});
+const AssignPlannerStep = dynamic(() => import('@/components/wizards/create-event/assign-planner-step').then(m => m.AssignPlannerStep), { 
+  ssr: false,
+  loading: () => <div className="h-64 flex items-center justify-center"><Loader2 className="animate-spin text-primary" /></div>
+});
 
 const steps: Step[] = [
   { id: '01', name: 'Core Details', fields: ['name', 'description'] },

@@ -36,7 +36,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
   const pathname = usePathname();
 
   const isPlannerDashboard = pathname.startsWith('/planner-dashboard');
-  const linkHref = `/planner-dashboard/vendor-hub/${vendor.id}`;
+  const linkHref = isPlannerDashboard ? `/planner-dashboard/vendor-hub/${vendor.id}` : `/resources/vendors/${vendor.id}`;
 
   useEffect(() => {
     if (!user || !firestore) {
