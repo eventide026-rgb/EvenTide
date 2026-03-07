@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -260,7 +259,7 @@ export default function Home() {
                         EvenTide is designed to empower every role involved in making an event a success. From strategic oversight to secure execution, we provide the tools needed for excellence at every touchpoint.
                     </p>
                 </div>
-                <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 text-center">
                     {roleBenefits.map((role) => (
                         <Card key={role.title} className="border-2 border-border/40 bg-secondary/20 hover:bg-secondary/40 transition-all duration-500 hover:-translate-y-2 group shadow-sm hover:shadow-xl hover:border-primary/20 flex flex-col p-6">
                             <div className="space-y-1 text-center mb-6">
@@ -270,7 +269,7 @@ export default function Home() {
                             <CardContent className="flex-1 p-0">
                                 <ul className="space-y-4">
                                     {role.features.map((feature, i) => (
-                                        <li key={i} className="text-center text-sm text-muted-foreground leading-relaxed">
+                                        <li key={i} className="text-sm text-muted-foreground leading-relaxed">
                                             {feature}
                                         </li>
                                     ))}
@@ -470,7 +469,7 @@ export default function Home() {
                         </div>
                     )}
                 </div>
-                <div className="lg:col-span-7">
+                <div className="lg:col-span-7 text-center">
                     <div className="grid gap-8 sm:grid-cols-2 relative">
                     {howItWorksSteps.map((step, index) => (
                         <Card key={index} className="border-2 border-border/40 bg-background/80 backdrop-blur-xl shadow-lg hover:shadow-2xl hover:border-primary/40 transition-all duration-500 rounded-3xl group overflow-hidden relative p-2">
@@ -514,9 +513,9 @@ export default function Home() {
                       </Badge>
                     </div>
                   )}
-                  <CardHeader className="pt-10 pb-6 px-8">
+                  <CardHeader className="pt-10 pb-6 px-8 text-center">
                     <CardTitle className="font-headline text-2xl font-bold">{tier.name}</CardTitle>
-                     <div className="flex items-baseline gap-1 mt-4">
+                     <div className="flex items-baseline justify-center gap-1 mt-4">
                       <p className="text-4xl font-bold font-headline">{tier.price}</p>
                     </div>
                     <CardDescription className="min-h-[48px] text-xs mt-4 leading-relaxed font-medium font-body">{tier.description}</CardDescription>
