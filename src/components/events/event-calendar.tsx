@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -147,11 +148,13 @@ export default function EventCalendar() {
             <ul className="space-y-4">
               {selectedDayItems.map((item) => (
                 <li key={`${item.type}-${item.id}`} className="flex gap-3">
-                  {item.type === 'event' ? (
-                    <CalendarCheck className={`h-5 w-5 mt-1 ${item.source === 'owned' ? 'text-primary' : 'text-blue-500'}`} />
-                  ) : (
-                    <CheckSquare className="h-5 w-5 text-green-500 mt-1" />
-                  )}
+                  <div className='mt-1'>
+                    {item.type === 'event' ? (
+                        <CalendarCheck className={cn("h-5 w-5", item.source === 'owned' ? 'text-primary' : 'text-blue-500')} />
+                    ) : (
+                        <CheckSquare className="h-5 w-5 text-green-500" />
+                    )}
+                  </div>
                   <div>
                     <p className="font-semibold text-sm">{item.title}</p>
                     <div className="flex gap-2 mt-1">

@@ -1,5 +1,7 @@
+
 "use client";
 
+import { useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { collection, query, where } from "firebase/firestore";
@@ -13,7 +15,7 @@ type Issue = {
     introduction: string;
     status: 'draft' | 'published';
     eventSummaries: { eventName: string; summary: string }[];
-    createdAt: any;
+    createdAt?: any;
 };
 
 function MagazineCover({ issue }: { issue: Issue }) {
@@ -23,6 +25,7 @@ function MagazineCover({ issue }: { issue: Issue }) {
         if (!issue.createdAt) return 'Recent Issue';
         try {
             const date = issue.createdAt?.toDate ? issue.createdAt.toDate() : new Date(issue.createdAt);
+            if (isNaN(date.getTime())) return 'Recent Issue';
             return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
         } catch (e) {
             return 'Recent Issue';
@@ -98,5 +101,3 @@ export default function MagazinePage() {
         </section>
     );
 }
-
-import { useMemo } from 'react';

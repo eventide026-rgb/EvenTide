@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -245,7 +246,7 @@ export default function Home() {
                 </div>
                 <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
                     {roleBenefits.map((role) => (
-                        <Card key={role.title} className="border-border/40 bg-secondary/20 hover:bg-secondary/40 transition-all duration-500 hover:-translate-y-2 group shadow-sm hover:shadow-xl hover:border-primary/20 flex flex-col">
+                        <Card key={role.title} className="border border-border/40 bg-secondary/20 hover:bg-secondary/40 transition-all duration-500 hover:-translate-y-2 group shadow-sm hover:shadow-xl hover:border-primary/20 flex flex-col">
                             <CardHeader className="flex-row items-center gap-5 pb-6">
                                 <div className="p-4 bg-background rounded-2xl shadow-md group-hover:scale-110 group-hover:bg-primary/10 transition-all duration-500">
                                     {role.icon}
@@ -290,7 +291,7 @@ export default function Home() {
             </div>
             <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
               {howItWorksSteps.map((step, index) => (
-                <Card key={index} className="border-none bg-background/80 backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-500 rounded-3xl group overflow-hidden relative">
+                <Card key={index} className="border border-border/50 bg-background/80 backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-500 rounded-3xl group overflow-hidden relative">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                   <CardHeader className="text-center items-center pb-4 pt-10">
                     <div className="mb-6 bg-primary/5 p-6 rounded-3xl group-hover:bg-primary/10 group-hover:rotate-6 transition-all duration-500">
@@ -417,7 +418,7 @@ export default function Home() {
                     disabled={isGeneratingEni || !guestName || !demoEventName}
                     className="w-full h-14 rounded-2xl font-bold text-lg shadow-2xl shadow-primary/30 mt-4 active:scale-[0.98] transition-all"
                   >
-                    {isGeneratingEni ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Sparkles className="mr-2 h-5 w-5" />}
+                    {isGeneratingEni ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
                     Experience Eni
                   </Button>
                 </div>
@@ -472,7 +473,7 @@ export default function Home() {
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 items-stretch">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
-                  "flex flex-col transition-all duration-500 relative border-border/40 overflow-hidden rounded-[2rem]", 
+                  "flex flex-col transition-all duration-500 relative border border-border/40 overflow-hidden rounded-[2rem]", 
                   tier.isPopular ? "border-primary/50 ring-1 ring-primary/20 shadow-[0_32px_64px_-12px_rgba(var(--primary),0.3)] scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/40 hover:bg-background/60 shadow-sm"
                 )}>
                   {tier.isPopular && <Badge className="absolute -top-0 right-6 rounded-t-none rounded-b-xl shadow-lg px-4 py-1.5 font-bold uppercase tracking-widest text-[10px]">Standard Entry</Badge>}
