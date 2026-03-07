@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -252,8 +251,8 @@ export default function Home() {
 
         {/* A Tool for Everyone on the Team */}
         <section id="benefits" className="py-24 md:py-32 bg-background">
-            <div className="container mx-auto px-4">
-                <div className="text-center mb-20">
+            <div className="container mx-auto px-4 text-center">
+                <div className="mb-20">
                     <Badge variant="outline" className="mb-4 border-primary/20 text-primary font-bold uppercase tracking-widest px-4 py-1 rounded-full">The EvenTide Ecosystem</Badge>
                     <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">A Tool for Everyone on the Team</h2>
                     <p className="mt-6 text-xl text-muted-foreground max-w-3xl mx-auto text-balance font-body">
@@ -451,8 +450,8 @@ export default function Home() {
 
         {/* How It Works Section */}
         <section id="how-it-works" className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
+          <div className="container mx-auto px-4 text-center">
+            <div className="mb-16">
                 <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">How It Works</h2>
                 <p className="mt-6 text-xl text-muted-foreground text-balance font-body max-w-3xl mx-auto">
                     A simple, streamlined four-step lifecycle from abstract idea to flawless execution.
