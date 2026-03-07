@@ -233,37 +233,45 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Role-Based Benefits Section */}
-        <section id="benefits" className="py-20 md:py-32">
+        {/* A Tool for Everyone on the Team */}
+        <section id="benefits" className="py-24 md:py-32 bg-background">
             <div className="container mx-auto px-4">
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl font-headline font-bold md:text-5xl text-foreground text-balance">A Tool for Everyone on the Team</h2>
-                    <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
-                        EvenTide is designed to empower every role involved in making an event a success. From strategic oversight to secure execution, we provide the tools needed for excellence.
+                <div className="text-center mb-20">
+                    <Badge variant="outline" className="mb-4 border-primary/20 text-primary font-bold uppercase tracking-widest px-4 py-1 rounded-full">The EvenTide Ecosystem</Badge>
+                    <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">A Tool for Everyone on the Team</h2>
+                    <p className="mt-6 text-xl text-muted-foreground max-w-3xl mx-auto text-balance font-body">
+                        EvenTide is designed to empower every role involved in making an event a success. From strategic oversight to secure execution, we provide the tools needed for excellence at every touchpoint.
                     </p>
                 </div>
-                <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
                     {roleBenefits.map((role) => (
-                        <Card key={role.title} className="border-border/50 bg-secondary/30 hover:bg-secondary/50 transition-all duration-300 hover:-translate-y-2">
-                            <CardHeader className="flex-row items-center gap-4">
-                                <div className="p-3 bg-background rounded-xl shadow-sm">
+                        <Card key={role.title} className="border-border/40 bg-secondary/20 hover:bg-secondary/40 transition-all duration-500 hover:-translate-y-2 group shadow-sm hover:shadow-xl hover:border-primary/20 flex flex-col">
+                            <CardHeader className="flex-row items-center gap-5 pb-6">
+                                <div className="p-4 bg-background rounded-2xl shadow-md group-hover:scale-110 group-hover:bg-primary/10 transition-all duration-500">
                                     {role.icon}
                                 </div>
-                                <div>
-                                    <CardTitle className="font-headline text-xl">{role.title}</CardTitle>
-                                    <CardDescription className="text-xs font-bold uppercase tracking-wider text-primary/70">{role.roleTitle}</CardDescription>
+                                <div className="space-y-1">
+                                    <CardTitle className="font-headline text-2xl group-hover:text-primary transition-colors">{role.title}</CardTitle>
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">{role.roleTitle}</p>
                                 </div>
                             </CardHeader>
-                            <CardContent>
-                                <ul className="space-y-3 text-muted-foreground">
+                            <CardContent className="flex-1">
+                                <ul className="space-y-4">
                                     {role.features.map((feature, i) => (
-                                        <li key={i} className="flex items-start gap-3 text-sm">
-                                            <CheckCircle className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
+                                        <li key={i} className="flex items-start gap-4 text-sm text-muted-foreground leading-relaxed">
+                                            <div className="mt-1 flex-shrink-0">
+                                                <CheckCircle className="h-4 w-4 text-primary group-hover:text-accent transition-colors" />
+                                            </div>
                                             <span>{feature}</span>
                                         </li>
                                     ))}
                                 </ul>
                             </CardContent>
+                            <CardFooter className="pt-6 border-t border-border/10">
+                                <Button variant="ghost" size="sm" className="w-full text-xs font-bold uppercase tracking-widest group-hover:bg-primary group-hover:text-primary-foreground transition-all" asChild>
+                                    <Link href="/signup">Explore Workspace</Link>
+                                </Button>
+                            </CardFooter>
                         </Card>
                     ))}
                 </div>
@@ -271,24 +279,26 @@ export default function Home() {
         </section>
 
         {/* How It Works Section */}
-        <section id="how-it-works" className="py-20 md:py-32 bg-secondary/50">
+        <section id="how-it-works" className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] -z-10 translate-x-1/2 -translate-y-1/2" />
           <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-headline font-bold md:text-5xl text-foreground text-balance">How It Works</h2>
-              <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
-                A simple, streamlined process from concept to execution.
+            <div className="text-center mb-20">
+              <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance">How It Works</h2>
+              <p className="mt-6 text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
+                A simple, streamlined four-step lifecycle from abstract idea to flawless execution.
               </p>
             </div>
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
               {howItWorksSteps.map((step, index) => (
-                <Card key={index} className="border-none bg-background/60 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
-                  <CardHeader className="text-center items-center pb-2">
-                    <div className="mb-4 bg-primary/10 p-4 rounded-full">
+                <Card key={index} className="border-none bg-background/80 backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-500 rounded-3xl group overflow-hidden relative">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                  <CardHeader className="text-center items-center pb-4 pt-10">
+                    <div className="mb-6 bg-primary/5 p-6 rounded-3xl group-hover:bg-primary/10 group-hover:rotate-6 transition-all duration-500">
                       {step.icon}
                     </div>
-                    <CardTitle className="font-headline text-xl">{step.title}</CardTitle>
+                    <CardTitle className="font-headline text-2xl font-bold">{step.title}</CardTitle>
                   </CardHeader>
-                  <CardContent className="text-center text-sm text-muted-foreground leading-relaxed">
+                  <CardContent className="text-center text-sm text-muted-foreground leading-loose px-8 pb-10">
                     {step.description}
                   </CardContent>
                 </Card>
@@ -298,192 +308,196 @@ export default function Home() {
         </section>
 
         {/* Vision Section */}
-        <section className="py-20 md:py-32 overflow-hidden">
+        <section className="py-24 md:py-40 overflow-hidden relative">
             <div className="container mx-auto px-4">
-                <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
-                    <div className="w-full lg:w-1/2 space-y-8">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest">
-                            <Heart className="h-3 w-3" /> Our Mission
+                <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-32">
+                    <div className="w-full lg:w-1/2 space-y-10">
+                        <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-primary/5 text-primary text-[10px] font-bold uppercase tracking-[0.25em] border border-primary/10">
+                            <Heart className="h-3.5 w-3.5" /> Our Mission
                         </div>
-                        <h2 className="text-4xl md:text-6xl font-headline font-bold leading-[1.1] text-balance">
+                        <h2 className="text-5xl md:text-7xl font-headline font-bold leading-[1.05] text-balance">
                             Bringing People Together, <br />
                             <span className="bg-gradient-to-r from-[#60A5FA] to-[#FDE047] text-transparent bg-clip-text">Beautifully.</span>
                         </h2>
-                        <p className="text-lg text-muted-foreground leading-relaxed text-balance">
+                        <p className="text-xl text-muted-foreground leading-relaxed text-balance font-body max-w-xl">
                             EvenTide isn&apos;t just about logistics; it&apos;s about the heartbeat of celebration. We combine high-performance technology with the soul of African hospitality to ensure that your most precious moments are shared seamlessly and remembered forever.
                         </p>
                         
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                            <div className="space-y-3">
-                                <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center">
-                                    <PaletteIcon className="h-5 w-5 text-primary" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
+                            <div className="space-y-4">
+                                <div className="h-12 w-12 rounded-2xl bg-secondary flex items-center justify-center shadow-inner">
+                                    <PaletteIcon className="h-6 w-6 text-primary" />
                                 </div>
-                                <h3 className="font-bold text-lg">Poetic Precision</h3>
-                                <p className="text-sm text-muted-foreground">Every detail, from invitations to menus, is curated by Eni to reflect unparalleled elegance.</p>
+                                <h3 className="font-bold text-xl font-headline">Poetic Precision</h3>
+                                <p className="text-sm text-muted-foreground leading-relaxed">Every detail, from invitations to menus, is curated by Eni to reflect unparalleled elegance.</p>
                             </div>
-                            <div className="space-y-3">
-                                <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center">
-                                    <Users className="h-5 w-5 text-primary" />
+                            <div className="space-y-4">
+                                <div className="h-12 w-12 rounded-2xl bg-secondary flex items-center justify-center shadow-inner">
+                                    <Users className="h-6 w-6 text-primary" />
                                 </div>
-                                <h3 className="font-bold text-lg">Cultural Resonance</h3>
-                                <p className="text-sm text-muted-foreground">We celebrate the richness of heritage, using language and design that speaks to the heart of community.</p>
+                                <h3 className="font-bold text-xl font-headline">Cultural Resonance</h3>
+                                <p className="text-sm text-muted-foreground leading-relaxed">We celebrate heritage, using language and design that speaks to the heart of community.</p>
                             </div>
-                            <div className="space-y-3">
-                                <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center">
-                                    <Sparkles className="h-5 w-5 text-primary" />
+                            <div className="space-y-4">
+                                <div className="h-12 w-12 rounded-2xl bg-secondary flex items-center justify-center shadow-inner">
+                                    <Sparkles className="h-6 w-6 text-primary" />
                                 </div>
-                                <h3 className="font-bold text-lg">Effortless Harmony</h3>
-                                <p className="text-sm text-muted-foreground">Our technology works silently in the background, so you can be fully present with the people you love.</p>
+                                <h3 className="font-bold text-xl font-headline">Effortless Harmony</h3>
+                                <p className="text-sm text-muted-foreground leading-relaxed">Our technology works silently, so you can be fully present with the people you love.</p>
                             </div>
-                            <div className="space-y-3">
-                                <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center">
-                                    <BookOpen className="h-5 w-5 text-primary" />
+                            <div className="space-y-4">
+                                <div className="h-12 w-12 rounded-2xl bg-secondary flex items-center justify-center shadow-inner">
+                                    <BookOpen className="h-6 w-6 text-primary" />
                                 </div>
-                                <h3 className="font-bold text-lg">Living Archives</h3>
-                                <p className="text-sm text-muted-foreground">Transforming one-day events into lasting digital stories through curated galleries and magazines.</p>
+                                <h3 className="font-bold text-xl font-headline">Living Archives</h3>
+                                <p className="text-sm text-muted-foreground leading-relaxed">Transforming one-day events into lasting digital stories through curated galleries and magazines.</p>
                             </div>
                         </div>
                     </div>
                     <div className="w-full lg:w-1/2 relative">
-                        <div className="aspect-[4/5] relative rounded-[2rem] overflow-hidden shadow-2xl">
+                        <div className="aspect-[4/5] relative rounded-[3rem] overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] border-8 border-background">
                             {missionImage && (
                                 <Image 
                                     src={missionImage.imageUrl}
                                     alt="African celebration"
                                     fill
-                                    className="object-cover"
+                                    className="object-cover transition-transform duration-10000 hover:scale-110"
                                     data-ai-hint="nigerian wedding"
                                 />
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                            <div className="absolute bottom-8 left-8 right-8">
-                                <p className="text-white font-logo text-2xl font-bold italic leading-tight text-balance">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                            <div className="absolute bottom-12 left-12 right-12">
+                                <p className="text-white font-logo text-3xl font-bold italic leading-tight text-balance drop-shadow-lg">
                                     &quot;To turn every moment into EvenTide.&quot;
                                 </p>
                             </div>
                         </div>
-                        <div className="absolute -bottom-6 -right-6 h-32 w-32 bg-[#FDE047]/20 rounded-full blur-3xl -z-10" />
-                        <div className="absolute -top-6 -left-6 h-32 w-32 bg-[#60A5FA]/20 rounded-full blur-3xl -z-10" />
+                        <div className="absolute -bottom-12 -right-12 h-64 w-64 bg-[#FDE047]/10 rounded-full blur-[100px] -z-10" />
+                        <div className="absolute -top-12 -left-12 h-64 w-64 bg-[#60A5FA]/10 rounded-full blur-[100px] -z-10" />
                     </div>
                 </div>
             </div>
         </section>
 
         {/* Meet Eni Section */}
-        <section id="meet-eni" className="py-20 md:py-32 bg-primary/5 relative overflow-hidden">
+        <section id="meet-eni" className="py-24 md:py-40 bg-primary/[0.02] relative overflow-hidden">
           <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="grid lg:grid-cols-2 gap-20 items-center">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold uppercase tracking-widest mb-6">
-                  <Sparkles className="h-3 w-3" /> The AI Soul of EvenTide
+                <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-accent/5 text-accent text-[10px] font-bold uppercase tracking-[0.25em] border border-accent/10 mb-8">
+                  <Sparkles className="h-3.5 w-3.5" /> The AI Soul of EvenTide
                 </div>
-                <h2 className="text-4xl md:text-6xl font-headline font-bold mb-6 tracking-tight text-balance">
-                  Meet Eni, Your <br />AI Assistant
+                <h2 className="text-5xl md:text-7xl font-headline font-bold mb-8 tracking-tight text-balance leading-tight">
+                  Meet Eni, Your <br /><span className="text-primary">AI Partner</span>
                 </h2>
-                <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-lg text-balance">
+                <p className="text-xl text-muted-foreground leading-relaxed mb-10 max-w-lg text-balance font-body">
                   Experience the power of AI. Eni is your poetic creative director and meticulous logistical coordinator. Experience her warmth instantly by generating a personalized welcome message for your event.
                 </p>
-                <div className="space-y-4 max-w-sm">
-                  <div className="space-y-2">
+                <div className="space-y-5 max-w-md">
+                  <div className="space-y-3">
+                    <Label className="text-xs uppercase font-bold tracking-widest text-muted-foreground ml-1">Guest Name</Label>
                     <Input 
-                      placeholder="Your Name" 
+                      placeholder="e.g., Olumide" 
                       value={guestName} 
                       onChange={(e) => setGuestName(e.target.value)}
-                      className="h-12 bg-background border-border/60"
+                      className="h-14 bg-background border-border/40 focus:border-primary/50 transition-colors text-lg px-6 rounded-2xl"
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
+                    <Label className="text-xs uppercase font-bold tracking-widest text-muted-foreground ml-1">Event Reference</Label>
                     <Input 
-                      placeholder="Event Name (e.g., Funke's Gala)" 
+                      placeholder="e.g., The Grand Reunion" 
                       value={demoEventName} 
                       onChange={(e) => setDemoEventName(e.target.value)}
-                      className="h-12 bg-background border-border/60"
+                      className="h-14 bg-background border-border/40 focus:border-primary/50 transition-colors text-lg px-6 rounded-2xl"
                     />
                   </div>
                   <Button 
                     onClick={handleGenerateEni} 
                     disabled={isGeneratingEni || !guestName || !demoEventName}
-                    className="w-full h-12 rounded-full font-bold shadow-lg shadow-primary/20"
+                    className="w-full h-14 rounded-2xl font-bold text-lg shadow-2xl shadow-primary/30 mt-4 active:scale-[0.98] transition-all"
                   >
-                    {isGeneratingEni ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                    Generate Welcome Message
+                    {isGeneratingEni ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Sparkles className="mr-2 h-5 w-5" />}
+                    Experience Eni
                   </Button>
                 </div>
               </div>
               <div className="relative">
-                <Card className="border-none shadow-2xl bg-background/80 backdrop-blur-sm min-h-[350px] flex flex-col justify-center p-10 relative overflow-hidden rounded-[2rem]">
-                  <div className="absolute top-6 right-8">
-                    <Quote className="h-16 w-16 text-primary/5" />
+                <Card className="border-none shadow-[0_40px_100px_-15px_rgba(0,0,0,0.3)] bg-background/60 backdrop-blur-3xl min-h-[450px] flex flex-col justify-center p-12 relative overflow-hidden rounded-[3rem] border border-white/10">
+                  <div className="absolute top-10 right-12">
+                    <Quote className="h-24 w-24 text-primary/5 rotate-12" />
                   </div>
                   {eniMessage ? (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                      <p className="text-2xl md:text-3xl font-logo italic leading-tight text-foreground/90 text-balance">
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                      <p className="text-3xl md:text-4xl font-logo italic leading-[1.3] text-foreground/90 text-balance tracking-tight">
                         &quot;{eniMessage}&quot;
                       </p>
-                      <div className="flex items-center gap-3">
-                        <div className="h-1 w-8 bg-primary rounded-full" />
-                        <p className="text-sm font-bold text-primary tracking-widest uppercase">Eni</p>
+                      <div className="flex items-center gap-4">
+                        <div className="h-[2px] w-12 bg-primary rounded-full" />
+                        <p className="text-sm font-bold text-primary tracking-[0.3em] uppercase">Eni</p>
                       </div>
-                      <Button variant="ghost" size="sm" className="p-0 text-muted-foreground hover:text-primary" onClick={() => setEniMessage('')}>
+                      <Button variant="ghost" size="sm" className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors font-bold uppercase tracking-widest text-[10px]" onClick={() => setEniMessage('')}>
                         Generate Another
                       </Button>
                     </div>
                   ) : (
-                    <div className="text-center text-muted-foreground space-y-4">
-                      <div className="h-20 w-20 rounded-full bg-primary/5 flex items-center justify-center mx-auto mb-2">
-                        <Bot className="h-10 w-10 text-primary/20" />
+                    <div className="text-center space-y-6">
+                      <div className="h-24 w-24 rounded-[2rem] bg-primary/5 flex items-center justify-center mx-auto mb-4 border border-primary/10">
+                        <Bot className="h-12 w-12 text-primary opacity-40 animate-pulse" />
                       </div>
                       <div>
-                        <p className="text-xl font-headline font-medium text-foreground/60">Eni is ready to welcome you.</p>
-                        <p className="text-sm mt-2 opacity-60 max-w-[250px] mx-auto">Enter your details to receive a personalized celebratory note from our AI hostess.</p>
+                        <p className="text-2xl font-headline font-bold text-foreground/80">Eni is ready to welcome you.</p>
+                        <p className="text-base mt-3 text-muted-foreground max-w-[280px] mx-auto leading-relaxed">Enter your details to receive a personalized celebratory note from our AI hostess.</p>
                       </div>
                     </div>
                   )}
                 </Card>
                 {/* Decorative Elements */}
-                <div className="absolute -z-10 -bottom-16 -right-16 w-80 h-80 bg-primary/10 rounded-full blur-[100px]" />
-                <div className="absolute -z-10 -top-16 -left-16 w-64 h-64 bg-accent/10 rounded-full blur-[100px]" />
+                <div className="absolute -z-10 -bottom-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-[120px]" />
+                <div className="absolute -z-10 -top-24 -left-24 w-80 h-80 bg-accent/10 rounded-full blur-[120px]" />
               </div>
             </div>
           </div>
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="py-20 md:py-32">
+        <section id="pricing" className="py-24 md:py-40">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-headline font-bold md:text-5xl text-foreground text-balance">Ecosystem Subscription Levels</h2>
-              <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
-                High-fidelity functional tiers designed to scale with your ambition.
+            <div className="text-center mb-20">
+              <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">Ecosystem Subscription Levels</h2>
+              <p className="mt-6 text-xl text-muted-foreground max-w-3xl mx-auto text-balance font-body">
+                High-fidelity functional tiers designed to scale with your ambition, from intimate gatherings to massive cultural spectacles.
               </p>
             </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 items-stretch">
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 items-stretch">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
-                  "flex flex-col transition-all duration-300 relative border-border/50 overflow-hidden", 
-                  tier.isPopular ? "border-primary ring-1 ring-primary shadow-2xl scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/80"
+                  "flex flex-col transition-all duration-500 relative border-border/40 overflow-hidden rounded-[2rem]", 
+                  tier.isPopular ? "border-primary/50 ring-1 ring-primary/20 shadow-[0_32px_64px_-12px_rgba(var(--primary),0.3)] scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/40 hover:bg-background/60 shadow-sm"
                 )}>
-                  {tier.isPopular && <Badge className="absolute -top-0 right-4 rounded-t-none rounded-b-lg shadow-lg">Most Popular</Badge>}
-                  <CardHeader>
-                    <CardTitle className="font-headline text-xl">{tier.name}</CardTitle>
-                     <div className="flex items-baseline gap-1 mt-2">
-                      <p className="text-3xl font-bold">{tier.price}</p>
+                  {tier.isPopular && <Badge className="absolute -top-0 right-6 rounded-t-none rounded-b-xl shadow-lg px-4 py-1.5 font-bold uppercase tracking-widest text-[10px]">Standard Entry</Badge>}
+                  <CardHeader className="pt-10 pb-6 px-8">
+                    <CardTitle className="font-headline text-2xl font-bold">{tier.name}</CardTitle>
+                     <div className="flex items-baseline gap-1 mt-4">
+                      <p className="text-4xl font-bold font-headline">{tier.price}</p>
                     </div>
-                    <CardDescription className="min-h-[48px] text-xs mt-2">{tier.description}</CardDescription>
+                    <CardDescription className="min-h-[48px] text-xs mt-4 leading-relaxed font-medium">{tier.description}</CardDescription>
                   </CardHeader>
-                  <CardContent className="flex-1">
-                    <ul className="space-y-3">
+                  <CardContent className="flex-1 px-8">
+                    <ul className="space-y-4 pt-4 border-t border-border/10">
                       {tier.features.map((feature, i) => (
-                        <li key={i} className="flex items-start gap-2 text-[13px] text-muted-foreground">
-                          <ChevronRight className="h-3.5 w-3.5 text-primary flex-shrink-0 mt-0.5" />
-                          <span>{feature}</span>
+                        <li key={i} className="flex items-start gap-3 text-[13px] text-muted-foreground">
+                          <div className="mt-1 flex-shrink-0">
+                            <ChevronRight className="h-3.5 w-3.5 text-primary" />
+                          </div>
+                          <span className="leading-snug">{feature}</span>
                         </li>
                       ))}
                     </ul>
                   </CardContent>
-                  <CardFooter className="pt-6">
-                     <Button className="w-full font-bold rounded-full" variant={tier.isPopular ? "default" : "outline"}>
-                        {tier.name === "Free Starter" ? "Get Started" : "Select Plan"}
+                  <CardFooter className="p-8">
+                     <Button className="w-full font-bold rounded-2xl h-12 shadow-inner transition-all active:scale-[0.97]" variant={tier.isPopular ? "default" : "outline"}>
+                        {tier.name === "Free Starter" ? "Get Started" : "Select Path"}
                      </Button>
                   </CardFooter>
                 </Card>
@@ -493,23 +507,26 @@ export default function Home() {
         </section>
 
         {/* Final CTA Section */}
-        <section className="py-24 md:py-40 relative overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl -z-10" />
+        <section className="py-24 md:py-48 relative overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[150px] -z-10" />
           <div className="container mx-auto px-4 text-center">
-            <Sparkles className="h-12 w-12 text-accent mx-auto mb-6" />
-            <h2 className="text-4xl font-headline font-bold md:text-6xl text-foreground text-balance">
-              Transform Your Next Event <br className="hidden md:block" /> into a Masterpiece
+            <div className="inline-flex items-center gap-2 mb-10 px-6 py-2 rounded-full bg-background border shadow-sm">
+                <Sparkles className="h-5 w-5 text-accent animate-pulse" />
+                <span className="text-sm font-bold uppercase tracking-[0.2em]">Ready to begin?</span>
+            </div>
+            <h2 className="text-5xl font-headline font-bold md:text-8xl text-foreground text-balance leading-[1.1] mb-10">
+              Transform Your Next Event <br className="hidden md:block" /> into a <span className="italic font-logo text-primary">Masterpiece</span>
             </h2>
-            <p className="mt-6 text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
+            <p className="mt-8 text-2xl text-muted-foreground max-w-3xl mx-auto text-balance leading-relaxed font-body">
               Join the EvenTide ecosystem today and experience the convergence of technology, creativity, and culture.
             </p>
-            <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button asChild size="lg" className="font-bold shadow-xl h-14 px-10 text-lg group rounded-full">
+            <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-6">
+              <Button asChild size="lg" className="font-bold shadow-[0_20px_50px_rgba(var(--primary),0.3)] h-16 px-12 text-xl group rounded-[2rem] active:scale-[0.98] transition-all">
                 <Link href="/signup">
-                  Start Planning Now <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                  Start Planning Now <ArrowRight className="ml-3 h-6 w-6 transition-transform group-hover:translate-x-2" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="font-bold h-14 px-10 text-lg rounded-full">
+              <Button asChild size="lg" variant="outline" className="font-bold h-16 px-12 text-xl rounded-[2rem] border-2 bg-background/50 backdrop-blur hover:bg-background transition-all active:scale-[0.98]">
                 <Link href="/contact">
                   Speak to an Expert
                 </Link>

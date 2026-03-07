@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -14,7 +13,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2, CirclePlus as PlusCircle, Trash2, Camera, CheckCircle } from 'lucide-react';
+import { Loader2, CirclePlus, Trash2, Camera, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { useCollection } from '@/firebase/firestore/use-collection';
@@ -129,7 +128,7 @@ export default function ShotListPage() {
                 placeholder="e.g., Bride and groom first look"
               />
               <Button onClick={handleAddShot} disabled={!newShot.trim()}>
-                <PlusCircle className="mr-2 h-4 w-4" /> Add Shot
+                <CirclePlus className="mr-2 h-4 w-4" /> Add Shot
               </Button>
             </div>
 

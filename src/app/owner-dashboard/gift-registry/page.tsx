@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -36,7 +35,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Loader2, Trash2, Gift, Banknote, CirclePlus as PlusCircle } from 'lucide-react';
+import { Loader2, Trash2, Gift, Banknote, CirclePlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -277,7 +276,7 @@ export default function GiftRegistryPage() {
                                 )}/>
                                 <Button type="submit" disabled={giftForm.formState.isSubmitting}>
                                     {giftForm.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    <PlusCircle className="mr-2 h-4 w-4" /> Add to Registry
+                                    <CirclePlus className="mr-2 h-4 w-4" /> Add to Registry
                                 </Button>
                             </form>
                         </Form>

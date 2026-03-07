@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -9,7 +8,7 @@ import {
   useMemoFirebase,
 } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
-import { DayPicker, Day, type DayProps } from 'react-day-picker';
+import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { isSameDay, format } from 'date-fns';
 
@@ -138,40 +137,6 @@ export default function EventCalendar() {
   }, [calendarItems, selectedDate]);
 
   /* ---------------------------------------------------------------- */
-  /* Custom Day renderer using <Day> wrapper                          */
-  /* ---------------------------------------------------------------- */
-
-  function DayWithDot(props: DayProps) {
-    const { day, children, className } = props;
-    const date = day.date;
-
-    const hasOwned = calendarItems.some(
-      (i) => i.source === 'owned' && isSameDay(i.date, date)
-    );
-    const hasInvited = calendarItems.some(
-      (i) => i.source === 'invited' && isSameDay(i.date, date)
-    );
-    const hasTask = calendarItems.some(
-      (i) => i.type === 'task' && isSameDay(i.date, date)
-    );
-
-    return (
-      <Day {...props} className={`relative ${className ?? ''}`}>
-        {children}
-        {hasOwned && (
-          <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
-        )}
-        {hasInvited && (
-          <span className="absolute bottom-1 left-[40%] h-1 w-1 rounded-full bg-blue-500" />
-        )}
-        {hasTask && (
-          <span className="absolute bottom-1 left-[60%] h-1 w-1 rounded-full bg-green-500" />
-        )}
-      </Day>
-    );
-  }
-
-  /* ---------------------------------------------------------------- */
   /* Loading state                                                    */
   /* ---------------------------------------------------------------- */
 
@@ -182,10 +147,6 @@ export default function EventCalendar() {
       </div>
     );
   }
-
-  /* ---------------------------------------------------------------- */
-  /* Render                                                           */
-  /* ---------------------------------------------------------------- */
 
   return (
     <div className="grid md:grid-cols-3 gap-8 min-h-[600px]">
@@ -198,7 +159,23 @@ export default function EventCalendar() {
             onSelect={setSelectedDate}
             className="w-full"
             components={{
-              Day: DayWithDot,
+              DayContent: (props) => {
+                const date = props.date;
+                const hasOwned = calendarItems.some(i => i.source === 'owned' && isSameDay(i.date, date));
+                const hasInvited = calendarItems.some(i => i.source === 'invited' && isSameDay(i.date, date));
+                const hasTask = calendarItems.some(i => i.type === 'task' && isSameDay(i.date, date));
+
+                return (
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    {date.getDate()}
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-0.5">
+                      {hasOwned && <span className="h-1 w-1 rounded-full bg-primary" />}
+                      {hasInvited && <span className="h-1 w-1 rounded-full bg-blue-500" />}
+                      {hasTask && <span className="h-1 w-1 rounded-full bg-green-500" />}
+                    </div>
+                  </div>
+                );
+              }
             }}
           />
         </CardContent>
@@ -213,7 +190,7 @@ export default function EventCalendar() {
         </CardHeader>
         <CardContent>
           {selectedDayItems.length === 0 ? (
-            <p className="text-muted-foreground text-center py-6">
+            <p className="text-muted-foreground text-center py-6 text-sm">
               No events or tasks for this day.
             </p>
           ) : (
@@ -232,7 +209,7 @@ export default function EventCalendar() {
                     <CheckSquare className="h-5 w-5 text-green-500 mt-1" />
                   )}
                   <div>
-                    <p className="font-semibold">{item.title}</p>
+                    <p className="font-semibold text-sm">{item.title}</p>
                     <div className="flex gap-2 mt-1">
                       <Badge
                         variant={
@@ -242,14 +219,15 @@ export default function EventCalendar() {
                               : 'secondary'
                             : 'secondary'
                         }
+                        className="text-[10px] h-4"
                       >
                         {item.type}
                       </Badge>
                       {item.source && (
-                        <Badge variant="outline">{item.source}</Badge>
+                        <Badge variant="outline" className="text-[10px] h-4">{item.source}</Badge>
                       )}
                       {item.task && (
-                        <Badge variant="outline">{item.task.status}</Badge>
+                        <Badge variant="outline" className="text-[10px] h-4">{item.task.status}</Badge>
                       )}
                     </div>
                   </div>
