@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -14,6 +15,7 @@ import {
   Loader2,
   Sparkles,
   Users,
+  CircleCheck,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -521,6 +523,7 @@ export default function Home() {
                     <ul className="space-y-4 pt-4 border-t border-border/10">
                       {tier.features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-3 text-[13px] text-muted-foreground font-body">
+                          <CircleCheck className="h-4 w-4 text-green-500 mt-0.5" />
                           <span className="leading-snug">{feature}</span>
                         </li>
                       ))}
