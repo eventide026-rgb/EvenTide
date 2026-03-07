@@ -2,13 +2,23 @@
 'use client';
 
 import { useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, query } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart, LineChart, PieChart, Users, PartyPopper, Eye, DollarSign } from 'lucide-react';
-import { EventCreationChart } from '@/components/admin/event-creation-chart';
-import { EventTypeChart } from '@/components/admin/event-type-chart';
+import { Users, PartyPopper, Eye, DollarSign, Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+
+// Dynamic imports for heavy chart components
+const EventCreationChart = dynamic(() => import('@/components/admin/event-creation-chart').then(mod => mod.EventCreationChart), { 
+  ssr: false, 
+  loading: () => <Skeleton className="w-full h-[300px]" /> 
+});
+
+const EventTypeChart = dynamic(() => import('@/components/admin/event-type-chart').then(mod => mod.EventTypeChart), { 
+  ssr: false, 
+  loading: () => <Skeleton className="w-full h-[300px]" /> 
+});
 
 export default function SuperAdminDashboardPage() {
   const firestore = useFirestore();
@@ -69,7 +79,7 @@ export default function SuperAdminDashboardPage() {
         <Card className="lg:col-span-3">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-                <BarChart className="h-5 w-5" />
+                <Loader2 className="h-5 w-5 animate-spin hidden" />
                 Event Creation Trends
             </CardTitle>
             <CardDescription>New events created in the last 30 days.</CardDescription>
@@ -81,7 +91,6 @@ export default function SuperAdminDashboardPage() {
         <Card className="lg:col-span-2">
           <CardHeader>
              <CardTitle className="flex items-center gap-2">
-                <PieChart className="h-5 w-5" />
                 Event Type Distribution
              </CardTitle>
             <CardDescription>Breakdown of all events by category.</CardDescription>
@@ -94,5 +103,3 @@ export default function SuperAdminDashboardPage() {
     </div>
   );
 }
-
-    

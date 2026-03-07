@@ -1,3 +1,7 @@
+
+'use client';
+
+import dynamic from 'next/dynamic';
 import {
   Card,
   CardContent,
@@ -5,7 +9,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { GuestAnalyticsPage } from '@/components/analytics/guest-analytics-page';
+import { Loader2 } from 'lucide-react';
+
+const GuestAnalyticsPage = dynamic(() => import('@/components/analytics/guest-analytics-page').then(mod => mod.GuestAnalyticsPage), {
+  ssr: false,
+  loading: () => <div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+});
 
 export default function AnalyticsPage() {
   return (

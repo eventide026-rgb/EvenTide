@@ -1,11 +1,15 @@
 
 'use client';
 
-import { SeatingChartClient } from '@/components/events/seating-chart-client';
+import dynamic from 'next/dynamic';
+import { Loader2 } from 'lucide-react';
+
+const SeatingChartClient = dynamic(() => import('@/components/events/seating-chart-client').then(mod => mod.SeatingChartClient), {
+  ssr: false,
+  loading: () => <div className="flex h-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+});
 
 export default function SeatingChartPage() {
-  // For the planner, the SeatingChartClient will handle event selection.
-  // We pass an empty string for eventId initially.
   return (
     <div className="flex flex-col gap-6 h-full">
        <header>

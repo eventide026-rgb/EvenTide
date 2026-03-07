@@ -1,7 +1,13 @@
 
 'use client';
 
-import { TaskBoard } from '@/components/dashboard/planner/TaskBoard';
+import dynamic from 'next/dynamic';
+import { Loader2 } from 'lucide-react';
+
+const TaskBoard = dynamic(() => import('@/components/dashboard/planner/TaskBoard').then(mod => mod.TaskBoard), {
+  ssr: false,
+  loading: () => <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+});
 
 export default function TasksPage() {
   return (
