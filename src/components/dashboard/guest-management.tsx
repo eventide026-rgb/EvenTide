@@ -16,8 +16,6 @@ import {
   doc,
   serverTimestamp,
   orderBy,
-  documentId,
-  updateDoc,
   writeBatch,
 } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
@@ -265,7 +263,7 @@ function GuestManagementComponent() {
   const isFormSubmitting = guestForm.formState.isSubmitting;
 
   return (
-    <div className="grid md:grid-cols-3 gap-8 items-start h-full">
+    <div className="grid md:grid-cols-3 gap-8 items-start">
       <div className="md:col-span-2 flex flex-col gap-6">
         {selectedEvent && (
           <Card>
@@ -363,7 +361,7 @@ function GuestManagementComponent() {
                     <div className="flex gap-2">
                       {editingGuest && <Button type="button" variant="outline" onClick={() => setEditingGuest(null)} className="w-full">Cancel</Button>}
                       <Button type="submit" className="w-full" disabled={!selectedEventId || isFormSubmitting}>
-                        {isFormSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {isFormSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin text-primary" />}
                         {editingGuest ? 'Save Changes' : 'Add Guest'}
                       </Button>
                     </div>
@@ -379,7 +377,7 @@ function GuestManagementComponent() {
 
 export function GuestManagement() {
   return (
-    <Suspense fallback={<div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+    <Suspense fallback={<div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
       <GuestManagementComponent />
     </Suspense>
   );

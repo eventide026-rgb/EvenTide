@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 
 export default function GuestsPage() {
   return (
-    <div className="flex flex-col h-full">
+    <div className="space-y-6">
       <header className="pb-4 border-b">
         <div>
           <h1 className="text-3xl font-bold font-headline">Guest Management</h1>
@@ -17,11 +17,9 @@ export default function GuestsPage() {
         </div>
       </header>
 
-      <main className="flex-1 mt-6 overflow-y-auto">
-        <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="animate-spin h-8 w-8" /></div>}>
-          <GuestManagement />
-        </Suspense>
-      </main>
+      <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>}>
+        <GuestManagement />
+      </Suspense>
     </div>
   );
 }

@@ -89,7 +89,7 @@ export function ControlPanel({
             reader.onloadend = () => {
                 if (typeof reader.result === 'string') {
                     handleSetBackground(reader.result);
-                    toast({ title: "Background uploaded!" });
+                    toast({ title: "Background applied!" });
                 }
             };
             reader.readAsDataURL(file);
@@ -162,7 +162,7 @@ export function ControlPanel({
                                 <div className="flex gap-2">
                                     <Input id="ai-prompt" value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} placeholder="e.g., royal blue and gold abstract" />
                                     <Button type="button" onClick={handleGenerate} disabled={isGenerating}>
-                                        {isGenerating ? <Loader2 className="h-4 w-4 animate-spin"/> : <Sparkles className="h-4 w-4" />}
+                                        {isGenerating ? <Loader2 className="h-4 w-4 animate-spin text-primary"/> : <Sparkles className="h-4 w-4" />}
                                     </Button>
                                 </div>
                              </div>
@@ -224,7 +224,7 @@ export function ControlPanel({
             </div>
              <div className="pt-4 border-t mt-4">
                 <Button className="w-full" size="lg" onClick={handleSave} disabled={isSaving}>
-                    {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin text-primary" />}
                     Save Theme & Continue
                 </Button>
             </div>
