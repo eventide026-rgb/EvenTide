@@ -46,13 +46,25 @@ const formSchema = z.object({
     features: z.array(z.string()).min(1, "Select at least one feature."),
 });
 
+type CarFormProps = {
+    carId?: string;
+};
 
-export function CarForm() {
+export function CarForm({ carId }: CarFormProps) {
     const { toast } = useToast();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const firestore = useFirestore();
     const { user } = useUser();
+
+    const isEditMode = !!carId;
+
+    const carDocRef = useMemoFirebase(() => {
+        if (!firestore || !carId) return null;
+        return doc(firestore, 'cars', carId);
+    }, [firestore, carId]);
+
+    const { data: existingCarData, isLoading: isLoadingCar } = useDoc(carDocRef);
 
     const [featureInput, setFeatureInput] = useState("");
 
@@ -68,6 +80,12 @@ export function CarForm() {
             features: [],
         },
     });
+
+    useEffect(() => {
+        if (existingCarData) {
+            form.reset(existingCarData);
+        }
+    }, [existingCarData, form]);
 
     const imageUrls = form.watch('imageUrls');
     const features = form.watch('features');
@@ -92,7 +110,9 @@ export function CarForm() {
         : [];
 
     useEffect(() => {
-        form.setValue('location.city', '');
+        if (form.formState.isDirty) {
+            form.setValue('location.city', '');
+        }
     }, [selectedState, form]);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,30 +146,43 @@ export function CarForm() {
         }
         setIsLoading(true);
 
-        const carData = {
-            ...values,
-            ownerId: user.uid,
-            createdAt: serverTimestamp(),
-        };
-
         try {
-            const carsCol = collection(firestore, "cars");
-            await addDoc(carsCol, carData);
-            toast({
-                title: "Vehicle Listed!",
-                description: `${values.make} ${values.model} has been successfully listed.`,
-            });
+            if (isEditMode && carDocRef) {
+                await updateDoc(carDocRef, {
+                    ...values,
+                    updatedAt: serverTimestamp(),
+                });
+                toast({
+                    title: "Vehicle Updated!",
+                    description: `${values.make} ${values.model} has been successfully updated.`,
+                });
+            } else {
+                const carData = {
+                    ...values,
+                    ownerId: user.uid,
+                    createdAt: serverTimestamp(),
+                };
+                await addDoc(collection(firestore, "cars"), carData);
+                toast({
+                    title: "Vehicle Listed!",
+                    description: `${values.make} ${values.model} has been successfully listed.`,
+                });
+            }
             router.push('/car-hire-dashboard/my-cars');
         } catch (error) {
-            console.error("Error creating car listing:", error);
+            console.error("Error saving car listing:", error);
             toast({
                 variant: "destructive",
                 title: "Submission Failed",
-                description: "There was a problem creating your listing. Please try again.",
+                description: "There was a problem saving your listing. Please try again.",
             });
         } finally {
             setIsLoading(false);
         }
+    }
+
+    if (isLoadingCar && isEditMode) {
+        return <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
     }
 
     return (
@@ -197,7 +230,7 @@ export function CarForm() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>State</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl><SelectTrigger><SelectValue placeholder="Select State" /></SelectTrigger></FormControl>
                                     <SelectContent>
                                         {NigerianStatesAndCities.map(s => <SelectItem key={s.state} value={s.state}>{s.state}</SelectItem>)}
@@ -314,7 +347,7 @@ export function CarForm() {
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {isLoading ? "Creating Listing..." : "Create Car Listing"}
+                    {isLoading ? "Saving..." : (isEditMode ? "Save Changes" : "Create Car Listing")}
                 </Button>
             </form>
         </Form>
