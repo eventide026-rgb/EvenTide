@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -264,11 +265,11 @@ export default function Home() {
             </div>
         </section>
 
-        {/* Vision Section */}
-        <section className="py-24 md:py-40 overflow-hidden relative">
+        {/* Vision Section Redesign */}
+        <section className="py-24 md:py-40 overflow-hidden relative bg-secondary/10">
             <div className="container mx-auto px-4">
-                <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-32">
-                    <div className="w-full lg:w-1/2 space-y-10">
+                <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+                    <div className="w-full lg:w-1/2 space-y-10 order-2 lg:order-1">
                         <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-primary/5 text-primary text-[10px] font-bold uppercase tracking-[0.25em] border border-primary/10">
                             <Heart className="h-3.5 w-3.5" /> Our Mission
                         </div>
@@ -277,43 +278,43 @@ export default function Home() {
                             <span className="bg-gradient-to-r from-[#60A5FA] to-[#FDE047] text-transparent bg-clip-text">Beautifully.</span>
                         </h2>
                         
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
-                            <Card className="p-8 transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_40px_80px_-15px_rgba(var(--primary),0.3)] border-2 border-border/40 bg-secondary/40 group relative overflow-hidden">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <Card className="p-8 transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_40px_80px_-15px_rgba(var(--primary),0.2)] border-2 border-border/40 bg-background/60 backdrop-blur-sm group relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1.5 h-full bg-primary transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top" />
-                                <div className="h-14 w-14 rounded-2xl bg-background flex items-center justify-center shadow-inner group-hover:bg-primary/10 transition-colors mb-6">
-                                    <PaletteIcon className="h-7 w-7 text-primary" />
+                                <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors mb-6">
+                                    <PaletteIcon className="h-6 w-6 text-primary" />
                                 </div>
-                                <h3 className="font-bold text-2xl font-headline group-hover:text-primary transition-colors">Poetic Precision</h3>
-                                <p className="text-sm text-muted-foreground mt-4 leading-relaxed">Every detail, from invitations to menus, is curated by Eni to reflect unparalleled elegance.</p>
+                                <h3 className="font-bold text-xl font-headline group-hover:text-primary transition-colors">Poetic Precision</h3>
+                                <p className="text-xs text-muted-foreground mt-3 leading-relaxed">Every detail is curated by Eni to reflect unparalleled cultural elegance.</p>
                             </Card>
-                            <Card className="p-8 transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_40px_80px_-15px_rgba(var(--primary),0.3)] border-2 border-border/40 bg-secondary/40 group relative overflow-hidden">
+                            <Card className="p-8 transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_40px_80px_-15px_rgba(var(--primary),0.2)] border-2 border-border/40 bg-background/60 backdrop-blur-sm group relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1.5 h-full bg-primary transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top" />
-                                <div className="h-14 w-14 rounded-2xl bg-background flex items-center justify-center shadow-inner group-hover:bg-primary/10 transition-colors mb-6">
-                                    <Users className="h-7 w-7 text-primary" />
+                                <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors mb-6">
+                                    <Users className="h-6 w-6 text-primary" />
                                 </div>
-                                <h3 className="font-bold text-2xl font-headline group-hover:text-primary transition-colors">Cultural Resonance</h3>
-                                <p className="text-sm text-muted-foreground mt-4 leading-relaxed">We celebrate heritage, using language and design that speaks to the heart of community.</p>
+                                <h3 className="font-bold text-xl font-headline group-hover:text-primary transition-colors">Cultural Resonance</h3>
+                                <p className="text-xs text-muted-foreground mt-3 leading-relaxed">Language and design that speaks to the heart of the community.</p>
                             </Card>
-                            <Card className="p-8 transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_40px_80px_-15px_rgba(var(--primary),0.3)] border-2 border-border/40 bg-secondary/40 group relative overflow-hidden">
+                            <Card className="p-8 transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_40px_80px_-15px_rgba(var(--primary),0.2)] border-2 border-border/40 bg-background/60 backdrop-blur-sm group relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1.5 h-full bg-primary transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top" />
-                                <div className="h-14 w-14 rounded-2xl bg-background flex items-center justify-center shadow-inner group-hover:bg-primary/10 transition-colors mb-6">
-                                    <Sparkles className="h-7 w-7 text-primary" />
+                                <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors mb-6">
+                                    <Sparkles className="h-6 w-6 text-primary" />
                                 </div>
-                                <h3 className="font-bold text-2xl font-headline group-hover:text-primary transition-colors">Effortless Harmony</h3>
-                                <p className="text-sm text-muted-foreground mt-4 leading-relaxed">Our technology works silently, so you can be fully present with the people you love.</p>
+                                <h3 className="font-bold text-xl font-headline group-hover:text-primary transition-colors">Effortless Harmony</h3>
+                                <p className="text-xs text-muted-foreground mt-3 leading-relaxed">Technology that works silently, so you can be fully present.</p>
                             </Card>
-                            <Card className="p-8 transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_40px_80px_-15px_rgba(var(--primary),0.3)] border-2 border-border/40 bg-secondary/40 group relative overflow-hidden">
+                            <Card className="p-8 transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_40px_80px_-15px_rgba(var(--primary),0.2)] border-2 border-border/40 bg-background/60 backdrop-blur-sm group relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-1.5 h-full bg-primary transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top" />
-                                <div className="h-14 w-14 rounded-2xl bg-background flex items-center justify-center shadow-inner group-hover:bg-primary/10 transition-colors mb-6">
-                                    <BookOpen className="h-7 w-7 text-primary" />
+                                <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors mb-6">
+                                    <BookOpen className="h-6 w-6 text-primary" />
                                 </div>
-                                <h3 className="font-bold text-2xl font-headline group-hover:text-primary transition-colors">Living Archives</h3>
-                                <p className="text-sm text-muted-foreground mt-4 leading-relaxed">Transforming one-day events into lasting digital stories through curated galleries and magazines.</p>
+                                <h3 className="font-bold text-xl font-headline group-hover:text-primary transition-colors">Living Archives</h3>
+                                <p className="text-xs text-muted-foreground mt-3 leading-relaxed">Transforming one-day events into lasting digital community stories.</p>
                             </Card>
                         </div>
                     </div>
-                    <div className="w-full lg:w-1/3 relative">
-                        <div className="aspect-[3/4] relative rounded-[3rem] overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)] border-8 border-background">
+                    <div className="w-full lg:w-2/5 relative order-1 lg:order-2">
+                        <div className="aspect-[4/5] relative rounded-[2rem] overflow-hidden shadow-2xl border-4 border-background">
                             {missionImage && (
                                 <Image 
                                     src={missionImage.imageUrl}
@@ -323,15 +324,15 @@ export default function Home() {
                                     data-ai-hint="nigerian wedding"
                                 />
                             )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                            <div className="absolute bottom-12 left-12 right-12 text-center">
-                                <p className="text-white font-logo text-2xl font-bold italic leading-tight text-balance drop-shadow-lg">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                            <div className="absolute bottom-8 left-8 right-8">
+                                <p className="text-white font-logo text-xl font-bold italic leading-tight text-balance">
                                     &quot;To turn every moment into EvenTide.&quot;
                                 </p>
                             </div>
                         </div>
-                        <div className="absolute -bottom-8 -right-8 h-48 w-48 bg-[#FDE047]/10 rounded-full blur-[80px] -z-10" />
-                        <div className="absolute -top-8 -left-8 h-48 w-48 bg-[#60A5FA]/10 rounded-full blur-[80px] -z-10" />
+                        <div className="absolute -bottom-6 -right-6 h-32 w-32 bg-[#FDE047]/20 rounded-full blur-[60px] -z-10" />
+                        <div className="absolute -top-6 -left-6 h-32 w-32 bg-[#60A5FA]/20 rounded-full blur-[60px] -z-10" />
                     </div>
                 </div>
             </div>
@@ -428,7 +429,7 @@ export default function Home() {
             </div>
             <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 relative">
               {howItWorksSteps.map((step, index) => (
-                <Card key={index} className="border-2 border-primary/20 bg-background/80 backdrop-blur-xl shadow-lg hover:shadow-2xl hover:border-primary/40 transition-all duration-500 rounded-3xl group overflow-hidden relative">
+                <Card key={index} className="border-2 border-primary/20 bg-background/80 backdrop-blur-xl shadow-lg hover:shadow-2xl hover:border-primary/40 transition-all duration-500 rounded-3xl group overflow-hidden relative p-2">
                   <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary to-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                   <CardHeader className="text-center items-center pb-4 pt-10">
                     <div className="mb-6 bg-primary/5 p-6 rounded-3xl group-hover:bg-primary/10 group-hover:rotate-6 transition-all duration-500">
@@ -443,10 +444,10 @@ export default function Home() {
               ))}
             </div>
             {processImage && (
-                <div className="mt-20 relative h-[300px] w-full rounded-[3rem] overflow-hidden border-2 border-primary/10">
+                <div className="mt-20 relative h-[300px] w-full rounded-[3rem] overflow-hidden border-2 border-primary/10 shadow-2xl">
                     <Image src={processImage.imageUrl} alt="Celebration" fill className="object-cover opacity-40" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <p className="text-3xl font-headline font-bold text-foreground/80 text-center px-4">Every step designed for unforgettable excellence.</p>
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                        <p className="text-3xl font-headline font-bold text-white text-center px-4 drop-shadow-lg">Every step designed for unforgettable excellence.</p>
                     </div>
                 </div>
             )}
@@ -468,7 +469,7 @@ export default function Home() {
                   "flex flex-col transition-all duration-500 relative border-2 border-primary/20 overflow-hidden rounded-[2rem]", 
                   tier.isPopular ? "border-primary/50 ring-1 ring-primary/20 shadow-[0_32px_64px_-12px_rgba(var(--primary),0.3)] scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/40 hover:bg-background/60 shadow-sm hover:border-primary/30"
                 )}>
-                  {tier.isPopular && <Badge className="absolute -top-0 right-6 rounded-t-none rounded-b-xl shadow-lg px-4 py-1.5 font-bold uppercase tracking-widest text-[10px]">Standard Entry</Badge>}
+                  {tier.isPopular && <Badge className="absolute -top-0 right-6 rounded-t-none rounded-b-xl shadow-lg px-4 py-1.5 font-bold uppercase tracking-widest text-[10px]">Most Popular</Badge>}
                   <CardHeader className="pt-10 pb-6 px-8">
                     <CardTitle className="font-headline text-2xl font-bold">{tier.name}</CardTitle>
                      <div className="flex items-baseline gap-1 mt-4">

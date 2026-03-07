@@ -1,3 +1,4 @@
+
 export type Vendor = {
   id: string;
   name: string;
@@ -19,6 +20,7 @@ export type Vendor = {
   reviewCount?: number;
   priceRangeMin?: number;
   priceRangeMax?: number;
+  specialties?: string[];
 };
 
 export type PlannerProfile = {
