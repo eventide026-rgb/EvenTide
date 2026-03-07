@@ -87,6 +87,27 @@ body {
   }
 }
 
+/* Calendar Indicators for DayPicker v9 */
+.rdp-day {
+  position: relative !important;
+}
+
+.day-indicator::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.indicator-primary::after { background-color: hsl(var(--primary)); }
+.indicator-blue::after { background-color: #3b82f6; }
+.indicator-green::after { background-color: #22c55e; }
+
 /* Fireworks Animation */
 .fireworks {
   position: absolute;

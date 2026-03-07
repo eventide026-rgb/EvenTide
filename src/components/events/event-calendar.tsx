@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -14,7 +15,7 @@ import { isSameDay, format } from 'date-fns';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, CalendarCheck, CheckSquare } from 'lucide-react';
+import { Loader2, CalendarCheck, SquareCheck } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
 /* Types                                                              */
@@ -131,6 +132,10 @@ export default function EventCalendar() {
     return items;
   }, [ownedEvents, invitedEvents, tasks]);
 
+  const ownedDates = useMemo(() => calendarItems.filter(i => i.source === 'owned').map(i => i.date), [calendarItems]);
+  const invitedDates = useMemo(() => calendarItems.filter(i => i.source === 'invited').map(i => i.date), [calendarItems]);
+  const taskDates = useMemo(() => calendarItems.filter(i => i.type === 'task').map(i => i.date), [calendarItems]);
+
   const selectedDayItems = useMemo(() => {
     if (!selectedDate) return [];
     return calendarItems.filter((item) => isSameDay(item.date, selectedDate));
@@ -161,24 +166,15 @@ export default function EventCalendar() {
             formatters={{ 
               formatWeekdayName: (date) => ['S', 'M', 'T', 'W', 'T', 'F', 'S'][date.getDay()] 
             }}
-            components={{
-              DayContent: (props) => {
-                const date = props.date;
-                const hasOwned = calendarItems.some(i => i.source === 'owned' && isSameDay(i.date, date));
-                const hasInvited = calendarItems.some(i => i.source === 'invited' && isSameDay(i.date, date));
-                const hasTask = calendarItems.some(i => i.type === 'task' && isSameDay(i.date, date));
-
-                return (
-                  <div className="relative w-full h-full flex items-center justify-center">
-                    {date.getDate()}
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex gap-0.5">
-                      {hasOwned && <span className="h-1 w-1 rounded-full bg-primary" />}
-                      {hasInvited && <span className="h-1 w-1 rounded-full bg-blue-500" />}
-                      {hasTask && <span className="h-1 w-1 rounded-full bg-green-500" />}
-                    </div>
-                  </div>
-                );
-              }
+            modifiers={{
+              owned: ownedDates,
+              invited: invitedDates,
+              task: taskDates
+            }}
+            modifiersClassNames={{
+              owned: "day-indicator indicator-primary",
+              invited: "day-indicator indicator-blue",
+              task: "day-indicator indicator-green"
             }}
           />
         </CardContent>
@@ -209,7 +205,7 @@ export default function EventCalendar() {
                       }`}
                     />
                   ) : (
-                    <CheckSquare className="h-5 w-5 text-green-500 mt-1" />
+                    <SquareCheck className="h-5 w-5 text-green-500 mt-1" />
                   )}
                   <div>
                     <p className="font-semibold text-sm">{item.title}</p>

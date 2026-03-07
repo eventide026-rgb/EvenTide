@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -9,7 +10,7 @@ import { isSameDay, format, getDay } from 'date-fns';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, CalendarCheck, CheckSquare } from 'lucide-react';
+import { Loader2, CalendarCheck, SquareCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
@@ -166,19 +167,8 @@ export default function PlannerCalendarPage() {
                 onSelect={setSelectedDate}
                 className="w-full"
                 formatters={{ formatWeekdayName: formatShortWeekday }}
-                components={{
-                  DayContent: (props) => {
-                    const isMarked = markedDates.some(d => isSameDay(d, props.date));
-                    return (
-                      <div className="relative w-full h-full flex items-center justify-center">
-                        {props.date.getDate()}
-                        {isMarked && (
-                          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
-                        )}
-                      </div>
-                    );
-                  }
-                }}
+                modifiers={{ marked: markedDates }}
+                modifiersClassNames={{ marked: "day-indicator indicator-primary" }}
               />
             </CardContent>
           </Card>
@@ -202,7 +192,7 @@ export default function PlannerCalendarPage() {
                         {item.type === 'Event' ? (
                           <CalendarCheck className="h-5 w-5 text-primary" />
                         ) : (
-                          <CheckSquare className="h-5 w-5 text-green-500" />
+                          <SquareCheck className="h-5 w-5 text-green-500" />
                         )}
                       </div>
                       <div>

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowRight,
-  CheckCircle,
+  CircleCheck,
   Home as HomeIcon,
   Users,
   QrCode,
@@ -30,6 +30,7 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { generateWelcomeMessage } from '@/ai/flows/ai-welcome-message';
 
 const rotatingWords = ['Effortlessly', 'Stylishly', 'Beautifully', 'Perfectly'];
@@ -260,7 +261,7 @@ export default function Home() {
                                     {role.features.map((feature, i) => (
                                         <li key={i} className="flex items-start gap-4 text-sm text-muted-foreground leading-relaxed">
                                             <div className="mt-1 flex-shrink-0">
-                                                <CheckCircle className="h-4 w-4 text-primary group-hover:text-accent transition-colors" />
+                                                <CircleCheck className="h-4 w-4 text-primary group-hover:text-accent transition-colors" />
                                             </div>
                                             <span>{feature}</span>
                                         </li>
