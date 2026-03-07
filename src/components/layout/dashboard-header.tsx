@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -50,12 +49,12 @@ export function DashboardHeader() {
   };
 
   const getRoleFromPath = (path: string): string => {
-    if (path.startsWith('/owner-dashboard')) return 'Owner';
-    if (path.startsWith('/planner-dashboard')) return 'Planner';
-    if (path.startsWith('/vendor-dashboard')) return 'Vendor';
-    if (path.startsWith('/ticketier-dashboard')) return 'Ticketier';
-    if (path.startsWith('/cohost-dashboard')) return 'Co-host';
-    if (path.startsWith('/guest-dashboard')) return 'Guest';
+    if (path.startsWith('/owner')) return 'Owner';
+    if (path.startsWith('/planner')) return 'Planner';
+    if (path.startsWith('/vendor')) return 'Vendor';
+    if (path.startsWith('/ticketier')) return 'Ticketier';
+    if (path.startsWith('/cohost')) return 'Co-host';
+    if (path.startsWith('/guest')) return 'Guest';
     return 'User';
   }
 
@@ -108,7 +107,7 @@ export function DashboardHeader() {
             </DropdownMenuItem>
             {!isGuest && (
               <DropdownMenuItem asChild>
-                  <Link href="/owner-dashboard/account">
+                  <Link href="/owner/account">
                   <CreditCard className="mr-2 h-4 w-4" />
                   <span>Billing</span>
                   </Link>

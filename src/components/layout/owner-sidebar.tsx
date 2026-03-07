@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -42,63 +41,63 @@ const sidebarNav = [
         title: "My Workspace",
         icon: Home,
         links: [
-            { href: "/owner-dashboard", label: "Dashboard", icon: LayoutDashboard },
-            { href: "/owner-dashboard/analytics", label: "Analytics", icon: Percent },
-            { href: "/owner-dashboard/calendar", label: "Calendar", icon: Calendar },
+            { href: "/owner", label: "Dashboard", icon: LayoutDashboard },
+            { href: "/owner/analytics", label: "Analytics", icon: Percent },
+            { href: "/owner/calendar", label: "Calendar", icon: Calendar },
         ]
     },
     {
         title: "Event Planning",
         icon: PartyPopper,
         links: [
-            { href: "/owner-dashboard/stationery-hub", label: "Stationery Hub", icon: Palette },
-            { href: "/owner-dashboard/program-menu", label: "Program & Menu", icon: ClipboardList },
-            { href: "/owner-dashboard/seating-chart", label: "Seating Chart", icon: Users },
-            { href: "/owner-dashboard/gift-registry", label: "Gift Registry", icon: Gift },
-            { href: "/owner-dashboard/shot-list", label: "Shot List", icon: Camera },
-            { href: "/owner-dashboard/media-library", label: "Media Library", icon: ImageIcon },
-            { href: "/owner-dashboard/song-requests", label: "Song Requests", icon: Music },
+            { href: "/owner/stationery-hub", label: "Stationery Hub", icon: Palette },
+            { href: "/owner/program-menu", label: "Program & Menu", icon: ClipboardList },
+            { href: "/owner/seating-chart", label: "Seating Chart", icon: Users },
+            { href: "/owner/gift-registry", label: "Gift Registry", icon: Gift },
+            { href: "/owner/shot-list", label: "Shot List", icon: Camera },
+            { href: "/owner/media-library", label: "Media Library", icon: ImageIcon },
+            { href: "/owner/song-requests", label: "Song Requests", icon: Music },
         ]
     },
     {
         title: "People Management",
         icon: Users,
         links: [
-            { href: "/owner-dashboard/guests", label: "Guests", icon: Users },
-            { href: "/owner-dashboard/team", label: "Team", icon: Contact },
+            { href: "/owner/guests", label: "Guests", icon: Users },
+            { href: "/owner/team", label: "Team", icon: Contact },
         ]
     },
     {
         title: "Marketplace",
         icon: Building,
         links: [
-            { href: "/owner-dashboard/find-planner", label: "Find a Planner", icon: PartyPopper },
-            { href: "/owner-dashboard/find-hotel", label: "Find a Hotel", icon: Hotel },
-            { href: "/owner-dashboard/find-venue", label: "Find a Venue", icon: Building },
-            { href: "/owner-dashboard/find-designer", label: "Fashion Hub", icon: Users },
+            { href: "/owner/find-planner", label: "Find a Planner", icon: PartyPopper },
+            { href: "/owner/find-hotel", label: "Find a Hotel", icon: Hotel },
+            { href: "/owner/find-venue", label: "Find a Venue", icon: Building },
+            { href: "/owner/find-designer", label: "Fashion Hub", icon: Users },
         ]
     },
      {
         title: "Operations",
         icon: Settings,
         links: [
-            { href: "/owner-dashboard/contracts-tasks", label: "Track Progress", icon: FileText },
-            { href: "/owner-dashboard/expenses", label: "Expenses", icon: CreditCard },
+            { href: "/owner/contracts-tasks", label: "Track Progress", icon: FileText },
+            { href: "/owner/expenses", label: "Expenses", icon: CreditCard },
         ]
     },
     {
         title: "Communication",
         icon: MessageCircle,
         links: [
-            { href: "/owner-dashboard/announcements", label: "Announcements", icon: Bell },
-            { href: "/owner-dashboard/chat", label: "Chat", icon: MessageCircle },
+            { href: "/owner/announcements", label: "Announcements", icon: Bell },
+            { href: "/owner/chat", label: "Chat", icon: MessageCircle },
         ]
     },
     {
         title: "Live Event",
         icon: ShieldCheck,
         links: [
-            { href: "/owner-dashboard/checkin-monitor", label: "Check-in Monitor", icon: ShieldCheck },
+            { href: "/owner/checkin-monitor", label: "Check-in Monitor", icon: ShieldCheck },
         ]
     },
     {
@@ -106,7 +105,7 @@ const sidebarNav = [
         icon: Settings,
         links: [
             { href: "/account", label: "My Account", icon: User },
-            { href: "/owner-dashboard/account", label: "Account & Billing", icon: CreditCard },
+            { href: "/owner/account", label: "Account & Billing", icon: CreditCard },
         ]
     }
 ];
@@ -115,7 +114,7 @@ const FlyoutMenu = ({ navGroup, onClose }: { navGroup: typeof sidebarNav[0], onC
     const pathname = usePathname();
 
     const isLinkActive = (href: string) => {
-        if (href === "/owner-dashboard" || href === "/account") {
+        if (href === "/owner" || href === "/account") {
             return pathname === href;
         }
         return pathname.startsWith(href);
@@ -151,7 +150,7 @@ export function OwnerDashboardSidebar() {
 
     const isGroupActive = (groupLinks: typeof sidebarNav[0]['links']) => {
         return groupLinks.some(link => {
-            if (link.href === "/owner-dashboard" || link.href === "/account") {
+            if (link.href === "/owner" || link.href === "/account") {
                 return pathname === link.href;
             }
             return pathname.startsWith(link.href);

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -63,17 +62,13 @@ export function NotificationBell() {
     };
 
     const getDashboardPrefix = () => {
-        const parts = pathname.split('/');
-        if (parts.length > 1 && parts[1].endsWith('-dashboard')) {
-            return `/${parts[1]}`;
-        }
-        // Fallback for account pages or other nested routes
-        if(pathname.startsWith('/owner-dashboard') || pathname.startsWith('/account')) return '/owner-dashboard';
-        if(pathname.startsWith('/planner-dashboard')) return '/planner-dashboard';
-        if(pathname.startsWith('/vendor-dashboard')) return '/vendor-dashboard';
-        if(pathname.startsWith('/cohost-dashboard')) return '/cohost-dashboard';
-        if(pathname.startsWith('/ticketier-dashboard')) return '/ticketier-dashboard';
-        return '/owner-dashboard'; // Default fallback
+        if(pathname.startsWith('/owner')) return '/owner';
+        if(pathname.startsWith('/planner')) return '/planner';
+        if(pathname.startsWith('/vendor')) return '/vendor';
+        if(pathname.startsWith('/cohost')) return '/cohost';
+        if(pathname.startsWith('/ticketier')) return '/ticketier';
+        if(pathname.startsWith('/guest')) return '/guest';
+        return '/owner'; // Default fallback
     }
 
     const inboxLink = `${getDashboardPrefix()}/notifications`;
