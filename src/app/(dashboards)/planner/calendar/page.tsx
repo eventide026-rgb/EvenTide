@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -10,7 +9,7 @@ import { isSameDay, format, getDay } from 'date-fns';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, CalendarCheck, SquareCheck } from 'lucide-react';
+import { Loader2, CalendarCheck, CheckSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
@@ -167,8 +166,26 @@ export default function PlannerCalendarPage() {
                 onSelect={setSelectedDate}
                 className="w-full"
                 formatters={{ formatWeekdayName: formatShortWeekday }}
-                modifiers={{ marked: markedDates }}
-                modifiersClassNames={{ marked: "day-indicator indicator-primary" }}
+                components={{
+                  DayButton: (props: any) => {
+                    const { day, modifiers, ...buttonProps } = props;
+                    const isMarked = markedDates.some(d => isSameDay(d, day.date));
+                    return (
+                      <button 
+                        {...buttonProps} 
+                        className={cn(
+                          buttonProps.className, 
+                          "relative h-9 w-9 p-0 font-normal flex items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground"
+                        )}
+                      >
+                        {day.date.getDate()}
+                        {isMarked && (
+                          <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
+                        )}
+                      </button>
+                    );
+                  }
+                }}
               />
             </CardContent>
           </Card>
@@ -192,7 +209,7 @@ export default function PlannerCalendarPage() {
                         {item.type === 'Event' ? (
                           <CalendarCheck className="h-5 w-5 text-primary" />
                         ) : (
-                          <SquareCheck className="h-5 w-5 text-green-500" />
+                          <CheckSquare className="h-5 w-5 text-green-500" />
                         )}
                       </div>
                       <div>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -36,15 +37,15 @@ export const Countdown = ({ date }: { date?: string }) => {
         <div className="flex space-x-4">
             <div>
                 <div className="text-3xl font-bold">{timeLeft.days}</div>
-                <div className="text-xs text-muted-foreground">Days</div>
+                <div className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Days</div>
             </div>
             <div>
                 <div className="text-3xl font-bold">{timeLeft.hours}</div>
-                <div className="text-xs text-muted-foreground">Hours</div>
+                <div className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Hours</div>
             </div>
             <div>
                 <div className="text-3xl font-bold">{timeLeft.minutes}</div>
-                <div className="text-xs text-muted-foreground">Minutes</div>
+                <div className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Minutes</div>
             </div>
         </div>
     );

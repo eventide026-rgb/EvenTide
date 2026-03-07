@@ -5,7 +5,7 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import {
   Calendar,
-  PlusCircle,
+  CirclePlus,
   Users,
   Search,
   Building,
@@ -79,7 +79,7 @@ export function CommandCenter() {
           {role === 'Owner' && (
             <CommandGroup heading="Owner Controls">
               <CommandItem onSelect={() => runCommand(() => router.push("/owner/create-event"))}>
-                <PlusCircle className="mr-2 h-4 w-4" />
+                <CirclePlus className="mr-2 h-4 w-4" />
                 <span>Create New Event</span>
               </CommandItem>
               <CommandItem onSelect={() => runCommand(() => router.push("/owner/guests"))}>
@@ -131,7 +131,7 @@ export function CommandCenter() {
           
           <CommandGroup heading="Marketplace">
             <CommandItem onSelect={() => runCommand(() => router.push("/shows"))}>
-              <PlusCircle className="mr-2 h-4 w-4" />
+              <CirclePlus className="mr-2 h-4 w-4" />
               <span>Buy Tickets</span>
             </CommandItem>
             <CommandItem onSelect={() => runCommand(() => router.push("/resources/hotels"))}>

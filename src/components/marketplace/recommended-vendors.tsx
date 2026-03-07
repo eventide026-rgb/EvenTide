@@ -8,7 +8,7 @@ import { getRecommendedVendors, type MatchingCriteria } from '@/lib/matching-eng
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Loader2, Sparkles, Star, MapPin, ArrowRight } from 'lucide-react';
+import { Loader2, Sparkles, Star, MapPin, ArrowRight, CircleCheck } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -100,7 +100,7 @@ export function RecommendedVendors({ criteria, eventId }: RecommendedVendorsProp
                     <ul className="space-y-1 mb-4">
                       {matchReasons.slice(0, 2).map((reason, i) => (
                         <li key={i} className="text-[10px] flex items-center gap-1 text-green-600 font-medium">
-                          <CheckCircle className="h-2 w-2" /> {reason}
+                          <CircleCheck className="h-2 w-2" /> {reason}
                         </li>
                       ))}
                     </ul>
@@ -115,11 +115,5 @@ export function RecommendedVendors({ criteria, eventId }: RecommendedVendorsProp
         ))}
       </div>
     </div>
-  );
-}
-
-function CheckCircle({ className }: { className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
   );
 }
