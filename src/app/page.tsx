@@ -1,16 +1,9 @@
-
 'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowRight,
-  Home as HomeIcon,
-  Users,
-  QrCode,
-  Shield,
-  Sparkles,
-  ChevronRight,
   CalendarPlus,
   ShieldCheck,
   Heart,
@@ -19,6 +12,8 @@ import {
   Bot,
   Quote,
   Loader2,
+  Sparkles,
+  Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -241,23 +236,21 @@ export default function Home() {
                 </div>
                 <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
                     {roleBenefits.map((role) => (
-                        <Card key={role.title} className="border-2 border-border/40 bg-secondary/20 hover:bg-secondary/40 transition-all duration-500 hover:-translate-y-2 group shadow-sm hover:shadow-xl hover:border-primary/20 flex flex-col">
-                            <CardHeader className="pb-6">
-                                <div className="space-y-1">
-                                    <CardTitle className="font-headline text-2xl group-hover:text-primary transition-colors">{role.title}</CardTitle>
-                                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">{role.roleTitle}</p>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="flex-1">
+                        <Card key={role.title} className="border-2 border-border/40 bg-secondary/20 hover:bg-secondary/40 transition-all duration-500 hover:-translate-y-2 group shadow-sm hover:shadow-xl hover:border-primary/20 flex flex-col p-6">
+                            <div className="space-y-1 text-center mb-6">
+                                <CardTitle className="font-headline text-2xl group-hover:text-primary transition-colors">{role.title}</CardTitle>
+                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">{role.roleTitle}</p>
+                            </div>
+                            <CardContent className="flex-1 p-0">
                                 <ul className="space-y-4">
                                     {role.features.map((feature, i) => (
-                                        <li key={i} className="flex items-start text-sm text-muted-foreground leading-relaxed">
-                                            <span>{feature}</span>
+                                        <li key={i} className="text-center text-sm text-muted-foreground leading-relaxed">
+                                            {feature}
                                         </li>
                                     ))}
                                 </ul>
                             </CardContent>
-                            <CardFooter className="pt-6 border-t border-border/10">
+                            <CardFooter className="pt-6 border-t border-border/10 p-0 mt-6">
                                 <Button variant="ghost" size="sm" className="w-full text-xs font-bold uppercase tracking-widest group-hover:bg-primary group-hover:text-primary-foreground transition-all" asChild>
                                     <Link href="/signup">Explore Workspace</Link>
                                 </Button>
@@ -310,38 +303,42 @@ export default function Home() {
                             <span className="bg-gradient-to-r from-[#60A5FA] to-[#FDE047] text-transparent bg-clip-text">Beautifully.</span>
                         </h2>
                         <p className="text-xl text-muted-foreground leading-relaxed text-balance font-body max-w-xl">
-                            EvenTide is n&apos;t just about logistics; it&apos;s about the heartbeat of celebration. We combine high-performance technology with the soul of African hospitality to ensure that your most precious moments are shared seamlessly and remembered forever.
+                            EvenTide isn't just about logistics; it's about the heartbeat of celebration. We combine high-performance technology with the soul of African hospitality to ensure that your most precious moments are shared seamlessly and remembered forever.
                         </p>
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
-                            <div className="space-y-4">
-                                <div className="h-12 w-12 rounded-2xl bg-secondary flex items-center justify-center shadow-inner">
-                                    <PaletteIcon className="h-6 w-6 text-primary" />
+                            <Card className="p-8 transition-all duration-500 hover:-translate-y-6 hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.3)] border-none bg-secondary/40 group relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-1.5 h-full bg-primary transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top" />
+                                <div className="h-14 w-14 rounded-2xl bg-background flex items-center justify-center shadow-inner group-hover:bg-primary/10 transition-colors mb-6">
+                                    <PaletteIcon className="h-7 w-7 text-primary" />
                                 </div>
-                                <h3 className="font-bold text-xl font-headline">Poetic Precision</h3>
-                                <p className="text-sm text-muted-foreground leading-relaxed">Every detail, from invitations to menus, is curated by Eni to reflect unparalleled elegance.</p>
-                            </div>
-                            <div className="space-y-4">
-                                <div className="h-12 w-12 rounded-2xl bg-secondary flex items-center justify-center shadow-inner">
-                                    <Users className="h-6 w-6 text-primary" />
+                                <h3 className="font-bold text-2xl font-headline group-hover:text-primary transition-colors">Poetic Precision</h3>
+                                <p className="text-sm text-muted-foreground mt-4 leading-relaxed">Every detail, from invitations to menus, is curated by Eni to reflect unparalleled elegance.</p>
+                            </Card>
+                            <Card className="p-8 transition-all duration-500 hover:-translate-y-6 hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.3)] border-none bg-secondary/40 group relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-1.5 h-full bg-primary transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top" />
+                                <div className="h-14 w-14 rounded-2xl bg-background flex items-center justify-center shadow-inner group-hover:bg-primary/10 transition-colors mb-6">
+                                    <Users className="h-7 w-7 text-primary" />
                                 </div>
-                                <h3 className="font-bold text-xl font-headline">Cultural Resonance</h3>
-                                <p className="text-sm text-muted-foreground leading-relaxed">We celebrate heritage, using language and design that speaks to the heart of community.</p>
-                            </div>
-                            <div className="space-y-4">
-                                <div className="h-12 w-12 rounded-2xl bg-secondary flex items-center justify-center shadow-inner">
-                                    <Sparkles className="h-6 w-6 text-primary" />
+                                <h3 className="font-bold text-2xl font-headline group-hover:text-primary transition-colors">Cultural Resonance</h3>
+                                <p className="text-sm text-muted-foreground mt-4 leading-relaxed">We celebrate heritage, using language and design that speaks to the heart of community.</p>
+                            </Card>
+                            <Card className="p-8 transition-all duration-500 hover:-translate-y-6 hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.3)] border-none bg-secondary/40 group relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-1.5 h-full bg-primary transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top" />
+                                <div className="h-14 w-14 rounded-2xl bg-background flex items-center justify-center shadow-inner group-hover:bg-primary/10 transition-colors mb-6">
+                                    <Sparkles className="h-7 w-7 text-primary" />
                                 </div>
-                                <h3 className="font-bold text-xl font-headline">Effortless Harmony</h3>
-                                <p className="text-sm text-muted-foreground leading-relaxed">Our technology works silently, so you can be fully present with the people you love.</p>
-                            </div>
-                            <div className="space-y-4">
-                                <div className="h-12 w-12 rounded-2xl bg-secondary flex items-center justify-center shadow-inner">
-                                    <BookOpen className="h-6 w-6 text-primary" />
+                                <h3 className="font-bold text-2xl font-headline group-hover:text-primary transition-colors">Effortless Harmony</h3>
+                                <p className="text-sm text-muted-foreground mt-4 leading-relaxed">Our technology works silently, so you can be fully present with the people you love.</p>
+                            </Card>
+                            <Card className="p-8 transition-all duration-500 hover:-translate-y-6 hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.3)] border-none bg-secondary/40 group relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-1.5 h-full bg-primary transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top" />
+                                <div className="h-14 w-14 rounded-2xl bg-background flex items-center justify-center shadow-inner group-hover:bg-primary/10 transition-colors mb-6">
+                                    <BookOpen className="h-7 w-7 text-primary" />
                                 </div>
-                                <h3 className="font-bold text-xl font-headline">Living Archives</h3>
-                                <p className="text-sm text-muted-foreground leading-relaxed">Transforming one-day events into lasting digital stories through curated galleries and magazines.</p>
-                            </div>
+                                <h3 className="font-bold text-2xl font-headline group-hover:text-primary transition-colors">Living Archives</h3>
+                                <p className="text-sm text-muted-foreground mt-4 leading-relaxed">Transforming one-day events into lasting digital stories through curated galleries and magazines.</p>
+                            </Card>
                         </div>
                     </div>
                     <div className="w-full lg:w-1/2 relative">
@@ -462,7 +459,7 @@ export default function Home() {
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 items-stretch">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
-                  "flex flex-col transition-all duration-500 relative border-2 border-primary/10 overflow-hidden rounded-[2rem]", 
+                  "flex flex-col transition-all duration-500 relative border-2 border-primary/20 overflow-hidden rounded-[2rem]", 
                   tier.isPopular ? "border-primary/50 ring-1 ring-primary/20 shadow-[0_32px_64px_-12px_rgba(var(--primary),0.3)] scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/40 hover:bg-background/60 shadow-sm hover:border-primary/30"
                 )}>
                   {tier.isPopular && <Badge className="absolute -top-0 right-6 rounded-t-none rounded-b-xl shadow-lg px-4 py-1.5 font-bold uppercase tracking-widest text-[10px]">Standard Entry</Badge>}
@@ -477,9 +474,6 @@ export default function Home() {
                     <ul className="space-y-4 pt-4 border-t border-border/10">
                       {tier.features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-3 text-[13px] text-muted-foreground">
-                          <div className="mt-1 flex-shrink-0">
-                            <ChevronRight className="h-3.5 w-3.5 text-primary" />
-                          </div>
                           <span className="leading-snug">{feature}</span>
                         </li>
                       ))}

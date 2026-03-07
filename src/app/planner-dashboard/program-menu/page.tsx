@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -30,7 +29,7 @@ export default function ProgramMenuHubPage() {
 
     const assignmentsQuery = useMemoFirebase(() => {
         if (!firestore || !user?.uid) return null;
-        return query(collection(firestore, 'planners'), where('plannerId', '==', user.uid));
+        return query(collection(firestore, 'planners', user.uid, 'assignments'), where('status', '==', 'accepted'));
     }, [firestore, user?.uid]);
     const { data: assignments, isLoading: isLoadingAssignments } = useCollection<EventPlannerAssignment>(assignmentsQuery);
     
