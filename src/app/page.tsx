@@ -7,14 +7,11 @@ import {
   ArrowRight,
   CheckCircle,
   Home as HomeIcon,
-  Palette,
-  ShieldCheck,
   Users,
-  Wand2,
-  ChevronRight,
-  Shield,
   QrCode,
+  Shield,
   Sparkles,
+  ChevronRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
