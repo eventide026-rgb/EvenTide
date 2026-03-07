@@ -150,7 +150,7 @@ export function ControlPanel({
                                             )} 
                                             onClick={() => handleSetBackground(design.imageUrl)}
                                         >
-                                            <Image src={design.imageUrl} alt={design.name} fill className="object-cover"/>
+                                            <Image src={design.imageUrl} alt={design.name} fill className="object-cover" data-ai-hint="stationery design" />
                                             <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
                                         </button>
                                     ))}

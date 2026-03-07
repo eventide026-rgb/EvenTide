@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InvitationPreviewCard } from './previews/invitation-preview';
 import { GatepassPreviewCard } from './previews/gatepass-preview';
 import { ProgramPreviewCard } from './previews/program-preview';
