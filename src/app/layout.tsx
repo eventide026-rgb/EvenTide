@@ -4,6 +4,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { FirebaseClientProvider } from '@/firebase';
 import { AuthRedirector } from '@/components/auth/auth-redirector';
+import { CommandCenter } from '@/components/layout/command-center';
 
 export const metadata: Metadata = {
   title: 'EvenTide',
@@ -26,6 +27,7 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <FirebaseClientProvider>
           <AuthRedirector />
+          <CommandCenter />
           {children}
         </FirebaseClientProvider>
         <Toaster />
