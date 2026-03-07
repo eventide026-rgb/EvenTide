@@ -9,15 +9,14 @@ import dynamic from 'next/dynamic';
  */
 
 const PublicVendorsClient = dynamic(() => import('@/components/marketplace/public-vendors-client').then(mod => mod.PublicVendorsClient), {
-  ssr: false,
-  loading: () => <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>
+  loading: () => <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
 });
 
 export const revalidate = 3600; // ISR: 1 hour
 
 export default function PublicVendorsPage() {
   return (
-    <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
       <PublicVendorsClient />
     </Suspense>
   );
