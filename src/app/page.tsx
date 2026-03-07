@@ -7,7 +7,6 @@ import {
   ArrowRight,
   CalendarPlus,
   ShieldCheck,
-  Heart,
   Palette as PaletteIcon,
   BookOpen,
   Bot,
@@ -293,6 +292,9 @@ export default function Home() {
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
                 <h2 className="text-4xl md:text-6xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary">Beautifully.</span></h2>
+                <p className="mt-6 text-xl text-muted-foreground max-w-3xl mx-auto font-body text-balance">
+                    Our vision is to transform every gathering into a narrative masterpiece, leveraging technology to honor culture and connection.
+                </p>
             </div>
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div className="flex justify-center">
@@ -380,7 +382,7 @@ export default function Home() {
               </div>
               <div className="order-1 lg:order-2">
                 <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-accent/5 text-accent text-[10px] font-bold uppercase tracking-[0.25em] border border-accent/10 mb-8">
-                  <Sparkles className="h-3.5 w-3.5" /> The AI Soul of EvenTide
+                  <span className="animate-pulse">●</span> The AI Soul of EvenTide
                 </div>
                 <h2 className="text-5xl md:text-7xl font-headline font-bold mb-8 tracking-tight text-balance leading-tight">
                   Meet Eni, Your <br /><span className="text-primary">AI Partner</span>
@@ -545,7 +547,6 @@ export default function Home() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[150px] -z-10" />
           <div className="container mx-auto px-4 text-center">
             <div className="inline-flex items-center gap-2 mb-10 px-6 py-2 rounded-full bg-background border shadow-sm">
-                <Sparkles className="h-5 w-5 text-accent animate-pulse" />
                 <span className="text-sm font-bold uppercase tracking-[0.2em]">Ready to begin?</span>
             </div>
             <h2 className="text-5xl font-headline font-bold md:text-8xl text-foreground text-balance leading-[1.1] mb-10">

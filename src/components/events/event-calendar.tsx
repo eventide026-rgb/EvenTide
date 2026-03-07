@@ -4,6 +4,7 @@
 import { useMemo, useState } from 'react';
 import {
   useCollection,
+  useDoc,
   useFirestore,
   useUser,
   useMemoFirebase,

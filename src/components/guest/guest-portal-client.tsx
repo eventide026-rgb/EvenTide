@@ -1,23 +1,24 @@
+
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { useCollection, useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, where, getDocs, limit, doc, serverTimestamp, addDoc, orderBy } from 'firebase/firestore';
-import { Loader2, Music, Image as ImageIcon, Calendar, Gift, Vote, PenSquare, UserCheck, Star, MapPin, Sparkles, Send, CircleCheck } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection, query, where, getDocs, limit, doc, serverTimestamp, addDoc, updateDoc, increment, arrayUnion, orderBy } from 'firebase/firestore';
+import { Loader2, Music, Image as ImageIcon, Calendar, Gift, Vote, PenSquare, UserCheck, MapPin, Sparkles, Send, CircleCheck } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { format } from 'date-fns';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import { ProgramPreviewCard } from '../stationery/previews/program-preview';
 import { MenuPreviewCard } from '../stationery/previews/menu-preview';
 import { ImageUploader } from '../image-uploader';
+import { Progress } from '../ui/progress';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { Label } from '../ui/label';
 
 type Event = {
     id: string;
@@ -38,6 +39,21 @@ type Guest = {
     hasCheckedIn: boolean;
 };
 
+type Poll = {
+    id: string;
+    question: string;
+    options: { text: string; votes: number }[];
+    totalVotes: number;
+    voters: string[];
+};
+
+type Autograph = {
+    id: string;
+    guestName: string;
+    message: string;
+    createdAt: any;
+};
+
 export function GuestPortalClient({ eventCode }: { eventCode: string }) {
     const firestore = useFirestore();
     const { user } = useUser();
@@ -51,6 +67,12 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
     // Identification State
     const [lookupCode, setLookupCode] = useState('');
     const [isIdentifying, setIsIdentifying] = useState(false);
+
+    // Interaction Inputs
+    const [songTitle, setSongTitle] = useState('');
+    const [artist, setArtist] = useState('');
+    const [autographMsg, setAutographMsg] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Initial Event Lookup
     useEffect(() => {
@@ -67,200 +89,203 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
         fetchEvent();
     }, [firestore, eventCode]);
 
-    // Check session for existing identification
-    useEffect(() => {
-        const savedGuestId = sessionStorage.getItem(`guest_id_${eventCode}`);
-        if (savedGuestId && event?.id) {
-            // Re-identify
-            const fetchGuest = async () => {
-                const gRef = doc(firestore, 'events', event.id, 'guests', savedGuestId);
-                const gSnap = await getDocs(query(collection(firestore, 'events', event.id, 'guests'), where('id', '==', savedGuestId), limit(1)));
-                if (!gSnap.empty) {
-                    setGuest({ id: gSnap.docs[0].id, ...gSnap.docs[0].data() } as Guest);
-                }
-            };
-            fetchGuest();
-        }
-    }, [event, eventCode, firestore]);
-
+    // Identification Logic
     const handleIdentify = async () => {
         if (!event || !lookupCode) return;
         setIsIdentifying(true);
         try {
-            // Find guest by code or name
-            const q = query(
-                collection(firestore, 'events', event.id, 'guests'), 
-                where('guestCode', '==', lookupCode.trim().toUpperCase()), 
-                limit(1)
-            );
+            const q = query(collection(firestore, 'events', event.id, 'guests'), where('guestCode', '==', lookupCode.trim().toUpperCase()), limit(1));
             const snap = await getDocs(q);
             if (!snap.empty) {
                 const gData = { id: snap.docs[0].id, ...snap.docs[0].data() } as Guest;
                 setGuest(gData);
                 sessionStorage.setItem(`guest_id_${eventCode}`, gData.id);
-                toast({ title: `Welcome, ${gData.name}!`, description: "You are now identified." });
+                toast({ title: `Welcome, ${gData.name}!` });
             } else {
-                toast({ variant: 'destructive', title: "Invalid Code", description: "Could not find a guest matching this code." });
+                toast({ variant: 'destructive', title: "Invalid Code" });
             }
-        } catch (e) {
-            console.error(e);
         } finally {
             setIsIdentifying(false);
         }
     };
 
-    if (isLoadingEvent) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-secondary">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            </div>
-        );
-    }
+    // Real-time Polls
+    const pollsQuery = useMemoFirebase(() => event ? query(collection(firestore, 'events', event.id, 'polls')) : null, [event, firestore]);
+    const { data: polls } = useCollection<Poll>(pollsQuery);
 
-    if (!event) {
-        return (
-            <div className="flex min-h-screen flex-col items-center justify-center bg-secondary p-4 text-center">
-                <h1 className="text-4xl font-headline font-bold text-primary">404</h1>
-                <p className="mt-2 text-muted-foreground">Event not found. Please double check your link.</p>
-            </div>
+    // Real-time Autographs
+    const autographsQuery = useMemoFirebase(() => event ? query(collection(firestore, 'events', event.id, 'autographs'), orderBy('createdAt', 'desc'), limit(10)) : null, [event, firestore]);
+    const { data: autographs } = useCollection<Autograph>(autographsQuery);
+
+    // Handlers
+    const handleSongRequest = async () => {
+        if (!event || !guest || !songTitle) return;
+        setIsSubmitting(true);
+        try {
+            await addDoc(collection(firestore, 'events', event.id, 'songRequests'), {
+                songTitle,
+                artist,
+                requesterName: guest.name,
+                status: 'pending',
+                createdAt: serverTimestamp(),
+            });
+            toast({ title: "Song Requested!", description: "The DJ has received your request." });
+            setSongTitle('');
+            setArtist('');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleVote = async (poll: Poll, optionText: string) => {
+        if (!event || !user || poll.voters?.includes(user.uid)) return;
+        const pollRef = doc(firestore, 'events', event.id, 'polls', poll.id);
+        const updatedOptions = poll.options.map(opt => 
+            opt.text === optionText ? { ...opt, votes: (opt.votes || 0) + 1 } : opt
         );
-    }
+        await updateDoc(pollRef, {
+            options: updatedOptions,
+            totalVotes: increment(1),
+            voters: arrayUnion(user.uid)
+        });
+        toast({ title: "Vote Cast!" });
+    };
+
+    const handleAutograph = async () => {
+        if (!event || !guest || !autographMsg) return;
+        setIsSubmitting(true);
+        try {
+            await addDoc(collection(firestore, 'events', event.id, 'autographs'), {
+                guestName: guest.name,
+                message: autographMsg,
+                createdAt: serverTimestamp(),
+            });
+            toast({ title: "Message Left!", description: "Thank you for your kind words." });
+            setAutographMsg('');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    if (isLoadingEvent) return <div className="flex h-screen items-center justify-center bg-secondary"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
+    if (!event) return <div className="flex min-h-screen items-center justify-center text-muted-foreground p-4">Event not found.</div>;
 
     return (
         <div className="min-h-screen bg-background pb-20">
-            {/* Celebration Header */}
+            {/* Header */}
             <div className="relative h-64 w-full text-white flex items-end p-6 overflow-hidden">
-                <Image 
-                    src={`https://picsum.photos/seed/${event.id}/1200/800`} 
-                    alt="Celebration" 
-                    fill 
-                    className="object-cover brightness-50"
-                />
+                <Image src={`https://picsum.photos/seed/${event.id}/1200/800`} alt="Event" fill className="object-cover brightness-50" />
                 <div className="relative z-10 space-y-2">
-                    <Badge className="bg-accent text-accent-foreground font-bold uppercase tracking-widest">{event.eventType}</Badge>
+                    <Badge className="bg-accent text-accent-foreground">{event.eventType}</Badge>
                     <h1 className="text-3xl font-headline font-bold">{event.name}</h1>
-                    <p className="text-sm opacity-90 flex items-center gap-2"><Calendar className="h-4 w-4" />{format(event.eventDate.toDate(), 'PPP p')}</p>
-                    <p className="text-sm opacity-90 flex items-center gap-2"><MapPin className="h-4 w-4" />{event.location}</p>
+                    <p className="text-sm flex items-center gap-2"><MapPin className="h-4 w-4" />{event.location}</p>
                 </div>
             </div>
 
-            {/* Personalized Welcome / Identification Bar */}
+            {/* Identification Bar */}
             <div className="bg-muted/50 border-b p-4">
                 {guest ? (
                     <div className="container flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
-                                <UserCheck className="h-5 w-5 text-primary" />
-                            </div>
-                            <div>
-                                <p className="font-bold text-sm">Identified as {guest.name}</p>
-                                <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">{guest.category}</p>
-                            </div>
+                            <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center"><UserCheck className="h-5 w-5 text-primary" /></div>
+                            <div><p className="font-bold text-sm">Welcome, {guest.name}</p><p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">{guest.category}</p></div>
                         </div>
-                        {guest.hasCheckedIn && <Badge className="bg-green-600"><CircleCheck className="h-3 w-3 mr-1" /> Checked-In</Badge>}
+                        {guest.hasCheckedIn && <Badge className="bg-green-600">Checked-In</Badge>}
                     </div>
                 ) : (
                     <div className="container flex flex-col md:flex-row items-center gap-4">
-                        <div className="flex-1 text-center md:text-left">
-                            <p className="text-sm font-semibold">Enter your Guest Code to see your seat & request songs.</p>
-                        </div>
+                        <p className="text-sm font-semibold text-center">Identify yourself to unlock interactive features.</p>
                         <div className="flex w-full md:w-auto gap-2">
-                            <Input 
-                                placeholder="Guest Code" 
-                                className="h-9 w-32 uppercase" 
-                                value={lookupCode} 
-                                onChange={e => setLookupCode(e.target.value)} 
-                            />
-                            <Button size="sm" onClick={handleIdentify} disabled={isIdentifying}>
-                                {isIdentifying ? <Loader2 className="h-4 w-4 animate-spin"/> : "Identify"}
-                            </Button>
+                            <Input placeholder="Guest Code" className="h-9 w-32 uppercase" value={lookupCode} onChange={e => setLookupCode(e.target.value)} />
+                            <Button size="sm" onClick={handleIdentify} disabled={isIdentifying}>Identify</Button>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Mobile Tabbed Content */}
+            {/* Main Tabs */}
             <div className="container mx-auto px-4 mt-6">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                    <TabsList className="w-full flex h-12 bg-muted/50 p-1 rounded-xl overflow-x-auto no-scrollbar">
+                    <TabsList className="w-full h-12 bg-muted/50 p-1 rounded-xl">
                         <TabsTrigger value="program" className="flex-1 rounded-lg text-xs font-bold">Program</TabsTrigger>
-                        <TabsTrigger value="seat" className="flex-1 rounded-lg text-xs font-bold">My Seat</TabsTrigger>
                         <TabsTrigger value="interact" className="flex-1 rounded-lg text-xs font-bold">Interact</TabsTrigger>
                         <TabsTrigger value="media" className="flex-1 rounded-lg text-xs font-bold">Gallery</TabsTrigger>
                         <TabsTrigger value="gift" className="flex-1 rounded-lg text-xs font-bold">Gifts</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="program" className="mt-6 space-y-6">
-                        <div className="max-w-md mx-auto">
+                        <div className="max-w-md mx-auto space-y-6">
                             <ProgramPreviewCard event={event} />
-                            <div className="mt-6">
-                                <MenuPreviewCard event={event} />
-                            </div>
+                            <MenuPreviewCard event={event} />
                         </div>
                     </TabsContent>
 
-                    <TabsContent value="seat" className="mt-6">
-                        <Card className="max-w-md mx-auto border-none shadow-xl bg-gradient-to-br from-primary/5 to-background">
-                            <CardHeader className="text-center">
-                                <div className="mx-auto bg-primary/10 p-4 rounded-full w-fit mb-4">
-                                    <Sparkles className="h-8 w-8 text-primary" />
-                                </div>
-                                <CardTitle>Assigned Placement</CardTitle>
-                                <CardDescription>Your location in the celebration hall.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="text-center pb-10">
-                                {guest ? (
-                                    <div className="space-y-4">
-                                        <div className="flex justify-center gap-8">
-                                            <div>
-                                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Table</p>
-                                                <p className="text-4xl font-bold">12</p>
-                                            </div>
-                                            <div className="w-[1px] bg-border h-12" />
-                                            <div>
-                                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Seat</p>
-                                                <p className="text-4xl font-bold">4</p>
-                                            </div>
-                                        </div>
-                                        <Button variant="outline" className="rounded-full">View Chart</Button>
-                                    </div>
-                                ) : (
-                                    <div className="py-8">
-                                        <p className="text-muted-foreground text-sm">Please identify yourself to view your assigned seat.</p>
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </TabsContent>
-
                     <TabsContent value="interact" className="mt-6 space-y-6">
-                        <div className="grid md:grid-cols-2 gap-6">
+                        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                            {/* Polls */}
+                            <Card>
+                                <CardHeader><CardTitle className="flex items-center gap-2"><Vote className="h-5 w-5 text-primary"/> Live Polls</CardTitle></CardHeader>
+                                <CardContent className="space-y-6">
+                                    {polls?.map(poll => {
+                                        const hasVoted = poll.voters?.includes(user?.uid || '');
+                                        return (
+                                            <div key={poll.id} className="space-y-3">
+                                                <p className="font-bold text-sm">{poll.question}</p>
+                                                {hasVoted ? (
+                                                    poll.options.map((opt, i) => (
+                                                        <div key={i} className="space-y-1">
+                                                            <div className="flex justify-between text-xs font-medium"><span>{opt.text}</span><span>{Math.round((opt.votes / (poll.totalVotes || 1)) * 100)}%</span></div>
+                                                            <Progress value={(opt.votes / (poll.totalVotes || 1)) * 100} className="h-1.5" />
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <RadioGroup onValueChange={val => handleVote(poll, val)} className="grid gap-2">
+                                                        {poll.options.map((opt, i) => (
+                                                            <div key={i} className="flex items-center space-x-2 border p-2 rounded-lg hover:bg-muted transition-colors">
+                                                                <RadioGroupItem value={opt.text} id={`${poll.id}-${i}`} />
+                                                                <Label htmlFor={`${poll.id}-${i}`} className="flex-1 cursor-pointer">{opt.text}</Label>
+                                                            </div>
+                                                        ))}
+                                                    </RadioGroup>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                    {!polls?.length && <p className="text-center text-sm text-muted-foreground py-4">No active polls at the moment.</p>}
+                                </CardContent>
+                            </Card>
+
                             {/* Song Requests */}
                             <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2"><Music className="h-5 w-5 text-primary"/> Song Requests</CardTitle>
-                                </CardHeader>
-                                <CardContent>
+                                <CardHeader><CardTitle className="flex items-center gap-2"><Music className="h-5 w-5 text-primary"/> Request a Song</CardTitle></CardHeader>
+                                <CardContent className="space-y-4">
                                     {guest ? (
-                                        <div className="flex gap-2">
-                                            <Input placeholder="Song Name & Artist..." />
-                                            <Button size="icon"><Send className="h-4 w-4"/></Button>
-                                        </div>
+                                        <>
+                                            <Input placeholder="Song Name" value={songTitle} onChange={e => setSongTitle(e.target.value)} />
+                                            <Input placeholder="Artist (Optional)" value={artist} onChange={e => setArtist(e.target.value)} />
+                                            <Button className="w-full" onClick={handleSongRequest} disabled={isSubmitting || !songTitle}>Send Request</Button>
+                                        </>
                                     ) : (
-                                        <p className="text-xs text-muted-foreground">Identifying yourself allows you to request songs from the DJ.</p>
+                                        <p className="text-center text-sm text-muted-foreground py-4">Identify yourself to request songs.</p>
                                     )}
                                 </CardContent>
                             </Card>
 
                             {/* Autograph Wall */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2"><PenSquare className="h-5 w-5 text-primary"/> Celebration Wall</CardTitle>
-                                </CardHeader>
-                                <CardContent>
+                            <Card className="md:col-span-2">
+                                <CardHeader><CardTitle className="flex items-center gap-2"><PenSquare className="h-5 w-5 text-primary"/> Celebration Wall</CardTitle></CardHeader>
+                                <CardContent className="space-y-6">
                                     <div className="flex gap-2">
-                                        <Input placeholder="Leave a well-wish..." />
-                                        <Button size="icon" variant="secondary"><Send className="h-4 w-4"/></Button>
+                                        <Input placeholder="Leave a celebratory message..." value={autographMsg} onChange={e => setAutographMsg(e.target.value)} />
+                                        <Button onClick={handleAutograph} disabled={isSubmitting || !autographMsg || !guest}><Send className="h-4 w-4"/></Button>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {autographs?.map(item => (
+                                            <div key={item.id} className="bg-yellow-50 dark:bg-yellow-900/10 p-4 rounded-xl border border-yellow-200/50 shadow-sm rotate-1">
+                                                <p className="text-lg font-['Caveat',_cursive] text-yellow-900 dark:text-yellow-200">&quot;{item.message}&quot;</p>
+                                                <p className="text-right text-[10px] font-bold uppercase tracking-widest text-yellow-700/60 mt-2">— {item.guestName}</p>
+                                            </div>
+                                        ))}
                                     </div>
                                 </CardContent>
                             </Card>
@@ -269,29 +294,20 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
 
                     <TabsContent value="media" className="mt-6">
                         <div className="max-w-4xl mx-auto space-y-6">
-                            <Card className="border-dashed">
-                                <CardContent className="pt-6">
-                                    <ImageUploader eventId={event.id} />
-                                </CardContent>
-                            </Card>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                                {[...Array(8)].map((_, i) => (
-                                    <div key={i} className="aspect-square relative rounded-lg overflow-hidden bg-muted">
-                                        <Image src={`https://picsum.photos/seed/${i + event.id}/300/300`} fill className="object-cover opacity-80" alt="Gallery" />
-                                    </div>
-                                ))}
+                            <Card className="border-dashed"><CardContent className="pt-6"><ImageUploader eventId={event.id} /></CardContent></Card>
+                            <div className="text-center text-muted-foreground py-12 border-2 border-dashed rounded-3xl">
+                                <ImageIcon className="h-12 w-12 mx-auto mb-2 opacity-20" />
+                                <p>Live Photo Stream will appear here.</p>
                             </div>
                         </div>
                     </TabsContent>
 
                     <TabsContent value="gift" className="mt-6">
                         <div className="max-w-md mx-auto text-center space-y-6 py-12">
-                            <div className="mx-auto bg-accent/10 p-6 rounded-full w-fit">
-                                <Gift className="h-12 w-12 text-accent" />
-                            </div>
+                            <div className="mx-auto bg-accent/10 p-6 rounded-full w-fit"><Gift className="h-12 w-12 text-accent" /></div>
                             <h2 className="text-2xl font-headline font-bold">The Gift Registry</h2>
-                            <p className="text-muted-foreground">Contribute to the celebration by selecting an item from the registry.</p>
-                            <Button className="w-full h-12 rounded-full font-bold">View Registry Items</Button>
+                            <p className="text-muted-foreground">Select an item from the registry to contribute to the celebration.</p>
+                            <Button className="w-full h-12 rounded-full font-bold">Browse Registry</Button>
                         </div>
                     </TabsContent>
                 </Tabs>
