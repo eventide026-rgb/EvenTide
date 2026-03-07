@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 
 /**
  * @fileOverview Planner Dashboard (Server Component)
+ * Converted to Server Component for performance and scalability.
  */
 export default async function PlannerDashboardPage() {
   return (
