@@ -31,7 +31,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Search, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, Search, CircleCheck, CircleX } from 'lucide-react';
 import { useDebounce } from 'use-debounce';
 
 type EventPlannerAssignment = {
@@ -107,11 +107,7 @@ export default function ManualCheckinPage() {
       });
     } catch (error) {
       console.error('Error updating check-in status:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Update Failed',
-        description: 'Could not update the guest\'s status.',
-      });
+      toast({ variant: 'destructive', title: 'Update Failed' });
     }
   };
   
@@ -122,19 +118,17 @@ export default function ManualCheckinPage() {
       <Card>
         <CardHeader>
           <CardTitle>Manual Guest Check-in</CardTitle>
-          <CardDescription>
-            Search for a guest to manually manage their check-in status for the selected event.
-          </CardDescription>
+          <CardDescription>Search for a guest to manually manage their check-in status.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
             <Label>Select Event</Label>
              {isLoading ? (
-                <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /><span>Loading events...</span></div>
+                <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /><span>Loading...</span></div>
             ) : (
                 <Select onValueChange={setSelectedEventId} value={selectedEventId || ''}>
                 <SelectTrigger className="w-full md:w-1/2">
-                    <SelectValue placeholder="Choose an event to manage check-in" />
+                    <SelectValue placeholder="Choose an event" />
                 </SelectTrigger>
                 <SelectContent>
                     {events && events.length > 0 ? (
@@ -165,9 +159,7 @@ export default function ManualCheckinPage() {
             <CardHeader><CardTitle>Guest Roster</CardTitle></CardHeader>
             <CardContent>
             {isLoadingGuests ? (
-                <div className="flex justify-center items-center h-64">
-                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                </div>
+                <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
             ) : (
                 <div className="rounded-md border">
                     <Table>
@@ -199,18 +191,14 @@ export default function ManualCheckinPage() {
                                 variant={guest.hasCheckedIn ? 'destructive' : 'default'}
                                 onClick={() => handleToggleCheckIn(guest)}
                                 >
-                                {guest.hasCheckedIn ? <XCircle className="mr-2 h-4 w-4" /> : <CheckCircle className="mr-2 h-4 w-4" />}
+                                {guest.hasCheckedIn ? <CircleX className="mr-2 h-4 w-4" /> : <CircleCheck className="mr-2 h-4 w-4" />}
                                 {guest.hasCheckedIn ? 'Revoke' : 'Check In'}
                                 </Button>
                             </TableCell>
                             </TableRow>
                         ))
                         ) : (
-                        <TableRow>
-                            <TableCell colSpan={4} className="h-24 text-center">
-                            No guests found.
-                            </TableCell>
-                        </TableRow>
+                        <TableRow><TableCell colSpan={4} className="h-24 text-center">No guests found.</TableCell></TableRow>
                         )}
                     </TableBody>
                     </Table>

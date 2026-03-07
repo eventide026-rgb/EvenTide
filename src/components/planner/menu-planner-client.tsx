@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -36,7 +36,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Loader2, PlusCircle, Save, Sparkles, Trash2 } from 'lucide-react';
+import { Loader2, CirclePlus, Save, Sparkles, Trash2 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 
 type Event = {
@@ -195,12 +195,12 @@ export function MenuPlannerClient({ eventId, isReadOnly: forceReadOnly = false }
                                     )}
                                  </div>
                             ))}
-                            {!isReadOnly && <Button type="button" variant="outline" size="sm" onClick={() => addDish(index)}><PlusCircle className="mr-2 h-4 w-4"/>Add Dish</Button>}
+                            {!isReadOnly && <Button type="button" variant="outline" size="sm" onClick={() => addDish(index)}><CirclePlus className="mr-2 h-4 w-4"/>Add Dish</Button>}
                         </AccordionContent>
                     </AccordionItem>
                 ))}
             </Accordion>
-            {!isReadOnly && <Button type="button" variant="secondary" onClick={() => append({title: 'New Course', dishes: []})}><PlusCircle className="mr-2 h-4 w-4"/>Add Course</Button>}
+            {!isReadOnly && <Button type="button" variant="secondary" onClick={() => append({title: 'New Course', dishes: []})}><CirclePlus className="mr-2 h-4 w-4"/>Add Course</Button>}
         </form>
     </Form>
   );

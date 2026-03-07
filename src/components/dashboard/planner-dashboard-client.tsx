@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Briefcase,
-  CheckSquare,
+  SquareCheck,
   MoreVertical,
   Users,
   Loader2,
@@ -56,7 +56,6 @@ export function PlannerDashboardClient() {
   const firestore = useFirestore();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
-  // Fetch planner's assigned and accepted events
   const assignmentsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return query(
@@ -133,13 +132,12 @@ export function PlannerDashboardClient() {
   }, [events, selectedEventId]);
 
   const isLoading = isUserLoading || isLoadingAssignments || isLoadingEvents;
-  const isLoadingDetails = isLoadingGuests || isLoadingTasks;
 
   return (
     <div className="space-y-8">
       <div className="flex justify-end">
         <Button asChild variant="outline" className="w-full sm:w-auto shadow-sm">
-          <Link href="/planner-dashboard/invitations"><Mail className="mr-2 h-4 w-4" /> Gig Invitations</Link>
+          <Link href="/planner/invitations"><Mail className="mr-2 h-4 w-4" /> Gig Invitations</Link>
         </Button>
       </div>
 
@@ -178,9 +176,7 @@ export function PlannerDashboardClient() {
                 </ul>
               ) : (
                 <div className="text-center py-8">
-                    <p className="text-sm text-muted-foreground">
-                    No active assignments.
-                    </p>
+                    <p className="text-sm text-muted-foreground">No active assignments.</p>
                 </div>
               )}
             </CardContent>
@@ -236,7 +232,7 @@ export function PlannerDashboardClient() {
                 </Card>
                  <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2 text-muted-foreground"><CheckSquare className="h-4 w-4" /> Validated Arrivals</CardTitle>
+                        <CardTitle className="text-sm font-medium flex items-center gap-2 text-muted-foreground"><SquareCheck className="h-4 w-4" /> Validated Arrivals</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-3xl font-bold">
@@ -263,11 +259,11 @@ export function PlannerDashboardClient() {
                         <CardDescription>High-priority logistical milestones.</CardDescription>
                     </div>
                     <Button variant="ghost" size="sm" asChild>
-                        <Link href="/planner-dashboard/tasks">View Board</Link>
+                        <Link href="/planner/tasks">View Board</Link>
                     </Button>
                 </CardHeader>
                  <CardContent className="pt-6">
-                    {isLoadingDetails ? <Loader2 className="h-6 w-6 animate-spin mx-auto" /> : (
+                    {isLoadingTasks ? <Loader2 className="h-6 w-6 animate-spin mx-auto" /> : (
                         tasks && tasks.length > 0 ? (
                             <div className="space-y-3">
                                 {tasks.map(task => (

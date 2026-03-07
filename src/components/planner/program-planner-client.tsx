@@ -47,7 +47,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Loader2, PlusCircle, Save, Sparkles, Trash2 } from 'lucide-react';
+import { Loader2, CirclePlus, Save, Sparkles, Trash2 } from 'lucide-react';
 
 type Event = {
   id: string;
@@ -194,7 +194,7 @@ export function ProgramPlannerClient({ eventId, isReadOnly = false }: ProgramPla
             ))}
             {!isReadOnly && (
                 <Button type="button" variant="outline" onClick={() => append({ title: '', startTime: '00:00', duration: 10, notes: '', status: 'Upcoming' })}>
-                   <PlusCircle className="mr-2 h-4 w-4" /> Add Program Item
+                   <CirclePlus className="mr-2 h-4 w-4" /> Add Program Item
                 </Button>
             )}
         </form>

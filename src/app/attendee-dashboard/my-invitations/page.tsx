@@ -1,10 +1,9 @@
 
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, QrCode } from 'lucide-react';
+import { CircleCheck, CircleX, QrCode } from 'lucide-react';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, where, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
@@ -24,12 +23,10 @@ type Announcement = {
     timestamp: any;
 };
 
-// This is a placeholder. In a real application, the guest's context (including their ID and the event ID)
-// would be managed through a secure session or context provider after they log in.
-const MOCK_GUEST_ID = 'YOUR_MOCK_GUEST_ID';   // Mock guest document ID
-const MOCK_GUEST_CATEGORY = 'VIP';            // Mock guest category for filtering announcements
-const MOCK_RSVP_STATUS: 'Pending' | 'Accepted' | 'Declined' = 'Pending'; // Mock initial RSVP status
-
+// Mock data placeholders for legacy session handling
+const MOCK_GUEST_ID = 'YOUR_MOCK_GUEST_ID';
+const MOCK_GUEST_CATEGORY = 'VIP';
+const MOCK_RSVP_STATUS: 'Pending' | 'Accepted' | 'Declined' = 'Pending';
 
 export default function MyInvitationsPage() {
   const firestore = useFirestore();
@@ -37,13 +34,9 @@ export default function MyInvitationsPage() {
   const { toast } = useToast();
   const router = useRouter();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  
-  // This will be populated from session storage or a similar mechanism
   const [eventDetails, setEventDetails] = useState<{id: string, code: string, name: string} | null>(null);
 
   useEffect(() => {
-    // In a real app, you would get this from a secure context after login.
-    // For now, we'll retrieve it from session storage for demonstration.
     const eventId = sessionStorage.getItem('guestEventId');
     const eventCode = sessionStorage.getItem('guestEventCode');
     const eventName = sessionStorage.getItem('guestEventName');
@@ -52,16 +45,13 @@ export default function MyInvitationsPage() {
         setEventDetails({id: eventId, code: eventCode, name: eventName});
         setSelectedEventId(eventId);
     } else if (!user) {
-        // If there's no user and no session data, they probably shouldn't be here.
         router.push('/guest-login');
     }
   }, [user, router]);
 
-
   const [rsvpStatus, setRsvpStatus] = useState<'Pending' | 'Accepted' | 'Declined'>(MOCK_RSVP_STATUS);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Query for announcements targeted at all guests OR the specific guest's category
   const announcementsQuery = useMemoFirebase(() => {
     if (!firestore || !selectedEventId) return null;
     return query(
@@ -79,19 +69,15 @@ export default function MyInvitationsPage() {
         return;
     }
     setIsSubmitting(true);
-    // In a real app, MOCK_GUEST_ID would come from the user's session
     const guestRef = doc(firestore, 'events', selectedEventId, 'guests', MOCK_GUEST_ID);
 
     try {
         await updateDoc(guestRef, { rsvpStatus: status });
         setRsvpStatus(status);
-        toast({
-            title: 'RSVP Submitted',
-            description: `You have successfully ${status.toLowerCase()} the invitation.`,
-        });
+        toast({ title: 'RSVP Submitted', description: `You have successfully ${status.toLowerCase()} the invitation.` });
     } catch (error) {
         console.error("Error updating RSVP:", error);
-        toast({ variant: 'destructive', title: 'Update Failed', description: 'Could not update your RSVP status.' });
+        toast({ variant: 'destructive', title: 'Update Failed' });
     } finally {
         setIsSubmitting(false);
     }
@@ -101,7 +87,7 @@ export default function MyInvitationsPage() {
       return (
           <div className="flex justify-center items-center h-64">
               <Loader2 className="h-8 w-8 animate-spin" />
-              <p className="ml-4">Loading your event details...</p>
+              <p className="ml-4 text-muted-foreground">Loading your event details...</p>
           </div>
       )
   }
@@ -129,14 +115,14 @@ export default function MyInvitationsPage() {
                         onClick={() => handleRsvp('Declined')}
                         disabled={isSubmitting}
                     >
-                        <XCircle className='mr-2 h-4 w-4' /> Decline
+                        <CircleX className='mr-2 h-4 w-4' /> Decline
                     </Button>
                     <Button 
                         className={cn('w-full', rsvpStatus === 'Accepted' && 'bg-green-600 hover:bg-green-700')}
                         onClick={() => handleRsvp('Accepted')}
                         disabled={isSubmitting}
                     >
-                        {isSubmitting && rsvpStatus !== 'Accepted' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className='mr-2 h-4 w-4' /> }
+                        {isSubmitting && rsvpStatus !== 'Accepted' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CircleCheck className='mr-2 h-4 w-4' /> }
                         Accept
                     </Button>
                 </div>

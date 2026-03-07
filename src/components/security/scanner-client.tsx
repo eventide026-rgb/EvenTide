@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { ScanLine, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { ScanLine, CircleCheck, CircleX, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore } from '@/firebase';
@@ -49,9 +49,9 @@ export default function ScannerClient({ eventId }: { eventId: string }) {
     try {
         const parsed = JSON.parse(scannedText);
         guestIdToSimulate = parsed.guestId;
-        if(!guestIdToSimulate) throw new Error("Invalid QR code format.");
+        if(!guestIdToSimulate) throw new Error("Invalid format");
     } catch (e) {
-        setScannedData({ name: 'Invalid QR Code', category: '', message: 'This is not a valid event ticket.' });
+        setScannedData({ name: 'Invalid QR', category: '', message: 'Not a valid ticket.' });
         setScanStatus('failure');
         return;
     }
@@ -61,9 +61,7 @@ export default function ScannerClient({ eventId }: { eventId: string }) {
         const guestRef = doc(firestore, 'events', eventId, 'guests', guestIdToSimulate);
         const guestSnap = await getDoc(guestRef);
 
-        if (!guestSnap.exists()) {
-          throw new Error('Guest not found on the guest list.');
-        }
+        if (!guestSnap.exists()) throw new Error('Guest not found.');
 
         const guest = guestSnap.data() as Guest;
         
@@ -73,68 +71,37 @@ export default function ScannerClient({ eventId }: { eventId: string }) {
              return;
         }
 
-        await updateDoc(guestRef, {
-            hasCheckedIn: true,
-            checkInTime: serverTimestamp(),
-        });
-        
+        await updateDoc(guestRef, { hasCheckedIn: true, checkInTime: serverTimestamp() });
         setScannedData({ name: guest.name, category: guest.category });
         setScanStatus('success');
-
       } catch (error: any) {
-        console.error("Scan validation error:", error);
-        setScannedData({ name: 'Invalid Scan', category: '', message: error.message || 'Could not validate ticket.' });
+        setScannedData({ name: 'Invalid Scan', category: '', message: error.message });
         setScanStatus('failure');
       }
   }, [firestore, eventId, scanStatus]);
 
-  const onScanSuccess = useCallback((decodedText: string, result: Html5QrcodeResult) => {
-    handleScanResult(decodedText);
-  }, [handleScanResult]);
-
-  const onScanFailure = (error: Html5QrcodeError) => {
-    // Ignore common "not found" errors during active scanning
-  };
+  const onScanSuccess = useCallback((decodedText: string) => handleScanResult(decodedText), [handleScanResult]);
 
   useEffect(() => {
-    const getCameraAndStartScanner = async () => {
+    const startScanner = async () => {
         try {
             await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-            setHasCameraPermission(true);
-
             if (!scannerRef.current) {
                 const scanner = new Html5Qrcode('reader');
                 scannerRef.current = scanner;
-                scanner.start(
-                    { facingMode: "environment" },
-                    { fps: 10, qrbox: { width: 250, height: 250 } },
-                    onScanSuccess,
-                    onScanFailure
-                ).catch(err => {
-                    console.error("Failed to start scanner", err);
-                    toast({ variant: 'destructive', title: 'Scanner Error', description: 'Could not start the QR code scanner.' });
-                });
+                await scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess, () => {});
             }
         } catch (error) {
-            console.error('Error accessing camera:', error);
             setHasCameraPermission(false);
-            toast({
-              variant: 'destructive',
-              title: 'Camera Access Denied',
-              description: 'Please enable camera permissions in your browser settings to use this feature.',
-            });
         }
     }
-
-    getCameraAndStartScanner();
-
+    startScanner();
     return () => {
-        if (scannerRef.current && scannerRef.current.isScanning) {
-            scannerRef.current.stop().catch(err => console.error("Failed to stop scanner", err));
+        if (scannerRef.current?.isScanning) {
+            scannerRef.current.stop().catch(console.error);
         }
     };
-  }, [onScanSuccess, toast]);
-
+  }, [onScanSuccess]);
 
   useEffect(() => {
     if (scanStatus !== 'scanning') {
@@ -152,18 +119,14 @@ export default function ScannerClient({ eventId }: { eventId: string }) {
         <CardContent className="p-0">
           <div className="relative aspect-square w-full bg-black">
              <div id="reader" className="w-full h-full" />
-
             {!hasCameraPermission && (
               <div className="absolute inset-0 flex items-center justify-center p-4 bg-black/80">
                 <Alert variant="destructive">
                   <AlertTitle>Camera Access Required</AlertTitle>
-                  <AlertDescription>
-                    Please allow camera access in your browser settings to use the scanner.
-                  </AlertDescription>
+                  <AlertDescription>Please allow camera access to use the scanner.</AlertDescription>
                 </Alert>
               </div>
             )}
-
             <div className={cn(
                 "absolute inset-0 flex flex-col items-center justify-center p-4 text-center text-white transition-all duration-300",
                 scanStatus === 'scanning' && 'bg-black/50 pointer-events-none',
@@ -175,24 +138,22 @@ export default function ScannerClient({ eventId }: { eventId: string }) {
                     <>
                         <div className="w-2/3 h-2/3 border-4 border-dashed border-white/50 rounded-lg" />
                         <ScanLine className="absolute w-2/3 h-10 text-primary animate-pulse" />
-                        <p className="absolute bottom-4 text-lg font-semibold">Scan Guest's QR Code</p>
+                        <p className="absolute bottom-4 text-lg font-semibold">Scan Ticket QR Code</p>
                     </>
                  )}
                  {scanStatus === 'loading' && <Loader2 className="h-24 w-24 animate-spin" />}
                  {scanStatus === 'success' && (
                     <>
-                        <CheckCircle className="h-32 w-32" />
-                        <h2 className="text-4xl font-bold mt-4">Access Granted</h2>
+                        <CircleCheck className="h-32 w-32" />
+                        <h2 className="text-4xl font-bold mt-4">Verified</h2>
                         <p className="text-xl mt-2">{scannedData?.name}</p>
-                        <p className="text-md text-white/80">{scannedData?.category}</p>
                     </>
                  )}
                  {scanStatus === 'failure' && (
                     <>
-                        <XCircle className="h-32 w-32" />
-                        <h2 className="text-4xl font-bold mt-4">Access Denied</h2>
-                        <p className="text-xl mt-2">{scannedData?.message || 'Invalid Ticket'}</p>
-                        <p className="text-md text-white/80">{scannedData?.name}</p>
+                        <CircleX className="h-32 w-32" />
+                        <h2 className="text-4xl font-bold mt-4">Denied</h2>
+                        <p className="text-xl mt-2">{scannedData?.message}</p>
                     </>
                  )}
             </div>

@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, MoreVertical, Calendar, Users, Percent, CheckCircle, Loader2 } from "lucide-react";
+import { CirclePlus, MoreVertical, Calendar, Users, Percent, CircleCheck, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
@@ -109,14 +109,13 @@ export function OwnerDashboardClient() {
     }, [events, selectedEventId]);
     
     const isLoading = isUserLoading || isLoadingEvents;
-    const isLoadingDetails = isLoadingGuests || isLoadingTasks;
 
     return (
         <div className="space-y-8">
             <div className="flex justify-end">
                 <Button asChild className="w-full sm:w-auto shadow-lg shadow-primary/20">
                     <Link href="/owner/create-event">
-                        <PlusCircle className="mr-2 h-4 w-4" />
+                        <CirclePlus className="mr-2 h-4 w-4" />
                         Create New Event
                     </Link>
                 </Button>
@@ -236,7 +235,7 @@ export function OwnerDashboardClient() {
 
                             <Card>
                                 <CardHeader className="pb-2">
-                                    <CardTitle className="text-sm font-medium flex items-center gap-2 text-muted-foreground"><CheckCircle className="h-4 w-4" /> On-Site Check-ins</CardTitle>
+                                    <CardTitle className="text-sm font-medium flex items-center gap-2 text-muted-foreground"><CircleCheck className="h-4 w-4" /> On-Site Check-ins</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-3xl font-bold">
@@ -247,7 +246,6 @@ export function OwnerDashboardClient() {
                             </Card>
                         </div>
 
-                        {/* Marketplace Matching Engine Widget */}
                         <RecommendedVendors 
                           criteria={{
                             city: selectedEvent.city || 'Lagos',
@@ -271,7 +269,7 @@ export function OwnerDashboardClient() {
                                 </div>
                             </CardHeader>
                             <CardContent className="pt-6">
-                                {isLoadingDetails ? (
+                                {isLoadingTasks ? (
                                     <div className="space-y-4">
                                         <Skeleton className="h-12 w-full rounded-lg" />
                                         <Skeleton className="h-12 w-full rounded-lg" />
@@ -294,7 +292,7 @@ export function OwnerDashboardClient() {
                                         </div>
                                     ) : (
                                         <div className="text-center py-12 border-2 border-dashed rounded-2xl">
-                                            <CheckCircle className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                                            <CircleCheck className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
                                             <p className="text-sm text-muted-foreground">All logistical milestones for this week are clear.</p>
                                         </div>
                                     )
@@ -305,7 +303,7 @@ export function OwnerDashboardClient() {
                     ) : (
                          <div className="flex flex-col items-center justify-center text-center py-32 bg-muted/20 border-2 border-dashed rounded-3xl">
                             <div className="p-6 bg-background rounded-full shadow-lg mb-6">
-                                <PlusCircle className="h-12 w-12 text-primary" />
+                                <CirclePlus className="h-12 w-12 text-primary" />
                             </div>
                             <h3 className="text-2xl font-headline font-bold">No Active Celebration</h3>
                             <p className="text-muted-foreground mt-2 max-w-md mx-auto px-4">
