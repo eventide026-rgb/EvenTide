@@ -14,7 +14,9 @@ import {
   ChevronRight,
   CalendarPlus,
   ShieldCheck,
-  Zap,
+  Heart,
+  Palette as PaletteIcon,
+  BookOpen,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -142,6 +144,7 @@ const getImage = (id: string) => {
 
 export default function Home() {
   const heroImage = getImage('eventHall');
+  const missionImage = getImage('africansFun2');
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -258,6 +261,79 @@ export default function Home() {
               ))}
             </div>
           </div>
+        </section>
+
+        {/* Vision Section: Bringing People Together Beautifully */}
+        <section className="py-20 md:py-32 overflow-hidden">
+            <div className="container mx-auto px-4">
+                <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
+                    <div className="w-full lg:w-1/2 space-y-8">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest">
+                            <Heart className="h-3 w-3" /> Our Mission
+                        </div>
+                        <h2 className="text-4xl md:text-6xl font-headline font-bold leading-[1.1] text-balance">
+                            Bringing People Together, <br />
+                            <span className="bg-gradient-to-r from-[#60A5FA] to-[#FDE047] text-transparent bg-clip-text">Beautifully.</span>
+                        </h2>
+                        <p className="text-lg text-muted-foreground leading-relaxed text-balance">
+                            EvenTide isn&apos;t just about logistics; it&apos;s about the heartbeat of celebration. We combine high-performance technology with the soul of African hospitality to ensure that your most precious moments are shared seamlessly and remembered forever.
+                        </p>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                            <div className="space-y-3">
+                                <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center">
+                                    <PaletteIcon className="h-5 w-5 text-primary" />
+                                </div>
+                                <h3 className="font-bold text-lg">Poetic Precision</h3>
+                                <p className="text-sm text-muted-foreground">Every detail, from invitations to menus, is curated by Eni to reflect unparalleled elegance.</p>
+                            </div>
+                            <div className="space-y-3">
+                                <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center">
+                                    <Users className="h-5 w-5 text-primary" />
+                                </div>
+                                <h3 className="font-bold text-lg">Cultural Resonance</h3>
+                                <p className="text-sm text-muted-foreground">We celebrate the richness of heritage, using language and design that speaks to the heart of community.</p>
+                            </div>
+                            <div className="space-y-3">
+                                <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center">
+                                    <Sparkles className="h-5 w-5 text-primary" />
+                                </div>
+                                <h3 className="font-bold text-lg">Effortless Harmony</h3>
+                                <p className="text-sm text-muted-foreground">Our technology works silently in the background, so you can be fully present with the people you love.</p>
+                            </div>
+                            <div className="space-y-3">
+                                <div className="h-10 w-10 rounded-lg bg-secondary flex items-center justify-center">
+                                    <BookOpen className="h-5 w-5 text-primary" />
+                                </div>
+                                <h3 className="font-bold text-lg">Living Archives</h3>
+                                <p className="text-sm text-muted-foreground">Transforming one-day events into lasting digital stories through curated galleries and magazines.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="w-full lg:w-1/2 relative">
+                        <div className="aspect-[4/5] relative rounded-[2rem] overflow-hidden shadow-2xl">
+                            {missionImage && (
+                                <Image 
+                                    src={missionImage.imageUrl}
+                                    alt="African celebration"
+                                    fill
+                                    className="object-cover"
+                                    data-ai-hint="nigerian celebration"
+                                />
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                            <div className="absolute bottom-8 left-8 right-8">
+                                <p className="text-white font-logo text-2xl font-bold italic leading-tight">
+                                    &quot;To turn every moment into EvenTide.&quot;
+                                </p>
+                            </div>
+                        </div>
+                        {/* Decorative Element */}
+                        <div className="absolute -bottom-6 -right-6 h-32 w-32 bg-[#FDE047]/20 rounded-full blur-3xl -z-10" />
+                        <div className="absolute -top-6 -left-6 h-32 w-32 bg-[#60A5FA]/20 rounded-full blur-3xl -z-10" />
+                    </div>
+                </div>
+            </div>
         </section>
 
         {/* Pricing Section */}
