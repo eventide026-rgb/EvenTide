@@ -4,7 +4,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where, doc, getDocs, documentId } from 'firebase/firestore';
-import { DayPicker, Day, type DayProps } from 'react-day-picker';
+import { DayPicker, type DayProps } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { isSameDay, format, getDay } from 'date-fns';
 
@@ -134,18 +134,18 @@ export default function PlannerCalendarPage() {
   }, [calendarItems, selectedDate]);
 
   function DayWithDot(props: DayProps) {
-    const { date, displayMonth } = props;
+    const { day } = props;
+    const date = day.date;
     const isMarked = markedDates.some(d => isSameDay(d, date));
 
-    if (date && isMarked) {
-        return (
-            <div className="relative flex items-center justify-center h-full w-full">
-                <Day {...props} />
+    return (
+        <div className="relative flex items-center justify-center h-full w-full">
+            <button {...props} className={cn(props.className, "h-full w-full")} />
+            {isMarked && (
                 <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-primary" />
-            </div>
-        );
-    }
-    return <Day {...props} />;
+            )}
+        </div>
+    );
   }
   
   const formatShortWeekday = (date: Date) => {
@@ -182,9 +182,6 @@ export default function PlannerCalendarPage() {
                 className="w-full"
                 modifiers={{ marked: markedDates }}
                 formatters={{ formatShortWeekday }}
-                modifiersStyles={{
-                    marked: { backgroundColor: 'hsl(var(--primary) / 0.1)', borderRadius: '50%'}
-                }}
                 components={{
                   Day: DayWithDot,
                 }}

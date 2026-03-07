@@ -14,8 +14,6 @@ import {
   serverTimestamp,
   documentId,
   updateDoc,
-  arrayUnion,
-  arrayRemove
 } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -331,5 +329,3 @@ export default function TeamManagementPage() {
     </div>
   );
 }
-
-    

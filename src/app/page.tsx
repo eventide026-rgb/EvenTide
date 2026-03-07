@@ -352,12 +352,12 @@ export default function Home() {
                                     alt="African celebration"
                                     fill
                                     className="object-cover"
-                                    data-ai-hint="nigerian celebration"
+                                    data-ai-hint="nigerian wedding"
                                 />
                             )}
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                             <div className="absolute bottom-8 left-8 right-8">
-                                <p className="text-white font-logo text-2xl font-bold italic leading-tight">
+                                <p className="text-white font-logo text-2xl font-bold italic leading-tight text-balance">
                                     &quot;To turn every moment into EvenTide.&quot;
                                 </p>
                             </div>
@@ -381,7 +381,7 @@ export default function Home() {
                   Meet Eni, Your <br />AI Assistant
                 </h2>
                 <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-lg text-balance">
-                  Eni is your poetic creative director and meticulous logistical coordinator. Experience her warmth instantly by generating a personalized welcome message for your event.
+                  Experience the power of AI. Eni is your poetic creative director and meticulous logistical coordinator. Experience her warmth instantly by generating a personalized welcome message for your event.
                 </p>
                 <div className="space-y-4 max-w-sm">
                   <div className="space-y-2">
@@ -406,7 +406,7 @@ export default function Home() {
                     className="w-full h-12 rounded-full font-bold shadow-lg shadow-primary/20"
                   >
                     {isGeneratingEni ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                    Experience the Magic
+                    Generate Welcome Message
                   </Button>
                 </div>
               </div>
@@ -494,7 +494,7 @@ export default function Home() {
 
         {/* Final CTA Section */}
         <section className="py-24 md:py-40 relative overflow-hidden">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] -z-10" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl -z-10" />
           <div className="container mx-auto px-4 text-center">
             <Sparkles className="h-12 w-12 text-accent mx-auto mb-6" />
             <h2 className="text-4xl font-headline font-bold md:text-6xl text-foreground text-balance">

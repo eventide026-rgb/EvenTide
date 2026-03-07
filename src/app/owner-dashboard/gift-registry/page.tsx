@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where, addDoc, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -36,7 +36,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Loader2, Trash2, Gift, Banknote } from 'lucide-react';
+import { Loader2, Trash2, Gift, Banknote, CirclePlus as PlusCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -277,7 +277,7 @@ export default function GiftRegistryPage() {
                                 )}/>
                                 <Button type="submit" disabled={giftForm.formState.isSubmitting}>
                                     {giftForm.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                    Add to Registry
+                                    <PlusCircle className="mr-2 h-4 w-4" /> Add to Registry
                                 </Button>
                             </form>
                         </Form>

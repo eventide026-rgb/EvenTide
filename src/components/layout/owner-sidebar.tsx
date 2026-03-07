@@ -19,7 +19,7 @@ import {
   FileText,
   ClipboardList,
   ShieldCheck,
-  ImageIcon,
+  Image as ImageIcon,
   Camera,
   User,
   Hotel,
