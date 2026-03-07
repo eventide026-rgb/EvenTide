@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -291,8 +290,8 @@ export default function Home() {
             </div>
             <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
               {howItWorksSteps.map((step, index) => (
-                <Card key={index} className="border border-border/50 bg-background/80 backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-500 rounded-3xl group overflow-hidden relative">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                <Card key={index} className="border-2 border-border/60 bg-background/80 backdrop-blur-xl shadow-lg hover:shadow-2xl hover:border-primary/40 transition-all duration-500 rounded-3xl group overflow-hidden relative">
+                  <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary to-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                   <CardHeader className="text-center items-center pb-4 pt-10">
                     <div className="mb-6 bg-primary/5 p-6 rounded-3xl group-hover:bg-primary/10 group-hover:rotate-6 transition-all duration-500">
                       {step.icon}

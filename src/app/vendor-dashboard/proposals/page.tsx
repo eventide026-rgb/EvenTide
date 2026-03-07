@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useMemo } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, collectionGroup, query, where, doc, updateDoc, documentId, arrayUnion, writeBatch } from 'firebase/firestore';
+import { collection, query, where, doc, documentId, arrayUnion, writeBatch, collectionGroup } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -116,7 +115,7 @@ export default function ProposalsPage() {
             {pendingProposals.length > 0 ? (
                 <div className="space-y-4">
                     {pendingProposals.map(proposal => (
-                        <Card key={proposal.id} className="p-4">
+                        <Card key={proposal.id} className="p-4 border-2">
                             <div className="grid md:grid-cols-3 gap-4">
                                 <div className="md:col-span-2 space-y-2">
                                     <h3 className="font-semibold text-lg">{getEventName(proposal.eventId)}</h3>
