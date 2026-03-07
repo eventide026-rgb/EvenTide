@@ -19,7 +19,7 @@ import { useState, use } from 'react';
 import { useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { collection, writeBatch, doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { Loader2, PlusCircle, Trash2, ArrowLeft } from 'lucide-react';
+import { Loader2, CirclePlus, Trash2, ArrowLeft } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
 
@@ -166,7 +166,7 @@ export default function TicketTiersPage({ params }: { params: Promise<{ showId: 
                                 </div>
                                 ))}
                                 <Button type="button" variant="outline" size="sm" onClick={() => append({ name: "", price: 0, quantity: 0 })}>
-                                    <PlusCircle className="mr-2 h-4 w-4" /> Add Another Tier
+                                    <CirclePlus className="mr-2 h-4 w-4" /> Add Another Tier
                                 </Button>
                             </div>
 

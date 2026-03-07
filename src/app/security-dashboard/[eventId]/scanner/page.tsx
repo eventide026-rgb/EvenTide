@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use } from 'react';
@@ -6,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 
 /**
  * @fileOverview Scanner Page (Client Component)
- * Next.js 15 requires params to be handled as a Promise.
+ * Next.js 15 requires params to be handled as a Promise and resolved with 'use'.
  */
 
 const ScannerClient = dynamic(() => import('@/components/security/scanner-client'), { 

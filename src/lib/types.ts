@@ -8,6 +8,10 @@ export type Vendor = {
   state?: string;
   bio?: string;
   avatarUrl?: string;
+  websiteUrl?: string;
+  instagramUrl?: string;
+  tiktokUrl?: string;
+  facebookUrl?: string;
   portfolio?: {
     imageUrl: string;
     description: string;

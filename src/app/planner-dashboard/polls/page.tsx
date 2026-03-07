@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, PlusCircle, Trash2, Vote } from 'lucide-react';
+import { Loader2, CirclePlus, Trash2, Vote } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 
 type EventPlannerAssignment = {
@@ -189,7 +189,7 @@ export default function PollsPage() {
                     )} />
                   ))}
                   <Button type="button" size="sm" variant="outline" className="mt-2" onClick={() => append({ text: '' })}>
-                    <PlusCircle className="mr-2 h-4 w-4" /> Add Option
+                    <CirclePlus className="mr-2 h-4 w-4" /> Add Option
                   </Button>
                 </div>
                 <Button type="submit" className="w-full" disabled={!selectedEventId || form.formState.isSubmitting}>

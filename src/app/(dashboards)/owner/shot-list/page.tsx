@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -13,7 +14,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2, CirclePlus, Trash2, Camera, CheckCircle } from 'lucide-react';
+import { Loader2, CirclePlus, Trash2, Camera, CircleCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { useCollection } from '@/firebase/firestore/use-collection';
@@ -153,7 +154,7 @@ export default function ShotListPage() {
                                         <TableCell>{shot.description}</TableCell>
                                         <TableCell>
                                             <Badge variant={shot.status === 'completed' ? 'default' : 'outline'} className={shot.status === 'completed' ? 'bg-green-600' : ''}>
-                                                {shot.status === 'completed' ? <CheckCircle className="mr-1 h-3 w-3" /> : <Camera className="mr-1 h-3 w-3" />}
+                                                {shot.status === 'completed' ? <CircleCheck className="mr-1 h-3 w-3" /> : <Camera className="mr-1 h-3 w-3" />}
                                                 {shot.status}
                                             </Badge>
                                         </TableCell>

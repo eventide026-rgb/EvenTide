@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, QrCode } from 'lucide-react';
+import { CircleCheck, CircleX, QrCode } from 'lucide-react';
 import { useCollection, useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, where, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
@@ -142,14 +142,14 @@ export default function MyInvitationsPage() {
                         onClick={() => handleRsvp('Declined')}
                         disabled={isSubmitting}
                     >
-                        <XCircle className='mr-2 h-4 w-4' /> Decline
+                        <CircleX className='mr-2 h-4 w-4' /> Decline
                     </Button>
                     <Button 
                         className={cn('w-full', rsvpStatus === 'Accepted' && 'bg-green-600 hover:bg-green-700')}
                         onClick={() => handleRsvp('Accepted')}
                         disabled={isSubmitting}
                     >
-                        {isSubmitting && rsvpStatus !== 'Accepted' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className='mr-2 h-4 w-4' /> }
+                        {isSubmitting && rsvpStatus !== 'Accepted' ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CircleCheck className='mr-2 h-4 w-4' /> }
                         Accept
                     </Button>
                 </div>

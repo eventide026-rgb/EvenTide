@@ -42,7 +42,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, PlusCircle, Trash2, DollarSign } from 'lucide-react';
+import { Loader2, CirclePlus, Trash2, DollarSign } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 
 type EventPlannerAssignment = {
@@ -243,7 +243,7 @@ export default function BudgetPage() {
                             <FormMessage/></FormItem>
                         )}/>
                         <Button type="submit" disabled={!selectedEventId || form.formState.isSubmitting} className="w-full">
-                            {form.formState.isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <PlusCircle className="mr-2 h-4 w-4" />}
+                            {form.formState.isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <CirclePlus className="mr-2 h-4 w-4" />}
                             Add Expense
                         </Button>
                     </form>
