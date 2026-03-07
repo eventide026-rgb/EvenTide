@@ -17,13 +17,17 @@ type Issue = {
 };
 
 function MagazineCover({ issue }: { issue: Issue }) {
-    // In a real app, the cover image would be a dedicated field.
-    // For now, we'll generate a consistent one based on the ID.
     const imageUrl = `https://picsum.photos/seed/${issue.id}/400/600`;
     
-    const formattedDate = issue.createdAt?.toDate 
-        ? new Date(issue.createdAt.toDate()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-        : 'Recent Issue';
+    const formattedDate = useMemo(() => {
+        if (!issue.createdAt) return 'Recent Issue';
+        try {
+            const date = issue.createdAt?.toDate ? issue.createdAt.toDate() : new Date(issue.createdAt);
+            return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        } catch (e) {
+            return 'Recent Issue';
+        }
+    }, [issue.createdAt]);
 
     return (
          <Link href={`/resources/magazine/${issue.id}`} key={issue.id} className="group block">
@@ -94,3 +98,5 @@ export default function MagazinePage() {
         </section>
     );
 }
+
+import { useMemo } from 'react';

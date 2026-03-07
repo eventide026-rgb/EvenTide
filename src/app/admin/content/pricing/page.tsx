@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trash2, Edit, PlusCircle } from 'lucide-react';
+import { Loader2, Trash2, Edit, CirclePlus } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -120,7 +120,7 @@ export default function PricingPage() {
         </div>
         <Dialog onOpenChange={(open) => !open && setEditingPlan(null)}>
           <DialogTrigger asChild>
-            <Button><PlusCircle className="mr-2 h-4 w-4" /> Add New Plan</Button>
+            <Button><CirclePlus className="mr-2 h-4 w-4" /> Add New Plan</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>

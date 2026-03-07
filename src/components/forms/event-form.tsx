@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
@@ -21,7 +20,7 @@ import { useState, useEffect } from 'react';
 import { useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { addDoc, collection, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { Loader2, PlusCircle, Trash2, Calendar as CalendarIcon } from 'lucide-react';
+import { Loader2, CirclePlus, Trash2, Calendar as CalendarIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Calendar } from '../ui/calendar';
 import { cn } from '@/lib/utils';
@@ -212,7 +211,6 @@ export function EventForm({ showId }: EventFormProps) {
                                             }
                                             initialFocus
                                         />
-                                        {/* Simple time picker - can be improved */}
                                         <div className="p-2 border-t">
                                             <Input type="time" defaultValue={field.value ? format(field.value, 'HH:mm') : '12:00'} onChange={(e) => {
                                                 const [hours, minutes] = e.target.value.split(':');
@@ -251,7 +249,7 @@ export function EventForm({ showId }: EventFormProps) {
                         />
                     ))}
                     <Button type="button" variant="outline" size="sm" onClick={() => appendImageUrl("")}>
-                        <PlusCircle className="mr-2 h-4 w-4" /> Add Image URL
+                        <CirclePlus className="mr-2 h-4 w-4" /> Add Image URL
                     </Button>
                 </div>
 

@@ -1,10 +1,9 @@
-
 'use client';
 
 import { useMemo, useState, useEffect, Suspense } from 'react';
-import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where, doc, documentId, writeBatch, setDoc, addDoc, getDoc, deleteDoc } from 'firebase/firestore';
-import { Loader2, Armchair, User, Users, Trash2 } from 'lucide-react';
+import { Loader2, Armchair, User, Users, Trash2, CirclePlus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -22,7 +21,6 @@ import { Label } from '../ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
-import { PlusCircle } from 'lucide-react';
 
 /* ---------------------------------- TYPES --------------------------------- */
 
@@ -347,7 +345,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
                                     <Label htmlFor="table-capacity">Capacity</Label>
                                     <Input id="table-capacity" type="number" value={newTableCapacity} onChange={(e) => setNewTableCapacity(Number(e.target.value))}/>
                                 </div>
-                                <Button className="w-full" onClick={handleAddTable} disabled={!selectedEventId || !newTableName}><PlusCircle className="mr-2 h-4 w-4"/>Add Table</Button>
+                                <Button className="w-full" onClick={handleAddTable} disabled={!selectedEventId || !newTableName}><CirclePlus className="mr-2 h-4 w-4"/>Add Table</Button>
                             </CardContent>
                         </Card>
                         <Card className="flex-grow">

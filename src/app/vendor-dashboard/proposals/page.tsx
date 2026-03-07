@@ -1,13 +1,12 @@
-
 'use client';
 
 import { useMemo } from 'react';
-import { useCollection, useCollectionGroup, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collectionGroup, query, where, doc, updateDoc, documentId, arrayUnion, writeBatch } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, FileText, Check, X, Calendar } from 'lucide-react';
+import { Loader2, FileText, CircleCheck, CircleX, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 
 type Proposal = {
@@ -125,8 +124,8 @@ export default function ProposalsPage() {
                                     <p className="font-bold text-lg text-primary">₦{proposal.proposedPayment.toLocaleString()}</p>
                                 </div>
                                 <div className="md:col-span-1 flex md:flex-col gap-2 justify-end">
-                                    <Button size="sm" variant="outline" onClick={() => handleUpdateStatus(proposal, 'declined')}><X className="mr-2 h-4 w-4" /> Decline</Button>
-                                    <Button size="sm" onClick={() => handleUpdateStatus(proposal, 'accepted')}><Check className="mr-2 h-4 w-4" /> Accept</Button>
+                                    <Button size="sm" variant="outline" onClick={() => handleUpdateStatus(proposal, 'declined')}><CircleX className="mr-2 h-4 w-4" /> Decline</Button>
+                                    <Button size="sm" onClick={() => handleUpdateStatus(proposal, 'accepted')}><CircleCheck className="mr-2 h-4 w-4" /> Accept</Button>
                                 </div>
                             </div>
                         </Card>
@@ -144,5 +143,3 @@ export default function ProposalsPage() {
     </div>
   );
 }
-
-    
