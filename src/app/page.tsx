@@ -290,7 +290,7 @@ export default function Home() {
             </div>
             <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
               {howItWorksSteps.map((step, index) => (
-                <Card key={index} className="border-2 border-border/60 bg-background/80 backdrop-blur-xl shadow-lg hover:shadow-2xl hover:border-primary/40 transition-all duration-500 rounded-3xl group overflow-hidden relative">
+                <Card key={index} className="border-2 border-primary/20 bg-background/80 backdrop-blur-xl shadow-lg hover:shadow-2xl hover:border-primary/40 transition-all duration-500 rounded-3xl group overflow-hidden relative">
                   <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary to-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                   <CardHeader className="text-center items-center pb-4 pt-10">
                     <div className="mb-6 bg-primary/5 p-6 rounded-3xl group-hover:bg-primary/10 group-hover:rotate-6 transition-all duration-500">
@@ -320,7 +320,7 @@ export default function Home() {
                             <span className="bg-gradient-to-r from-[#60A5FA] to-[#FDE047] text-transparent bg-clip-text">Beautifully.</span>
                         </h2>
                         <p className="text-xl text-muted-foreground leading-relaxed text-balance font-body max-w-xl">
-                            EvenTide isn&apos;t just about logistics; it&apos;s about the heartbeat of celebration. We combine high-performance technology with the soul of African hospitality to ensure that your most precious moments are shared seamlessly and remembered forever.
+                            EvenTide is n&apos;t just about logistics; it&apos;s about the heartbeat of celebration. We combine high-performance technology with the soul of African hospitality to ensure that your most precious moments are shared seamlessly and remembered forever.
                         </p>
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-10">
@@ -472,8 +472,8 @@ export default function Home() {
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 items-stretch">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
-                  "flex flex-col transition-all duration-500 relative border border-border/40 overflow-hidden rounded-[2rem]", 
-                  tier.isPopular ? "border-primary/50 ring-1 ring-primary/20 shadow-[0_32px_64px_-12px_rgba(var(--primary),0.3)] scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/40 hover:bg-background/60 shadow-sm"
+                  "flex flex-col transition-all duration-500 relative border-2 border-primary/10 overflow-hidden rounded-[2rem]", 
+                  tier.isPopular ? "border-primary/50 ring-1 ring-primary/20 shadow-[0_32px_64px_-12px_rgba(var(--primary),0.3)] scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/40 hover:bg-background/60 shadow-sm hover:border-primary/30"
                 )}>
                   {tier.isPopular && <Badge className="absolute -top-0 right-6 rounded-t-none rounded-b-xl shadow-lg px-4 py-1.5 font-bold uppercase tracking-widest text-[10px]">Standard Entry</Badge>}
                   <CardHeader className="pt-10 pb-6 px-8">

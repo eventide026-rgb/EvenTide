@@ -45,7 +45,7 @@ export default function ProgramMenuHubPage() {
     const isEventSelected = !!selectedEventId;
 
     const CardLink = ({ href, title, description, icon: Icon, disabled }: { href: string, title: string, description: string, icon: React.ElementType, disabled: boolean }) => (
-        <Card className={cn("flex flex-col transition-opacity", disabled && "opacity-50")}>
+        <Card className={cn("flex flex-col transition-opacity border-2 border-primary/10", disabled && "opacity-50")}>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <Icon /> {title}
@@ -69,7 +69,7 @@ export default function ProgramMenuHubPage() {
                 <p className="text-muted-foreground">Orchestrate the event's schedule and culinary experience.</p>
             </div>
             
-            <Card>
+            <Card className="border-2 border-primary/10">
                 <CardHeader>
                     <CardTitle>Step 1: Select an Event</CardTitle>
                     <CardDescription>Choose an event to manage its program and menu.</CardDescription>
