@@ -3,7 +3,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, addDoc, updateDoc, deleteDoc, getDocs, documentId, orderBy } from 'firebase/firestore';
+import { collection, query, where, doc, addDoc, updateDoc, deleteDoc, getDocs, getDoc, documentId, orderBy } from 'firebase/firestore';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';

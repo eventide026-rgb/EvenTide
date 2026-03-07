@@ -54,7 +54,6 @@ import { Loader2, UserPlus, Search, Trash2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import { useCollectionGroup } from 'react-firebase-hooks/firestore';
 
 type Event = {
   id: string;
@@ -111,7 +110,7 @@ export default function TeamManagementPage() {
 
   const { data: assignments, isLoading: isLoadingAssignments } = useCollection(plannerAssignmentsQuery);
   
-  const eventIds = useMemo(() => assignments?.docs.map((doc:any) => doc.data().eventId) || [], [assignments]);
+  const eventIds = useMemo(() => assignments?.map((a: any) => a.eventId) || [], [assignments]);
 
   const eventsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid || !eventIds.length) return null;
@@ -285,7 +284,7 @@ export default function TeamManagementPage() {
                                 {events && events.length > 0 ? (
                                 events.map((event) => (<SelectItem key={event.id} value={event.id}>{event.name}</SelectItem>))
                                 ) : (
-                                <SelectItem value="no-events" disabled>No events assigned</SelectItem>
+                                <SelectItem value="no-events" disabled>Create an event first</SelectItem>
                                 )}
                             </SelectContent>
                             </Select>
@@ -333,5 +332,3 @@ export default function TeamManagementPage() {
     </div>
   );
 }
-
-    

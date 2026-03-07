@@ -11,8 +11,10 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 export default function GatepassPreviewPage({ params }: { params: Promise<{ eventId: string }> }) {
-    const { eventId } = use(params);
+    const resolvedParams = use(params);
+    const eventId = resolvedParams.eventId;
     const firestore = useFirestore();
+    
     const eventRef = useMemoFirebase(() => {
         if (!firestore) return null;
         return doc(firestore, 'events', eventId);

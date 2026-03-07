@@ -377,7 +377,7 @@ function GuestManagementComponent() {
 
 export function GuestManagement() {
   return (
-    <Suspense fallback={<div className="flex justify-center items-center h-full"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+    <Suspense fallback={<div className="flex justify-center items-center h-full"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>}>
       <GuestManagementComponent />
     </Suspense>
   );

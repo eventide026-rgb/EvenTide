@@ -27,29 +27,6 @@ import { Badge } from '@/components/ui/badge';
 
 const rotatingWords = ['Effortlessly', 'Stylishly', 'Beautifully', 'Perfectly'];
 
-const howItWorks = [
-  {
-    icon: <Wand2 className="h-8 w-8 text-primary" />,
-    title: '1. Create Your Event',
-    description: 'Start by setting up your event details, date, and venue. Our intuitive interface makes it a breeze.',
-  },
-  {
-    icon: <Palette className="h-8 w-8 text-primary" />,
-    title: '2. Design with AI',
-    description: "Let Eni, our AI assistant, help you design stunning invitations and branding for your event's theme.",
-  },
-  {
-    icon: <Users className="h-8 w-8 text-primary" />,
-    title: '3. Manage Your Guests',
-    description: 'Easily import, categorize, and communicate with your guests, all from one central dashboard.',
-  },
-  {
-    icon: <ShieldCheck className="h-8 w-8 text-primary" />,
-    title: '4. Execute Flawlessly',
-    description: 'Use our tools for secure check-ins, real-time announcements, and seamless day-of coordination.',
-  },
-];
-
 const roleBenefits = [
     {
         icon: <HomeIcon className="h-8 w-8 text-primary" />,

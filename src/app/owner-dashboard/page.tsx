@@ -13,12 +13,13 @@ import { collection, query, where, orderBy, limit } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isToday, isFuture, format } from 'date-fns';
 import { Countdown } from '@/components/countdown';
+import { Badge } from '@/components/ui/badge';
 
 type Event = {
     id: string;
     name: string;
-    date?: string; // Kept for compatibility with Countdown, will be populated from eventDate
-    eventDate: any; // Firestore Timestamp
+    date?: string; 
+    eventDate: any; 
     eventCode?: string;
     status: "Upcoming" | "In Progress" | "Completed";
     guestLimit?: number;
