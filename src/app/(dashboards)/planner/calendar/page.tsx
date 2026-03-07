@@ -165,7 +165,7 @@ export default function PlannerCalendarPage() {
                 selected={selectedDate}
                 onSelect={setSelectedDate}
                 className="w-full"
-                formatters={{ formatShortWeekday }}
+                formatters={{ formatWeekdayName: formatShortWeekday }}
                 components={{
                   DayContent: (props) => {
                     const isMarked = markedDates.some(d => isSameDay(d, props.date));

@@ -158,6 +158,9 @@ export default function EventCalendar() {
             selected={selectedDate}
             onSelect={setSelectedDate}
             className="w-full"
+            formatters={{ 
+              formatWeekdayName: (date) => ['S', 'M', 'T', 'W', 'T', 'F', 'S'][date.getDay()] 
+            }}
             components={{
               DayContent: (props) => {
                 const date = props.date;

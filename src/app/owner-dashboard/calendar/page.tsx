@@ -1,20 +1,23 @@
 'use client';
 
-import EventCalendar from '@/components/events/event-calendar';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 
-export default function CalendarPage() {
+/**
+ * @fileOverview Legacy path redirector.
+ * Logic moved to high-performance Route Group at src/app/(dashboards)/owner/calendar/page.tsx
+ */
+export default function OwnerCalendarRedirect() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/owner/calendar');
+  }, [router]);
+
   return (
-    <div className="h-full flex flex-col">
-      <header className="pb-4 border-b">
-        <h1 className="text-3xl font-bold font-headline">My Calendar</h1>
-        <p className="text-muted-foreground">
-          A unified view of all your events and task deadlines.
-        </p>
-      </header>
-
-      <div className="flex-1 mt-6">
-        <EventCalendar />
-      </div>
+    <div className="flex h-full min-h-[400px] w-full items-center justify-center">
+      <Loader2 className="h-10 w-10 animate-spin text-primary" />
     </div>
   );
 }
