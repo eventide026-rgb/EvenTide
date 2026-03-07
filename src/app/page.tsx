@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -249,7 +250,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* A Tool for Everyone on the Team - CLEAN RE-DESIGN */}
+        {/* A Tool for Everyone on the Team */}
         <section id="benefits" className="py-24 md:py-32 bg-background">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-20">
@@ -286,12 +287,15 @@ export default function Home() {
             </div>
         </section>
 
-        {/* Vision Section - RE-DESIGN WITH POP-UP CARDS AND SMALLER IMAGE */}
+        {/* Vision Section */}
         <section id="vision" className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden border-y border-border/40">
           <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+                <h2 className="text-4xl md:text-6xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary">Beautifully.</span></h2>
+            </div>
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div className="flex justify-center">
-                <div className="relative w-full max-w-[280px] aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-background/50">
+                <div className="relative w-full max-w-sm aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-background/50">
                   {missionImage && (
                     <Image
                       src={missionImage.imageUrl}
@@ -308,17 +312,13 @@ export default function Home() {
                 </div>
               </div>
               <div className="space-y-8">
-                <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest border border-primary/20">
-                  <Heart className="h-3 w-3" /> Our Mission
-                </div>
-                <h2 className="text-4xl md:text-6xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary">Beautifully.</span></h2>
                 <div className="grid gap-6">
                   {[
                     { icon: PaletteIcon, title: "Poetic Precision", desc: "Every detail, from the stationery to the program, is curated by Eni to reflect unparalleled cultural elegance." },
                     { icon: Sparkles, title: "Effortless Harmony", desc: "We handle the technical complexity silently, allowing you to be fully present in the moments that matter most." },
                     { icon: BookOpen, title: "Living Archives", desc: "Beyond the day-of execution, we transform celebrations into lasting digital stories through our community magazine." }
                   ].map((item, i) => (
-                    <Card key={i} className="bg-background/50 border border-border/40 hover:border-primary/40 shadow-sm hover:shadow-[0_20px_50px_-12px_rgba(var(--primary),0.3)] hover:-translate-y-3 hover:scale-[1.02] transition-all duration-500 ease-out group rounded-2xl">
+                    <Card key={i} className="bg-background/50 border-2 border-border/40 hover:border-primary/40 shadow-sm hover:shadow-[0_20px_50px_-12px_rgba(var(--primary),0.3)] hover:-translate-y-3 hover:scale-[1.02] transition-all duration-500 ease-out group rounded-2xl">
                       <CardContent className="flex gap-4 p-6">
                         <div className="h-12 w-12 shrink-0 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors shadow-inner">
                           <item.icon className="h-6 w-6" />
@@ -336,7 +336,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Meet Eni Section with extra Image */}
+        {/* Meet Eni Section */}
         <section id="meet-eni" className="py-24 md:py-40 bg-primary/[0.02] relative overflow-hidden">
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-2 gap-20 items-center">
@@ -417,7 +417,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Testimonials Section - WITH GOLD BOUNDARY */}
+        {/* Testimonials Section */}
         <section id="testimonials" className="py-24 md:py-32 bg-background border-y border-border/40">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
@@ -449,23 +449,25 @@ export default function Home() {
           </div>
         </section>
 
-        {/* How It Works Section with extra Image */}
+        {/* How It Works Section */}
         <section id="how-it-works" className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden">
           <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-12 gap-12 items-start">
-                <div className="lg:col-span-4 space-y-6">
-                    <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">How It Works</h2>
-                    <p className="text-xl text-muted-foreground text-balance font-body">
-                        A simple, streamlined four-step lifecycle from abstract idea to flawless execution.
-                    </p>
+            <div className="text-center mb-16">
+                <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">How It Works</h2>
+                <p className="mt-6 text-xl text-muted-foreground text-balance font-body max-w-3xl mx-auto">
+                    A simple, streamlined four-step lifecycle from abstract idea to flawless execution.
+                </p>
+            </div>
+            <div className="grid lg:grid-cols-12 gap-12 items-center">
+                <div className="lg:col-span-5">
                     {processImage && (
-                        <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border-2 border-border/40 mt-8 group animate-in slide-in-from-left duration-1000">
+                        <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border-2 border-border/40 group animate-in slide-in-from-left duration-1000">
                             <Image src={processImage.imageUrl} alt={processImage.description} fill className="object-cover group-hover:scale-110 transition-transform duration-[2000ms]" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                         </div>
                     )}
                 </div>
-                <div className="lg:col-span-8">
+                <div className="lg:col-span-7">
                     <div className="grid gap-8 sm:grid-cols-2 relative">
                     {howItWorksSteps.map((step, index) => (
                         <Card key={index} className="border-2 border-border/40 bg-background/80 backdrop-blur-xl shadow-lg hover:shadow-2xl hover:border-primary/40 transition-all duration-500 rounded-3xl group overflow-hidden relative p-2">
@@ -487,7 +489,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Pricing Section - WITH CAPSULE ON EDGE */}
+        {/* Pricing Section */}
         <section id="pricing" className="py-24 md:py-40 border-t border-border/40">
           <div className="container mx-auto px-4">
             <div className="text-center mb-20">
