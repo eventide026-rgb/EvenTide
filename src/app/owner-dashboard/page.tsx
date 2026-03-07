@@ -2,6 +2,7 @@
 import { Suspense } from 'react';
 import { OwnerDashboardClient } from '@/components/dashboard/owner-dashboard-client';
 import { Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 /**
  * @fileOverview Owner Dashboard (Server Component)

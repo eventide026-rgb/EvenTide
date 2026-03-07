@@ -7,7 +7,6 @@ import { doc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
-// Dynamic imports for heavy studio components
 const ControlPanel = dynamic(() => import('@/components/stationery/control-panel').then(m => m.ControlPanel), {
     ssr: false,
     loading: () => <div className="flex h-full items-center justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
