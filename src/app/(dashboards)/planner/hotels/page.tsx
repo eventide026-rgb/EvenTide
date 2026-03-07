@@ -7,7 +7,6 @@ import {
   query,
   where,
   or,
-  QueryConstraint,
 } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { NigerianStatesAndCities } from '@/lib/nigerian-states';
@@ -34,7 +33,7 @@ export default function PlannerHotelSearchPage() {
   const hotelsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
 
-    const constraints: QueryConstraint[] = [];
+    const constraints: any[] = [];
     if (debouncedSearchTerm) {
          constraints.push(
             or(

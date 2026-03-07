@@ -7,7 +7,6 @@ import {
   query,
   where,
   or,
-  QueryConstraint,
 } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { NigerianStatesAndCities } from '@/lib/nigerian-states';
@@ -34,7 +33,8 @@ export default function OwnerHotelSearchPage() {
   const hotelsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
 
-    const constraints: QueryConstraint[] = [];
+    // Using any[] for constraints to bypass strict QueryConstraint vs QueryCompositeFilterConstraint spread issues
+    const constraints: any[] = [];
     if (debouncedSearchTerm) {
          constraints.push(
             or(
@@ -43,9 +43,6 @@ export default function OwnerHotelSearchPage() {
             )
         );
     }
-    
-    // Note: State and City filtering is handled client-side in this version 
-    // to avoid complex composite index requirements for MVP.
     
     return query(collection(firestore, 'hotels'), ...constraints);
 
