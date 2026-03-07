@@ -291,19 +291,21 @@ export default function Home() {
         <section id="vision" className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden">
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
-              <div className="relative aspect-square md:aspect-video lg:aspect-square rounded-3xl overflow-hidden shadow-2xl">
-                {missionImage && (
-                  <Image
-                    src={missionImage.imageUrl}
-                    alt={missionImage.description}
-                    fill
-                    className="object-cover"
-                    data-ai-hint={missionImage.imageHint}
-                  />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                <div className="absolute bottom-8 left-8">
-                  <p className="text-white font-logo text-2xl font-bold italic tracking-tight">"To turn every moment into EvenTide."</p>
+              <div className="flex justify-center">
+                <div className="relative w-full max-w-md aspect-square rounded-[3rem] overflow-hidden shadow-2xl">
+                  {missionImage && (
+                    <Image
+                      src={missionImage.imageUrl}
+                      alt={missionImage.description}
+                      fill
+                      className="object-cover"
+                      data-ai-hint={missionImage.imageHint}
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  <div className="absolute bottom-8 left-0 right-0 text-center">
+                    <p className="text-white font-logo text-xl font-bold italic tracking-tight px-4">"To turn every moment into EvenTide."</p>
+                  </div>
                 </div>
               </div>
               <div className="space-y-8">
@@ -312,33 +314,23 @@ export default function Home() {
                 </div>
                 <h2 className="text-4xl md:text-6xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary">Beautifully.</span></h2>
                 <div className="grid gap-6">
-                  <div className="flex gap-4">
-                    <div className="h-10 w-10 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <PaletteIcon className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg">Poetic Precision</h3>
-                      <p className="text-muted-foreground">Every detail, from the stationery to the program, is curated by Eni to reflect unparalleled cultural elegance.</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    <div className="h-10 w-10 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Sparkles className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg">Effortless Harmony</h3>
-                      <p className="text-muted-foreground">We handle the technical complexity silently, allowing you to be fully present in the moments that matter most.</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-4">
-                    <div className="h-10 w-10 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <BookOpen className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg">Living Archives</h3>
-                      <p className="text-muted-foreground">Beyond the day-of execution, we transform celebrations into lasting digital stories through our community magazine.</p>
-                    </div>
-                  </div>
+                  {[
+                    { icon: PaletteIcon, title: "Poetic Precision", desc: "Every detail, from the stationery to the program, is curated by Eni to reflect unparalleled cultural elegance." },
+                    { icon: Sparkles, title: "Effortless Harmony", desc: "We handle the technical complexity silently, allowing you to be fully present in the moments that matter most." },
+                    { icon: BookOpen, title: "Living Archives", desc: "Beyond the day-of execution, we transform celebrations into lasting digital stories through our community magazine." }
+                  ].map((item, i) => (
+                    <Card key={i} className="bg-background/50 border-transparent hover:border-primary/20 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+                      <CardContent className="flex gap-4 p-6">
+                        <div className="h-12 w-12 shrink-0 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                          <item.icon className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-lg">{item.title}</h3>
+                          <p className="text-muted-foreground text-sm leading-relaxed">{item.desc}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               </div>
             </div>
@@ -350,11 +342,6 @@ export default function Home() {
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-2 gap-20 items-center">
               <div className="relative order-2 lg:order-1">
-                {eniDemoImage && (
-                    <div className="absolute -top-20 -left-20 w-64 h-64 opacity-20 hidden lg:block">
-                        <Image src={eniDemoImage.imageUrl} alt="AI Concept" width={256} height={256} className="rounded-full object-cover aspect-square" />
-                    </div>
-                )}
                 <Card className="border-none shadow-[0_40px_100px_-15px_rgba(0,0,0,0.3)] bg-background/60 backdrop-blur-3xl min-h-[450px] flex flex-col justify-center p-12 relative overflow-hidden rounded-[3rem] border border-white/10">
                   <div className="absolute top-10 right-12">
                     <Quote className="h-24 w-24 text-primary/5 rotate-12" />
@@ -482,14 +469,6 @@ export default function Home() {
                 </Card>
               ))}
             </div>
-            {processImage && (
-                <div className="mt-20 relative h-[300px] w-full rounded-[3rem] overflow-hidden border-2 border-primary/10 shadow-2xl">
-                    <Image src={processImage.imageUrl} alt="Celebration" fill className="object-cover opacity-40" />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                        <p className="text-3xl font-headline font-bold text-white text-center px-4 drop-shadow-lg">Every step designed for unforgettable excellence.</p>
-                    </div>
-                </div>
-            )}
           </div>
         </section>
 
@@ -505,10 +484,16 @@ export default function Home() {
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 items-stretch">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
-                  "flex flex-col transition-all duration-500 relative border-2 border-primary/20 overflow-hidden rounded-[2rem]",
+                  "flex flex-col transition-all duration-500 relative border-2 border-primary/20 rounded-[2rem] overflow-visible",
                   tier.isPopular ? "border-primary/50 ring-1 ring-primary/20 shadow-[0_32px_64px_-12px_rgba(var(--primary),0.3)] scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/40 hover:bg-background/60 shadow-sm hover:border-primary/30"
                 )}>
-                  {tier.isPopular && <Badge className="absolute -top-0 right-6 rounded-t-none rounded-b-xl shadow-lg px-4 py-1.5 font-bold uppercase tracking-widest text-[10px]">Most Popular</Badge>}
+                  {tier.isPopular && (
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
+                      <Badge className="rounded-full shadow-lg px-6 py-1.5 font-bold uppercase tracking-widest text-[10px] whitespace-nowrap border-4 border-background bg-primary text-primary-foreground">
+                        Most Popular
+                      </Badge>
+                    </div>
+                  )}
                   <CardHeader className="pt-10 pb-6 px-8">
                     <CardTitle className="font-headline text-2xl font-bold">{tier.name}</CardTitle>
                      <div className="flex items-baseline gap-1 mt-4">
