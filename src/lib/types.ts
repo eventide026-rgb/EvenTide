@@ -1,3 +1,4 @@
+
 export type Vendor = {
   id: string;
   name: string;
@@ -16,6 +17,7 @@ export type Vendor = {
     description: string;
   }[];
   rating?: number;
+  reviewCount?: number;
   priceRangeMin?: number;
   priceRangeMax?: number;
 };

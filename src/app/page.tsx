@@ -1,10 +1,10 @@
+
 'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   ArrowRight,
-  CircleCheck,
   Home as HomeIcon,
   Users,
   QrCode,
@@ -59,25 +59,21 @@ const howItWorksSteps = [
 
 const roleBenefits = [
     {
-        icon: <HomeIcon className="h-8 w-8 text-primary" />,
         title: "Event Owners",
         roleTitle: "The Strategists",
         features: ["360-degree oversight of your event portfolio.", "Real-time KPI tracking for RSVPs and check-ins.", "Direct budget management and financial logging."]
     },
     {
-        icon: <Users className="h-8 w-8 text-primary" />,
         title: "Professional Planners",
         roleTitle: "The Orchestrators",
         features: ["AI-powered program and menu architecting.", "Conflict detection and high-performance task boards.", "Seamless vendor contracting and marketplace integration."]
     },
     {
-        icon: <QrCode className="h-8 w-8 text-primary" />,
         title: "Attendees & Guests",
         roleTitle: "The Celebrants",
         features: ["Personalized digital invitations and asset wallets.", "Interactive song requests and autograph walls.", "Real-time event broadcasts and live photo galleries."]
     },
     {
-        icon: <Shield className="h-8 w-8 text-primary" />,
         title: "On-Site Security",
         roleTitle: "The Gatekeepers",
         features: ["QR-based digital gate pass validation.", "Live check-in monitoring and capacity control.", "Secure scanner activation with unique event codes."]
@@ -245,11 +241,8 @@ export default function Home() {
                 </div>
                 <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
                     {roleBenefits.map((role) => (
-                        <Card key={role.title} className="border border-border/40 bg-secondary/20 hover:bg-secondary/40 transition-all duration-500 hover:-translate-y-2 group shadow-sm hover:shadow-xl hover:border-primary/20 flex flex-col">
-                            <CardHeader className="flex-row items-center gap-5 pb-6">
-                                <div className="p-4 bg-background rounded-2xl shadow-md group-hover:scale-110 group-hover:bg-primary/10 transition-all duration-500">
-                                    {role.icon}
-                                </div>
+                        <Card key={role.title} className="border-2 border-border/40 bg-secondary/20 hover:bg-secondary/40 transition-all duration-500 hover:-translate-y-2 group shadow-sm hover:shadow-xl hover:border-primary/20 flex flex-col">
+                            <CardHeader className="pb-6">
                                 <div className="space-y-1">
                                     <CardTitle className="font-headline text-2xl group-hover:text-primary transition-colors">{role.title}</CardTitle>
                                     <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">{role.roleTitle}</p>
@@ -258,10 +251,7 @@ export default function Home() {
                             <CardContent className="flex-1">
                                 <ul className="space-y-4">
                                     {role.features.map((feature, i) => (
-                                        <li key={i} className="flex items-start gap-4 text-sm text-muted-foreground leading-relaxed">
-                                            <div className="mt-1 flex-shrink-0">
-                                                <CircleCheck className="h-4 w-4 text-primary group-hover:text-accent transition-colors" />
-                                            </div>
+                                        <li key={i} className="flex items-start text-sm text-muted-foreground leading-relaxed">
                                             <span>{feature}</span>
                                         </li>
                                     ))}
