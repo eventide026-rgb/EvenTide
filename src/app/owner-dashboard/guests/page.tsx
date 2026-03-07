@@ -1,7 +1,9 @@
+
 'use client';
 
 import { Suspense } from 'react';
 import { GuestManagement } from '@/components/dashboard/guest-management';
+import { Loader2 } from 'lucide-react';
 
 export default function GuestsPage() {
   return (

@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -21,12 +22,7 @@ import { PublicHeader } from '@/components/layout/public-header';
 import { PublicFooter } from '@/components/layout/public-footer';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { generateWelcomeMessage } from '@/ai/flows/ai-welcome-message';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
 
 const rotatingWords = ['Effortlessly', 'Stylishly', 'Beautifully', 'Perfectly'];
 
@@ -50,27 +46,6 @@ const howItWorks = [
     icon: <ShieldCheck className="h-8 w-8 text-primary" />,
     title: '4. Execute Flawlessly',
     description: 'Use our tools for secure check-ins, real-time announcements, and seamless day-of coordination.',
-  },
-];
-
-const testimonials = [
-  {
-    quote: 'EvenTide transformed how we manage our annual conference. The AI features are a game-changer!',
-    name: 'Tunde Adebayo',
-    role: 'Event Owner',
-    avatar: 'https://picsum.photos/seed/tunde/100/100',
-  },
-  {
-    quote: 'As a planner, the ability to collaborate with team members and my team in one place is invaluable. Highly recommended!',
-    name: 'Chioma Nwosu',
-    role: 'Planner',
-    avatar: 'https://picsum.photos/seed/chioma/100/100',
-  },
-  {
-    quote: "The secure gate pass system was incredibly smooth. Our guests felt safe and the check-in process was lightning fast.",
-    name: 'David Okon',
-    role: 'Head of Security',
-    avatar: 'https://picsum.photos/seed/david/100/100',
   },
 ];
 
@@ -162,11 +137,7 @@ const getImage = (id: string) => {
 
 export default function Home() {
   const heroImage = getImage('eventHall');
-  const partyTableImage = getImage('nigerianPartyTable');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [eventType, setEventType] = useState('Wedding');
-  const [generatedMessage, setGeneratedMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -174,23 +145,6 @@ export default function Home() {
     }, 2500);
     return () => clearInterval(interval);
   }, []);
-
-  const handleGenerateText = async () => {
-    setIsLoading(true);
-    setGeneratedMessage('');
-    try {
-      const result = await generateWelcomeMessage({
-        guestName: 'Alex',
-        eventName: `a ${eventType}`,
-      });
-      setGeneratedMessage(result.message);
-    } catch (error) {
-      console.error('Error generating welcome message:', error);
-      setGeneratedMessage('Sorry, I had trouble generating a message. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

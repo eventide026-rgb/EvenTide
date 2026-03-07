@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
@@ -101,19 +102,6 @@ function GuestManagementComponent() {
     },
   });
 
-  const plannerAssignmentsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid) return null;
-    return query(
-      collection(firestore, 'planners'),
-      where('plannerId', '==', user.uid)
-    );
-  }, [firestore, user?.uid]);
-  const { data: assignments } = useCollection(plannerAssignmentsQuery);
-  const eventIds = useMemo(
-    () => assignments?.map((a: any) => a.eventId) || [],
-    [assignments]
-  );
-
   const ownerEventsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
     return query(
@@ -124,15 +112,13 @@ function GuestManagementComponent() {
   const { data: ownerEvents } = useCollection<Event>(ownerEventsQuery);
 
   const plannerManagedEventsQuery = useMemoFirebase(() => {
-    if (!firestore || !user?.uid || eventIds.length === 0) return null;
+    if (!firestore || !user?.uid) return null;
     return query(
       collection(firestore, 'events'),
-      where(documentId(), 'in', eventIds)
+      where('plannerIds', 'array-contains', user.uid)
     );
-  }, [firestore, user?.uid, eventIds]);
-  const { data: plannerEvents } = useCollection<Event>(
-    plannerManagedEventsQuery
-  );
+  }, [firestore, user?.uid]);
+  const { data: plannerEvents } = useCollection<Event>(plannerManagedEventsQuery);
 
   const events = useMemo(() => {
     const allEvents = [...(ownerEvents || []), ...(plannerEvents || [])];
@@ -175,12 +161,12 @@ function GuestManagementComponent() {
 
   const guestCount = guests?.length || 0;
   const guestLimit = selectedEvent?.guestLimit || 20;
-  const atCapacity = guestCount >= guestLimit;
+  const capacityPercentage = guestLimit > 0 ? (guestCount / guestLimit) * 100 : 0;
 
   const handleAddGuest = async (values: z.infer<typeof guestFormSchema>) => {
     if (!firestore || !selectedEventId || !selectedEvent) return;
 
-    if (atCapacity) {
+    if (guestCount >= guestLimit) {
       toast({ variant: 'destructive', title: 'Guest Limit Reached', description: "You have reached your plan's guest limit." });
       return;
     }
@@ -209,18 +195,18 @@ function GuestManagementComponent() {
     batch.set(guestDocRef, newGuestData);
     batch.set(guestCodeLookupRef, { guestId: guestDocRef.id });
 
-    batch.commit()
-      .then(() => {
+    try {
+        await batch.commit();
         toast({ title: 'Guest Added', description: `${values.name} added successfully.` });
         guestForm.reset();
-      })
-      .catch((err) => {
+    } catch (err) {
+        console.error("Error adding guest:", err);
         errorEmitter.emit('permission-error', new FirestorePermissionError({
           path: `events/${selectedEventId}/guests/${guestDocRef.id}`,
           operation: 'create',
           requestResourceData: newGuestData
         }));
-      });
+    }
   };
 
   const handleUpdateGuest = async (values: z.infer<typeof guestFormSchema>) => {
@@ -234,18 +220,17 @@ function GuestManagementComponent() {
         category: values.category,
     };
 
-    updateDoc(guestRef, updateData)
-      .then(() => {
+    try {
+        await updateDoc(guestRef, updateData);
         toast({ title: 'Guest Updated' });
         setEditingGuest(null);
-      })
-      .catch((err) => {
+    } catch (err) {
         errorEmitter.emit('permission-error', new FirestorePermissionError({
           path: guestRef.path,
           operation: 'update',
           requestResourceData: updateData
         }));
-      });
+    }
   };
 
   const handleDeleteGuest = async (guest: Guest) => {
@@ -258,14 +243,15 @@ function GuestManagementComponent() {
     batch.delete(guestRef);
     batch.delete(guestCodeLookupRef);
 
-    batch.commit()
-      .then(() => toast({ title: 'Guest Removed' }))
-      .catch((err) => {
+    try {
+        await batch.commit();
+        toast({ title: 'Guest Removed' });
+    } catch (err) {
         errorEmitter.emit('permission-error', new FirestorePermissionError({
           path: guestRef.path,
           operation: 'delete'
         }));
-      });
+    }
   };
 
   const handleFormSubmit = (values: z.infer<typeof guestFormSchema>) => {
@@ -277,7 +263,6 @@ function GuestManagementComponent() {
   };
 
   const isFormSubmitting = guestForm.formState.isSubmitting;
-  const capacityPercentage = guestLimit > 0 ? (guestCount / guestLimit) * 100 : 0;
 
   return (
     <div className="grid md:grid-cols-3 gap-8 items-start h-full">
