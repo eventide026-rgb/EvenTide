@@ -132,9 +132,9 @@ service cloud.firestore {
       }
       
       match /vendorContracts/{contractId} {
-        allow read: if isEventStaff(eventId) || isSignedIn() && request.auth.uid == resource.data.vendorId;
+        allow read: if isEventStaff(eventId) || (isSignedIn() && request.auth.uid == resource.data.vendorId);
         allow create: if isEventPlanner(eventId) || isEventOwner(eventId);
-        allow update: if isEventStaff(eventId) || isSignedIn() && request.auth.uid == resource.data.vendorId;
+        allow update: if isEventStaff(eventId) || (isSignedIn() && request.auth.uid == resource.data.vendorId);
       }
     }
 

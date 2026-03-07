@@ -15,7 +15,6 @@ import {
   Shield,
   QrCode,
   Sparkles,
-  Zap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -64,7 +63,7 @@ const roleBenefits = [
     },
     {
         icon: <QrCode className="h-8 w-8 text-primary" />,
-        title: "Guests",
+        title: "Attendees",
         features: ["Receive personalized digital invitations.", "RSVP effortlessly and view event details.", "Stay updated with real-time announcements."]
     },
     {
@@ -157,7 +156,7 @@ export default function Home() {
       <PublicHeader />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative w-full h-[80vh] md:h-[90vh] text-white flex items-center justify-center">
+        <section className="relative w-full h-[80vh] md:h-[90vh] text-white flex items-center justify-center overflow-hidden">
           {heroImage && (
             <Image
               src={heroImage.imageUrl}
@@ -170,7 +169,7 @@ export default function Home() {
           )}
           <div className="absolute inset-0 bg-black/70 via-black/40 to-transparent"></div>
           <div className="relative z-10 container mx-auto px-4 text-center">
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-headline font-extrabold tracking-tight text-shadow-lg leading-[1.1] text-balance">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-headline font-extrabold tracking-tight leading-[1.1] text-balance">
               Plan Your Event
               <br />
               <span className="bg-gradient-to-r from-[#60A5FA] to-[#FDE047] text-transparent bg-clip-text transition-all duration-500">
@@ -181,17 +180,17 @@ export default function Home() {
               Welcome to EvenTide, your AI-powered partner for flawless event management. From intimate gatherings to grand galas, we bring your vision to life with intuitive tools and expert assistance.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button asChild size="lg" className="font-bold w-full sm:w-auto h-12 px-8 text-lg">
+              <Button asChild size="lg" className="font-bold w-full sm:w-auto h-12 px-8 text-lg rounded-full">
                 <Link href="/signup">
                   Create an Event <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="font-bold bg-white/10 border-white/20 backdrop-blur-sm hover:bg-white/20 w-full sm:w-auto h-12 px-8 text-lg">
+              <Button asChild size="lg" variant="outline" className="font-bold bg-white/10 border-white/20 backdrop-blur-sm hover:bg-white/20 w-full sm:w-auto h-12 px-8 text-lg rounded-full">
                 <Link href="/shows">
                   Buy Tickets
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="font-bold bg-white/10 border-white/20 backdrop-blur-sm hover:bg-white/20 w-full sm:w-auto h-12 px-8 text-lg">
+              <Button asChild size="lg" variant="outline" className="font-bold bg-white/10 border-white/20 backdrop-blur-sm hover:bg-white/20 w-full sm:w-auto h-12 px-8 text-lg rounded-full">
                 <Link href="/guest-login">
                   I am a Guest
                 </Link>
@@ -200,45 +199,18 @@ export default function Home() {
           </div>
         </section>
 
-        {/* How It Works Section */}
-        <section id="how-it-works" className="py-20 md:py-32 bg-secondary/50">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-headline font-bold md:text-5xl text-foreground">How It Works</h2>
-              <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-                A streamlined, ecosystem-wide process from initial concept to digital legacy.
-              </p>
-            </div>
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              {howItWorks.map((step) => (
-                <Card key={step.title} className="text-center border-none bg-background/50 backdrop-blur shadow-sm hover:shadow-md transition-shadow">
-                  <CardHeader className="items-center pb-2">
-                    <div className="bg-primary/10 p-5 rounded-2xl mb-4 text-primary">
-                      {step.icon}
-                    </div>
-                    <CardTitle className="font-headline text-xl">{step.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground leading-relaxed">{step.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* Role-Based Benefits Section */}
-        <section id="benefits" className="py-20 md:py-32 overflow-hidden">
+        <section id="benefits" className="py-20 md:py-32">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl font-headline font-bold md:text-5xl text-foreground">A Tool for Every Stakeholder</h2>
-                    <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+                    <h2 className="text-3xl font-headline font-bold md:text-5xl text-foreground text-balance">A Tool for Every Stakeholder</h2>
+                    <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
                         EvenTide empowers every role in the celebration lifecycle with specialized dashboard experiences.
                     </p>
                 </div>
                 <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
                     {roleBenefits.map((role) => (
-                        <Card key={role.title} className="border-accent/20 bg-primary/5 hover:bg-primary/10 transition-all duration-300 hover:-translate-y-2">
+                        <Card key={role.title} className="border-border/50 bg-secondary/30 hover:bg-secondary/50 transition-all duration-300 hover:-translate-y-2">
                             <CardHeader className="flex-row items-center gap-4">
                                 <div className="p-3 bg-background rounded-xl shadow-sm">
                                     {role.icon}
@@ -265,18 +237,18 @@ export default function Home() {
         <section id="pricing" className="py-20 md:py-32 bg-secondary/50">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-headline font-bold md:text-5xl text-foreground">The Ecosystem Subscriptions</h2>
-              <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-                High-fidelity functional levels designed to scale with your ambition.
+              <h2 className="text-3xl font-headline font-bold md:text-5xl text-foreground text-balance">Ecosystem Subscription Levels</h2>
+              <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
+                High-fidelity functional tiers designed to scale with your ambition.
               </p>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 items-stretch">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
-                  "flex flex-col transition-all duration-300 relative border-border/50", 
+                  "flex flex-col transition-all duration-300 relative border-border/50 overflow-hidden", 
                   tier.isPopular ? "border-primary ring-1 ring-primary shadow-2xl scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/80"
                 )}>
-                  {tier.isPopular && <Badge className="absolute -top-3 right-4 shadow-lg">Most Popular</Badge>}
+                  {tier.isPopular && <Badge className="absolute -top-0 right-4 rounded-t-none rounded-b-lg shadow-lg">Most Popular</Badge>}
                   <CardHeader>
                     <CardTitle className="font-headline text-xl">{tier.name}</CardTitle>
                      <div className="flex items-baseline gap-1 mt-2">
@@ -295,7 +267,7 @@ export default function Home() {
                     </ul>
                   </CardContent>
                   <CardFooter className="pt-6">
-                     <Button className="w-full font-bold" variant={tier.isPopular ? "default" : "outline"}>
+                     <Button className="w-full font-bold rounded-full" variant={tier.isPopular ? "default" : "outline"}>
                         {tier.name === "Free Starter" ? "Get Started" : "Select Plan"}
                      </Button>
                   </CardFooter>
@@ -317,12 +289,12 @@ export default function Home() {
               Join the EvenTide ecosystem today and experience the convergence of technology, creativity, and culture.
             </p>
             <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button asChild size="lg" className="font-bold shadow-xl h-14 px-10 text-lg group">
+              <Button asChild size="lg" className="font-bold shadow-xl h-14 px-10 text-lg group rounded-full">
                 <Link href="/signup">
                   Start Planning Now <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="font-bold h-14 px-10 text-lg">
+              <Button asChild size="lg" variant="outline" className="font-bold h-14 px-10 text-lg rounded-full">
                 <Link href="/contact">
                   Speak to an Expert
                 </Link>

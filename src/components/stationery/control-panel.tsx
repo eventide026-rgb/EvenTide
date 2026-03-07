@@ -100,13 +100,13 @@ export function ControlPanel({
         setIsGenerating(true);
         try {
             const result = await generateInvitationCard({
-                eventName: initialStationery.invitationDetails?.title || 'Our Event',
+                eventName: initialStationery.invitationDetails?.title || event.name,
                 eventDate: 'To be announced',
                 eventTime: '',
                 eventVenue: '',
                 primaryColor: initialColors.primary,
                 secondaryColor: initialColors.accent,
-                eventDescription: initialStationery.invitationDetails?.description || 'A grand celebration',
+                eventDescription: initialStationery.invitationDetails?.description || event.description,
                 theme: aiPrompt,
             });
             handleSetBackground(result.invitationCardDesign);
