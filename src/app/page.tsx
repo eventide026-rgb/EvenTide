@@ -27,6 +27,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { generateWelcomeMessage } from '@/ai/flows/ai-welcome-message';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const rotatingWords = ['Effortlessly', 'Stylishly', 'Beautifully', 'Perfectly'];
 
@@ -76,14 +77,35 @@ const roleBenefits = [
     }
 ];
 
+const testimonials = [
+  {
+    quote: "EvenTide transformed how we manage our large-scale corporate events. The AI program architect is a total game-changer for our team.",
+    author: "Amaka O.",
+    role: "Professional Planner",
+    avatar: "https://picsum.photos/seed/amaka/100/100"
+  },
+  {
+    quote: "Planning my daughter's wedding was stress-free thanks to Eni. The invitation designs were stunning and reflected our culture perfectly.",
+    author: "Mr. Adebayo",
+    role: "Event Owner",
+    avatar: "https://picsum.photos/seed/adebayo/100/100"
+  },
+  {
+    quote: "The QR-based gate pass made entry management so smooth. No more paper lists or long queues at the door. Very professional.",
+    author: "Chidi E.",
+    role: "Security Coordinator",
+    avatar: "https://picsum.photos/seed/chidi/100/100"
+  }
+];
+
 const pricingTiers = [
     {
         name: "Free Starter",
         price: "₦0",
         description: "The boutique entrance for intimate gatherings.",
         features: [
-            "Up to 20 Guests", 
-            "Basic Digital Registry", 
+            "Up to 20 Guests",
+            "Basic Digital Registry",
             "Standard Validation",
             "Basic Media Library"
         ],
@@ -94,8 +116,8 @@ const pricingTiers = [
         price: "₦10,000",
         description: "Professional orchestration for growing events.",
         features: [
-            "Up to 100 Guests", 
-            "Team Collaboration (Co-hosts)", 
+            "Up to 100 Guests",
+            "Team Collaboration (Co-hosts)",
             "Standard Analytics",
             "Advanced RSVP Tracking"
         ],
@@ -106,8 +128,8 @@ const pricingTiers = [
         price: "₦25,000",
         description: "The ecosystem benchmark for flawless planning.",
         features: [
-            "Up to 250 Guests", 
-            "Full Marketplace Integration", 
+            "Up to 250 Guests",
+            "Full Marketplace Integration",
             "Advanced Budget Ledger",
             "Custom Event Codes"
         ],
@@ -118,8 +140,8 @@ const pricingTiers = [
         price: "₦50,000",
         description: "AI-enhanced legacy building and reporting.",
         features: [
-            "Up to 500 Guests", 
-            "Eni AI Stationery Studio", 
+            "Up to 500 Guests",
+            "Eni AI Stationery Studio",
             "AI-curated Magazine",
             "Live Reporting & Metrics"
         ],
@@ -130,8 +152,8 @@ const pricingTiers = [
         price: "₦100,000",
         description: "Maximum scale for grand galas.",
         features: [
-            "Up to 5,000 Guests", 
-            "White-labeling & Custom Branding", 
+            "Up to 5,000 Guests",
+            "White-labeling & Custom Branding",
             "Dedicated Technical Concierge",
             "Multi-event Management"
         ],
@@ -148,7 +170,7 @@ export default function Home() {
   const missionImage = getImage('africansFun2');
   const eniDemoImage = getImage('magazineReader');
   const processImage = getImage('gardenParty');
-  
+
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Eni Interactive Demo State
@@ -161,9 +183,9 @@ export default function Home() {
     if (!guestName || !demoEventName) return;
     setIsGeneratingEni(true);
     try {
-      const result = await generateWelcomeMessage({ 
-        guestName, 
-        eventName: demoEventName 
+      const result = await generateWelcomeMessage({
+        guestName,
+        eventName: demoEventName
       });
       setEniMessage(result.message);
     } catch (error) {
@@ -265,77 +287,62 @@ export default function Home() {
             </div>
         </section>
 
-        {/* Vision Section Redesign */}
-        <section className="py-24 md:py-40 overflow-hidden relative bg-secondary/10">
-            <div className="container mx-auto px-4">
-                <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
-                    <div className="w-full lg:w-1/2 space-y-10 order-2 lg:order-1">
-                        <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-primary/5 text-primary text-[10px] font-bold uppercase tracking-[0.25em] border border-primary/10">
-                            <Heart className="h-3.5 w-3.5" /> Our Mission
-                        </div>
-                        <h2 className="text-5xl md:text-7xl font-headline font-bold leading-[1.05] text-balance">
-                            Bringing People Together, <br />
-                            <span className="bg-gradient-to-r from-[#60A5FA] to-[#FDE047] text-transparent bg-clip-text">Beautifully.</span>
-                        </h2>
-                        
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <Card className="p-8 transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_40px_80px_-15px_rgba(var(--primary),0.2)] border-2 border-border/40 bg-background/60 backdrop-blur-sm group relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-1.5 h-full bg-primary transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top" />
-                                <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors mb-6">
-                                    <PaletteIcon className="h-6 w-6 text-primary" />
-                                </div>
-                                <h3 className="font-bold text-xl font-headline group-hover:text-primary transition-colors">Poetic Precision</h3>
-                                <p className="text-xs text-muted-foreground mt-3 leading-relaxed">Every detail is curated by Eni to reflect unparalleled cultural elegance.</p>
-                            </Card>
-                            <Card className="p-8 transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_40px_80px_-15px_rgba(var(--primary),0.2)] border-2 border-border/40 bg-background/60 backdrop-blur-sm group relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-1.5 h-full bg-primary transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top" />
-                                <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors mb-6">
-                                    <Users className="h-6 w-6 text-primary" />
-                                </div>
-                                <h3 className="font-bold text-xl font-headline group-hover:text-primary transition-colors">Cultural Resonance</h3>
-                                <p className="text-xs text-muted-foreground mt-3 leading-relaxed">Language and design that speaks to the heart of the community.</p>
-                            </Card>
-                            <Card className="p-8 transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_40px_80px_-15px_rgba(var(--primary),0.2)] border-2 border-border/40 bg-background/60 backdrop-blur-sm group relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-1.5 h-full bg-primary transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top" />
-                                <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors mb-6">
-                                    <Sparkles className="h-6 w-6 text-primary" />
-                                </div>
-                                <h3 className="font-bold text-xl font-headline group-hover:text-primary transition-colors">Effortless Harmony</h3>
-                                <p className="text-xs text-muted-foreground mt-3 leading-relaxed">Technology that works silently, so you can be fully present.</p>
-                            </Card>
-                            <Card className="p-8 transition-all duration-500 hover:-translate-y-4 hover:shadow-[0_40px_80px_-15px_rgba(var(--primary),0.2)] border-2 border-border/40 bg-background/60 backdrop-blur-sm group relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-1.5 h-full bg-primary transform scale-y-0 group-hover:scale-y-100 transition-transform duration-500 origin-top" />
-                                <div className="h-12 w-12 rounded-xl bg-secondary flex items-center justify-center group-hover:bg-primary/10 transition-colors mb-6">
-                                    <BookOpen className="h-6 w-6 text-primary" />
-                                </div>
-                                <h3 className="font-bold text-xl font-headline group-hover:text-primary transition-colors">Living Archives</h3>
-                                <p className="text-xs text-muted-foreground mt-3 leading-relaxed">Transforming one-day events into lasting digital community stories.</p>
-                            </Card>
-                        </div>
-                    </div>
-                    <div className="w-full lg:w-2/5 relative order-1 lg:order-2">
-                        <div className="aspect-[4/5] relative rounded-[2rem] overflow-hidden shadow-2xl border-4 border-background">
-                            {missionImage && (
-                                <Image 
-                                    src={missionImage.imageUrl}
-                                    alt="African celebration"
-                                    fill
-                                    className="object-cover transition-transform duration-10000 hover:scale-110"
-                                    data-ai-hint="nigerian wedding"
-                                />
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                            <div className="absolute bottom-8 left-8 right-8">
-                                <p className="text-white font-logo text-xl font-bold italic leading-tight text-balance">
-                                    &quot;To turn every moment into EvenTide.&quot;
-                                </p>
-                            </div>
-                        </div>
-                        <div className="absolute -bottom-6 -right-6 h-32 w-32 bg-[#FDE047]/20 rounded-full blur-[60px] -z-10" />
-                        <div className="absolute -top-6 -left-6 h-32 w-32 bg-[#60A5FA]/20 rounded-full blur-[60px] -z-10" />
-                    </div>
+        {/* Vision Section */}
+        <section id="vision" className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden">
+          <div className="container mx-auto px-4">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <div className="relative aspect-square md:aspect-video lg:aspect-square rounded-3xl overflow-hidden shadow-2xl">
+                {missionImage && (
+                  <Image
+                    src={missionImage.imageUrl}
+                    alt={missionImage.description}
+                    fill
+                    className="object-cover"
+                    data-ai-hint={missionImage.imageHint}
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                <div className="absolute bottom-8 left-8">
+                  <p className="text-white font-logo text-2xl font-bold italic tracking-tight">"To turn every moment into EvenTide."</p>
                 </div>
+              </div>
+              <div className="space-y-8">
+                <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest border border-primary/20">
+                  <Heart className="h-3 w-3" /> Our Mission
+                </div>
+                <h2 className="text-4xl md:text-6xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary">Beautifully.</span></h2>
+                <div className="grid gap-6">
+                  <div className="flex gap-4">
+                    <div className="h-10 w-10 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <PaletteIcon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg">Poetic Precision</h3>
+                      <p className="text-muted-foreground">Every detail, from the stationery to the program, is curated by Eni to reflect unparalleled cultural elegance.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="h-10 w-10 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Sparkles className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg">Effortless Harmony</h3>
+                      <p className="text-muted-foreground">We handle the technical complexity silently, allowing you to be fully present in the moments that matter most.</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="h-10 w-10 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <BookOpen className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg">Living Archives</h3>
+                      <p className="text-muted-foreground">Beyond the day-of execution, we transform celebrations into lasting digital stories through our community magazine.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
         </section>
 
         {/* Meet Eni Section */}
@@ -388,24 +395,24 @@ export default function Home() {
                 <div className="space-y-5 max-w-md">
                   <div className="space-y-3">
                     <Label className="text-xs uppercase font-bold tracking-widest text-muted-foreground ml-1">Guest Name</Label>
-                    <Input 
-                      placeholder="e.g., Olumide" 
-                      value={guestName} 
+                    <Input
+                      placeholder="e.g., Olumide"
+                      value={guestName}
                       onChange={(e) => setGuestName(e.target.value)}
                       className="h-14 bg-background border-border/40 focus:border-primary/50 transition-colors text-lg px-6 rounded-2xl"
                     />
                   </div>
                   <div className="space-y-3">
                     <Label className="text-xs uppercase font-bold tracking-widest text-muted-foreground ml-1">Event Reference</Label>
-                    <Input 
-                      placeholder="e.g., The Grand Reunion" 
-                      value={demoEventName} 
+                    <Input
+                      placeholder="e.g., The Grand Reunion"
+                      value={demoEventName}
                       onChange={(e) => setDemoEventName(e.target.value)}
                       className="h-14 bg-background border-border/40 focus:border-primary/50 transition-colors text-lg px-6 rounded-2xl"
                     />
                   </div>
-                  <Button 
-                    onClick={handleGenerateEni} 
+                  <Button
+                    onClick={handleGenerateEni}
                     disabled={isGeneratingEni || !guestName || !demoEventName}
                     className="w-full h-14 rounded-2xl font-bold text-lg shadow-2xl shadow-primary/30 mt-4 active:scale-[0.98] transition-all"
                   >
@@ -414,6 +421,38 @@ export default function Home() {
                   </Button>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials Section */}
+        <section id="testimonials" className="py-24 md:py-32 bg-background">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground">Loved by Planners & Hosts</h2>
+              <p className="mt-6 text-xl text-muted-foreground max-w-2xl mx-auto">
+                See what our users are saying about their experience with EvenTide.
+              </p>
+            </div>
+            <div className="grid gap-8 md:grid-cols-3">
+              {testimonials.map((t, i) => (
+                <Card key={i} className="bg-secondary/20 border-none shadow-sm hover:shadow-md transition-shadow flex flex-col">
+                  <CardHeader className="flex-1">
+                    <Quote className="h-8 w-8 text-primary/40 mb-4" />
+                    <p className="text-lg italic leading-relaxed text-foreground/90">&quot;{t.quote}&quot;</p>
+                  </CardHeader>
+                  <CardFooter className="flex items-center gap-4 pt-4 border-t border-border/10 mt-auto">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={t.avatar} alt={t.author} />
+                      <AvatarFallback>{t.author[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="text-left">
+                      <p className="font-bold text-sm">{t.author}</p>
+                      <p className="text-xs text-muted-foreground">{t.role}</p>
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))}
             </div>
           </div>
         </section>
@@ -466,7 +505,7 @@ export default function Home() {
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 items-stretch">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
-                  "flex flex-col transition-all duration-500 relative border-2 border-primary/20 overflow-hidden rounded-[2rem]", 
+                  "flex flex-col transition-all duration-500 relative border-2 border-primary/20 overflow-hidden rounded-[2rem]",
                   tier.isPopular ? "border-primary/50 ring-1 ring-primary/20 shadow-[0_32px_64px_-12px_rgba(var(--primary),0.3)] scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/40 hover:bg-background/60 shadow-sm hover:border-primary/30"
                 )}>
                   {tier.isPopular && <Badge className="absolute -top-0 right-6 rounded-t-none rounded-b-xl shadow-lg px-4 py-1.5 font-bold uppercase tracking-widest text-[10px]">Most Popular</Badge>}
