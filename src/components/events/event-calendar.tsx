@@ -1,9 +1,9 @@
-
 'use client';
 
 import { useMemo, useState } from 'react';
 import {
   useCollection,
+  useDoc,
   useFirestore,
   useUser,
   useMemoFirebase,
@@ -16,6 +16,7 @@ import { isSameDay, format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, CalendarCheck, CheckSquare } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
 /* Types                                                              */
@@ -139,7 +140,9 @@ export default function EventCalendar() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Agenda for {selectedDate ? format(selectedDate, 'PPP') : '—'}</CardTitle>
+          <CardTitle>
+            Agenda for {selectedDate ? format(selectedDate, 'PPP') : '—'}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {selectedDayItems.length === 0 ? (

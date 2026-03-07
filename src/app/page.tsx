@@ -249,7 +249,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* A Tool for Everyone on the Team */}
+        {/* A Tool for Everyone on the Team - CLEAN RE-DESIGN */}
         <section id="benefits" className="py-24 md:py-32 bg-background">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-20">
@@ -286,12 +286,12 @@ export default function Home() {
             </div>
         </section>
 
-        {/* Vision Section */}
+        {/* Vision Section - RE-DESIGN WITH POP-UP CARDS AND SMALLER IMAGE */}
         <section id="vision" className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden border-y border-border/40">
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div className="flex justify-center">
-                <div className="relative w-full max-w-sm aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-background/50">
+                <div className="relative w-full max-w-[280px] aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-background/50">
                   {missionImage && (
                     <Image
                       src={missionImage.imageUrl}
@@ -318,7 +318,7 @@ export default function Home() {
                     { icon: Sparkles, title: "Effortless Harmony", desc: "We handle the technical complexity silently, allowing you to be fully present in the moments that matter most." },
                     { icon: BookOpen, title: "Living Archives", desc: "Beyond the day-of execution, we transform celebrations into lasting digital stories through our community magazine." }
                   ].map((item, i) => (
-                    <Card key={i} className="bg-background/50 border border-border/40 hover:border-primary/40 shadow-sm hover:shadow-[0_20px_50px_-12px_rgba(var(--primary),0.3)] hover:-translate-y-3 transition-all duration-500 ease-out group rounded-2xl">
+                    <Card key={i} className="bg-background/50 border border-border/40 hover:border-primary/40 shadow-sm hover:shadow-[0_20px_50px_-12px_rgba(var(--primary),0.3)] hover:-translate-y-3 hover:scale-[1.02] transition-all duration-500 ease-out group rounded-2xl">
                       <CardContent className="flex gap-4 p-6">
                         <div className="h-12 w-12 shrink-0 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors shadow-inner">
                           <item.icon className="h-6 w-6" />
@@ -336,7 +336,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Meet Eni Section */}
+        {/* Meet Eni Section with extra Image */}
         <section id="meet-eni" className="py-24 md:py-40 bg-primary/[0.02] relative overflow-hidden">
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-2 gap-20 items-center">
@@ -372,7 +372,7 @@ export default function Home() {
                   )}
                 </Card>
                 {eniDemoImage && (
-                    <div className="absolute -bottom-12 -right-12 w-48 h-48 rounded-2xl overflow-hidden shadow-2xl border-4 border-background hidden xl:block">
+                    <div className="absolute -bottom-12 -right-12 w-48 h-48 rounded-2xl overflow-hidden shadow-2xl border-4 border-background hidden xl:block animate-in fade-in zoom-in duration-1000 delay-500">
                         <Image src={eniDemoImage.imageUrl} alt={eniDemoImage.description} fill className="object-cover" />
                     </div>
                 )}
@@ -417,18 +417,18 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Testimonials Section */}
+        {/* Testimonials Section - WITH GOLD BOUNDARY */}
         <section id="testimonials" className="py-24 md:py-32 bg-background border-y border-border/40">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground">Loved by Planners & Hosts</h2>
-              <p className="mt-6 text-xl text-muted-foreground max-w-2xl mx-auto font-body">
+              <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">Loved by Planners & Hosts</h2>
+              <p className="mt-6 text-xl text-muted-foreground max-w-2xl mx-auto font-body text-balance">
                 See what our users are saying about their experience with EvenTide.
               </p>
             </div>
             <div className="grid gap-8 md:grid-cols-3">
               {testimonials.map((t, i) => (
-                <Card key={i} className="bg-secondary/20 border-2 border-accent shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col rounded-3xl">
+                <Card key={i} className="bg-secondary/20 border-2 border-accent shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col rounded-3xl overflow-hidden">
                   <CardHeader className="flex-1 p-8">
                     <Quote className="h-8 w-8 text-primary/40 mb-4" />
                     <p className="text-lg italic leading-relaxed text-foreground/90 font-body">&quot;{t.quote}&quot;</p>
@@ -449,7 +449,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* How It Works Section */}
+        {/* How It Works Section with extra Image */}
         <section id="how-it-works" className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden">
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-12 gap-12 items-start">
@@ -459,8 +459,8 @@ export default function Home() {
                         A simple, streamlined four-step lifecycle from abstract idea to flawless execution.
                     </p>
                     {processImage && (
-                        <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border-2 border-border/40 mt-8 group">
-                            <Image src={processImage.imageUrl} alt={processImage.description} fill className="object-cover group-hover:scale-110 transition-transform duration-[2s]" />
+                        <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border-2 border-border/40 mt-8 group animate-in slide-in-from-left duration-1000">
+                            <Image src={processImage.imageUrl} alt={processImage.description} fill className="object-cover group-hover:scale-110 transition-transform duration-[2000ms]" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                         </div>
                     )}
@@ -487,7 +487,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Pricing Section */}
+        {/* Pricing Section - WITH CAPSULE ON EDGE */}
         <section id="pricing" className="py-24 md:py-40 border-t border-border/40">
           <div className="container mx-auto px-4">
             <div className="text-center mb-20">

@@ -1,9 +1,8 @@
-
 'use client';
 
-import { useMemo, useState, useEffect, Suspense } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, documentId, writeBatch, setDoc, addDoc, getDoc, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, doc, addDoc, deleteDoc, setDoc } from 'firebase/firestore';
 import { Loader2, Armchair, User, Users, Trash2, CirclePlus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
@@ -253,9 +252,9 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { over, active } = event;
-    const activeId = active.id.toString();
+    const activeIdString = String(active.id);
     
-    if (over && activeId.startsWith('guest-')) {
+    if (over && activeIdString.startsWith('guest-')) {
         const guest = active.data.current as Guest;
         const seatData = over.data.current as Seat;
 
@@ -276,7 +275,6 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
             if (guestId) {
                 await setDoc(seatRef, { guestId: guestId }, { merge: true });
             } else {
-                // If guestId is null, we are un-assigning. We can just delete the seat document.
                 await deleteDoc(seatRef);
             }
         } else if (guestId) {
