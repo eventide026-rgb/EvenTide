@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState, useEffect, Suspense } from 'react';
@@ -252,8 +253,9 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { over, active } = event;
-    // Fix: cast id to string to use startsWith
-    if (over && String(active.id).startsWith('guest-')) {
+    const activeId = active.id.toString();
+    
+    if (over && activeId.startsWith('guest-')) {
         const guest = active.data.current as Guest;
         const seatData = over.data.current as Seat;
 
