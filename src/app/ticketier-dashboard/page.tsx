@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowUpRight, DollarSign, Users, Ticket, Link as LinkIcon, Copy, PartyPopper } from "lucide-react";
+import { ArrowUpRight, DollarSign, Ticket, Link as LinkIcon, Copy, PartyPopper } from "lucide-react";
 import Link from "next/link";
 import {
   Table,
@@ -24,11 +24,13 @@ import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
 import { doc } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useState, useEffect } from "react";
 
 export default function TicketierDashboardPage() {
     const { user } = useUser();
     const firestore = useFirestore();
     const { toast } = useToast();
+    const [publicProfileUrl, setPublicProfileUrl] = useState('');
 
     const ticketierRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
@@ -37,9 +39,14 @@ export default function TicketierDashboardPage() {
 
     const { data: ticketierProfile, isLoading } = useDoc(ticketierRef);
 
-    const publicProfileUrl = user ? `${window.location.origin}/t/${user.uid}` : '';
+    useEffect(() => {
+        if (typeof window !== 'undefined' && user) {
+            setPublicProfileUrl(`${window.location.origin}/t/${user.uid}`);
+        }
+    }, [user]);
 
     const copyToClipboard = () => {
+        if (!publicProfileUrl) return;
         navigator.clipboard.writeText(publicProfileUrl);
         toast({
             title: "Copied to Clipboard",
@@ -181,5 +188,3 @@ export default function TicketierDashboardPage() {
     </div>
   );
 }
-
-    

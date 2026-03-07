@@ -13,7 +13,7 @@ type PlannerCardProps = {
 };
 
 export function PlannerCard({ planner }: PlannerCardProps) {
-  const plannerName = planner.name || `${planner.firstName} ${planner.lastName}`;
+  const plannerName = planner.name || `${planner.firstName || ''} ${planner.lastName || ''}`.trim() || 'Professional Planner';
   
   return (
     <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col">

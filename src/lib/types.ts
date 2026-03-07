@@ -1,5 +1,4 @@
 
-
 export type Vendor = {
   id: string;
   name: string;
@@ -17,7 +16,9 @@ export type Vendor = {
 
 export type PlannerProfile = {
   id: string;
-  name: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
   city?: string;
   state?: string;

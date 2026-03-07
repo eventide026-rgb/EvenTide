@@ -20,7 +20,7 @@ import {
   BarChart,
   LineChart,
   PieChart,
-  Radar,
+  Activity,
   Users,
   Percent,
   CheckCircle,
@@ -166,7 +166,7 @@ export function GuestAnalyticsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Radar className="h-5 w-5" />
+              <Activity className="h-5 w-5" />
               Feedback Analysis
             </CardTitle>
           </CardHeader>
