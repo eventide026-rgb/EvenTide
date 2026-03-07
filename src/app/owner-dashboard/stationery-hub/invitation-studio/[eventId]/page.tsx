@@ -5,8 +5,18 @@ import { useState, useEffect, use } from 'react';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
-import { ControlPanel } from '@/components/stationery/control-panel';
-import { PreviewArea } from '@/components/stationery/preview-area';
+import dynamic from 'next/dynamic';
+
+// Dynamic imports for heavy studio components
+const ControlPanel = dynamic(() => import('@/components/stationery/control-panel').then(m => m.ControlPanel), {
+    ssr: false,
+    loading: () => <div className="flex h-full items-center justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+});
+
+const PreviewArea = dynamic(() => import('@/components/stationery/preview-area').then(m => m.PreviewArea), {
+    ssr: false,
+    loading: () => <div className="flex h-full items-center justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+});
 
 export type Stationery = {
     invitationBackground?: string;

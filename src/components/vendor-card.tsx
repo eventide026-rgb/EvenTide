@@ -3,17 +3,23 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from './ui/badge';
-import { Star, MapPin, Bookmark } from 'lucide-react';
+import { Star, MapPin, Bookmark, Loader2 } from 'lucide-react';
 import { type Vendor } from '@/lib/types';
-import { VendorProposalDialog } from './vendor-proposal-dialog';
 import { Button } from './ui/button';
 import { useUser, useFirestore } from '@/firebase';
 import { doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+
+// Dynamic import for heavy proposal dialog
+const VendorProposalDialog = dynamic(() => import('./vendor-proposal-dialog').then(m => m.VendorProposalDialog), {
+    ssr: false,
+    loading: () => <Button className="w-full" disabled><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading...</Button>
+});
 
 type VendorCardProps = {
   vendor: Vendor;
@@ -26,7 +32,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isBookmarkLoading, setIsBookmarkLoading] = useState(true);
   const pathname = usePathname();
 
   const isPlannerDashboard = pathname.startsWith('/planner-dashboard');
@@ -34,14 +40,14 @@ export function VendorCard({ vendor }: VendorCardProps) {
 
   useEffect(() => {
     if (!user || !firestore) {
-        setIsLoading(false);
+        setIsBookmarkLoading(false);
         return;
     };
     const checkBookmark = async () => {
         const contactRef = doc(firestore, 'users', user.uid, 'contacts', vendor.id);
         const docSnap = await getDoc(contactRef);
         setIsBookmarked(docSnap.exists());
-        setIsLoading(false);
+        setIsBookmarkLoading(false);
     }
     checkBookmark();
   }, [user, firestore, vendor.id]);
@@ -64,7 +70,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col group">
+    <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col group h-full">
       <CardHeader className="p-0">
         <div className="aspect-square relative overflow-hidden">
           <Link href={linkHref} className="absolute inset-0">
@@ -81,9 +87,9 @@ export function VendorCard({ vendor }: VendorCardProps) {
                 size="icon"
                 className="absolute top-2 right-2 h-8 w-8 z-10"
                 onClick={toggleBookmark}
-                disabled={isLoading}
+                disabled={isBookmarkLoading}
             >
-                <Bookmark className={isBookmarked ? 'fill-primary text-primary' : ''} />
+                <Bookmark className={cn(isBookmarked ? 'fill-primary text-primary' : '')} />
             </Button>
           )}
         </div>
@@ -114,4 +120,8 @@ export function VendorCard({ vendor }: VendorCardProps) {
       </CardContent>
     </Card>
   );
+}
+
+function cn(...inputs: any[]) {
+    return inputs.filter(Boolean).join(' ');
 }

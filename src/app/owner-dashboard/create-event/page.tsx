@@ -1,18 +1,16 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useForm, FormProvider, type FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Stepper, Step } from '@/components/wizards/stepper';
-import { CoreDetailsStep, coreDetailsSchema } from '@/components/wizards/create-event/core-details-step';
-import { ThemeAndAiStep, themeAndAiSchema } from '@/components/wizards/create-event/theme-ai-step';
-import { LogisticsStep, logisticsSchema } from '@/components/wizards/create-event/logistics-step';
-import { AssignPlannerStep, assignPlannerSchema } from '@/components/wizards/create-event/assign-planner-step';
+import dynamic from 'next/dynamic';
+import { Stepper, type Step } from '@/components/wizards/stepper';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useUser } from '@/firebase';
-import { addDoc, collection, serverTimestamp, doc, writeBatch, setDoc } from 'firebase/firestore';
+import { collection, serverTimestamp, doc, writeBatch, setDoc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -20,6 +18,16 @@ import { Badge } from '@/components/ui/badge';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { useBeforeUnload } from '@/hooks/use-before-unload';
+import { coreDetailsSchema } from '@/components/wizards/create-event/core-details-step';
+import { themeAndAiSchema } from '@/components/wizards/create-event/theme-ai-step';
+import { logisticsSchema } from '@/components/wizards/create-event/logistics-step';
+import { assignPlannerSchema } from '@/components/wizards/create-event/assign-planner-step';
+
+// Dynamic imports for heavy wizard steps
+const CoreDetailsStep = dynamic(() => import('@/components/wizards/create-event/core-details-step').then(m => m.CoreDetailsStep), { ssr: false });
+const ThemeAndAiStep = dynamic(() => import('@/components/wizards/create-event/theme-ai-step').then(m => m.ThemeAndAiStep), { ssr: false });
+const LogisticsStep = dynamic(() => import('@/components/wizards/create-event/logistics-step').then(m => m.LogisticsStep), { ssr: false });
+const AssignPlannerStep = dynamic(() => import('@/components/wizards/create-event/assign-planner-step').then(m => m.AssignPlannerStep), { ssr: false });
 
 const steps: Step[] = [
   { id: '01', name: 'Core Details', fields: ['name', 'description'] },
@@ -205,7 +213,7 @@ export default function CreateEventWizardPage() {
 
     return (
         <FormProvider {...methods}>
-            <div className="space-y-8">
+            <div className="space-y-8 max-w-4xl mx-auto">
                 <Stepper steps={steps} currentStep={currentStep} />
                 <Card>
                     <CardHeader>

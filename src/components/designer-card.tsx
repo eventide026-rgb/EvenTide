@@ -2,11 +2,18 @@
 'use client';
 
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from './ui/badge';
-import { Star, MapPin } from 'lucide-react';
+import { Star, MapPin, Loader2 } from 'lucide-react';
 import { type Vendor } from '@/lib/types';
-import { FashionProposalDialog } from './fashion-proposal-dialog';
+import { Button } from './ui/button';
+
+// Dynamic import for heavy proposal dialog
+const FashionProposalDialog = dynamic(() => import('./fashion-proposal-dialog').then(m => m.FashionProposalDialog), {
+    ssr: false,
+    loading: () => <Button className="w-full" disabled><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading...</Button>
+});
 
 type DesignerCardProps = {
   designer: Vendor;
@@ -17,7 +24,7 @@ export function DesignerCard({ designer }: DesignerCardProps) {
   const reviewCount = 28; // Placeholder
 
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col group">
+    <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col group h-full">
       <CardHeader className="p-0">
         <div className="aspect-square relative overflow-hidden">
           <Image
