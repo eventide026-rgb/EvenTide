@@ -12,6 +12,9 @@ import {
   Shield,
   Sparkles,
   ChevronRight,
+  CalendarPlus,
+  ShieldCheck,
+  Zap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -23,6 +26,29 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 
 const rotatingWords = ['Effortlessly', 'Stylishly', 'Beautifully', 'Perfectly'];
+
+const howItWorksSteps = [
+  {
+    icon: <CalendarPlus className="h-10 w-10 text-primary" />,
+    title: "Create Your Event",
+    description: "Transition from abstract idea to digital entity. Provide core details—Date, Time, and Venue—and receive a unique Event Code instantly."
+  },
+  {
+    icon: <Sparkles className="h-10 w-10 text-primary" />,
+    title: "Design with AI",
+    description: "Meet Eni, your AI creative director. Generate stunning, unique invitation cards and a cohesive master brand based on your chosen theme."
+  },
+  {
+    icon: <Users className="h-10 w-10 text-primary" />,
+    title: "Manage Your Guests",
+    description: "Utilize your dashboard as a centralized Command Center. Categorize guests, send digital invites, and monitor real-time RSVPs."
+  },
+  {
+    icon: <ShieldCheck className="h-10 w-10 text-primary" />,
+    title: "Execute Flawlessly",
+    description: "Secure your venue with QR-based digital gate passes. Monitor live check-ins and broadcast announcements for a perfect day-of operation."
+  }
+];
 
 const roleBenefits = [
     {
@@ -207,8 +233,35 @@ export default function Home() {
             </div>
         </section>
 
+        {/* How It Works Section */}
+        <section id="how-it-works" className="py-20 md:py-32 bg-secondary/50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-headline font-bold md:text-5xl text-foreground text-balance">How It Works</h2>
+              <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
+                A simple, streamlined process from concept to execution.
+              </p>
+            </div>
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+              {howItWorksSteps.map((step, index) => (
+                <Card key={index} className="border-none bg-background/60 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+                  <CardHeader className="text-center items-center pb-2">
+                    <div className="mb-4 bg-primary/10 p-4 rounded-full">
+                      {step.icon}
+                    </div>
+                    <CardTitle className="font-headline text-xl">{step.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center text-sm text-muted-foreground leading-relaxed">
+                    {step.description}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Pricing Section */}
-        <section id="pricing" className="py-20 md:py-32 bg-secondary/50">
+        <section id="pricing" className="py-20 md:py-32">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-headline font-bold md:text-5xl text-foreground text-balance">Ecosystem Subscription Levels</h2>
