@@ -60,7 +60,7 @@ export default function MediaLibraryPage() {
   const { data: media, isLoading: isLoadingMedia } = useCollection<Media>(mediaQuery);
 
   const handleCurate = async () => {
-    if (!media || media.length < 5 || !selectedEvent) {
+    if (!media || media.length < 5 || !selectedEvent || !selectedEventRef) {
         toast({
             variant: "destructive",
             title: 'Curation Failed',
