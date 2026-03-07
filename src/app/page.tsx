@@ -17,6 +17,9 @@ import {
   Heart,
   Palette as PaletteIcon,
   BookOpen,
+  Bot,
+  Quote,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -26,6 +29,8 @@ import { PublicFooter } from '@/components/layout/public-footer';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { generateWelcomeMessage } from '@/ai/flows/ai-welcome-message';
 
 const rotatingWords = ['Effortlessly', 'Stylishly', 'Beautifully', 'Perfectly'];
 
@@ -147,6 +152,28 @@ export default function Home() {
   const missionImage = getImage('africansFun2');
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Eni Interactive Demo State
+  const [guestName, setGuestName] = useState('');
+  const [demoEventName, setDemoEventName] = useState('');
+  const [eniMessage, setEniMessage] = useState('');
+  const [isGeneratingEni, setIsGeneratingEni] = useState(false);
+
+  const handleGenerateEni = async () => {
+    if (!guestName || !demoEventName) return;
+    setIsGeneratingEni(true);
+    try {
+      const result = await generateWelcomeMessage({ 
+        guestName, 
+        eventName: demoEventName 
+      });
+      setEniMessage(result.message);
+    } catch (error) {
+      console.error('Eni generation failed:', error);
+    } finally {
+      setIsGeneratingEni(false);
+    }
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % rotatingWords.length);
@@ -263,7 +290,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Vision Section: Bringing People Together Beautifully */}
+        {/* Vision Section */}
         <section className="py-20 md:py-32 overflow-hidden">
             <div className="container mx-auto px-4">
                 <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-24">
@@ -328,12 +355,90 @@ export default function Home() {
                                 </p>
                             </div>
                         </div>
-                        {/* Decorative Element */}
                         <div className="absolute -bottom-6 -right-6 h-32 w-32 bg-[#FDE047]/20 rounded-full blur-3xl -z-10" />
                         <div className="absolute -top-6 -left-6 h-32 w-32 bg-[#60A5FA]/20 rounded-full blur-3xl -z-10" />
                     </div>
                 </div>
             </div>
+        </section>
+
+        {/* Meet Eni Section */}
+        <section id="meet-eni" className="py-20 md:py-32 bg-primary/5 relative overflow-hidden">
+          <div className="container mx-auto px-4">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-xs font-bold uppercase tracking-widest mb-6">
+                  <Sparkles className="h-3 w-3" /> The AI Soul of EvenTide
+                </div>
+                <h2 className="text-4xl md:text-6xl font-headline font-bold mb-6 tracking-tight text-balance">
+                  Meet Eni, Your <br />AI Assistant
+                </h2>
+                <p className="text-lg text-muted-foreground leading-relaxed mb-8 max-w-lg text-balance">
+                  Eni is your poetic creative director and meticulous logistical coordinator. Experience her warmth instantly by generating a personalized welcome message for your event.
+                </p>
+                <div className="space-y-4 max-w-sm">
+                  <div className="space-y-2">
+                    <Input 
+                      placeholder="Your Name" 
+                      value={guestName} 
+                      onChange={(e) => setGuestName(e.target.value)}
+                      className="h-12 bg-background border-border/60"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Input 
+                      placeholder="Event Name (e.g., Funke's Gala)" 
+                      value={demoEventName} 
+                      onChange={(e) => setDemoEventName(e.target.value)}
+                      className="h-12 bg-background border-border/60"
+                    />
+                  </div>
+                  <Button 
+                    onClick={handleGenerateEni} 
+                    disabled={isGeneratingEni || !guestName || !demoEventName}
+                    className="w-full h-12 rounded-full font-bold shadow-lg shadow-primary/20"
+                  >
+                    {isGeneratingEni ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                    Experience the Magic
+                  </Button>
+                </div>
+              </div>
+              <div className="relative">
+                <Card className="border-none shadow-2xl bg-background/80 backdrop-blur-sm min-h-[350px] flex flex-col justify-center p-10 relative overflow-hidden rounded-[2rem]">
+                  <div className="absolute top-6 right-8">
+                    <Quote className="h-16 w-16 text-primary/5" />
+                  </div>
+                  {eniMessage ? (
+                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                      <p className="text-2xl md:text-3xl font-logo italic leading-tight text-foreground/90 text-balance">
+                        &quot;{eniMessage}&quot;
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <div className="h-1 w-8 bg-primary rounded-full" />
+                        <p className="text-sm font-bold text-primary tracking-widest uppercase">Eni</p>
+                      </div>
+                      <Button variant="ghost" size="sm" className="p-0 text-muted-foreground hover:text-primary" onClick={() => setEniMessage('')}>
+                        Generate Another
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="text-center text-muted-foreground space-y-4">
+                      <div className="h-20 w-20 rounded-full bg-primary/5 flex items-center justify-center mx-auto mb-2">
+                        <Bot className="h-10 w-10 text-primary/20" />
+                      </div>
+                      <div>
+                        <p className="text-xl font-headline font-medium text-foreground/60">Eni is ready to welcome you.</p>
+                        <p className="text-sm mt-2 opacity-60 max-w-[250px] mx-auto">Enter your details to receive a personalized celebratory note from our AI hostess.</p>
+                      </div>
+                    </div>
+                  )}
+                </Card>
+                {/* Decorative Elements */}
+                <div className="absolute -z-10 -bottom-16 -right-16 w-80 h-80 bg-primary/10 rounded-full blur-[100px]" />
+                <div className="absolute -z-10 -top-16 -left-16 w-64 h-64 bg-accent/10 rounded-full blur-[100px]" />
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Pricing Section */}
