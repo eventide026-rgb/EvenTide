@@ -14,6 +14,8 @@ import {
   ChevronRight,
   Shield,
   QrCode,
+  Sparkles,
+  Zap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -80,7 +82,8 @@ const pricingTiers = [
         features: [
             "Up to 20 Guests", 
             "Basic Digital Registry", 
-            "Standard Validation"
+            "Standard Validation",
+            "Basic Media Library"
         ],
         isPopular: false,
     },
@@ -91,7 +94,8 @@ const pricingTiers = [
         features: [
             "Up to 100 Guests", 
             "Team Collaboration (Co-hosts)", 
-            "Standard Analytics"
+            "Standard Analytics",
+            "Advanced RSVP Tracking"
         ],
         isPopular: false,
     },
@@ -102,7 +106,8 @@ const pricingTiers = [
         features: [
             "Up to 250 Guests", 
             "Full Marketplace Integration", 
-            "Advanced Budget Ledger"
+            "Advanced Budget Ledger",
+            "Custom Event Codes"
         ],
         isPopular: true,
     },
@@ -114,7 +119,7 @@ const pricingTiers = [
             "Up to 500 Guests", 
             "Eni AI Stationery Studio", 
             "AI-curated Magazine",
-            "Live Reporting"
+            "Live Reporting & Metrics"
         ],
         isPopular: false,
     },
@@ -125,7 +130,8 @@ const pricingTiers = [
         features: [
             "Up to 5,000 Guests", 
             "White-labeling & Custom Branding", 
-            "Dedicated Technical Concierge"
+            "Dedicated Technical Concierge",
+            "Multi-event Management"
         ],
         isPopular: false,
     },
@@ -151,7 +157,7 @@ export default function Home() {
       <PublicHeader />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative w-full h-[70vh] md:h-[90vh] text-white">
+        <section className="relative w-full h-[80vh] md:h-[90vh] text-white flex items-center justify-center">
           {heroImage && (
             <Image
               src={heroImage.imageUrl}
@@ -162,30 +168,30 @@ export default function Home() {
               data-ai-hint={heroImage.imageHint}
             />
           )}
-          <div className="absolute inset-0 bg-black/80 via-black/50 to-transparent"></div>
-          <div className="relative z-10 flex flex-col items-center justify-center h-full text-center p-4">
-            <h1 className="text-4xl font-headline font-extrabold tracking-tight md:text-6xl lg:text-7xl text-shadow-lg leading-tight">
+          <div className="absolute inset-0 bg-black/70 via-black/40 to-transparent"></div>
+          <div className="relative z-10 container mx-auto px-4 text-center">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-headline font-extrabold tracking-tight text-shadow-lg leading-[1.1] text-balance">
               Plan Your Event
               <br />
-              <span className="bg-gradient-to-r from-[#60A5FA] to-[#FDE047] text-transparent bg-clip-text transition-all duration-300">
+              <span className="bg-gradient-to-r from-[#60A5FA] to-[#FDE047] text-transparent bg-clip-text transition-all duration-500">
                 {rotatingWords[currentIndex]}
               </span>
             </h1>
-            <p className="mt-4 max-w-2xl text-lg md:text-xl font-body text-white/90">
+            <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl font-body text-white/90 leading-relaxed text-balance">
               Welcome to EvenTide, your AI-powered partner for flawless event management. From intimate gatherings to grand galas, we bring your vision to life with intuitive tools and expert assistance.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button asChild size="lg" className="font-bold w-full sm:w-auto">
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button asChild size="lg" className="font-bold w-full sm:w-auto h-12 px-8 text-lg">
                 <Link href="/signup">
                   Create an Event <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="font-bold bg-white/10 border-white/20 hover:bg-white/20 w-full sm:w-auto">
+              <Button asChild size="lg" variant="outline" className="font-bold bg-white/10 border-white/20 backdrop-blur-sm hover:bg-white/20 w-full sm:w-auto h-12 px-8 text-lg">
                 <Link href="/shows">
                   Buy Tickets
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="font-bold bg-white/10 border-white/20 hover:bg-white/20 w-full sm:w-auto">
+              <Button asChild size="lg" variant="outline" className="font-bold bg-white/10 border-white/20 backdrop-blur-sm hover:bg-white/20 w-full sm:w-auto h-12 px-8 text-lg">
                 <Link href="/guest-login">
                   I am a Guest
                 </Link>
@@ -195,25 +201,25 @@ export default function Home() {
         </section>
 
         {/* How It Works Section */}
-        <section id="how-it-works" className="py-16 md:py-24 bg-secondary">
+        <section id="how-it-works" className="py-20 md:py-32 bg-secondary/50">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-headline font-bold md:text-4xl text-foreground">How It Works</h2>
-              <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-                A simple, streamlined process from concept to execution.
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-headline font-bold md:text-5xl text-foreground">How It Works</h2>
+              <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+                A streamlined, ecosystem-wide process from initial concept to digital legacy.
               </p>
             </div>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
               {howItWorks.map((step) => (
-                <Card key={step.title} className="text-center">
-                  <CardHeader className="items-center">
-                    <div className="bg-primary/10 p-4 rounded-full mb-4">
+                <Card key={step.title} className="text-center border-none bg-background/50 backdrop-blur shadow-sm hover:shadow-md transition-shadow">
+                  <CardHeader className="items-center pb-2">
+                    <div className="bg-primary/10 p-5 rounded-2xl mb-4 text-primary">
                       {step.icon}
                     </div>
                     <CardTitle className="font-headline text-xl">{step.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground">{step.description}</p>
+                    <p className="text-muted-foreground leading-relaxed">{step.description}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -222,26 +228,28 @@ export default function Home() {
         </section>
 
         {/* Role-Based Benefits Section */}
-        <section id="benefits" className="py-16 md:py-24">
+        <section id="benefits" className="py-20 md:py-32 overflow-hidden">
             <div className="container mx-auto px-4">
-                <div className="text-center mb-12">
-                    <h2 className="text-3xl font-headline font-bold md:text-4xl text-foreground">A Tool for Everyone on the Team</h2>
-                    <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-                        EvenTide is designed to empower every role involved in making an event a success.
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl font-headline font-bold md:text-5xl text-foreground">A Tool for Every Stakeholder</h2>
+                    <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+                        EvenTide empowers every role in the celebration lifecycle with specialized dashboard experiences.
                     </p>
                 </div>
-                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+                <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
                     {roleBenefits.map((role) => (
-                        <Card key={role.title} className="border-accent border-2 bg-primary/20 transition-transform transition-shadow duration-300 hover:scale-105 hover:-translate-y-2 hover:shadow-2xl hover:shadow-accent/20">
+                        <Card key={role.title} className="border-accent/20 bg-primary/5 hover:bg-primary/10 transition-all duration-300 hover:-translate-y-2">
                             <CardHeader className="flex-row items-center gap-4">
-                                {role.icon}
-                                <CardTitle className="font-headline text-xl">{role.title}</CardTitle>
+                                <div className="p-3 bg-background rounded-xl shadow-sm">
+                                    {role.icon}
+                                </div>
+                                <CardTitle className="font-headline text-2xl">{role.title}</CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <ul className="space-y-2 text-muted-foreground">
+                                <ul className="space-y-3 text-muted-foreground">
                                     {role.features.map((feature, i) => (
-                                        <li key={i} className="flex items-start gap-2">
-                                            <CheckCircle className="h-4 w-4 mt-1 text-primary flex-shrink-0" />
+                                        <li key={i} className="flex items-start gap-3 text-sm">
+                                            <CheckCircle className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
                                             <span>{feature}</span>
                                         </li>
                                     ))}
@@ -254,33 +262,33 @@ export default function Home() {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="py-16 md:py-24 bg-secondary">
+        <section id="pricing" className="py-20 md:py-32 bg-secondary/50">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-headline font-bold md:text-4xl text-foreground">Pricing Plans for Every Event</h2>
-              <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
-                Choose the perfect plan that fits the scale of your event.
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-headline font-bold md:text-5xl text-foreground">The Ecosystem Subscriptions</h2>
+              <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+                High-fidelity functional levels designed to scale with your ambition.
               </p>
             </div>
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 items-start">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 items-stretch">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
-                  "flex flex-col transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl relative h-full", 
-                  tier.isPopular && "border-2 border-primary shadow-lg shadow-primary/20"
+                  "flex flex-col transition-all duration-300 relative border-border/50", 
+                  tier.isPopular ? "border-primary ring-1 ring-primary shadow-2xl scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/80"
                 )}>
-                  {tier.isPopular && <Badge className="absolute -top-3 right-4">Popular</Badge>}
+                  {tier.isPopular && <Badge className="absolute -top-3 right-4 shadow-lg">Most Popular</Badge>}
                   <CardHeader>
-                    <CardTitle className="font-headline text-2xl">{tier.name}</CardTitle>
-                     <div className="flex items-baseline gap-1">
-                      <p className="text-4xl font-bold">{tier.price}</p>
+                    <CardTitle className="font-headline text-xl">{tier.name}</CardTitle>
+                     <div className="flex items-baseline gap-1 mt-2">
+                      <p className="text-3xl font-bold">{tier.price}</p>
                     </div>
-                    <CardDescription className="min-h-[40px]">{tier.description}</CardDescription>
+                    <CardDescription className="min-h-[48px] text-xs mt-2">{tier.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="flex-1">
                     <ul className="space-y-3">
                       {tier.features.map((feature, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                          <ChevronRight className="h-4 w-4 text-primary flex-shrink-0 mt-1" />
+                        <li key={i} className="flex items-start gap-2 text-[13px] text-muted-foreground">
+                          <ChevronRight className="h-3.5 w-3.5 text-primary flex-shrink-0 mt-0.5" />
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -288,7 +296,7 @@ export default function Home() {
                   </CardContent>
                   <CardFooter className="pt-6">
                      <Button className="w-full font-bold" variant={tier.isPopular ? "default" : "outline"}>
-                        {tier.name === "Free Starter" ? "Get Started" : "Choose " + tier.name}
+                        {tier.name === "Free Starter" ? "Get Started" : "Select Plan"}
                      </Button>
                   </CardFooter>
                 </Card>
@@ -298,18 +306,25 @@ export default function Home() {
         </section>
 
         {/* Final CTA Section */}
-        <section className="py-16 md:py-24">
+        <section className="py-24 md:py-40 relative overflow-hidden">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px] -z-10" />
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-headline font-bold md:text-4xl text-foreground">
-              Ready to Create an Unforgettable Event?
+            <Sparkles className="h-12 w-12 text-accent mx-auto mb-6" />
+            <h2 className="text-4xl font-headline font-bold md:text-6xl text-foreground text-balance">
+              Transform Your Next Event <br className="hidden md:block" /> into a Masterpiece
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-              Join EvenTide today and experience the future of event management.
+            <p className="mt-6 text-xl text-muted-foreground max-w-2xl mx-auto text-balance">
+              Join the EvenTide ecosystem today and experience the convergence of technology, creativity, and culture.
             </p>
-            <div className="mt-8">
-              <Button asChild size="lg" className="font-bold shadow-lg">
+            <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button asChild size="lg" className="font-bold shadow-xl h-14 px-10 text-lg group">
                 <Link href="/signup">
-                  Start Planning Now <ArrowRight className="ml-2 h-5 w-5" />
+                  Start Planning Now <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="font-bold h-14 px-10 text-lg">
+                <Link href="/contact">
+                  Speak to an Expert
                 </Link>
               </Button>
             </div>

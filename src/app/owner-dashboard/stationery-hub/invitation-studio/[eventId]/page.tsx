@@ -55,14 +55,14 @@ export default function InvitationStudioPage({ params }: { params: Promise<{ eve
 
     if (isLoading || !event) {
         return (
-            <div className="flex h-full items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin" />
+            <div className="flex h-[60vh] items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
     }
     
     return (
-        <div className="grid lg:grid-cols-3 gap-8 h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 min-h-[80vh]">
             <div className="lg:col-span-1">
                 <ControlPanel
                     eventId={eventId}

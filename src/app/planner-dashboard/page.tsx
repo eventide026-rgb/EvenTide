@@ -16,6 +16,9 @@ import {
   Clock,
   MoreVertical,
   Users,
+  Loader2,
+  TrendingUp,
+  Mail,
 } from "lucide-react";
 import Link from 'next/link';
 import { useState, useMemo, useEffect } from 'react';
@@ -39,7 +42,7 @@ type Event = {
   eventDate: any; // Firestore Timestamp
   eventCode?: string;
   status: 'Upcoming' | 'In Progress' | 'Completed';
-  guestCapacity?: number;
+  guestLimit?: number;
 };
 
 type Task = {
@@ -89,7 +92,7 @@ export default function PlannerDashboardPage() {
           ...e,
           date: eventDate.toISOString(),
           status,
-          guestCapacity: e.guestCapacity || 20,
+          guestLimit: e.guestLimit || 20,
         };
       }) || []
     );
@@ -120,8 +123,8 @@ export default function PlannerDashboardPage() {
 
   const guestCount = guests?.length ?? 0;
   const checkedInCount = guests?.filter(g => g.hasCheckedIn).length ?? 0;
-  const rsvpRate = selectedEvent?.guestCapacity
-    ? Math.round((guestCount / selectedEvent.guestCapacity) * 100)
+  const rsvpRate = selectedEvent?.guestLimit
+    ? Math.round((guestCount / selectedEvent.guestLimit) * 100)
     : 0;
 
   useEffect(() => {
@@ -134,32 +137,32 @@ export default function PlannerDashboardPage() {
   const isLoadingDetails = isLoadingGuests || isLoadingTasks;
 
   return (
-    <div className="h-full flex flex-col">
-      <header className="flex items-center justify-between pb-4 border-b">
+    <div className="space-y-8 pb-12">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-headline">
-            Planner Dashboard
+          <h1 className="text-3xl font-bold font-headline tracking-tight text-balance">
+            Planner Command Center
           </h1>
           <p className="text-muted-foreground">
-            Manage all your assigned events.
+            Manage your high-performance professional event portfolio.
           </p>
         </div>
-        <Button asChild variant="outline">
-          <Link href="/planner-dashboard/invitations">View Invitations</Link>
+        <Button asChild variant="outline" className="w-full sm:w-auto shadow-sm">
+          <Link href="/planner-dashboard/invitations"><Mail className="mr-2 h-4 w-4" /> Gig Invitations</Link>
         </Button>
       </header>
 
-      <div className="grid lg:grid-cols-12 gap-8 flex-1 mt-6">
-        <div className="lg:col-span-4 xl:col-span-3 h-full">
-          <Card className="h-full flex flex-col">
-            <CardHeader>
-              <CardTitle>My Gigs</CardTitle>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-4 xl:col-span-3">
+          <Card className="sticky top-20">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Active Gigs</CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 overflow-y-auto">
+            <CardContent>
               {isLoading ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-16 w-full" />
-                  <Skeleton className="h-16 w-full" />
+                <div className="space-y-3">
+                  <Skeleton className="h-14 w-full rounded-xl" />
+                  <Skeleton className="h-14 w-full rounded-xl" />
                 </div>
               ) : events.length > 0 ? (
                 <ul className="space-y-2">
@@ -167,15 +170,15 @@ export default function PlannerDashboardPage() {
                     <li key={event.id}>
                       <button
                         className={cn(
-                          'w-full text-left p-3 rounded-lg border transition-all',
+                          'w-full text-left p-3 rounded-xl border transition-all duration-200',
                           selectedEvent?.id === event.id
-                            ? 'bg-accent border-primary'
-                            : 'hover:bg-accent/50'
+                            ? 'bg-primary text-primary-foreground border-primary shadow-md'
+                            : 'hover:bg-muted/80 border-transparent bg-muted/30'
                         )}
                         onClick={() => setSelectedEventId(event.id)}
                       >
-                        <p className="font-semibold truncate">{event.name}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="font-semibold truncate text-sm">{event.name}</p>
+                        <p className={cn("text-[10px] uppercase font-bold tracking-wider", selectedEvent?.id === event.id ? "text-primary-foreground/80" : "text-muted-foreground")}>
                           {event.status}
                         </p>
                       </button>
@@ -183,92 +186,126 @@ export default function PlannerDashboardPage() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  You have no active gigs. Accept an invitation to get
-                  started.
-                </p>
+                <div className="text-center py-8">
+                    <p className="text-sm text-muted-foreground">
+                    No active assignments.
+                    </p>
+                </div>
               )}
             </CardContent>
           </Card>
         </div>
         <div className="lg:col-span-8 xl:col-span-9 space-y-6">
-          {isLoading ? (
-            <Skeleton className="h-64 w-full" />
+          {isLoading && !selectedEvent ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Skeleton className="h-64 w-full rounded-3xl" />
+                <div className="grid grid-cols-2 gap-4">
+                    <Skeleton className="h-32 rounded-2xl" />
+                    <Skeleton className="h-32 rounded-2xl" />
+                </div>
+            </div>
           ) : selectedEvent ? (
             <>
-              <Card>
+              <Card className="overflow-hidden border-none shadow-xl bg-gradient-to-br from-primary/5 via-background to-background relative">
                 <CardHeader className="flex flex-row items-start justify-between">
-                  <div>
-                    <CardTitle className="text-2xl">
+                  <div className="space-y-1">
+                    <Badge variant="outline" className="bg-background/50 border-primary/20 text-primary">{selectedEvent.status}</Badge>
+                    <CardTitle className="text-3xl font-headline pt-2">
                       {selectedEvent.name}
                     </CardTitle>
                     <CardDescription>
-                      Event Code:{' '}
-                      <span className="font-mono bg-muted px-2 py-1 rounded-md">
+                      Event Identifier:{' '}
+                      <span className="font-mono bg-muted/50 px-2 py-0.5 rounded text-foreground font-bold">
                         {selectedEvent.eventCode}
                       </span>
                     </CardDescription>
                   </div>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className="rounded-full">
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pb-8">
                   <Countdown date={selectedEvent.date} />
                 </CardContent>
               </Card>
 
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                  <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2"><Users className="h-4 w-4" /> Total Guests</CardTitle>
+                        <CardTitle className="text-sm font-medium flex items-center gap-2 text-muted-foreground"><Users className="h-4 w-4" /> Guest Load</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">
-                            {isLoadingGuests ? <Loader2 className="h-6 w-6 animate-spin"/> : `${guestCount} / ${selectedEvent.guestCapacity}`}
+                        <div className="text-3xl font-bold">
+                            {isLoadingGuests ? <Loader2 className="h-6 w-6 animate-spin"/> : `${guestCount} / ${selectedEvent.guestLimit}`}
+                        </div>
+                        <div className="w-full bg-muted h-1 rounded-full mt-3 overflow-hidden">
+                            <div className="bg-primary h-full" style={{ width: `${Math.min(100, rsvpRate)}%` }} />
                         </div>
                     </CardContent>
                 </Card>
                  <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium flex items-center gap-2"><CheckSquare className="h-4 w-4" /> Check-ins</CardTitle>
+                        <CardTitle className="text-sm font-medium flex items-center gap-2 text-muted-foreground"><CheckSquare className="h-4 w-4" /> Validated Arrivals</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">
+                        <div className="text-3xl font-bold">
                              {isLoadingGuests ? <Loader2 className="h-6 w-6 animate-spin" /> : `${checkedInCount} / ${guestCount}`}
                         </div>
+                        <p className="text-xs text-muted-foreground mt-1">Live check-in stream active</p>
+                    </CardContent>
+                </Card>
+                <Card className="sm:col-span-2 lg:col-span-1">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium flex items-center gap-2 text-muted-foreground"><TrendingUp className="h-4 w-4" /> Engagement</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-3xl font-bold">{rsvpRate}%</div>
+                        <p className="text-xs text-muted-foreground mt-1">Confirmed RSVP frequency</p>
                     </CardContent>
                 </Card>
               </div>
 
-               <Card>
-                <CardHeader>
-                    <CardTitle>Upcoming Tasks</CardTitle>
-                     <CardDescription>Your next 5 most urgent tasks for this event.</CardDescription>
+               <Card className="border-none shadow-lg">
+                <CardHeader className="border-b bg-muted/10 flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle className="text-lg">Critical Task Board</CardTitle>
+                        <CardDescription>High-priority logistical milestones.</CardDescription>
+                    </div>
+                    <Button variant="ghost" size="sm" asChild>
+                        <Link href="/planner-dashboard/tasks">View Board</Link>
+                    </Button>
                 </CardHeader>
-                 <CardContent>
-                    {isLoadingDetails ? <Loader2 className="h-6 w-6 animate-spin" /> : (
+                 <CardContent className="pt-6">
+                    {isLoadingDetails ? <Loader2 className="h-6 w-6 animate-spin mx-auto" /> : (
                         tasks && tasks.length > 0 ? (
-                            <ul className="space-y-2">
+                            <div className="space-y-3">
                                 {tasks.map(task => (
-                                    <li key={task.id} className="flex items-center justify-between text-sm p-2 rounded-md bg-muted/50">
-                                        <span className="font-medium">{task.title}</span>
-                                        <span className="text-muted-foreground text-xs">{task.dueDate ? `Due: ${format(task.dueDate.toDate(), 'MMM dd')}` : ''}</span>
-                                    </li>
+                                    <div key={task.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/30 border border-border/50">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-2 w-2 rounded-full bg-primary" />
+                                            <span className="font-semibold text-sm">{task.title}</span>
+                                        </div>
+                                        <span className="text-muted-foreground text-[10px] font-mono font-bold uppercase">{task.dueDate ? format(task.dueDate.toDate(), 'MMM d') : ''}</span>
+                                    </div>
                                 ))}
-                            </ul>
+                            </div>
                         ) : (
-                            <p className="text-sm text-muted-foreground">No pending tasks for this event.</p>
+                            <div className="text-center py-12 border-2 border-dashed rounded-2xl">
+                                <p className="text-sm text-muted-foreground">All assignment paths are currently clear.</p>
+                            </div>
                         )
                     )}
                  </CardContent>
               </Card>
             </>
           ) : (
-            <div className="text-center py-16 border-dashed border-2 rounded-lg">
-              <h3 className="text-xl font-semibold">No Event Selected</h3>
-              <p className="text-muted-foreground mt-2 mb-4">
-                Select an event from your gigs list to see details.
+            <div className="flex flex-col items-center justify-center text-center py-32 bg-muted/20 border-2 border-dashed rounded-3xl px-4">
+              <div className="p-6 bg-background rounded-full shadow-lg mb-6 text-primary">
+                <Briefcase className="h-12 w-12" />
+              </div>
+              <h3 className="text-2xl font-headline font-bold">No Gig Selected</h3>
+              <p className="text-muted-foreground mt-2 max-w-sm mx-auto">
+                Select an active assignment from your list to access logistical tools and real-time event metrics.
               </p>
             </div>
           )}

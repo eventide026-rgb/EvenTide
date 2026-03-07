@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -55,11 +56,11 @@ const HeaderContent = () => {
       <nav className="hidden md:flex items-center space-x-1 text-sm font-medium">
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost">
-              Resources <ChevronDown className="ml-1 h-4 w-4" />
+            <Button variant="ghost" className="h-8 rounded-full px-3">
+              Resources <ChevronDown className="ml-1 h-3.5 w-3.5" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 p-2">
+          <PopoverContent className="w-64 p-2 shadow-xl border-border/40">
               {resourceImage && (
               <div className="relative h-24 w-full mb-2 rounded-md overflow-hidden">
                 <Image 
@@ -76,7 +77,7 @@ const HeaderContent = () => {
                 <Link 
                   key={link.label}
                   href={link.href}
-                  className="rounded-md p-2 text-sm hover:bg-accent"
+                  className="rounded-md p-2 text-sm hover:bg-accent transition-colors"
                 >
                   {link.label}
                 </Link>
@@ -87,9 +88,9 @@ const HeaderContent = () => {
 
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost">Community <ChevronDown className="ml-1 h-4 w-4" /></Button>
+            <Button variant="ghost" className="h-8 rounded-full px-3">Community <ChevronDown className="ml-1 h-3.5 w-3.5" /></Button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 p-2">
+          <PopoverContent className="w-64 p-2 shadow-xl border-border/40">
              {communityImage && (
               <div className="relative h-24 w-full mb-2 rounded-md overflow-hidden">
                 <Image
@@ -106,7 +107,7 @@ const HeaderContent = () => {
               <Link
                 key={link.label}
                 href={link.href}
-                className="rounded-md p-2 text-sm hover:bg-accent"
+                className="rounded-md p-2 text-sm hover:bg-accent transition-colors"
               >
                 {link.label}
               </Link>
@@ -117,9 +118,9 @@ const HeaderContent = () => {
 
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost">Magazine <ChevronDown className="ml-1 h-4 w-4" /></Button>
+            <Button variant="ghost" className="h-8 rounded-full px-3">Magazine <ChevronDown className="ml-1 h-3.5 w-3.5" /></Button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 p-2">
+          <PopoverContent className="w-64 p-2 shadow-xl border-border/40">
             {magazineImage && (
               <div className="relative h-24 w-full mb-2 rounded-md overflow-hidden">
                 <Image
@@ -136,7 +137,7 @@ const HeaderContent = () => {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="rounded-md p-2 text-sm hover:bg-accent"
+                  className="rounded-md p-2 text-sm hover:bg-accent transition-colors"
                 >
                   {link.label}
                 </Link>
@@ -147,9 +148,9 @@ const HeaderContent = () => {
 
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost">Marketplace <ChevronDown className="ml-1 h-4 w-4" /></Button>
+            <Button variant="ghost" className="h-8 rounded-full px-3">Marketplace <ChevronDown className="ml-1 h-3.5 w-3.5" /></Button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 p-2">
+          <PopoverContent className="w-64 p-2 shadow-xl border-border/40">
             {hotelsImage && (
               <div className="relative h-24 w-full mb-2 rounded-md overflow-hidden">
                 <Image
@@ -166,7 +167,7 @@ const HeaderContent = () => {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="rounded-md p-2 text-sm hover:bg-accent"
+                  className="rounded-md p-2 text-sm hover:bg-accent transition-colors"
                 >
                   {link.label}
                 </Link>
@@ -177,30 +178,34 @@ const HeaderContent = () => {
       </nav>
       <div className="flex flex-1 items-center justify-end space-x-2">
         <div className="hidden md:flex items-center space-x-1 rounded-full border bg-background/80 p-1">
-          <Button variant="ghost" asChild className="rounded-full">
+          <Button variant="ghost" asChild className="rounded-full h-8 px-4 text-xs font-semibold">
             <Link href="/login">Login</Link>
           </Button>
-          <Button asChild className="rounded-full">
+          <Button asChild className="rounded-full h-8 px-4 text-xs font-semibold">
             <Link href="/signup">Sign Up</Link>
           </Button>
         </div>
         <div className="md:hidden">
             <Sheet>
             <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" className="rounded-full h-9 w-9">
                 <Menu className="h-4 w-4" />
                 </Button>
             </SheetTrigger>
-            <SheetContent side="right">
-                <nav className="grid gap-6 text-lg font-medium">
+            <SheetContent side="right" className="w-[300px]">
+                <nav className="grid gap-6 text-lg font-medium pt-8">
                 <Link href="/" className="flex items-center space-x-2">
                     <Logo />
                 </Link>
+                <div className="space-y-4">
+                    <p className="text-xs font-bold uppercase text-muted-foreground tracking-widest">Resources</p>
+                    {resourceLinks.map(l => <Link key={l.label} href={l.href} className="block text-sm py-1">{l.label}</Link>)}
+                </div>
                 <div className="flex flex-col space-y-4 pt-6">
-                    <Button asChild>
+                    <Button asChild className="w-full">
                         <Link href="/login">Login</Link>
                     </Button>
-                    <Button asChild>
+                    <Button asChild variant="outline" className="w-full">
                         <Link href="/signup">Sign Up</Link>
                     </Button>
                 </div>
@@ -232,13 +237,13 @@ export function PublicHeader() {
 
   return (
     <header className={cn(
-        "fixed left-0 right-0 z-50 w-full transition-all duration-300",
-        isAtTop ? "top-4" : "top-0"
+        "fixed left-0 right-0 z-50 w-full transition-all duration-500 ease-in-out px-4",
+        isAtTop ? "top-6" : "top-0 px-0"
     )}>
        <div
         className={cn(
-          "container rounded-full border border-border/40 bg-background/60 p-1 shadow-lg backdrop-blur-lg transition-all duration-300 mx-auto",
-          isAtTop ? "max-w-screen-lg rounded-full" : "max-w-none rounded-none border-x-0"
+          "container rounded-full border border-border/40 bg-background/60 p-1 shadow-lg backdrop-blur-xl transition-all duration-500 ease-in-out mx-auto",
+          isAtTop ? "max-w-screen-lg" : "max-w-none rounded-none border-x-0 border-t-0"
         )}
       >
         <HeaderContent />

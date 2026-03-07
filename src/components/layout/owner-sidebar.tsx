@@ -161,7 +161,7 @@ export function OwnerDashboardSidebar() {
     return (
         <Sidebar>
             <SidebarHeader>
-            <Link href="/">
+            <Link href="/" className="flex items-center gap-2 pl-2">
                 <Logo />
             </Link>
             <SidebarTrigger />
@@ -170,7 +170,10 @@ export function OwnerDashboardSidebar() {
             <SidebarMenu>
                 {sidebarNav.map(group => (
                 <SidebarMenuItem key={group.title}>
-                    <Popover open={openPopover === group.title} onOpenChange={(open) => setOpenPopover(open ? group.title : null)}>
+                    <Popover 
+                        open={openPopover === group.title} 
+                        onOpenChange={(open) => setOpenPopover(open ? group.title : null)}
+                    >
                         <PopoverTrigger asChild>
                         <SidebarMenuButton
                             tooltip={{ children: group.title }}
@@ -180,7 +183,7 @@ export function OwnerDashboardSidebar() {
                             <span>{group.title}</span>
                         </SidebarMenuButton>
                         </PopoverTrigger>
-                        <PopoverContent side="right" align="start" className="ml-2 w-56 p-0 shadow-xl">
+                        <PopoverContent side="right" align="start" className="ml-2 w-56 p-0 shadow-xl border-border/40 overflow-hidden">
                             <FlyoutMenu navGroup={group} onClose={() => setOpenPopover(null)} />
                         </PopoverContent>
                     </Popover>
