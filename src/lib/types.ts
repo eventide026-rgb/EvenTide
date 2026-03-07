@@ -1,4 +1,3 @@
-
 export type Vendor = {
   id: string;
   name: string;
@@ -16,6 +15,9 @@ export type Vendor = {
     imageUrl: string;
     description: string;
   }[];
+  rating?: number;
+  priceRangeMin?: number;
+  priceRangeMax?: number;
 };
 
 export type PlannerProfile = {

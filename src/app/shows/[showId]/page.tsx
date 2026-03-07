@@ -19,8 +19,8 @@ import {
   Loader2,
   Calendar,
   MapPin,
-  MinusCircle,
-  PlusCircle,
+  CircleMinus,
+  CirclePlus,
 } from 'lucide-react';
 import {
   Carousel,
@@ -33,7 +33,7 @@ import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 
 /* ------------------------------------------------------------------ */
-/* Types (domain types should NOT come from components or pages)       */
+/* Types                                                              */
 /* ------------------------------------------------------------------ */
 
 type Show = {
@@ -41,7 +41,7 @@ type Show = {
   name: string;
   description: string;
   location: string;
-  eventDate: any; // Can be Firestore Timestamp or string
+  eventDate: any;
   imageUrls?: string[];
 };
 
@@ -252,7 +252,7 @@ export default function ShowDetailPage({
                             (ticketSelection[tier.id] || 0) === 0
                           }
                         >
-                          <MinusCircle className="h-5 w-5" />
+                          <CircleMinus className="h-5 w-5" />
                         </Button>
 
                         <span className="font-bold text-lg w-8 text-center">
@@ -270,7 +270,7 @@ export default function ShowDetailPage({
                             tier.quantity - (tier.sold || 0)
                           }
                         >
-                          <PlusCircle className="h-5 w-5" />
+                          <CirclePlus className="h-5 w-5" />
                         </Button>
                       </div>
                     </div>

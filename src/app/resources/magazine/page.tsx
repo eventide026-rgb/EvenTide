@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -6,8 +5,6 @@ import { useCollection, useFirestore, useMemoFirebase } from "@/firebase";
 import { collection, query, where } from "firebase/firestore";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type Issue = {
@@ -16,13 +13,18 @@ type Issue = {
     introduction: string;
     status: 'draft' | 'published';
     eventSummaries: { eventName: string; summary: string }[];
-    // For now, we'll assume the first event's image is the cover
+    createdAt: any;
 };
 
 function MagazineCover({ issue }: { issue: Issue }) {
     // In a real app, the cover image would be a dedicated field.
     // For now, we'll generate a consistent one based on the ID.
     const imageUrl = `https://picsum.photos/seed/${issue.id}/400/600`;
+    
+    const formattedDate = issue.createdAt?.toDate 
+        ? new Date(issue.createdAt.toDate()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+        : 'Recent Issue';
+
     return (
          <Link href={`/resources/magazine/${issue.id}`} key={issue.id} className="group block">
             <div className="overflow-hidden rounded-lg shadow-md group-hover:shadow-2xl transition-shadow duration-300">
@@ -35,7 +37,9 @@ function MagazineCover({ issue }: { issue: Issue }) {
                 />
             </div>
             <div className="mt-4">
-                <p className="text-sm text-muted-foreground">{new Date(issue.createdAt?.toDate()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+                <p className="text-sm text-muted-foreground">
+                    {formattedDate}
+                </p>
                 <h3 className="text-lg font-bold font-headline mt-1 group-hover:text-primary transition-colors">{issue.title}</h3>
             </div>
         </Link>

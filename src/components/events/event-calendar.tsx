@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -16,7 +15,6 @@ import { isSameDay, format } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, CalendarCheck, CheckSquare } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
 /* Types                                                              */
@@ -48,17 +46,13 @@ type CalendarItem = {
 };
 
 /* ------------------------------------------------------------------ */
-/* Page Component                                                     */
+/* Component                                                          */
 /* ------------------------------------------------------------------ */
 
 export default function EventCalendar() {
   const firestore = useFirestore();
   const { user } = useUser();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-
-  /* ---------------------------------------------------------------- */
-  /* Queries: Owned + Invited events                                  */
-  /* ---------------------------------------------------------------- */
 
   const ownedEventsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
@@ -74,11 +68,6 @@ export default function EventCalendar() {
   const { data: invitedEvents, isLoading: loadingInvited } = useCollection<Event>(invitedEventsQuery);
 
   const events = [...(ownedEvents ?? []), ...(invitedEvents ?? [])];
-
-  /* ---------------------------------------------------------------- */
-  /* Tasks (simplified: first event only)                             */
-  /* ---------------------------------------------------------------- */
-
   const firstEventId = events?.[0]?.id;
 
   const tasksQuery = useMemoFirebase(() => {
@@ -90,44 +79,22 @@ export default function EventCalendar() {
 
   const isLoading = loadingOwned || loadingInvited || loadingTasks;
 
-  /* ---------------------------------------------------------------- */
-  /* Build calendar items                                             */
-  /* ---------------------------------------------------------------- */
-
   const calendarItems = useMemo<CalendarItem[]>(() => {
     const items: CalendarItem[] = [];
 
     ownedEvents?.forEach((event) => {
       if (!event.eventDate) return;
-      items.push({
-        id: event.id,
-        type: 'event',
-        date: event.eventDate.toDate(),
-        title: event.name,
-        source: 'owned',
-      });
+      items.push({ id: event.id, type: 'event', date: event.eventDate.toDate(), title: event.name, source: 'owned' });
     });
 
     invitedEvents?.forEach((event) => {
       if (!event.eventDate) return;
-      items.push({
-        id: event.id,
-        type: 'event',
-        date: event.eventDate.toDate(),
-        title: event.name,
-        source: 'invited',
-      });
+      items.push({ id: event.id, type: 'event', date: event.eventDate.toDate(), title: event.name, source: 'invited' });
     });
 
     tasks?.forEach((task) => {
       if (!task.dueDate) return;
-      items.push({
-        id: task.id,
-        type: 'task',
-        date: task.dueDate.toDate(),
-        title: task.title,
-        task,
-      });
+      items.push({ id: task.id, type: 'task', date: task.dueDate.toDate(), title: task.title, task });
     });
 
     return items;
@@ -138,21 +105,16 @@ export default function EventCalendar() {
     return calendarItems.filter((item) => isSameDay(item.date, selectedDate));
   }, [calendarItems, selectedDate]);
 
-  /* ---------------------------------------------------------------- */
-  /* Loading state                                                    */
-  /* ---------------------------------------------------------------- */
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[400px]">
-        <Loader2 className="h-6 w-6 animate-spin" />
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
 
   return (
     <div className="grid md:grid-cols-3 gap-8 min-h-[600px]">
-      {/* Calendar */}
       <Card className="md:col-span-2">
         <CardContent className="p-4">
           <DayPicker
@@ -160,87 +122,41 @@ export default function EventCalendar() {
             selected={selectedDate}
             onSelect={setSelectedDate}
             className="w-full"
-            formatters={{ 
-              formatWeekdayName: (date) => ['S', 'M', 'T', 'W', 'T', 'F', 'S'][date.getDay()] 
+            modifiers={{ 
+                hasOwned: (date: Date) => calendarItems.some(i => i.source === 'owned' && isSameDay(i.date, date)),
+                hasInvited: (date: Date) => calendarItems.some(i => i.source === 'invited' && isSameDay(i.date, date)),
+                hasTask: (date: Date) => calendarItems.some(i => i.type === 'task' && isSameDay(i.date, date))
             }}
-            components={{
-              DayButton: (props: any) => {
-                const { day, modifiers, ...buttonProps } = props;
-                const date = day.date;
-                const hasOwned = calendarItems.some(i => i.source === 'owned' && isSameDay(i.date, date));
-                const hasInvited = calendarItems.some(i => i.source === 'invited' && isSameDay(i.date, date));
-                const hasTask = calendarItems.some(i => i.type === 'task' && isSameDay(i.date, date));
-
-                return (
-                  <button 
-                    {...buttonProps} 
-                    className={cn(
-                      buttonProps.className, 
-                      "relative h-9 w-9 p-0 font-normal flex items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground"
-                    )}
-                  >
-                    {date.getDate()}
-                    <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
-                      {hasOwned && <span className="h-1 w-1 rounded-full bg-primary" />}
-                      {hasInvited && <span className="h-1 w-1 rounded-full bg-blue-500" />}
-                      {hasTask && <span className="h-1 w-1 rounded-full bg-green-500" />}
-                    </div>
-                  </button>
-                );
-              }
+            modifiersClassNames={{
+                hasOwned: "day-indicator indicator-primary",
+                hasInvited: "day-indicator indicator-blue",
+                hasTask: "day-indicator indicator-green"
             }}
           />
         </CardContent>
       </Card>
 
-      {/* Agenda */}
       <Card>
         <CardHeader>
-          <CardTitle>
-            Agenda for {selectedDate ? format(selectedDate, 'PPP') : '—'}
-          </CardTitle>
+          <CardTitle>Agenda for {selectedDate ? format(selectedDate, 'PPP') : '—'}</CardTitle>
         </CardHeader>
         <CardContent>
           {selectedDayItems.length === 0 ? (
-            <p className="text-muted-foreground text-center py-6 text-sm">
-              No events or tasks for this day.
-            </p>
+            <p className="text-muted-foreground text-center py-6 text-sm">No events or tasks for this day.</p>
           ) : (
             <ul className="space-y-4">
               {selectedDayItems.map((item) => (
                 <li key={`${item.type}-${item.id}`} className="flex gap-3">
                   {item.type === 'event' ? (
-                    <CalendarCheck
-                      className={`h-5 w-5 mt-1 ${
-                        item.source === 'owned'
-                          ? 'text-primary'
-                          : 'text-blue-500'
-                      }`}
-                    />
+                    <CalendarCheck className={`h-5 w-5 mt-1 ${item.source === 'owned' ? 'text-primary' : 'text-blue-500'}`} />
                   ) : (
                     <CheckSquare className="h-5 w-5 text-green-500 mt-1" />
                   )}
                   <div>
                     <p className="font-semibold text-sm">{item.title}</p>
                     <div className="flex gap-2 mt-1">
-                      <Badge
-                        variant={
-                          item.type === 'event'
-                            ? item.source === 'owned'
-                              ? 'default'
-                              : 'secondary'
-                            : 'secondary'
-                        }
-                        className="text-[10px] h-4"
-                      >
-                        {item.type}
-                      </Badge>
-                      {item.source && (
-                        <Badge variant="outline" className="text-[10px] h-4">{item.source}</Badge>
-                      )}
-                      {item.task && (
-                        <Badge variant="outline" className="text-[10px] h-4">{item.task.status}</Badge>
-                      )}
+                      <Badge variant="secondary" className="text-[10px] h-4">{item.type}</Badge>
+                      {item.source && <Badge variant="outline" className="text-[10px] h-4">{item.source}</Badge>}
                     </div>
                   </div>
                 </li>

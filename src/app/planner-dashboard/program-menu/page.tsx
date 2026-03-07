@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -33,6 +32,7 @@ export default function ProgramMenuHubPage() {
         return query(collection(firestore, 'planners'), where('plannerId', '==', user.uid));
     }, [firestore, user?.uid]);
     const { data: assignments, isLoading: isLoadingAssignments } = useCollection<EventPlannerAssignment>(assignmentsQuery);
+    
     const eventIds = useMemo(() => assignments?.map(a => a.eventId) || [], [assignments]);
     
     const eventsQuery = useMemoFirebase(() => {
@@ -77,10 +77,13 @@ export default function ProgramMenuHubPage() {
                 <CardContent>
                     <Label>Select Event</Label>
                     {isLoading ? (
-                        <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /><span>Loading your events...</span></div>
+                        <div className="flex items-center gap-2 text-muted-foreground mt-2">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <span>Loading your events...</span>
+                        </div>
                     ) : (
                         <Select onValueChange={setSelectedEventId} value={selectedEventId || ''}>
-                            <SelectTrigger className="w-full md:w-1/2">
+                            <SelectTrigger className="w-full md:w-1/2 mt-2">
                                 <SelectValue placeholder="Select an event to manage" />
                             </SelectTrigger>
                             <SelectContent>

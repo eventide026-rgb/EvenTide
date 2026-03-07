@@ -5,12 +5,11 @@ import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebas
 import { collection, query, where, getDocs, documentId } from 'firebase/firestore';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
-import { isSameDay, format, getDay } from 'date-fns';
+import { isSameDay, format } from 'date-fns';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, CalendarCheck, CheckSquare } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
 /* Types                                                              */
@@ -57,7 +56,7 @@ export default function PlannerCalendarPage() {
   // 1. Get all event assignments for the current planner
   const plannerAssignmentsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
-    return query(collection(firestore, 'planners'), where('plannerId', '==', user.uid));
+    return query(collection(firestore, 'planners', user.uid, 'assignments'), where('status', '==', 'accepted'));
   }, [firestore, user?.uid]);
   
   const { data: assignments } = useCollection<EventPlanner>(plannerAssignmentsQuery);
@@ -133,10 +132,6 @@ export default function PlannerCalendarPage() {
     return calendarItems.filter((item) => isSameDay(item.date, selectedDate));
   }, [calendarItems, selectedDate]);
 
-  const formatShortWeekday = (date: Date) => {
-    return ['S', 'M', 'T', 'W', 'T', 'F', 'S'][getDay(date)];
-  };
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[400px]">
@@ -159,32 +154,17 @@ export default function PlannerCalendarPage() {
       <div className="flex-1 mt-6">
         <div className="grid md:grid-cols-3 gap-8 min-h-[600px]">
           <Card className="md:col-span-2">
-            <CardContent className="p-0 md:p-4">
+            <CardContent className="p-4">
               <DayPicker
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
                 className="w-full"
-                formatters={{ formatWeekdayName: formatShortWeekday }}
-                components={{
-                  DayButton: (props: any) => {
-                    const { day, modifiers, ...buttonProps } = props;
-                    const isMarked = markedDates.some(d => isSameDay(d, day.date));
-                    return (
-                      <button 
-                        {...buttonProps} 
-                        className={cn(
-                          buttonProps.className, 
-                          "relative h-9 w-9 p-0 font-normal flex items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground"
-                        )}
-                      >
-                        {day.date.getDate()}
-                        {isMarked && (
-                          <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full bg-primary" />
-                        )}
-                      </button>
-                    );
-                  }
+                modifiers={{ 
+                    hasEvent: (date: Date) => markedDates.some(d => isSameDay(d, date))
+                }}
+                modifiersClassNames={{
+                    hasEvent: "day-indicator indicator-primary"
                 }}
               />
             </CardContent>
