@@ -60,23 +60,27 @@ const howItWorksSteps = [
 const roleBenefits = [
     {
         icon: <HomeIcon className="h-8 w-8 text-primary" />,
-        title: "Owners",
-        features: ["Oversee all events from a master dashboard.", "Manage budgets and track revenue in real-time.", "Assign roles and permissions to your team."]
+        title: "Event Owners",
+        roleTitle: "The Strategists",
+        features: ["360-degree oversight of your event portfolio.", "Real-time KPI tracking for RSVPs and check-ins.", "Direct budget management and financial logging."]
     },
     {
         icon: <Users className="h-8 w-8 text-primary" />,
-        title: "Planners",
-        features: ["Collaborate with team members and co-hosts.", "Utilize AI for design and content creation.", "Manage guest lists and communication."]
+        title: "Professional Planners",
+        roleTitle: "The Orchestrators",
+        features: ["AI-powered program and menu architecting.", "Conflict detection and high-performance task boards.", "Seamless vendor contracting and marketplace integration."]
     },
     {
         icon: <QrCode className="h-8 w-8 text-primary" />,
-        title: "Attendees",
-        features: ["Receive personalized digital invitations.", "RSVP effortlessly and view event details.", "Stay updated with real-time announcements."]
+        title: "Attendees & Guests",
+        roleTitle: "The Celebrants",
+        features: ["Personalized digital invitations and asset wallets.", "Interactive song requests and autograph walls.", "Real-time event broadcasts and live photo galleries."]
     },
     {
         icon: <Shield className="h-8 w-8 text-primary" />,
-        title: "Security",
-        features: ["Validate guest passes with QR scanning.", "Monitor live check-ins and capacity.", "Access control with secure activation codes."]
+        title: "On-Site Security",
+        roleTitle: "The Gatekeepers",
+        features: ["QR-based digital gate pass validation.", "Live check-in monitoring and capacity control.", "Secure scanner activation with unique event codes."]
     }
 ];
 
@@ -233,9 +237,9 @@ export default function Home() {
         <section id="benefits" className="py-20 md:py-32">
             <div className="container mx-auto px-4">
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl font-headline font-bold md:text-5xl text-foreground text-balance">A Tool for Every Stakeholder</h2>
+                    <h2 className="text-3xl font-headline font-bold md:text-5xl text-foreground text-balance">A Tool for Everyone on the Team</h2>
                     <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
-                        EvenTide empowers every role in the celebration lifecycle with specialized dashboard experiences.
+                        EvenTide is designed to empower every role involved in making an event a success. From strategic oversight to secure execution, we provide the tools needed for excellence.
                     </p>
                 </div>
                 <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
@@ -245,7 +249,10 @@ export default function Home() {
                                 <div className="p-3 bg-background rounded-xl shadow-sm">
                                     {role.icon}
                                 </div>
-                                <CardTitle className="font-headline text-2xl">{role.title}</CardTitle>
+                                <div>
+                                    <CardTitle className="font-headline text-xl">{role.title}</CardTitle>
+                                    <CardDescription className="text-xs font-bold uppercase tracking-wider text-primary/70">{role.roleTitle}</CardDescription>
+                                </div>
                             </CardHeader>
                             <CardContent>
                                 <ul className="space-y-3 text-muted-foreground">

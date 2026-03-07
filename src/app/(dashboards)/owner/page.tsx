@@ -1,3 +1,4 @@
+
 import { Suspense } from 'react';
 import { OwnerDashboardClient } from '@/components/dashboard/owner-dashboard-client';
 import { Loader2 } from 'lucide-react';

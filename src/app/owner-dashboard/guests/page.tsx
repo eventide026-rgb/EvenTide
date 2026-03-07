@@ -1,22 +1,24 @@
 
-import { Suspense } from 'react';
-import dynamic from 'next/dynamic';
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 
 /**
- * @fileOverview Guests Dashboard (Server Component Shell)
- * Optimized structure: removed redundant nesting for a standalone experience.
+ * @fileOverview Legacy path redirector.
+ * Logic moved to high-performance Server Component at src/app/(dashboards)/owner/guests/page.tsx
  */
-const GuestManagement = dynamic(() => import('@/components/dashboard/guest-management').then(mod => mod.GuestManagement), {
-  loading: () => <div className="flex justify-center items-center h-64"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>
-});
+export default function OwnerGuestsRedirect() {
+  const router = useRouter();
 
-export default async function GuestsPage() {
+  useEffect(() => {
+    router.replace('/owner/guests');
+  }, [router]);
+
   return (
-    <div className="w-full h-full">
-      <Suspense fallback={<div className="flex justify-center items-center h-64"><Loader2 className="animate-spin h-8 w-8 text-primary" /></div>}>
-        <GuestManagement />
-      </Suspense>
+    <div className="flex h-full min-h-[400px] w-full items-center justify-center">
+      <Loader2 className="h-10 w-10 animate-spin text-primary" />
     </div>
   );
 }
