@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Auth, onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc, Firestore } from 'firebase/firestore';
@@ -20,7 +20,10 @@ const AUTH_PATHS = [
   '/forgot-password',
 ];
 
-
+/**
+ * Global Auth Handler Hook.
+ * Manages post-login redirection and synchronizes user role with cookies for Middleware.
+ */
 export function useAuthHandler(auth: Auth, firestore: Firestore) {
   const router = useRouter();
   const pathname = usePathname();
@@ -28,10 +31,11 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
-      // If there's no user, clear session and do nothing else.
       if (!user) {
+        // User signed out: Clear session storage and cookies
         sessionStorage.removeItem('userRole');
         sessionStorage.removeItem('userName');
+        document.cookie = 'userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
         return;
       }
 
@@ -43,9 +47,9 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
         const userDoc = await getDoc(userDocRef);
 
         if (!userDoc.exists()) {
+          // If the doc doesn't exist yet (e.g. signup in progress), we wait.
           if (!user.isAnonymous) {
-             console.warn('User document not found for non-anonymous UID:', user.uid, 'Signing out.');
-             await auth.signOut();
+             console.warn('User document not found for non-anonymous UID:', user.uid);
           }
           return;
         }
@@ -54,8 +58,13 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
         const role = userData.role;
         const firstName = userData.firstName || '';
 
+        // Synchronize with Client Session Storage
         sessionStorage.setItem('userRole', role);
         sessionStorage.setItem('userName', firstName);
+
+        // Synchronize with Cookies for Middleware (Edge)
+        // Use a simple cookie for middleware visibility
+        document.cookie = `userRole=${role}; path=/; max-age=604800; SameSite=Lax`;
 
         // 1. Handle new logins from an auth page
         if (isNewLogin && isOnAuthPage) {
@@ -69,7 +78,7 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
           return;
         }
 
-        // 2. If an authenticated user lands on an auth page, redirect them away.
+        // 2. If an authenticated user lands on an auth page, redirect them away to their dashboard.
         const correctDashboard = ROLE_DASHBOARD_MAP[role];
         if (isOnAuthPage && correctDashboard) {
             router.replace(correctDashboard);

@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -38,12 +39,21 @@ export function DashboardHeader() {
   const handleSignOut = async () => {
     if (auth) {
       const storedUserName = sessionStorage.getItem('userName') || user?.displayName || user?.email || 'User';
+      
+      // 1. Sign out of Firebase
       await signOut(auth);
+      
+      // 2. Clear Client Session
       sessionStorage.clear();
+      
+      // 3. Clear Middleware Cookie
+      document.cookie = 'userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+      
       toast({
         title: "Goodbye!",
         description: `You have been successfully signed out, ${storedUserName}.`,
       });
+      
       router.push('/');
     }
   };
@@ -54,7 +64,8 @@ export function DashboardHeader() {
     if (path.startsWith('/vendor')) return 'Vendor';
     if (path.startsWith('/ticketier')) return 'Ticketier';
     if (path.startsWith('/cohost')) return 'Co-host';
-    if (path.startsWith('/guest')) return 'Guest';
+    if (path.startsWith('/security')) return 'Security';
+    if (path.startsWith('/admin')) return 'Admin';
     return 'User';
   }
 
