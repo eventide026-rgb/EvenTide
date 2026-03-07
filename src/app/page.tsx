@@ -423,7 +423,7 @@ export default function Home() {
             </div>
             <div className="grid gap-8 md:grid-cols-3">
               {testimonials.map((t, i) => (
-                <Card key={i} className="bg-secondary/20 border-none shadow-sm hover:shadow-md transition-shadow flex flex-col">
+                <Card key={i} className="bg-secondary/20 border-2 border-accent shadow-sm hover:shadow-md transition-shadow flex flex-col">
                   <CardHeader className="flex-1">
                     <Quote className="h-8 w-8 text-primary/40 mb-4" />
                     <p className="text-lg italic leading-relaxed text-foreground/90">&quot;{t.quote}&quot;</p>
