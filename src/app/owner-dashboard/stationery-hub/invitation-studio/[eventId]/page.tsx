@@ -7,6 +7,11 @@ import { doc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
+/**
+ * @fileOverview Invitation Studio (Client Page)
+ * Unified state management for synchronized control and preview.
+ */
+
 const ControlPanel = dynamic(() => import('@/components/stationery/control-panel').then(m => m.ControlPanel), {
     ssr: false,
     loading: () => <div className="flex h-full items-center justify-center p-8"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
@@ -49,15 +54,15 @@ export default function InvitationStudioPage({ params }: { params: Promise<{ eve
     const { data: event, isLoading } = useDoc(eventRef);
 
     const [stationery, setStationery] = useState<Stationery>({});
-    const [colors, setColors] = useState<EventColors>({ primary: '#000000', accent: '#FFFFFF' });
+    const [colors, setColors] = useState<EventColors>({ primary: '#4169E1', accent: '#D4AF37' });
     const [activeTab, setActiveTab] = useState<CardType>('invitation');
     
     useEffect(() => {
         if (event) {
             setStationery(event.stationery || {});
             setColors({
-                primary: event.primaryColor || '#000000',
-                accent: event.secondaryColor || '#FFFFFF',
+                primary: event.primaryColor || '#4169E1',
+                accent: event.secondaryColor || '#D4AF37',
             });
         }
     }, [event]);

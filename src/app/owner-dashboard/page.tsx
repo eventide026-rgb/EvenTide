@@ -5,7 +5,7 @@ import { Loader2 } from 'lucide-react';
 
 /**
  * @fileOverview Owner Dashboard (Server Component)
- * Converted to Server Component for 40-70% reduction in client JS.
+ * Optimized for performance: data frame rendered on server, interactivity in client.
  */
 export default async function OwnerDashboardPage() {
   return (

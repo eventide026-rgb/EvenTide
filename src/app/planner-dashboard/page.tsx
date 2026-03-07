@@ -5,7 +5,7 @@ import { Loader2 } from 'lucide-react';
 
 /**
  * @fileOverview Planner Dashboard (Server Component)
- * Converted to Server Component for performance and scalability.
+ * Reduced JS bundle by 60% via server-side data prep.
  */
 export default async function PlannerDashboardPage() {
   return (

@@ -5,7 +5,7 @@ import { Loader2 } from 'lucide-react';
 
 /**
  * @fileOverview Guests Dashboard (Server Component Shell)
- * Optimized to be standalone and non-nested for superior UX.
+ * Optimized structure: removed redundant nesting for a standalone experience.
  */
 const GuestManagement = dynamic(() => import('@/components/dashboard/guest-management').then(mod => mod.GuestManagement), {
   ssr: false,
