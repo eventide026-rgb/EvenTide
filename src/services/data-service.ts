@@ -1,13 +1,13 @@
 
 'use server';
 
+/**
+ * @fileOverview Centralized data service for server-side fetching.
+ * Uses React 'cache' to memoize requests within a single server tick.
+ */
+
 import { cache } from 'react';
 import { adminDb } from '@/firebase/firebaseAdmin';
-
-/**
- * @fileOverview Data service layer with React Server Caching.
- * Provides optimized, memoized access to high-traffic event data.
- */
 
 export const getVendors = cache(async () => {
   const snapshot = await adminDb.collection('vendors').get();

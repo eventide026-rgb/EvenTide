@@ -190,7 +190,6 @@ function GuestManagementComponent() {
       serialNumber: guestCount + 1,
     };
 
-    // ATOMIC: Force simultaneous creation of guest and lookup code
     batch.set(guestDocRef, newGuestData);
     batch.set(guestCodeLookupRef, { guestId: guestDocRef.id });
 
