@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { isToday, isFuture, format } from 'date-fns';
 import { Countdown } from '@/components/countdown';
 import { Badge } from '@/components/ui/badge';
+import { RecommendedVendors } from '@/components/marketplace/recommended-vendors';
 
 type Event = {
     id: string;
@@ -23,6 +24,9 @@ type Event = {
     eventCode?: string;
     status: "Upcoming" | "In Progress" | "Completed";
     guestLimit?: number;
+    budget?: number;
+    city?: string;
+    style?: string;
 };
 
 type Guest = {
@@ -111,7 +115,7 @@ export function OwnerDashboardClient() {
         <div className="space-y-8">
             <div className="flex justify-end">
                 <Button asChild className="w-full sm:w-auto shadow-lg shadow-primary/20">
-                    <Link href="/owner-dashboard/create-event">
+                    <Link href="/owner/create-event">
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Create New Event
                     </Link>
@@ -158,7 +162,7 @@ export function OwnerDashboardClient() {
                     </Card>
                 </div>
 
-                <div className="lg:col-span-8 xl:col-span-9 space-y-6">
+                <div className="lg:col-span-8 xl:col-span-9 space-y-8">
                     {isLoading && !selectedEvent ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             <Skeleton className="h-48 md:col-span-2 rounded-2xl" />
@@ -181,7 +185,7 @@ export function OwnerDashboardClient() {
                                         </CardDescription>
                                     </div>
                                      <Button variant="ghost" size="icon" className="rounded-full hover:bg-background/80" asChild>
-                                        <Link href={`/owner-dashboard/events/${selectedEvent.id}`}>
+                                        <Link href={`/owner/events/${selectedEvent.id}`}>
                                             <MoreVertical className="h-4 w-4" />
                                         </Link>
                                     </Button>
@@ -243,6 +247,17 @@ export function OwnerDashboardClient() {
                             </Card>
                         </div>
 
+                        {/* Marketplace Matching Engine Widget */}
+                        <RecommendedVendors 
+                          criteria={{
+                            city: selectedEvent.city || 'Lagos',
+                            budget: selectedEvent.budget || 500000,
+                            guestCount: selectedEvent.guestLimit || 100,
+                            style: selectedEvent.style
+                          }} 
+                          eventId={selectedEvent.id} 
+                        />
+
                          <Card className="border-none shadow-lg">
                             <CardHeader className="border-b bg-muted/10">
                                 <div className="flex items-center justify-between">
@@ -251,7 +266,7 @@ export function OwnerDashboardClient() {
                                         <CardDescription>A priority feed of your planner's roadmap.</CardDescription>
                                     </div>
                                     <Button variant="outline" size="sm" asChild>
-                                        <Link href="/owner-dashboard/contracts-tasks">View Full Board</Link>
+                                        <Link href="/owner/contracts-tasks">View Full Board</Link>
                                     </Button>
                                 </div>
                             </CardHeader>
@@ -297,7 +312,7 @@ export function OwnerDashboardClient() {
                                 You haven't created any events yet. Start your first masterpiece by clicking the button below.
                             </p>
                             <Button asChild size="lg" className="mt-8 px-10 rounded-full font-bold">
-                                <Link href="/owner-dashboard/create-event">
+                                <Link href="/owner/create-event">
                                     Launch New Event
                                 </Link>
                             </Button>

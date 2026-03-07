@@ -7,16 +7,20 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescripti
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, MapPin, Wallet } from 'lucide-react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Countdown } from '@/components/countdown';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { NigerianStatesAndCities } from '@/lib/nigerian-states';
 
 export const logisticsSchema = z.object({
-  location: z.string().min(5, "Location is required."),
+  location: z.string().min(5, "Venue address is required."),
+  city: z.string().min(2, "City is required."),
   eventDate: z.date({ required_error: "Please select a date and time." }),
+  budget: z.coerce.number().min(1000, "Please set a target budget."),
 });
 
 export function LogisticsStep() {
@@ -25,19 +29,45 @@ export function LogisticsStep() {
 
   return (
     <div className="space-y-8">
-      <FormField
-        control={control}
-        name="location"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Location / Venue</FormLabel>
-            <FormControl>
-              <Input placeholder="e.g., The Landmark Centre, VI, Lagos" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <div className="grid md:grid-cols-2 gap-6">
+        <FormField
+            control={control}
+            name="location"
+            render={({ field }) => (
+            <FormItem>
+                <FormLabel>Venue Name / Address</FormLabel>
+                <FormControl>
+                <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input className="pl-10" placeholder="e.g., Landmark Centre, Victoria Island" {...field} />
+                </div>
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+            )}
+        />
+        <FormField
+            control={control}
+            name="city"
+            render={({ field }) => (
+            <FormItem>
+                <FormLabel>City (for Vendor Matching)</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Select City" /></SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        {NigerianStatesAndCities.flatMap(s => s.cities).sort().map(city => (
+                            <SelectItem key={city} value={city}>{city}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <FormMessage />
+            </FormItem>
+            )}
+        />
+      </div>
+
       <div className="grid md:grid-cols-2 gap-8 items-start">
         <FormField
           control={control}
@@ -86,22 +116,38 @@ export function LogisticsStep() {
                   </div>
                 </PopoverContent>
               </Popover>
-              <FormDescription>
-                Select the date and time for your event.
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        {eventDate && (
-            <div className="space-y-2">
-                <Label>Event Countdown</Label>
-                <div className="p-4 rounded-lg bg-muted border flex items-center justify-center">
-                    <Countdown date={eventDate.toISOString()} />
+        
+        <FormField
+            control={control}
+            name="budget"
+            render={({ field }) => (
+            <FormItem>
+                <FormLabel>Target Budget (₦)</FormLabel>
+                <FormControl>
+                <div className="relative">
+                    <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input type="number" className="pl-10" placeholder="500000" {...field} />
                 </div>
-            </div>
-        )}
+                </FormControl>
+                <FormDescription>Help us match you with vendors in your price range.</FormDescription>
+                <FormMessage />
+            </FormItem>
+            )}
+        />
       </div>
+
+      {eventDate && (
+        <div className="space-y-2">
+            <Label className="text-muted-foreground">Countdown to your masterpiece</Label>
+            <div className="p-6 rounded-2xl bg-secondary/50 border border-border/50 flex items-center justify-center">
+                <Countdown date={eventDate.toISOString()} />
+            </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -43,15 +43,22 @@ const AssignPlannerStep = dynamic(() => import('@/components/wizards/create-even
 
 const steps: Step[] = [
   { id: '01', name: 'Core Details', fields: ['name', 'description'] },
-  { id: '02', name: 'Theme & AI', fields: ['eventType', 'primaryColor', 'secondaryColor'] },
-  { id: '03', name: 'Logistics', fields: ['location', 'eventDate'] },
+  { id: '02', name: 'Theme & Style', fields: ['eventType', 'primaryColor', 'secondaryColor', 'style'] },
+  { id: '03', name: 'Logistics', fields: ['location', 'city', 'eventDate', 'budget'] },
   { id: '04', name: 'Assign Planner', fields: ['plannerId'] },
 ];
+
+const matchingSchema = z.object({
+  budget: z.coerce.number().min(1000, "Please provide a realistic budget for matching."),
+  city: z.string().min(2, "City is required for vendor matching."),
+  style: z.string().optional(),
+});
 
 const fullSchema = coreDetailsSchema
   .merge(themeAndAiSchema)
   .merge(logisticsSchema)
-  .merge(assignPlannerSchema);
+  .merge(assignPlannerSchema)
+  .merge(matchingSchema);
 
 type FormData = z.infer<typeof fullSchema>;
 
@@ -73,6 +80,9 @@ export default function CreateEventWizardPage() {
             primaryColor: "#4169E1",
             secondaryColor: "#D4AF37",
             location: "",
+            city: "Lagos",
+            budget: 500000,
+            style: "Traditional",
             eventDate: undefined,
             plannerId: '',
         },
@@ -150,6 +160,9 @@ export default function CreateEventWizardPage() {
             primaryColor: data.primaryColor,
             secondaryColor: data.secondaryColor,
             location: data.location,
+            city: data.city,
+            budget: data.budget,
+            style: data.style,
             eventDate: data.eventDate,
             createdAt: serverTimestamp(),
             guestCount: 0,
@@ -164,82 +177,42 @@ export default function CreateEventWizardPage() {
             
             if (data.plannerId) {
                 const batch = writeBatch(firestore);
-                
                 const plannerAssignmentRef = doc(firestore, "planners", data.plannerId, "assignments", eventId);
-                batch.set(plannerAssignmentRef, { 
-                    id: eventId,
-                    eventId: eventId, 
-                    status: 'pending',
-                    invitedAt: serverTimestamp() 
-                });
-
+                batch.set(plannerAssignmentRef, { id: eventId, eventId: eventId, status: 'pending', invitedAt: serverTimestamp() });
                 const eventPlannerRef = doc(firestore, "events", eventId, "planners", data.plannerId);
-                batch.set(eventPlannerRef, { 
-                    id: data.plannerId,
-                    plannerId: data.plannerId,
-                    status: 'pending',
-                    invitedAt: serverTimestamp()
-                });
-
+                batch.set(eventPlannerRef, { id: data.plannerId, plannerId: data.plannerId, status: 'pending', invitedAt: serverTimestamp() });
                 const plannerNotificationRef = doc(collection(firestore, 'users', data.plannerId, 'notifications'));
-                batch.set(plannerNotificationRef, {
-                    id: plannerNotificationRef.id,
-                    message: `You've been invited by ${user.displayName || user.email} to plan the event: "${data.name}".`,
-                    link: '/planner-dashboard/invitations',
-                    read: false,
-                    createdAt: serverTimestamp(),
-                    userId: data.plannerId
-                });
-                
+                batch.set(plannerNotificationRef, { id: plannerNotificationRef.id, message: `You've been invited by ${user.displayName || user.email} to plan: "${data.name}".`, link: '/planner/invitations', read: false, createdAt: serverTimestamp(), userId: data.plannerId });
                 await batch.commit().catch(console.error);
             }
             
-            toast({
-                title: "Event Created!",
-                description: `Your event "${data.name}" has been successfully created.`,
-            });
+            toast({ title: "Event Created!", description: `Your event "${data.name}" is now live.` });
             localStorage.removeItem('event-wizard-form');
-            router.push(`/owner-dashboard/guests?walkthrough=true`);
+            router.push(`/owner/guests?walkthrough=true`);
 
         } catch (error: any) {
             console.error("Error creating event:", error);
-            const contextualError = new FirestorePermissionError({
-                path: 'events',
-                operation: 'create',
-                requestResourceData: eventData,
-            });
-            errorEmitter.emit('permission-error', contextualError);
+            errorEmitter.emit('permission-error', new FirestorePermissionError({ path: 'events', operation: 'create', requestResourceData: eventData }));
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const onInvalid = (errors: FieldErrors<FormData>) => {
-        console.error("Form Validation Errors:", errors);
-        toast({
-            variant: "destructive",
-            title: "Check Required Fields",
-            description: "Please ensure all steps are completed correctly before finalizing.",
-        });
-    };
-
     return (
         <FormProvider {...methods}>
-            <div className="space-y-8 max-w-4xl mx-auto">
+            <div className="space-y-8 max-w-4xl mx-auto pb-20">
                 <Stepper steps={steps} currentStep={currentStep} />
-                <Card>
+                <Card className="border-none shadow-xl">
                     <CardHeader>
                         <div className="flex justify-between items-center">
-                            <h2 className="text-xl font-semibold text-foreground">
-                                Step {currentStep + 1}: {steps[currentStep].name}
+                            <h2 className="text-2xl font-headline font-bold text-foreground">
+                                {steps[currentStep].name}
                             </h2>
-                            {currentStep === 1 && eventCode && (
-                                <Badge variant="outline">Event Code: {eventCode}</Badge>
-                            )}
+                            {eventCode && <Badge variant="outline" className="font-mono">Code: {eventCode}</Badge>}
                         </div>
                     </CardHeader>
                      <CardContent>
-                        <form onSubmit={methods.handleSubmit(onFinalSubmit, onInvalid)}>
+                        <form onSubmit={methods.handleSubmit(onFinalSubmit)}>
                             {currentStep === 0 && <CoreDetailsStep />}
                             {currentStep === 1 && <ThemeAndAiStep />}
                             {currentStep === 2 && <LogisticsStep />}
@@ -249,15 +222,15 @@ export default function CreateEventWizardPage() {
                 </Card>
 
                 <div className="flex justify-between">
-                    <Button onClick={handlePrev} disabled={currentStep === 0} variant="outline">
+                    <Button onClick={handlePrev} disabled={currentStep === 0} variant="ghost">
                         Previous
                     </Button>
                     {currentStep < steps.length - 1 ? (
-                        <Button onClick={handleNext}>Next</Button>
+                        <Button onClick={handleNext} size="lg" className="px-10">Next Step</Button>
                     ) : (
-                        <Button onClick={methods.handleSubmit(onFinalSubmit, onInvalid)} disabled={isSubmitting}>
+                        <Button onClick={methods.handleSubmit(onFinalSubmit)} disabled={isSubmitting} size="lg" className="px-10">
                             {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Finalize & Create Event
+                            Create My Event
                         </Button>
                     )}
                 </div>
