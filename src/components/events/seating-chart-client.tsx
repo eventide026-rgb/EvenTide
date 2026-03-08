@@ -240,7 +240,6 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
 
   const isLoading = isLoadingEvents || (selectedEventId && (isLoadingTables || isLoadingGuests || isLoadingSeats));
 
-  // Fix: Explicitly ensure guestId is string | null to resolve build error
   const guestId: string | null = (userRole === 'guest' && user?.uid) ? user.uid : null;
 
   const { assignedGuests, unassignedGuests } = useMemo(() => {

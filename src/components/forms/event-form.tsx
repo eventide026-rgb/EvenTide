@@ -32,7 +32,9 @@ const formSchema = z.object({
     description: z.string().min(20, "Description must be at least 20 characters."),
     location: z.string().min(5, "Location is required."),
     eventDate: z.date({ required_error: "Please select a date and time." }),
-    imageUrls: z.array(z.string().url("Must be a valid URL.")).min(1, "At least one image URL is required."),
+    imageUrls: z.array(z.object({
+        url: z.string().url("Must be a valid URL.")
+    })).min(1, "At least one image URL is required."),
     isPublic: z.boolean().default(true),
     isTicketed: z.boolean().default(true),
     eventType: z.string().min(2, "Show type is required."),
@@ -64,7 +66,7 @@ export function EventForm({ showId }: EventFormProps) {
             name: "",
             description: "",
             location: "",
-            imageUrls: ["https://picsum.photos/seed/1/1200/800"],
+            imageUrls: [{ url: "https://picsum.photos/seed/1/1200/800" }],
             isPublic: true,
             isTicketed: true,
             eventType: "Concert",
@@ -73,10 +75,12 @@ export function EventForm({ showId }: EventFormProps) {
 
     useEffect(() => {
         if (existingShowData) {
-            form.reset({
+            const mappedData = {
                 ...existingShowData,
                 eventDate: existingShowData.eventDate.toDate(),
-            });
+                imageUrls: existingShowData.imageUrls.map((url: string) => ({ url })),
+            };
+            form.reset(mappedData);
         }
     }, [existingShowData, form]);
 
@@ -96,6 +100,7 @@ export function EventForm({ showId }: EventFormProps) {
             ...values,
             ownerId: user.uid,
             eventDate: values.eventDate,
+            imageUrls: values.imageUrls.map(img => img.url),
         };
 
         try {
@@ -234,7 +239,7 @@ export function EventForm({ showId }: EventFormProps) {
                         <FormField
                             key={field.id}
                             control={form.control}
-                            name={`imageUrls.${index}`}
+                            name={`imageUrls.${index}.url`}
                             render={({ field }) => (
                                 <FormItem>
                                     <div className="flex items-center gap-2">
@@ -248,7 +253,7 @@ export function EventForm({ showId }: EventFormProps) {
                             )}
                         />
                     ))}
-                    <Button type="button" variant="outline" size="sm" onClick={() => appendImageUrl("")}>
+                    <Button type="button" variant="outline" size="sm" onClick={() => appendImageUrl({ url: "" })}>
                         <CirclePlus className="mr-2 h-4 w-4" /> Add Image URL
                     </Button>
                 </div>
