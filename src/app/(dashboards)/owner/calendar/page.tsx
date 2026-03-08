@@ -1,3 +1,4 @@
+
 'use client';
 
 import EventCalendar from '@/components/events/event-calendar';

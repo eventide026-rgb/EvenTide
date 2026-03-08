@@ -173,7 +173,7 @@ export default function Home() {
                   Create an Event <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="font-bold bg-background/80 border-white/20 backdrop-blur-md hover:bg-background w-full max-w-64 sm:w-auto h-14 px-8 text-lg rounded-full text-foreground shadow-xl active:scale-[0.98] transition-all">
+              <Button asChild size="lg" variant="outline" className="font-bold bg-background/80 border-white/20 backdrop-blur-md hover:bg-primary hover:text-primary-foreground hover:border-primary w-full max-w-64 sm:w-auto h-14 px-8 text-lg rounded-full text-foreground shadow-xl active:scale-[0.98] transition-all">
                 <Link href="/guest-login">
                   I am a Guest
                 </Link>
