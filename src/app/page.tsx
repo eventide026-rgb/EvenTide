@@ -149,7 +149,8 @@ export default function Home() {
               data-ai-hint={heroImage.imageHint}
             />
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-background"></div>
+          {/* Gradient mask to flow into the next section */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-background"></div>
           
           <div className="relative z-10 container mx-auto px-4 text-center">
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-headline font-extrabold tracking-tight leading-[1.1] text-balance">
@@ -164,7 +165,7 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Glassy Buttons Overlap */}
+          {/* Glassy Slim Buttons Overlap */}
           <div className="absolute bottom-0 left-0 right-0 z-30 translate-y-1/2 flex flex-col sm:flex-row items-center justify-center gap-4 px-4">
               <Button asChild size="lg" className="font-bold w-full max-w-64 sm:w-auto h-11 px-8 text-base rounded-full shadow-2xl bg-primary/80 backdrop-blur-xl border border-white/20 hover:bg-primary transition-all active:scale-[0.98]">
                 <Link href="/signup">
@@ -226,7 +227,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Vision Section with Light-up Jump-out Cards */}
+        {/* Vision Section with Borders and Jump-out rollover */}
         <section id="vision" className="py-12 md:py-16 bg-background relative overflow-hidden">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto mb-12 text-center">
