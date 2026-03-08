@@ -3,8 +3,6 @@ import { NextResponse } from "next/server";
 
 /**
  * @fileOverview API Route to send WhatsApp messages via AfricasTalking.
- * Method: POST
- * Body: { to: string | string[], message: string }
  */
 
 export async function POST(req: Request) {

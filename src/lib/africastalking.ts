@@ -12,7 +12,7 @@ const africastalking = Africastalking({
 
 export const sms = africastalking.SMS;
 export const airtime = africastalking.AIRTIME;
-// @ts-ignore
+// @ts-ignore - The WhatsApp service is available in recent SDK versions but might missing TS definitions
 export const whatsapp = africastalking.WHATSAPP;
 
 /**

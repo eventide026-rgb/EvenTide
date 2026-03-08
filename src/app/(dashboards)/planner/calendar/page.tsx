@@ -15,7 +15,7 @@ import { Loader2, CalendarCheck, CheckSquare } from 'lucide-react';
 /* Types                                                              */
 /* ------------------------------------------------------------------ */
 
-type EventPlanner = {
+type EventPlannerAssignment = {
   id: string;
   eventId: string;
   plannerId: string;
@@ -64,7 +64,7 @@ export default function PlannerCalendarPage() {
     return query(collection(firestore, 'planners', user.uid, 'assignments'), where('status', '==', 'accepted'));
   }, [firestore, user?.uid]);
   
-  const { data: assignments } = useCollection<EventPlanner>(plannerAssignmentsQuery);
+  const { data: assignments } = useCollection<EventPlannerAssignment>(plannerAssignmentsQuery);
 
   // 2. Fetch all events and tasks based on assignments
   useEffect(() => {
