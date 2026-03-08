@@ -38,7 +38,7 @@ function CheckoutContent() {
         publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || '',
     };
 
-    // @ts-ignore - Shim for peer dependency issue
+    // @ts-ignore - Compatibility shim
     const initializePayment = usePaystackPayment(config);
 
     const handleComplete = () => {
@@ -50,7 +50,7 @@ function CheckoutContent() {
         if (plan.price === 0) {
             setIsProcessing(true);
             setTimeout(() => {
-                toast({ title: "Plan Activated!", description: "Welcome to EvenTide Starter." });
+                toast({ title: "Plan Activated!", description: "Welcome to EvenTide Starter. Let's create your event!" });
                 router.push('/owner/create-event');
             }, 1500);
             return;
@@ -62,13 +62,16 @@ function CheckoutContent() {
         }
 
         setIsProcessing(true);
-        // @ts-ignore - Shim
+        // @ts-ignore - Compatibility shim
         initializePayment({
             onSuccess: () => {
-                toast({ title: "Payment Successful!", description: `Plan ${plan.name} is now active.` });
+                toast({ title: "Payment Successful!", description: `Plan ${plan.name} is now active. Redirecting to event creation...` });
                 router.push('/owner/create-event');
             },
-            onClose: () => setIsProcessing(false)
+            onClose: () => {
+                setIsProcessing(false);
+                toast({ title: "Payment Cancelled" });
+            }
         });
     };
 
