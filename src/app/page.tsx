@@ -150,7 +150,6 @@ export default function Home() {
               data-ai-hint={heroImage.imageHint}
             />
           )}
-          {/* Gradient overlay creates the 'flow onto lower element' effect */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-background"></div>
           
           <div className="relative z-10 container mx-auto px-4 text-center">
@@ -166,14 +165,14 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Glassy Buttons - Slimmed down */}
+          {/* Glassy Buttons Overlap */}
           <div className="absolute bottom-0 left-0 right-0 z-30 translate-y-1/2 flex flex-col sm:flex-row items-center justify-center gap-4 px-4">
-              <Button asChild size="lg" className="font-bold w-full max-w-56 sm:w-auto h-11 px-8 text-base rounded-full shadow-2xl bg-primary/80 backdrop-blur-xl border border-white/20 hover:bg-primary transition-all active:scale-[0.98]">
+              <Button asChild size="lg" className="font-bold w-full max-w-64 sm:w-auto h-11 px-8 text-base rounded-full shadow-2xl bg-primary/80 backdrop-blur-xl border border-white/20 hover:bg-primary transition-all active:scale-[0.98]">
                 <Link href="/signup">
                   Create an Event <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="font-bold bg-white/10 border-white/20 backdrop-blur-xl hover:bg-primary hover:text-primary-foreground hover:border-primary w-full max-w-56 sm:w-auto h-11 px-8 text-base rounded-full text-white shadow-xl active:scale-[0.98] transition-all">
+              <Button asChild size="lg" variant="outline" className="font-bold bg-white/10 border-white/20 backdrop-blur-xl hover:bg-primary hover:text-primary-foreground hover:border-primary w-full max-w-64 sm:w-auto h-11 px-8 text-base rounded-full text-white shadow-xl active:scale-[0.98] transition-all">
                 <Link href="/guest-login">
                   I am a Guest
                 </Link>
@@ -228,7 +227,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Vision Section */}
+        {/* Vision Section with Light-up Jump-out Cards */}
         <section id="vision" className="py-12 md:py-16 bg-background relative overflow-hidden">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto mb-12 text-center">
