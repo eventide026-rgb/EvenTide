@@ -166,14 +166,14 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Buttons positioned over the transition between Hero and Lower elements */}
+          {/* Glassy Buttons positioned over the transition between Hero and Lower elements */}
           <div className="absolute bottom-0 left-0 right-0 z-30 translate-y-1/2 flex flex-col sm:flex-row items-center justify-center gap-4 px-4">
-              <Button asChild size="lg" className="font-bold w-full max-w-64 sm:w-auto h-14 px-8 text-lg rounded-full shadow-2xl shadow-primary/40 active:scale-[0.98] transition-all">
+              <Button asChild size="lg" className="font-bold w-full max-w-64 sm:w-auto h-14 px-8 text-lg rounded-full shadow-2xl bg-primary/80 backdrop-blur-xl border border-white/20 hover:bg-primary transition-all active:scale-[0.98]">
                 <Link href="/signup">
                   Create an Event <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="font-bold bg-background/80 border-white/20 backdrop-blur-md hover:bg-primary hover:text-primary-foreground hover:border-primary w-full max-w-64 sm:w-auto h-14 px-8 text-lg rounded-full text-foreground shadow-xl active:scale-[0.98] transition-all">
+              <Button asChild size="lg" variant="outline" className="font-bold bg-white/10 border-white/20 backdrop-blur-xl hover:bg-white/20 hover:text-white hover:border-white/40 w-full max-w-64 sm:w-auto h-14 px-8 text-lg rounded-full text-white shadow-xl active:scale-[0.98] transition-all">
                 <Link href="/guest-login">
                   I am a Guest
                 </Link>
