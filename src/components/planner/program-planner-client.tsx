@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -36,17 +35,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Loader2, CirclePlus, Save, Sparkles, Trash2 } from 'lucide-react';
 
 type Event = {
@@ -121,13 +109,13 @@ export function ProgramPlannerClient({ eventId, isReadOnly = false }: ProgramPla
   }, [initialProgramData, form]);
 
   useEffect(() => {
-    if (form.isDirty && programDocRef && !isReadOnly) {
+    if (form.formState.isDirty && programDocRef && !isReadOnly) {
       const saveChanges = async () => {
         setSaveStatus('saving');
         try {
           await setDoc(programDocRef, debouncedFormValues, { merge: true });
           setSaveStatus('saved');
-          form.reset(debouncedFormValues); // Mark form as not dirty
+          form.reset(debouncedFormValues); 
         } catch (error) {
           console.error("Auto-save failed:", error);
           setSaveStatus('idle');
@@ -175,7 +163,7 @@ export function ProgramPlannerClient({ eventId, isReadOnly = false }: ProgramPla
                          )}/>
                            <FormField control={form.control} name={`program.${index}.status`} render={({field}) => (
                             <FormItem className="col-span-4"><FormLabel>Status</FormLabel>
-                             <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isReadOnly}>
+                             <Select onValueChange={field.onChange} value={field.value} disabled={isReadOnly}>
                                 <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>
                                 <SelectContent><SelectItem value="Upcoming">Upcoming</SelectItem><SelectItem value="In Progress">In Progress</SelectItem><SelectItem value="Completed">Completed</SelectItem></SelectContent>
                              </Select>

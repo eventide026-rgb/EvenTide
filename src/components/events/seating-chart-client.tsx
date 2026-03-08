@@ -21,6 +21,7 @@ import { Label } from '../ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { DndContext, useDroppable, useDraggable } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
+import React from 'react';
 
 /* ---------------------------------- TYPES --------------------------------- */
 
