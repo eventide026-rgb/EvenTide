@@ -340,8 +340,8 @@ export default function Home() {
             <div className="grid gap-6 md:grid-cols-3">
               {testimonials.map((t, i) => (
                 <Card key={i} className="bg-secondary/20 border-2 border-accent shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col rounded-[2rem] overflow-hidden group">
-                  <CardHeader className="flex-1 p-8">
-                    <Quote className="h-8 w-8 text-primary/40 mb-4" />
+                  <CardHeader className="flex-1 p-8 text-center">
+                    <Quote className="h-8 w-8 text-primary/40 mb-4 mx-auto" />
                     <p className="text-lg italic leading-relaxed text-foreground/90 font-body">&quot;{t.quote}&quot;</p>
                   </CardHeader>
                   <CardFooter className="flex items-center gap-4 p-8 border-t border-border/10 mt-auto bg-muted/30">

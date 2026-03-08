@@ -1,18 +1,16 @@
-
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, setDoc, documentId } from 'firebase/firestore';
+import { collection, query, where, doc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useDebounce } from 'use-debounce';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Plus, Sparkles, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { suggestMoodboardItems } from '@/ai/flows/suggest-moodboard-items';
 
@@ -51,7 +49,6 @@ export function MoodBoardClient({ isReadOnly }: MoodBoardClientProps) {
 
   const eventsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
-     // Simplified query: In a real app, this should query based on planner assignments
     return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
   }, [firestore, user]);
   const { data: events, isLoading: isLoadingEvents } = useCollection<Event>(eventsQuery);
@@ -112,7 +109,7 @@ export function MoodBoardClient({ isReadOnly }: MoodBoardClientProps) {
         const currentItemsForAI = boardData.items.map(({id, reason, ...rest}) => rest);
         const result = await suggestMoodboardItems({
             eventTheme: currentEvent.eventType,
-            currentItems: currentItemsForAI,
+            currentItems: currentItemsForAI as any,
         });
         
         const newItems: MoodboardItem[] = result.suggestions.map(s => ({
@@ -210,7 +207,7 @@ export function MoodBoardClient({ isReadOnly }: MoodBoardClientProps) {
                             newItem.type === 'image' ? "https://..." : "Type your note..."
                         } />
                     )}
-                    <Button className="w-full" onClick={handleAddItem} disabled={!selectedEventId}><Plus className="mr-2 h-4 w-4" /> Add Item</Button>
+                    <Button className="w-full" onClick={handleAddItem} disabled={!selectedEventId}>Add Item</Button>
                 </CardContent>
             </Card>
         )}

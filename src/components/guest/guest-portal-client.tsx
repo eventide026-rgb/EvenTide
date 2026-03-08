@@ -87,8 +87,6 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
     const [lookupCode, setLookupCode] = useState('');
     const [isIdentifying, setIsIdentifying] = useState(false);
 
-    const [songTitle, setSongTitle] = useState('');
-    const [artist, setArtist] = useState('');
     const [autographMsg, setAutographMsg] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 

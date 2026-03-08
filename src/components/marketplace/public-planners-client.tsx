@@ -36,7 +36,7 @@ export function PublicPlannersClient() {
     <>
       <section className="bg-secondary/50 border-b">
         <div className="container mx-auto px-4 py-8 md:py-12 text-center">
-          <div className="mb-8">
+          <div className="mb-8 text-center">
             <h1 className="text-4xl font-headline font-bold md:text-5xl">Find a Planner</h1>
             <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
               Discover experienced event planners to help bring your vision to life.

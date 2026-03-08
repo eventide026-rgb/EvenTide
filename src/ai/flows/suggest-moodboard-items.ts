@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview An AI agent to generate creative suggestions for an event mood board.
@@ -12,7 +11,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
 const MoodboardItemSchema = z.object({
-  type: z.enum(['image', 'color', 'note']),
+  type: z.enum(['image', 'color', 'note', 'aiSuggestion']),
   value: z.string(),
 });
 

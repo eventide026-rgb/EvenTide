@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
-import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where, doc, addDoc, deleteDoc, setDoc } from 'firebase/firestore';
 import { Loader2, Armchair, User, Users, Trash2, CirclePlus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
@@ -240,9 +240,9 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
 
   const isLoading = isLoadingEvents || (selectedEventId && (isLoadingTables || isLoadingGuests || isLoadingSeats));
 
-  const guestId = (userRole === 'guest' && user?.uid) ? (user.uid as string) : null;
+  const guestId: string | null = (userRole === 'guest' && user?.uid) ? (user.uid as string) : null;
 
-  const { assignedGuests, unassignedGuests } = useMemo(() => {
+  const { unassignedGuests } = useMemo(() => {
     if (!guestsData || !allSeats) return { assignedGuests: new Set<string>(), unassignedGuests: [] };
     const assigned = new Set(allSeats?.map(s => s.guestId).filter(Boolean) as string[] || []);
     const unassigned = guestsData.filter(g => !assigned.has(g.id));
@@ -318,7 +318,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
                                 table={table}
                                 guests={guestsData || []}
                                 seats={allSeats?.filter(s => s.tableId === table.id) || []}
-                                guestId={guestId as string | null}
+                                guestId={guestId}
                                 userRole={userRole}
                                 onSeatUpdate={handleSeatUpdate}
                                 />
