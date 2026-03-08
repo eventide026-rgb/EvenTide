@@ -59,7 +59,7 @@ type PlannerEvent = {
 function DraggableGuest({ guest, isAssigned }: { guest: Guest, isAssigned: boolean }) {
   const {attributes, listeners, setNodeRef, transform} = useDraggable({
     id: `guest-${guest.id}`,
-    data: guest,
+    data: { guest },
     disabled: isAssigned
   });
 
@@ -90,7 +90,7 @@ function DraggableGuest({ guest, isAssigned }: { guest: Guest, isAssigned: boole
 function DroppableSeat({ seat, children, isThisGuestSeat }: { seat: Seat, children: React.ReactNode, isThisGuestSeat: boolean }) {
   const { setNodeRef } = useDroppable({
     id: `seat-${seat.tableId}-${seat.seatNumber}`,
-    data: seat,
+    data: { seat },
   });
 
   return (
@@ -296,7 +296,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.data.current) {
-        const guest = active.data.current as Guest;
+        const guest = active.data.current.guest as Guest;
         const parts = (over.id as string).split('-');
         const tableId = parts[1];
         const seatNumber = parseInt(parts[2], 10);

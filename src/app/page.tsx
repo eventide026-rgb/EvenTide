@@ -150,7 +150,9 @@ export default function Home() {
               data-ai-hint={heroImage.imageHint}
             />
           )}
-          <div className="absolute inset-0 bg-black/70 via-black/40 to-transparent"></div>
+          {/* Gradient overlay creates the 'flow onto lower element' effect */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-background"></div>
+          
           <div className="relative z-10 container mx-auto px-4 text-center">
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-headline font-extrabold tracking-tight leading-[1.1] text-balance">
               Plan Your Event
@@ -179,7 +181,7 @@ export default function Home() {
 
         {/* AI Demo Section */}
         <section className="py-12 md:py-16 bg-background relative border-b border-border/40">
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-4 text-center">
                 <EniDemo />
             </div>
         </section>
@@ -188,8 +190,8 @@ export default function Home() {
         <section id="how-it-works" className="py-12 md:py-16 bg-secondary/30 relative border-b border-border/40">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto mb-12">
-                <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance text-center">How It Works</h2>
-                <p className="mt-4 text-lg text-muted-foreground text-balance font-body max-w-2xl mx-auto text-center">
+                <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">How It Works</h2>
+                <p className="mt-4 text-lg text-muted-foreground text-balance font-body max-w-2xl mx-auto">
                     Our platform streamlines the sophisticated event journey into four logical, manageable phases.
                 </p>
             </div>
@@ -227,9 +229,9 @@ export default function Home() {
         {/* Vision Section */}
         <section id="vision" className="py-12 md:py-16 bg-background relative overflow-hidden">
           <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto mb-12 text-center">
-                <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight text-balance text-center">Bringing People Together, <br/><span className="text-primary font-logo">Beautifully.</span></h2>
-                <p className="mt-4 text-lg text-muted-foreground font-body text-balance max-w-2xl mx-auto text-center">
+            <div className="max-w-3xl mx-auto mb-12">
+                <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary font-logo">Beautifully.</span></h2>
+                <p className="mt-4 text-lg text-muted-foreground font-body text-balance max-w-2xl mx-auto">
                     Transforming gatherings into narrative masterpieces through poetic precision and technical harmony.
                 </p>
             </div>
@@ -275,9 +277,9 @@ export default function Home() {
         {/* Testimonials Section */}
         <section id="testimonials" className="py-12 md:py-16 bg-muted/20">
           <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto mb-12 text-center">
+            <div className="max-w-3xl mx-auto mb-12">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">Loved by Planners & Hosts</h2>
-                <p className="mt-4 text-lg text-muted-foreground font-body max-w-2xl mx-auto text-center">Hear from the community that brings EvenTide to life.</p>
+                <p className="mt-4 text-lg text-muted-foreground font-body max-w-2xl mx-auto">Hear from the community that brings EvenTide to life.</p>
             </div>
             
             <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
@@ -306,7 +308,7 @@ export default function Home() {
         {/* Pricing Section */}
         <section id="pricing" className="py-12 md:py-16 border-t border-border/40 bg-background">
           <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto mb-12 text-center">
+            <div className="max-w-3xl mx-auto mb-12">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">Pricing Plans for Every Event</h2>
                 <p className="mt-4 text-lg text-muted-foreground font-body max-w-2xl mx-auto text-balance">Choose the perfect plan that fits the scale of your event.</p>
             </div>
@@ -329,7 +331,7 @@ export default function Home() {
                      <div className="flex items-baseline justify-center gap-1 mt-4">
                       <p className="text-3xl font-bold font-headline">{tier.price}</p>
                     </div>
-                    <CardDescription className="mt-4 leading-relaxed font-medium font-body text-xs min-h-[3rem] text-center">{tier.description}</CardDescription>
+                    <CardDescription className="mt-4 leading-relaxed font-medium font-body text-xs min-h-[3rem]">{tier.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="flex-1 px-6 text-left">
                     <ul className="space-y-3 pt-6 border-t border-border/10">
@@ -358,7 +360,7 @@ export default function Home() {
         <section className="py-20 relative overflow-hidden bg-primary text-primary-foreground">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
           <div className="container mx-auto px-4 text-center relative z-10">
-            <h2 className="text-4xl font-headline font-bold md:text-7xl text-balance leading-[1.1] mb-10 text-center">
+            <h2 className="text-4xl font-headline font-bold md:text-7xl text-balance leading-[1.1] mb-10">
               Your Event, <br className="hidden md:block" /> <span className="italic font-logo text-accent">Reimagined.</span>
             </h2>
             <div className="flex justify-center">
