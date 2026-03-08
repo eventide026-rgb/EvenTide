@@ -25,6 +25,7 @@ export function EniDemo() {
             });
             setResult(res.message);
         } catch (error) {
+            console.error("Eni Demo Error:", error);
             toast({ variant: 'destructive', title: 'Demo Offline', description: 'Eni is taking a quick rest. Please try again in a moment.' });
         } finally {
             setIsGenerating(false);
@@ -47,7 +48,7 @@ export function EniDemo() {
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="flex flex-col sm:flex-row gap-4 items-end justify-center">
-                    <div className="w-full sm:w-48 space-y-2">
+                    <div className="w-full sm:w-48 space-y-2 text-left">
                         <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Event Type</p>
                         <Select value={eventType} onValueChange={setEventType}>
                             <SelectTrigger className="h-12 rounded-xl">
