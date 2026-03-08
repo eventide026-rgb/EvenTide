@@ -118,7 +118,7 @@ function GigDetailPageContent({ contractId }: { contractId: string }) {
 
 
 export default function GigDetailPage({ params }: { params: Promise<{ contractId: string }> }) {
-  const { contractId } = use(params);
+  const resolvedParams = use(params);
   return (
     <div className="space-y-6">
        <Button variant="outline" size="sm" asChild>
@@ -129,7 +129,7 @@ export default function GigDetailPage({ params }: { params: Promise<{ contractId
         </Button>
 
         <Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-            <GigDetailPageContent contractId={contractId} />
+            <GigDetailPageContent contractId={resolvedParams.contractId} />
         </Suspense>
     </div>
   )
