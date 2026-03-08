@@ -97,7 +97,7 @@ export function VenueForm({ venueId }: VenueFormProps) {
         }
     }, [existingVenueData, form]);
 
-    const { remove: removeImg } = useFieldArray({
+    const { fields: imageUrlFields, append: appendImg, remove: removeImg } = useFieldArray({
         control: form.control,
         name: "imageUrls",
     });
@@ -178,17 +178,11 @@ export function VenueForm({ venueId }: VenueFormProps) {
         const files = event.target.files;
         if (!files) return;
 
-        const currentImages = form.getValues('imageUrls');
-        const newImageObjects: { url: string }[] = [];
-        
         Array.from(files).forEach(file => {
             const reader = new FileReader();
             reader.onload = (e) => {
                  if (typeof e.target?.result === 'string') {
-                    newImageObjects.push({ url: e.target.result });
-                    if(newImageObjects.length === files.length) {
-                        form.setValue('imageUrls', [...currentImages, ...newImageObjects]);
-                    }
+                    appendImg({ url: e.target.result });
                 }
             };
             reader.readAsDataURL(file);
@@ -299,8 +293,8 @@ export function VenueForm({ venueId }: VenueFormProps) {
                         render={() => <FormMessage />}
                     />
                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        {form.watch('imageUrls').map((_, index) => (
-                            <div key={index} className="relative group aspect-video">
+                        {imageUrlFields.map((field, index) => (
+                            <div key={field.id} className="relative group aspect-video">
                                 <Image
                                     src={form.watch(`imageUrls.${index}.url`)}
                                     alt={`Venue image ${index + 1}`}

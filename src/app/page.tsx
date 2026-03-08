@@ -179,14 +179,16 @@ export default function Home() {
         </section>
 
         {/* How It Works Section */}
-        <section id="how-it-works" className="py-8 md:py-12 bg-secondary/30 relative overflow-hidden border-y border-border/40">
+        <section id="how-it-works" className="py-10 bg-secondary/30 relative overflow-hidden border-y border-border/40">
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-5 text-center">
-                    <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-4">How It Works</h2>
-                    <p className="text-lg text-muted-foreground text-balance font-body mb-8">
-                        A simple, streamlined four-step lifecycle from abstract idea to flawless execution.
-                    </p>
+                <div className="lg:col-span-5 text-center space-y-6">
+                    <div className="space-y-2">
+                        <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight">How It Works</h2>
+                        <p className="text-lg text-muted-foreground text-balance font-body">
+                            A simple, streamlined four-step lifecycle from abstract idea to flawless execution.
+                        </p>
+                    </div>
                     {processImage && (
                         <div className="relative aspect-[4/3] w-full max-w-md mx-auto rounded-2xl overflow-hidden shadow-xl border border-border/40 group">
                             <Image src={processImage.imageUrl} alt={processImage.description} fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
@@ -216,11 +218,11 @@ export default function Home() {
         </section>
 
         {/* Vision Section */}
-        <section id="vision" className="py-10 md:py-16 bg-background relative overflow-hidden">
+        <section id="vision" className="py-10 bg-background relative overflow-hidden">
           <div className="container mx-auto px-4">
-            <div className="mb-10 max-w-3xl mx-auto text-center">
+            <div className="mb-8 max-w-3xl mx-auto text-center">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary">Beautifully.</span></h2>
-                <p className="mt-3 text-lg text-muted-foreground font-body text-balance">
+                <p className="mt-2 text-lg text-muted-foreground font-body text-balance">
                     Transforming gatherings into narrative masterpieces through poetic precision and harmony.
                 </p>
             </div>
@@ -248,7 +250,7 @@ export default function Home() {
                     { title: "Effortless Harmony", desc: "We handle complexity so you can stay present." },
                     { title: "Living Archives", desc: "Transforming celebrations into digital legacies." }
                   ].map((item, i) => (
-                    <Card key={i} className="bg-secondary/20 border border-border/40 shadow-sm hover:-translate-y-3 hover:scale-[1.02] transition-all duration-500 group rounded-2xl overflow-hidden border-none shadow-xl">
+                    <Card key={i} className="bg-secondary/20 border-none shadow-xl hover:-translate-y-3 hover:scale-[1.02] transition-all duration-500 group rounded-2xl overflow-hidden">
                       <CardContent className="p-6">
                         <h3 className="font-bold text-lg group-hover:text-primary transition-colors font-headline">{item.title}</h3>
                         <p className="text-muted-foreground text-sm leading-relaxed mt-1 font-body">{item.desc}</p>
@@ -261,7 +263,7 @@ export default function Home() {
         </section>
 
         {/* Meet Eni Section */}
-        <section id="meet-eni" className="py-10 md:py-16 bg-primary/[0.02] relative overflow-hidden border-y border-border/20">
+        <section id="meet-eni" className="py-10 bg-primary/[0.02] relative overflow-hidden border-y border-border/20">
           <div className="container mx-auto px-4 text-center">
             <div className="grid lg:grid-cols-2 gap-10 items-center">
               <div className="relative order-2 lg:order-1 flex justify-center">
@@ -333,9 +335,9 @@ export default function Home() {
         </section>
 
         {/* Testimonials Section */}
-        <section id="testimonials" className="py-10 md:py-16 bg-background">
+        <section id="testimonials" className="py-10 bg-background">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-10">Loved by Planners & Hosts</h2>
+            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-8">Loved by Planners & Hosts</h2>
             <div className="grid gap-6 md:grid-cols-3">
               {testimonials.map((t, i) => (
                 <Card key={i} className="bg-secondary/20 border-2 border-accent shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col rounded-[2rem] overflow-hidden group">
@@ -360,9 +362,9 @@ export default function Home() {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="py-10 md:py-16 border-t border-border/40 bg-secondary/10">
+        <section id="pricing" className="py-10 border-t border-border/40 bg-secondary/10">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-12">Subscription Plans</h2>
+            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-10">Subscription Plans</h2>
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto items-stretch">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
@@ -405,7 +407,7 @@ export default function Home() {
         </section>
 
         {/* Final CTA Section */}
-        <section className="py-12 md:py-20 relative overflow-hidden bg-muted/30 border-t border-border/40">
+        <section className="py-12 md:py-16 relative overflow-hidden bg-muted/30 border-t border-border/40">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-4xl font-headline font-bold md:text-7xl text-foreground text-balance leading-[1.1] mb-8">
               Your Event, <br className="hidden md:block" /> <span className="italic font-logo text-primary">Reimagined.</span>

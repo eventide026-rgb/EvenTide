@@ -7,7 +7,8 @@ import { collection, query } from 'firebase/firestore';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { PlannerCard, type PlannerProfile } from '@/components/planner-card';
+import { PlannerCard } from '@/components/planner-card';
+import { type PlannerProfile } from '@/lib/types';
 import { useDebounce } from 'use-debounce';
 
 export function PublicPlannersClient() {
@@ -35,8 +36,8 @@ export function PublicPlannersClient() {
   return (
     <>
       <section className="bg-secondary/50 border-b">
-        <div className="container mx-auto px-4 py-8 md:py-12">
-          <div className="text-center mb-8">
+        <div className="container mx-auto px-4 py-8 md:py-12 text-center">
+          <div className="mb-8">
             <h1 className="text-4xl font-headline font-bold md:text-5xl">Find a Planner</h1>
             <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
               Discover experienced event planners to help bring your vision to life.
