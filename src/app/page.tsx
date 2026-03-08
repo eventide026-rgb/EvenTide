@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -181,15 +182,13 @@ export default function Home() {
         <section id="how-it-works" className="py-8 md:py-12 bg-secondary/30 relative overflow-hidden border-y border-border/40">
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-5 space-y-6">
-                    <div className="space-y-3">
-                        <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight">How It Works</h2>
-                        <p className="text-lg text-muted-foreground text-balance font-body max-w-sm">
-                            A simple, streamlined four-step lifecycle from abstract idea to flawless execution.
-                        </p>
-                    </div>
+                <div className="lg:col-span-5 text-center lg:text-left">
+                    <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-4">How It Works</h2>
+                    <p className="text-lg text-muted-foreground text-balance font-body mb-8">
+                        A simple, streamlined four-step lifecycle from abstract idea to flawless execution.
+                    </p>
                     {processImage && (
-                        <div className="relative aspect-[4/3] w-full max-w-md rounded-2xl overflow-hidden shadow-xl border border-border/40 group">
+                        <div className="relative aspect-[4/3] w-full max-w-md mx-auto lg:mx-0 rounded-2xl overflow-hidden shadow-xl border border-border/40 group">
                             <Image src={processImage.imageUrl} alt={processImage.description} fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                         </div>
@@ -249,7 +248,7 @@ export default function Home() {
                     { title: "Effortless Harmony", desc: "We handle complexity so you can stay present." },
                     { title: "Living Archives", desc: "Transforming celebrations into digital legacies." }
                   ].map((item, i) => (
-                    <Card key={i} className="bg-secondary/20 border border-border/40 hover:border-primary/40 shadow-sm hover:-translate-y-3 hover:scale-[1.02] transition-all duration-500 group rounded-xl">
+                    <Card key={i} className="bg-secondary/20 border border-border/40 hover:border-primary/40 shadow-sm hover:-translate-y-2 hover:scale-[1.01] transition-all duration-500 group rounded-xl">
                       <CardContent className="p-5">
                         <h3 className="font-bold text-base group-hover:text-primary transition-colors font-headline">{item.title}</h3>
                         <p className="text-muted-foreground text-sm leading-relaxed mt-1 font-body">{item.desc}</p>
@@ -297,7 +296,7 @@ export default function Home() {
                 </Card>
               </div>
               <div className="order-1 lg:order-2 text-center lg:text-left">
-                <h2 className="text-4xl md:text-6xl font-headline font-bold mb-6 tracking-tight text-balance leading-tight">
+                <h2 className="text-4xl md:text-6xl font-headline font-bold mb-6 tracking-tight text-balance leading-tight text-center md:text-left">
                   Meet Eni, Your <br /><span className="text-primary">AI Partner</span>
                 </h2>
                 <div className="space-y-4 max-w-md mx-auto lg:mx-0">
@@ -406,7 +405,7 @@ export default function Home() {
         </section>
 
         {/* Final CTA Section */}
-        <section className="py-10 md:py-16 relative overflow-hidden bg-muted/30 border-t border-border/40 text-center">
+        <section className="py-8 md:py-12 relative overflow-hidden bg-muted/30 border-t border-border/40 text-center">
           <div className="container mx-auto px-4">
             <h2 className="text-4xl font-headline font-bold md:text-7xl text-foreground text-balance leading-[1.1] mb-8">
               Your Event, <br className="hidden md:block" /> <span className="italic font-logo text-primary">Reimagined.</span>

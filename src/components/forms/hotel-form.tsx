@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
@@ -49,7 +50,9 @@ const formSchema = z.object({
     address: z.string().min(5, "Address is required."),
     state: z.string({ required_error: "Please select a state."}),
     city: z.string({ required_error: "Please select a city."}),
-    imageUrls: z.array(z.string().url("Must be a valid URL.")).min(1, "At least one image URL is required."),
+    imageUrls: z.array(z.object({
+        url: z.string().url("Must be a valid URL.")
+    })).min(1, "At least one image URL is required."),
     amenities: z.array(z.string()).min(1, "Select at least one amenity."),
     roomTypes: z.array(roomTypeSchema).min(1, "At least one room type is required."),
 });
@@ -88,7 +91,11 @@ export function HotelForm({ hotelId }: HotelFormProps) {
     
     useEffect(() => {
         if (existingHotelData) {
-            form.reset(existingHotelData);
+            const mappedData = {
+                ...existingHotelData,
+                imageUrls: existingHotelData.imageUrls.map((url: string) => ({ url })),
+            };
+            form.reset(mappedData);
         }
     }, [existingHotelData, form]);
 
@@ -97,12 +104,10 @@ export function HotelForm({ hotelId }: HotelFormProps) {
         name: "roomTypes",
     });
 
-     const { remove: removeImg } = useFieldArray({
+     const { fields: imageFields, remove: removeImg } = useFieldArray({
         control: form.control,
         name: "imageUrls",
     });
-
-    const imageUrls = form.watch('imageUrls');
 
     const selectedState = form.watch('state');
     const cities = selectedState
@@ -119,14 +124,16 @@ export function HotelForm({ hotelId }: HotelFormProps) {
         const files = event.target.files;
         if (!files) return;
 
-        const newImageUrls: string[] = [];
+        const currentImages = form.getValues('imageUrls');
+        const newImageObjects: { url: string }[] = [];
+        
         Array.from(files).forEach(file => {
             const reader = new FileReader();
             reader.onload = (e) => {
                  if (typeof e.target?.result === 'string') {
-                    newImageUrls.push(e.target.result);
-                    if(newImageUrls.length === files.length) {
-                        form.setValue('imageUrls', [...form.getValues('imageUrls'), ...newImageUrls]);
+                    newImageObjects.push({ url: e.target.result });
+                    if(newImageObjects.length === files.length) {
+                        form.setValue('imageUrls', [...currentImages, ...newImageObjects]);
                     }
                 }
             };
@@ -141,20 +148,24 @@ export function HotelForm({ hotelId }: HotelFormProps) {
         }
         setIsLoading(true);
 
+        const hotelData = {
+            ...values,
+            ownerId: user.uid,
+            imageUrls: values.imageUrls.map(img => img.url),
+        };
+
         try {
             if (isEditMode && hotelDocRef) {
-                await updateDoc(hotelDocRef, { ...values, updatedAt: serverTimestamp() });
+                await updateDoc(hotelDocRef, { ...hotelData, updatedAt: serverTimestamp() });
                 toast({
                     title: "Hotel Updated!",
                     description: `${values.name} has been successfully updated.`,
                 });
             } else {
-                const hotelData = {
-                    ...values,
-                    ownerId: user.uid,
+                await addDoc(collection(firestore, "hotels"), {
+                    ...hotelData,
                     createdAt: serverTimestamp(),
-                };
-                await addDoc(collection(firestore, "hotels"), hotelData);
+                });
                 toast({
                     title: "Hotel Created!",
                     description: `${values.name} has been successfully listed.`,
@@ -313,10 +324,10 @@ export function HotelForm({ hotelId }: HotelFormProps) {
                         render={() => <FormMessage />}
                     />
                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        {imageUrls.map((url, index) => (
-                            <div key={index} className="relative group aspect-video">
+                        {imageFields.map((field, index) => (
+                            <div key={field.id} className="relative group aspect-video">
                                 <Image
-                                    src={url}
+                                    src={form.watch(`imageUrls.${index}.url`)}
                                     alt={`Hotel image ${index + 1}`}
                                     fill
                                     className="object-cover rounded-md border"

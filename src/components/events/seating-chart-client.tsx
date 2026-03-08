@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -122,7 +123,7 @@ function TableDisplay({
         id: realSeat?.id || `${table.id}-${i}`,
         seatNumber: i,
         tableId: table.id,
-        guestId: realSeat?.guestId,
+        guestId: realSeat?.guestId || undefined,
         guestName: guest?.name,
       });
     }
