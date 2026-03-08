@@ -162,7 +162,7 @@ export function ProgramPlannerClient({ eventId, isReadOnly = false }: ProgramPla
                           <FormField control={form.control} name={`program.${index}.duration`} render={({field}) => (
                             <FormItem className="col-span-3"><FormLabel>Duration (min)</FormLabel><FormControl><Input type="number" {...field} readOnly={isReadOnly} /></FormControl><FormMessage/></FormItem>
                          )}/>
-                           <FormField control={form.control} name={`program.${index}.status`} render={({field}) => (
+                          <FormField control={form.control} name={`program.${index}.status`} render={({field}) => (
                             <FormItem className="col-span-4"><FormLabel>Status</FormLabel>
                              <Select onValueChange={field.onChange} value={field.value} disabled={isReadOnly}>
                                 <FormControl><SelectTrigger><SelectValue/></SelectTrigger></FormControl>

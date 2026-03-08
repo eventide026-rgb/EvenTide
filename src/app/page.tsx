@@ -138,8 +138,8 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <PublicHeader />
       <main className="flex-1">
-        {/* Hero Section - Padding adjusted to move headline lower */}
-        <section className="relative w-full h-[70vh] md:h-[85vh] text-white flex items-start justify-center overflow-hidden pt-48 md:pt-64">
+        {/* Hero Section - Spread full screen */}
+        <section className="relative w-full h-screen text-white flex items-start justify-center overflow-hidden pt-48 md:pt-64">
           {heroImage && (
             <Image
               src={heroImage.imageUrl}
@@ -184,7 +184,7 @@ export default function Home() {
             </div>
         </section>
 
-        {/* How It Works Section */}
+        {/* How It Works Section - Tighter spacing, Gold edges */}
         <section id="how-it-works" className="py-12 md:py-16 bg-secondary/30 relative border-b border-border/40">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto mb-12">
@@ -224,7 +224,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Vision Section */}
+        {/* Vision Section - Tighter spacing, Pop-up cards */}
         <section id="vision" className="py-12 md:py-16 bg-background relative overflow-hidden">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto mb-12 text-center">
@@ -272,7 +272,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Testimonials Section */}
+        {/* Testimonials Section - Gold boundaries */}
         <section id="testimonials" className="py-12 md:py-16 bg-muted/20">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto mb-12 text-center">
@@ -303,7 +303,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Pricing Section */}
+        {/* Pricing Section - Capsule badge, Tighter spacing */}
         <section id="pricing" className="py-12 md:py-16 border-t border-border/40 bg-background">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto mb-12 text-center">
