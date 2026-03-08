@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -28,9 +29,11 @@ import { addDoc, collection } from "firebase/firestore";
 import { errorEmitter } from "@/firebase/error-emitter";
 import { FirestorePermissionError } from "@/firebase/errors";
 
+const roles = ["Event Owner / Host", "Planner", "Vendor", "Guest"] as const;
+
 const formSchema = z.object({
   name: z.string().min(2, { message: "Please enter your name or business name." }),
-  role: z.enum(["Event Owner / Host", "Planner", "Vendor", "Guest"], {
+  role: z.enum(roles, {
     required_error: "You need to select your role.",
   }),
   testimonial: z.string().min(20, { message: "Testimonial must be at least 20 characters." }),
@@ -49,6 +52,7 @@ export function TestimonialForm() {
         },
     });
 
+    // Correct Fix: Add return type annotation
     async function onSubmit(values: z.infer<typeof formSchema>): Promise<void> {
         if (!firestore) {
             toast({
@@ -123,10 +127,9 @@ export function TestimonialForm() {
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    <SelectItem value="Event Owner / Host">Event Owner / Host</SelectItem>
-                                    <SelectItem value="Planner">Planner</SelectItem>
-                                    <SelectItem value="Vendor">Vendor</SelectItem>
-                                    <SelectItem value="Guest">Guest</SelectItem>
+                                    {roles.map(role => (
+                                        <SelectItem key={role} value={role}>{role}</SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                             <FormMessage />

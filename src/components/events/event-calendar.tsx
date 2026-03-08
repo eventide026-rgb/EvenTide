@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -55,7 +56,7 @@ export default function EventCalendar() {
   const { user } = useUser();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
-  // Use useEffect to set the initial date on the client only, preventing hydration errors
+  // Stabilization: Initialize date on client only to prevent hydration error
   useEffect(() => {
     setSelectedDate(new Date());
   }, []);

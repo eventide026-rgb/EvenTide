@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -109,6 +110,7 @@ export function ProgramPlannerClient({ eventId, isReadOnly = false }: ProgramPla
   }, [initialProgramData, form]);
 
   useEffect(() => {
+    // Correct Fix: Use form.formState.isDirty instead of form.isDirty
     if (form.formState.isDirty && programDocRef && !isReadOnly) {
       const saveChanges = async () => {
         setSaveStatus('saving');
@@ -171,7 +173,7 @@ export function ProgramPlannerClient({ eventId, isReadOnly = false }: ProgramPla
                          )}/>
                          {!isReadOnly && (
                          <div className="col-span-2 flex items-end">
-                            <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}><Trash2 className="h-4 w-4"/></Button>
+                            <Button type="button" variant="destructive" size="icon" onClick={() => remove(index)}><Trash2 className="h-4 w-4/"></Trash2></Button>
                          </div>
                          )}
                           <FormField control={form.control} name={`program.${index}.notes`} render={({field}) => (

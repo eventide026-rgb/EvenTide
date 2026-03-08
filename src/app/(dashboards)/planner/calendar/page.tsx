@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -53,7 +54,7 @@ export default function PlannerCalendarPage() {
   const [calendarItems, setCalendarItems] = useState<CalendarItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize date on client only to prevent hydration error
+  // Correct Fix: Initialize date on client only to prevent hydration error
   useEffect(() => {
     setSelectedDate(new Date());
   }, []);

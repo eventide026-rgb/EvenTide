@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import type { Guest } from '@/lib/types';
@@ -35,7 +36,7 @@ export default function MyInvitationsPage() {
   
   // State for session data
   const [eventId, setEventId] = useState<string | null>(null);
-  const [guestId, setGuestId] = useState<string | null>(null); // This is now the document ID
+  const [guestId, setGuestId] = useState<string | null>(null);
   const [eventName, setEventName] = useState<string | null>(null);
   const [eventCode, setEventCode] = useState<string | null>(null);
   const [guestName, setGuestName] = useState<string | null>(null);
@@ -44,7 +45,7 @@ export default function MyInvitationsPage() {
 
   useEffect(() => {
     const eventIdFromSession = sessionStorage.getItem('guestEventId');
-    const guestIdFromSession = sessionStorage.getItem('guestId'); // This is the doc ID
+    const guestIdFromSession = sessionStorage.getItem('guestId');
     const eventNameFromSession = sessionStorage.getItem('guestEventName');
     const eventCodeFromSession = sessionStorage.getItem('guestEventCode');
     const guestNameFromSession = sessionStorage.getItem('guestName');

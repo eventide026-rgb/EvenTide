@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -6,12 +7,10 @@ import {
   ArrowRight,
   CalendarPlus,
   ShieldCheck,
-  Bot,
-  Quote,
-  Loader2,
   Sparkles,
   Users,
   CircleCheck,
+  Quote,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -20,7 +19,6 @@ import { PublicHeader } from '@/components/layout/public-header';
 import { PublicFooter } from '@/components/layout/public-footer';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const rotatingWords = ['Effortlessly', 'Stylishly', 'Beautifully', 'Perfectly'];
@@ -74,22 +72,41 @@ const pricingTiers = [
         name: "Free Starter",
         price: "₦0",
         description: "The boutique entrance for intimate gatherings.",
-        features: ["Up to 20 Guests", "Digital Registry", "Standard Validation", "Media Library"],
+        features: ["Up to 20 Guests", "Basic Digital Registry", "Standard Validation"],
         isPopular: false,
+        buttonText: "Get Started"
+    },
+    {
+        name: "Basic Hub",
+        price: "₦10,000",
+        description: "Professional orchestration for growing events.",
+        features: ["Up to 100 Guests", "Team Collaboration (Co-hosts)", "Standard Analytics"],
+        isPopular: false,
+        buttonText: "Choose Basic Hub"
     },
     {
         name: "Standard Flow",
         price: "₦25,000",
         description: "The ecosystem benchmark for flawless planning.",
-        features: ["Up to 250 Guests", "Marketplace Integration", "Budget Ledger", "Custom Codes"],
+        features: ["Up to 250 Guests", "Full Marketplace Integration", "Advanced Budget Ledger"],
         isPopular: true,
+        buttonText: "Choose Standard Flow"
     },
     {
         name: "Premium Edge",
         price: "₦50,000",
         description: "AI-enhanced legacy building and reporting.",
-        features: ["Up to 500 Guests", "AI Stationery Studio", "Curated Magazine", "Live Reporting"],
+        features: ["Up to 500 Guests", "Eni AI Stationery Studio", "AI-curated Magazine", "Live Reporting"],
         isPopular: false,
+        buttonText: "Choose Premium Edge"
+    },
+    {
+        name: "Enterprise Elite",
+        price: "₦100,000",
+        description: "Maximum scale for grand galas.",
+        features: ["Up to 5,000 Guests", "White-labeling & Custom Branding", "Dedicated Technical Concierge"],
+        isPopular: false,
+        buttonText: "Choose Enterprise Elite"
     },
 ];
 
@@ -156,7 +173,7 @@ export default function Home() {
 
         {/* How It Works Section */}
         <section id="how-it-works" className="py-12 md:py-16 bg-secondary/30 relative border-y border-border/40">
-          <div className="container mx-auto px-4 text-center">
+          <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto mb-12 text-center">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">How It Works</h2>
                 <p className="mt-4 text-lg text-muted-foreground text-balance font-body max-w-2xl mx-auto">
@@ -277,11 +294,11 @@ export default function Home() {
         <section id="pricing" className="py-12 md:py-16 border-t border-border/40 bg-background">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto mb-12 text-center">
-                <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">The Ecosystem Access</h2>
-                <p className="mt-4 text-lg text-muted-foreground font-body max-w-2xl mx-auto">Select the path that matches your vision.</p>
+                <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">Pricing Plans for Every Event</h2>
+                <p className="mt-4 text-lg text-muted-foreground font-body max-w-2xl mx-auto text-balance">Choose the perfect plan that fits the scale of your event.</p>
             </div>
             
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto items-stretch">
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 max-w-7xl mx-auto items-stretch">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
                   "flex flex-col transition-all duration-500 relative border border-border/40 rounded-[2.5rem] overflow-visible",
@@ -295,25 +312,25 @@ export default function Home() {
                     </div>
                   )}
                   <CardHeader className="pt-12 pb-6 px-8 text-center">
-                    <CardTitle className="font-headline text-2xl font-bold">{tier.name}</CardTitle>
+                    <CardTitle className="font-headline text-xl font-bold line-clamp-1">{tier.name}</CardTitle>
                      <div className="flex items-baseline justify-center gap-1 mt-4">
-                      <p className="text-5xl font-bold font-headline">{tier.price}</p>
+                      <p className="text-3xl font-bold font-headline">{tier.price}</p>
                     </div>
-                    <CardDescription className="mt-4 leading-relaxed font-medium font-body text-sm">{tier.description}</CardDescription>
+                    <CardDescription className="mt-4 leading-relaxed font-medium font-body text-xs min-h-[3rem]">{tier.description}</CardDescription>
                   </CardHeader>
-                  <CardContent className="flex-1 px-8 text-left">
-                    <ul className="space-y-4 pt-8 border-t border-border/10">
+                  <CardContent className="flex-1 px-6 text-left">
+                    <ul className="space-y-3 pt-6 border-t border-border/10">
                       {tier.features.map((feature, i) => (
-                        <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground font-body">
-                          <CircleCheck className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="leading-snug">{feature}</span>
+                        <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground font-body">
+                          <CircleCheck className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="leading-tight">{feature}</span>
                         </li>
                       ))}
                     </ul>
                   </CardContent>
-                  <CardFooter className="p-8">
-                     <Button className="w-full font-bold rounded-2xl h-14 shadow-lg transition-all active:scale-[0.97]" variant={tier.isPopular ? "default" : "outline"}>
-                        Get Started
+                  <CardFooter className="p-6">
+                     <Button className="w-full font-bold rounded-2xl h-12 shadow-lg transition-all active:scale-[0.97]" variant={tier.isPopular ? "default" : "outline"}>
+                        {tier.buttonText}
                      </Button>
                   </CardFooter>
                 </Card>
