@@ -192,7 +192,7 @@ export default function Home() {
               Welcome to EvenTide, your AI-powered partner for flawless event management. From intimate gatherings to grand galas, we bring your vision to life with intuitive tools and expert assistance.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button asChild size="lg" className="font-bold w-full sm:w-auto h-12 px-8 text-lg rounded-full">
+              <Button asChild size="lg" className="font-bold w-full sm:w-auto h-12 px-8 text-lg rounded-full shadow-2xl shadow-primary/40">
                 <Link href="/signup">
                   Create an Event <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
@@ -209,7 +209,7 @@ export default function Home() {
         {/* How It Works Section */}
         <section id="how-it-works" className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden border-y border-border/40">
           <div className="container mx-auto px-4 text-center">
-            <div className="mb-16 max-w-3xl mx-auto">
+            <div className="mb-16 max-w-3xl mx-auto text-center">
                 <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">How It Works</h2>
                 <p className="mt-6 text-xl text-muted-foreground text-balance font-body">
                     A simple, streamlined four-step lifecycle from abstract idea to flawless execution.
@@ -249,7 +249,7 @@ export default function Home() {
         {/* Vision Section */}
         <section id="vision" className="py-24 md:py-32 bg-background relative overflow-hidden">
           <div className="container mx-auto px-4 text-center">
-            <div className="mb-16 max-w-3xl mx-auto">
+            <div className="mb-16 max-w-3xl mx-auto text-center">
                 <h2 className="text-4xl md:text-6xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary">Beautifully.</span></h2>
                 <p className="mt-6 text-xl text-muted-foreground font-body text-balance">
                     Our vision is to transform every gathering into a narrative masterpiece, leveraging technology to honor culture and connection.
@@ -379,7 +379,7 @@ export default function Home() {
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">Loved by Planners & Hosts</h2>
-              <p className="mt-6 text-xl text-muted-foreground max-w-2xl mx-auto font-body text-balance">
+              <p className="mt-6 text-xl text-muted-foreground max-w-2xl mx-auto font-body text-balance text-center">
                 See what our users are saying about their experience with EvenTide.
               </p>
             </div>
@@ -409,25 +409,25 @@ export default function Home() {
         {/* Ecosystem Section */}
         <section id="benefits" className="py-24 md:py-32 bg-secondary/10">
             <div className="container mx-auto px-4 text-center">
-                <div className="mb-20 max-w-3xl mx-auto">
+                <div className="mb-20 max-w-3xl mx-auto text-center">
                     <Badge variant="outline" className="mb-4 border-primary/20 text-primary font-bold uppercase tracking-widest px-4 py-1 rounded-full">The EvenTide Ecosystem</Badge>
                     <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">A Tool for Everyone</h2>
-                    <p className="mt-6 text-xl text-muted-foreground text-balance font-body">
+                    <p className="mt-6 text-xl text-muted-foreground text-balance font-body text-center">
                         EvenTide is designed to empower every role involved in making an event a success.
                     </p>
                 </div>
                 <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 text-left">
                     {roleBenefits.map((role) => (
                         <Card key={role.title} className="border-2 border-border/40 bg-background hover:bg-muted/30 transition-all duration-500 hover:-translate-y-3 hover:scale-[1.02] group shadow-sm hover:shadow-2xl hover:border-primary/20 flex flex-col p-6 rounded-3xl">
-                            <div className="space-y-1 mb-6">
+                            <div className="space-y-1 mb-6 text-center md:text-left">
                                 <CardTitle className="font-headline text-2xl group-hover:text-primary transition-colors">{role.title}</CardTitle>
                                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">{role.roleTitle}</p>
                             </div>
                             <CardContent className="flex-1 p-0">
                                 <ul className="space-y-4">
                                     {role.features.map((feature, i) => (
-                                        <li key={i} className="text-sm text-muted-foreground leading-relaxed">
-                                            {feature}
+                                        <li key={i} className="text-sm text-muted-foreground leading-relaxed flex gap-3">
+                                            <span>{feature}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -448,7 +448,7 @@ export default function Home() {
           <div className="container mx-auto px-4">
             <div className="text-center mb-20">
               <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">Ecosystem Subscription</h2>
-              <p className="mt-6 text-xl text-muted-foreground max-w-3xl mx-auto text-balance font-body">
+              <p className="mt-6 text-xl text-muted-foreground max-w-3xl mx-auto text-balance font-body text-center">
                 High-fidelity functional tiers designed to scale with your ambition.
               </p>
             </div>
@@ -477,7 +477,7 @@ export default function Home() {
                       {tier.features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-3 text-[13px] text-muted-foreground font-body">
                           <CircleCheck className="h-4 w-4 text-green-500 mt-0.5" />
-                          <span className="leading-snug">{feature}</span>
+                          <span className="leading-snug text-left">{feature}</span>
                         </li>
                       ))}
                     </ul>

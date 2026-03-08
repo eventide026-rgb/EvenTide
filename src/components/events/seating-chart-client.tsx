@@ -72,12 +72,12 @@ function DraggableGuest({ guest, isAssigned }: { guest: Guest, isAssigned: boole
       {...listeners}
       {...attributes}
       className={cn(
-        "p-2 cursor-grab",
+        "p-2 cursor-grab shadow-sm border border-border hover:border-primary/50 transition-colors",
         isAssigned && "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
       )}
     >
       <p className="font-semibold text-sm">{guest.name}</p>
-      <p className="text-xs text-muted-foreground">{guest.category}</p>
+      <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">{guest.category}</p>
     </Card>
   );
 }
@@ -91,7 +91,7 @@ function DroppableSeat({ seat, children, isThisGuestSeat }: { seat: Seat, childr
   });
 
   return (
-    <div ref={setNodeRef} className={cn(isThisGuestSeat && "ring-4 ring-offset-4 ring-accent ring-offset-background rounded-full")}>
+    <div ref={setNodeRef} className={cn("relative", isThisGuestSeat && "ring-4 ring-offset-4 ring-accent ring-offset-background rounded-full")}>
         {children}
     </div>
   );
@@ -137,36 +137,52 @@ function TableDisplay({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{table.tableName}</CardTitle>
-        <CardDescription>{table.capacity} Seats</CardDescription>
+    <Card className="border-none shadow-lg overflow-hidden bg-muted/20">
+      <CardHeader className="bg-muted/30 border-b">
+        <CardTitle className="flex items-center gap-2"><Armchair className="h-5 w-5 text-primary" /> {table.tableName}</CardTitle>
+        <CardDescription>{table.capacity} Seats Available</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pt-8">
         <TooltipProvider>
-            <div className="relative rounded-full border-2 border-dashed border-muted-foreground/50 p-8 flex items-center justify-center aspect-square max-w-lg mx-auto">
-                <h3 className="absolute text-muted-foreground font-bold">{table.tableName}</h3>
+            <div className="relative rounded-full border-2 border-dashed border-muted-foreground/30 p-8 flex items-center justify-center aspect-square max-w-sm mx-auto">
+                <div className="bg-background shadow-inner border w-24 h-24 rounded-full flex flex-col items-center justify-center">
+                    <p className="text-muted-foreground font-bold text-xs uppercase tracking-tighter">{table.tableName}</p>
+                </div>
                 {fullSeats.map((seat, index) => {
                     const angle = (index / table.capacity) * 360;
-                    const style = { transform: `rotate(${angle}deg) translate(12rem) rotate(-${angle}deg)`};
+                    const style = { transform: `rotate(${angle}deg) translate(8rem) rotate(-${angle}deg)`};
                     const isThisGuestSeat = guestId && seat.guestId === guestId;
                     
                     return (
                         <DroppableSeat key={seat.id} seat={seat} isThisGuestSeat={!!isThisGuestSeat}>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <button className="absolute w-12 h-12 flex items-center justify-center" style={style}>
-                                        <div className={cn("p-2 rounded-full relative", seat.guestName ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground")}>
-                                            {seat.guestName ? <User className="h-5 w-5"/> : <Armchair className="h-5 w-5"/>}
+                                    <button className="absolute w-10 h-10 flex items-center justify-center -translate-x-5 -translate-y-5" style={style}>
+                                        <div className={cn(
+                                            "p-2 rounded-full relative transition-all duration-300", 
+                                            seat.guestName ? "bg-primary text-primary-foreground shadow-md scale-110" : "bg-muted text-muted-foreground border-2 border-dashed"
+                                        )}>
+                                            {seat.guestName ? <User className="h-4 w-4"/> : <Armchair className="h-4 w-4"/>}
                                             {userRole === 'planner' && seat.guestName && (
-                                                <Button variant="destructive" size="icon" className="absolute -top-2 -right-2 h-5 w-5" onClick={() => handleRemoveGuest(seat)}>
-                                                    <Trash2 className="h-3 w-3"/>
+                                                <Button 
+                                                    variant="destructive" 
+                                                    size="icon" 
+                                                    className="absolute -top-3 -right-3 h-5 w-5 rounded-full shadow-lg" 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleRemoveGuest(seat);
+                                                    }}
+                                                >
+                                                    <Trash2 className="h-2 w-2"/>
                                                 </Button>
                                             )}
                                         </div>
                                     </button>
                                 </TooltipTrigger>
-                                <TooltipContent><p className='font-semibold'>Seat {seat.seatNumber}</p><p>{seat.guestName || "Available"}</p></TooltipContent>
+                                <TooltipContent className="bg-background border-primary/20 shadow-xl">
+                                    <p className='font-bold text-xs uppercase tracking-widest'>Seat {seat.seatNumber}</p>
+                                    <p className="text-primary font-bold">{seat.guestName || "Available"}</p>
+                                </TooltipContent>
                             </Tooltip>
                         </DroppableSeat>
                     )
@@ -290,13 +306,13 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
 
   return (
      <DndContext onDragEnd={handleDragEnd}>
-        <div className="grid lg:grid-cols-4 gap-6 h-full">
+        <div className="grid lg:grid-cols-4 gap-8 h-full">
             <div className="lg:col-span-3 h-full">
                 {isLoading && selectedEventId ? (
                     <div className="flex h-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
                 ) : tablesData && tablesData.length > 0 ? (
                     <ScrollArea className="h-full pr-4 -mr-4">
-                        <div className="space-y-8">
+                        <div className="grid md:grid-cols-2 gap-8 pb-20">
                             {tablesData.map(table => (
                                 <TableDisplay
                                 key={table.id}
@@ -311,20 +327,23 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
                         </div>
                     </ScrollArea>
                 ) : (
-                    <div className="flex h-full items-center justify-center">
-                        <p className="text-muted-foreground">
-                        {selectedEventId ? 'The planner has not created any tables for this event yet.' : 'Please select an event.'}
-                        </p>
+                    <div className="flex h-full items-center justify-center text-center p-8 border-2 border-dashed rounded-3xl">
+                        <div className="max-w-xs">
+                            <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
+                            <p className="text-muted-foreground font-medium">
+                            {selectedEventId ? 'The seating plan for this celebration is currently open for design.' : 'Select an active celebration to begin seating assignments.'}
+                            </p>
+                        </div>
                     </div>
                 )}
             </div>
             <div className="lg:col-span-1 flex flex-col gap-6">
                 {(userRole === 'planner' || userRole === 'owner') && (
-                    <Card>
-                        <CardHeader><CardTitle>Event</CardTitle></CardHeader>
+                    <Card className="border-none shadow-sm bg-muted/30">
+                        <CardHeader className="pb-3"><CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Celebration</CardTitle></CardHeader>
                         <CardContent>
                             <Select onValueChange={setSelectedEventId} value={selectedEventId || ''} disabled={isLoadingEvents}>
-                                <SelectTrigger><SelectValue placeholder="Select an Event" /></SelectTrigger>
+                                <SelectTrigger className="rounded-xl"><SelectValue placeholder="Select Event" /></SelectTrigger>
                                 <SelectContent>
                                     {events?.map(event => <SelectItem key={event.id} value={event.id}>{event.name}</SelectItem>)}
                                 </SelectContent>
@@ -334,28 +353,29 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
                 )}
                 {userRole === 'planner' && (
                     <>
-                        <Card>
-                            <CardHeader><CardTitle>Add New Table</CardTitle></CardHeader>
+                        <Card className="border-none shadow-md">
+                            <CardHeader className="pb-3"><CardTitle className="text-base">Add New Table</CardTitle></CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="table-name">Table Name</Label>
-                                    <Input id="table-name" value={newTableName} onChange={(e) => setNewTableName(e.target.value)} placeholder="e.g., Table 1"/>
+                                    <Label htmlFor="table-name" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Label</Label>
+                                    <Input id="table-name" value={newTableName} onChange={(e) => setNewTableName(e.target.value)} placeholder="e.g., Table 1" className="rounded-xl"/>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="table-capacity">Capacity</Label>
-                                    <Input id="table-capacity" type="number" value={newTableCapacity} onChange={(e) => setNewTableCapacity(Number(e.target.value))}/>
+                                    <Label htmlFor="table-capacity" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Capacity</Label>
+                                    <Input id="table-capacity" type="number" value={newTableCapacity} onChange={(e) => setNewTableCapacity(Number(e.target.value))} className="rounded-xl"/>
                                 </div>
-                                <Button className="w-full" onClick={handleAddTable} disabled={!selectedEventId || !newTableName}><CirclePlus className="mr-2 h-4 w-4"/>Add Table</Button>
+                                <Button className="w-full rounded-xl font-bold" onClick={handleAddTable} disabled={!selectedEventId || !newTableName}><CirclePlus className="mr-2 h-4 w-4"/>Add Table</Button>
                             </CardContent>
                         </Card>
-                        <Card className="flex-grow">
-                            <CardHeader><CardTitle className="flex items-center gap-2"><Users className="h-5 w-5" />Unassigned Guests</CardTitle></CardHeader>
-                            <CardContent>
-                                <ScrollArea className="h-96 pr-3">
-                                    <div className="space-y-2">
+                        <Card className="flex-grow border-none shadow-lg overflow-hidden flex flex-col">
+                            <CardHeader className="bg-muted/30 pb-3"><CardTitle className="flex items-center gap-2 text-base"><Users className="h-4 w-4 text-primary" /> Unassigned ({unassignedGuests.length})</CardTitle></CardHeader>
+                            <CardContent className="flex-1 p-0">
+                                <ScrollArea className="h-[400px]">
+                                    <div className="p-4 space-y-3">
                                         {unassignedGuests.map(guest => (
                                             <DraggableGuest key={guest.id} guest={guest} isAssigned={false}/>
                                         ))}
+                                        {unassignedGuests.length === 0 && <p className="text-xs text-center text-muted-foreground py-8 italic">All guests have been seated.</p>}
                                     </div>
                                 </ScrollArea>
                             </CardContent>
@@ -363,9 +383,9 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
                     </>
                 )}
                 {userRole === 'guest' && (
-                    <Card>
-                        <CardHeader><CardTitle>Your Seat</CardTitle></CardHeader>
-                        <CardContent><p className="text-muted-foreground">Your assigned seat is highlighted on the chart.</p></CardContent>
+                    <Card className="bg-accent/10 border-accent/20">
+                        <CardHeader><CardTitle className="text-accent">Assigned Seating</CardTitle></CardHeader>
+                        <CardContent><p className="text-sm text-foreground/80 leading-relaxed font-medium">Your designated seat is highlighted on the chart. Please look for the gold ring to identify your table.</p></CardContent>
                     </Card>
                 )}
             </div>
