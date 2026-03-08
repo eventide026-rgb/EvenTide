@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -241,10 +240,10 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
 
   const isLoading = isLoadingEvents || (selectedEventId && (isLoadingTables || isLoadingGuests || isLoadingSeats));
 
-  const guestId = userRole === 'guest' ? user?.uid : null;
+  const guestId = userRole === 'guest' ? (user?.uid || null) : null;
 
   const { assignedGuests, unassignedGuests } = useMemo(() => {
-    if (!guestsData || !allSeats) return { assignedGuests: new Set(), unassignedGuests: [] };
+    if (!guestsData || !allSeats) return { assignedGuests: new Set<string>(), unassignedGuests: [] };
     const assigned = new Set(allSeats?.map(s => s.guestId).filter(Boolean) as string[] || []);
     const unassigned = guestsData.filter(g => !assigned.has(g.id));
     return { assignedGuests: assigned, unassignedGuests: unassigned };

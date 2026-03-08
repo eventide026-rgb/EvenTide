@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -54,7 +53,6 @@ type CalendarItem = {
 export default function EventCalendar() {
   const firestore = useFirestore();
   const { user } = useUser();
-  // Hydration-safe initial state
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
   useEffect(() => {

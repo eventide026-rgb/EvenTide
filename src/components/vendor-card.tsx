@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -14,6 +13,7 @@ import { doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 // Dynamic import for heavy proposal dialog
 const VendorProposalDialog = dynamic(() => import('./vendor-proposal-dialog').then(m => m.VendorProposalDialog), {
@@ -120,8 +120,4 @@ export function VendorCard({ vendor }: VendorCardProps) {
       </CardContent>
     </Card>
   );
-}
-
-function cn(...inputs: any[]) {
-    return inputs.filter(Boolean).join(' ');
 }
