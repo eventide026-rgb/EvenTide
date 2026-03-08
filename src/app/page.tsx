@@ -70,40 +70,50 @@ const testimonials = [
 
 const pricingTiers = [
     {
+        slug: "starter",
         name: "Free Starter",
         price: "₦0",
+        priceNum: 0,
         description: "The boutique entrance for intimate gatherings.",
         features: ["Up to 20 Guests", "Basic Digital Registry", "Standard Validation"],
         isPopular: false,
         buttonText: "Get Started"
     },
     {
+        slug: "basic",
         name: "Basic Hub",
         price: "₦10,000",
+        priceNum: 10000,
         description: "Professional orchestration for growing events.",
         features: ["Up to 100 Guests", "Team Collaboration (Co-hosts)", "Standard Analytics"],
         isPopular: false,
         buttonText: "Choose Basic Hub"
     },
     {
+        slug: "standard",
         name: "Standard Flow",
         price: "₦25,000",
+        priceNum: 25000,
         description: "The ecosystem benchmark for flawless planning.",
         features: ["Up to 250 Guests", "Full Marketplace Integration", "Advanced Budget Ledger"],
         isPopular: true,
         buttonText: "Choose Standard Flow"
     },
     {
+        slug: "premium",
         name: "Premium Edge",
         price: "₦50,000",
+        priceNum: 50000,
         description: "AI-enhanced legacy building and reporting.",
         features: ["Up to 500 Guests", "Eni AI Stationery Studio", "AI-curated Magazine", "Live Reporting"],
         isPopular: false,
         buttonText: "Choose Premium Edge"
     },
     {
+        slug: "enterprise",
         name: "Enterprise Elite",
         price: "₦100,000",
+        priceNum: 100000,
         description: "Maximum scale for grand galas.",
         features: ["Up to 5,000 Guests", "White-labeling & Custom Branding", "Dedicated Technical Concierge"],
         isPopular: false,
@@ -337,8 +347,10 @@ export default function Home() {
                     </ul>
                   </CardContent>
                   <CardFooter className="p-6">
-                     <Button className="w-full font-bold rounded-2xl h-12 shadow-lg transition-all active:scale-[0.97]" variant={tier.isPopular ? "default" : "outline"}>
-                        {tier.buttonText}
+                     <Button asChild className="w-full font-bold rounded-2xl h-12 shadow-lg transition-all active:scale-[0.97]" variant={tier.isPopular ? "default" : "outline"}>
+                        <Link href={`/checkout?plan=${tier.slug}`}>
+                            {tier.buttonText}
+                        </Link>
                      </Button>
                   </CardFooter>
                 </Card>
