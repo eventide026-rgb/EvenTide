@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import {
   useCollection,
   useFirestore,
@@ -53,7 +53,12 @@ type CalendarItem = {
 export default function EventCalendar() {
   const firestore = useFirestore();
   const { user } = useUser();
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  // Hydration-safe initial state
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+
+  useEffect(() => {
+    setSelectedDate(new Date());
+  }, []);
 
   const ownedEventsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;

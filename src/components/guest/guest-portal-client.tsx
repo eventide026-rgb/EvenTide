@@ -1,10 +1,9 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where, getDocs, limit, doc, serverTimestamp, addDoc, updateDoc, increment, arrayUnion, orderBy } from 'firebase/firestore';
-import { Loader2, Music, Image as ImageIcon, Calendar, Gift, Vote, PenSquare, UserCheck, MapPin, Sparkles, Send, CircleCheck } from 'lucide-react';
+import { Loader2, Music, Image as ImageIcon, Calendar, Gift, Vote, PenSquare, UserCheck, MapPin, Sparkles, Send, Clock, CirclePlay, ArrowRightCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -39,6 +38,13 @@ type Guest = {
     hasCheckedIn: boolean;
 };
 
+type ProgramItem = {
+    id: string;
+    title: string;
+    startTime: string;
+    status: 'Upcoming' | 'In Progress' | 'Completed';
+}
+
 type Poll = {
     id: string;
     question: string;
@@ -64,17 +70,14 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
     const [isLoadingEvent, setIsLoadingEvent] = useState(true);
     const [activeTab, setActiveTab] = useState('program');
     
-    // Identification State
     const [lookupCode, setLookupCode] = useState('');
     const [isIdentifying, setIsIdentifying] = useState(false);
 
-    // Interaction Inputs
     const [songTitle, setSongTitle] = useState('');
     const [artist, setArtist] = useState('');
     const [autographMsg, setAutographMsg] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Initial Event Lookup
     useEffect(() => {
         const fetchEvent = async () => {
             if (!firestore) return;
@@ -89,7 +92,6 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
         fetchEvent();
     }, [firestore, eventCode]);
 
-    // Identification Logic
     const handleIdentify = async () => {
         if (!event || !lookupCode) return;
         setIsIdentifying(true);
@@ -109,15 +111,21 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
         }
     };
 
-    // Real-time Polls
+    const programQuery = useMemoFirebase(() => event ? query(
+        collection(firestore, 'events', event.id, 'program', 'main', 'items'), 
+        orderBy('startTime', 'asc')
+    ) : null, [event, firestore]);
+    const { data: program } = useCollection<ProgramItem>(programQuery);
+
+    const nowHappening = useMemo(() => program?.find(p => p.status === 'In Progress'), [program]);
+    const nextHappening = useMemo(() => program?.find(p => p.status === 'Upcoming'), [program]);
+
     const pollsQuery = useMemoFirebase(() => event ? query(collection(firestore, 'events', event.id, 'polls')) : null, [event, firestore]);
     const { data: polls } = useCollection<Poll>(pollsQuery);
 
-    // Real-time Autographs
     const autographsQuery = useMemoFirebase(() => event ? query(collection(firestore, 'events', event.id, 'autographs'), orderBy('createdAt', 'desc'), limit(10)) : null, [event, firestore]);
     const { data: autographs } = useCollection<Autograph>(autographsQuery);
 
-    // Handlers
     const handleSongRequest = async () => {
         if (!event || !guest || !songTitle) return;
         setIsSubmitting(true);
@@ -203,6 +211,28 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                 )}
             </div>
 
+            {/* Live Program Pulse */}
+            <div className="container mx-auto px-4 mt-6">
+                <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-none shadow-sm overflow-hidden">
+                    <CardContent className="p-4 flex items-center justify-between gap-4">
+                        <div className="flex-1 border-r border-border/50 pr-4">
+                            <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
+                                <CirclePlay className="h-3 w-3 text-primary animate-pulse" />
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Now Happening</span>
+                            </div>
+                            <p className="font-bold text-sm line-clamp-1 text-center md:text-left">{nowHappening?.title || "Intermission"}</p>
+                        </div>
+                        <div className="flex-1">
+                            <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
+                                <ArrowRightCircle className="h-3 w-3 text-muted-foreground" />
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Up Next</span>
+                            </div>
+                            <p className="font-semibold text-sm line-clamp-1 opacity-70 text-center md:text-left">{nextHappening?.title || "TBD"}</p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
             {/* Main Tabs */}
             <div className="container mx-auto px-4 mt-6">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -224,13 +254,13 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                             {/* Polls */}
                             <Card>
-                                <CardHeader><CardTitle className="flex items-center gap-2"><Vote className="h-5 w-5 text-primary"/> Live Polls</CardTitle></CardHeader>
+                                <CardHeader><CardTitle className="flex items-center justify-center md:justify-start gap-2"><Vote className="h-5 w-5 text-primary"/> Live Polls</CardTitle></CardHeader>
                                 <CardContent className="space-y-6">
                                     {polls?.map(poll => {
                                         const hasVoted = poll.voters?.includes(user?.uid || '');
                                         return (
                                             <div key={poll.id} className="space-y-3">
-                                                <p className="font-bold text-sm">{poll.question}</p>
+                                                <p className="font-bold text-sm text-center md:text-left">{poll.question}</p>
                                                 {hasVoted ? (
                                                     poll.options.map((opt, i) => (
                                                         <div key={i} className="space-y-1">
@@ -257,7 +287,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
 
                             {/* Song Requests */}
                             <Card>
-                                <CardHeader><CardTitle className="flex items-center gap-2"><Music className="h-5 w-5 text-primary"/> Request a Song</CardTitle></CardHeader>
+                                <CardHeader><CardTitle className="flex items-center justify-center md:justify-start gap-2"><Music className="h-5 w-5 text-primary"/> Request a Song</CardTitle></CardHeader>
                                 <CardContent className="space-y-4">
                                     {guest ? (
                                         <>
@@ -273,7 +303,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
 
                             {/* Autograph Wall */}
                             <Card className="md:col-span-2">
-                                <CardHeader><CardTitle className="flex items-center gap-2"><PenSquare className="h-5 w-5 text-primary"/> Celebration Wall</CardTitle></CardHeader>
+                                <CardHeader><CardTitle className="flex items-center justify-center md:justify-start gap-2"><PenSquare className="h-5 w-5 text-primary"/> Celebration Wall</CardTitle></CardHeader>
                                 <CardContent className="space-y-6">
                                     <div className="flex gap-2">
                                         <Input placeholder="Leave a celebratory message..." value={autographMsg} onChange={e => setAutographMsg(e.target.value)} />
@@ -282,7 +312,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                         {autographs?.map(item => (
                                             <div key={item.id} className="bg-yellow-50 dark:bg-yellow-900/10 p-4 rounded-xl border border-yellow-200/50 shadow-sm rotate-1">
-                                                <p className="text-lg font-['Caveat',_cursive] text-yellow-900 dark:text-yellow-200">&quot;{item.message}&quot;</p>
+                                                <p className="text-lg font-['Caveat',_cursive] text-yellow-900 dark:text-yellow-200 text-center md:text-left">&quot;{item.message}&quot;</p>
                                                 <p className="text-right text-[10px] font-bold uppercase tracking-widest text-yellow-700/60 mt-2">— {item.guestName}</p>
                                             </div>
                                         ))}
@@ -305,8 +335,8 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                     <TabsContent value="gift" className="mt-6">
                         <div className="max-w-md mx-auto text-center space-y-6 py-12">
                             <div className="mx-auto bg-accent/10 p-6 rounded-full w-fit"><Gift className="h-12 w-12 text-accent" /></div>
-                            <h2 className="text-2xl font-headline font-bold">The Gift Registry</h2>
-                            <p className="text-muted-foreground">Select an item from the registry to contribute to the celebration.</p>
+                            <h2 className="text-2xl font-headline font-bold text-center">The Gift Registry</h2>
+                            <p className="text-muted-foreground text-center">Select an item from the registry to contribute to the celebration.</p>
                             <Button className="w-full h-12 rounded-full font-bold">Browse Registry</Button>
                         </div>
                     </TabsContent>

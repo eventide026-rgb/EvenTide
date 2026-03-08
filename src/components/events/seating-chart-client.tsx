@@ -252,7 +252,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { over, active } = event;
-    const activeIdString = String(active.id);
+    const activeIdString = active.id.toString();
     
     if (over && activeIdString.startsWith('guest-')) {
         const guest = active.data.current as Guest;

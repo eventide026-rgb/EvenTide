@@ -219,14 +219,14 @@ export default function Home() {
           )}
           <div className="absolute inset-0 bg-black/70 via-black/40 to-transparent"></div>
           <div className="relative z-10 container mx-auto px-4 text-center">
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-headline font-extrabold tracking-tight leading-[1.1] text-balance">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-headline font-extrabold tracking-tight leading-[1.1] text-balance text-center">
               Plan Your Event
               <br />
               <span className="bg-gradient-to-r from-[#60A5FA] to-[#FDE047] text-transparent bg-clip-text transition-all duration-500">
                 {rotatingWords[currentIndex]}
               </span>
             </h1>
-            <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl font-body text-white/90 leading-relaxed text-balance">
+            <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl font-body text-white/90 leading-relaxed text-balance text-center">
               Welcome to EvenTide, your AI-powered partner for flawless event management. From intimate gatherings to grand galas, we bring your vision to life with intuitive tools and expert assistance.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -249,34 +249,34 @@ export default function Home() {
           </div>
         </section>
 
-        {/* A Tool for Everyone on the Team */}
+        {/* Ecosystem Section */}
         <section id="benefits" className="py-24 md:py-32 bg-background">
-            <div className="container mx-auto px-4 text-center">
-                <div className="mb-20">
+            <div className="container mx-auto px-4">
+                <div className="mb-20 text-center">
                     <Badge variant="outline" className="mb-4 border-primary/20 text-primary font-bold uppercase tracking-widest px-4 py-1 rounded-full">The EvenTide Ecosystem</Badge>
-                    <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">A Tool for Everyone on the Team</h2>
-                    <p className="mt-6 text-xl text-muted-foreground max-w-3xl mx-auto text-balance font-body">
+                    <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight text-center">A Tool for Everyone on the Team</h2>
+                    <p className="mt-6 text-xl text-muted-foreground max-w-3xl mx-auto text-balance font-body text-center">
                         EvenTide is designed to empower every role involved in making an event a success. From strategic oversight to secure execution, we provide the tools needed for excellence at every touchpoint.
                     </p>
                 </div>
-                <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 text-center">
+                <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
                     {roleBenefits.map((role) => (
-                        <Card key={role.title} className="border-2 border-border/40 bg-secondary/20 hover:bg-secondary/40 transition-all duration-500 hover:-translate-y-2 group shadow-sm hover:shadow-xl hover:border-primary/20 flex flex-col p-6">
+                        <Card key={role.title} className="border-2 border-border/40 bg-secondary/20 hover:bg-secondary/40 transition-all duration-500 hover:-translate-y-3 hover:scale-[1.02] group shadow-sm hover:shadow-2xl hover:border-primary/20 flex flex-col p-6 rounded-3xl">
                             <div className="space-y-1 text-center mb-6">
-                                <CardTitle className="font-headline text-2xl group-hover:text-primary transition-colors">{role.title}</CardTitle>
-                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">{role.roleTitle}</p>
+                                <CardTitle className="font-headline text-2xl group-hover:text-primary transition-colors text-center">{role.title}</CardTitle>
+                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60 text-center">{role.roleTitle}</p>
                             </div>
                             <CardContent className="flex-1 p-0">
                                 <ul className="space-y-4">
                                     {role.features.map((feature, i) => (
-                                        <li key={i} className="text-sm text-muted-foreground leading-relaxed">
+                                        <li key={i} className="text-sm text-muted-foreground leading-relaxed text-center">
                                             {feature}
                                         </li>
                                     ))}
                                 </ul>
                             </CardContent>
                             <CardFooter className="pt-6 border-t border-border/10 p-0 mt-6">
-                                <Button variant="ghost" size="sm" className="w-full text-xs font-bold uppercase tracking-widest group-hover:bg-primary group-hover:text-primary-foreground transition-all" asChild>
+                                <Button variant="ghost" size="sm" className="w-full text-xs font-bold uppercase tracking-widest group-hover:bg-primary group-hover:text-primary-foreground transition-all rounded-xl" asChild>
                                     <Link href="/signup">Explore Workspace</Link>
                                 </Button>
                             </CardFooter>
@@ -290,14 +290,14 @@ export default function Home() {
         <section id="vision" className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden border-y border-border/40">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
-                <h2 className="text-4xl md:text-6xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary">Beautifully.</span></h2>
-                <p className="mt-6 text-xl text-muted-foreground max-w-3xl mx-auto font-body text-balance">
+                <h2 className="text-4xl md:text-6xl font-headline font-bold leading-tight text-balance text-center">Bringing People Together, <br/><span className="text-primary">Beautifully.</span></h2>
+                <p className="mt-6 text-xl text-muted-foreground max-w-3xl mx-auto font-body text-balance text-center">
                     Our vision is to transform every gathering into a narrative masterpiece, leveraging technology to honor culture and connection.
                 </p>
             </div>
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div className="flex justify-center">
-                <div className="relative w-full max-w-sm aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-background/50">
+                <div className="relative w-full max-w-sm aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-background/50 transition-all duration-700 hover:scale-105">
                   {missionImage && (
                     <Image
                       src={missionImage.imageUrl}
@@ -320,7 +320,7 @@ export default function Home() {
                     { icon: Sparkles, title: "Effortless Harmony", desc: "We handle the technical complexity silently, allowing you to be fully present in the moments that matter most." },
                     { icon: BookOpen, title: "Living Archives", desc: "Beyond the day-of execution, we transform celebrations into lasting digital stories through our community magazine." }
                   ].map((item, i) => (
-                    <Card key={i} className="bg-background/50 border-2 border-border/40 hover:border-primary/40 shadow-sm hover:shadow-[0_20px_50px_-12px_rgba(var(--primary),0.3)] hover:-translate-y-3 hover:scale-[1.02] transition-all duration-500 ease-out group rounded-2xl">
+                    <Card key={i} className="bg-background/50 border-2 border-border/40 hover:border-primary/40 shadow-sm hover:shadow-2xl hover:-translate-y-3 hover:scale-[1.02] transition-all duration-500 ease-out group rounded-2xl">
                       <CardContent className="flex gap-4 p-6">
                         <div className="h-12 w-12 shrink-0 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors shadow-inner">
                           <item.icon className="h-6 w-6" />
@@ -341,7 +341,7 @@ export default function Home() {
         {/* Meet Eni Section */}
         <section id="meet-eni" className="py-24 md:py-40 bg-primary/[0.02] relative overflow-hidden">
           <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-20 items-center">
+            <div className="grid lg:grid-cols-2 gap-20 items-center text-center lg:text-left">
               <div className="relative order-2 lg:order-1">
                 <div className="absolute -top-10 -left-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl opacity-50" />
                 <Card className="border-none shadow-[0_40px_100px_-15px_rgba(0,0,0,0.3)] bg-background/60 backdrop-blur-3xl min-h-[450px] flex flex-col justify-center p-12 relative overflow-hidden rounded-[3rem] border border-white/10">
@@ -350,14 +350,14 @@ export default function Home() {
                   </div>
                   {eniMessage ? (
                     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                      <p className="text-3xl md:text-4xl font-logo italic leading-[1.3] text-foreground/90 text-balance tracking-tight">
+                      <p className="text-3xl md:text-4xl font-logo italic leading-[1.3] text-foreground/90 text-balance tracking-tight text-center">
                         &quot;{eniMessage}&quot;
                       </p>
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center justify-center gap-4">
                         <div className="h-[2px] w-12 bg-primary rounded-full" />
                         <p className="text-sm font-bold text-primary tracking-[0.3em] uppercase">Eni</p>
                       </div>
-                      <Button variant="ghost" size="sm" className="p-0 h-auto text-muted-foreground hover:text-primary transition-colors font-bold uppercase tracking-widest text-[10px]" onClick={() => setEniMessage('')}>
+                      <Button variant="ghost" size="sm" className="mx-auto h-auto text-muted-foreground hover:text-primary transition-colors font-bold uppercase tracking-widest text-[10px]" onClick={() => setEniMessage('')}>
                         Generate Another
                       </Button>
                     </div>
@@ -380,15 +380,15 @@ export default function Home() {
                 )}
               </div>
               <div className="order-1 lg:order-2">
-                <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-accent/5 text-accent text-[10px] font-bold uppercase tracking-[0.25em] border border-accent/10 mb-8">
+                <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-accent/5 text-accent text-[10px] font-bold uppercase tracking-[0.25em] border border-accent/10 mb-8 mx-auto lg:mx-0">
                   <span className="animate-pulse">●</span> The AI Soul of EvenTide
                 </div>
-                <h2 className="text-5xl md:text-7xl font-headline font-bold mb-8 tracking-tight text-balance leading-tight">
+                <h2 className="text-5xl md:text-7xl font-headline font-bold mb-8 tracking-tight text-balance leading-tight text-center lg:text-left">
                   Meet Eni, Your <br /><span className="text-primary">AI Partner</span>
                 </h2>
-                <div className="space-y-5 max-w-md">
+                <div className="space-y-5 max-w-md mx-auto lg:mx-0">
                   <div className="space-y-3">
-                    <Label className="text-xs uppercase font-bold tracking-widest text-muted-foreground ml-1">Guest Name</Label>
+                    <Label className="text-xs uppercase font-bold tracking-widest text-muted-foreground ml-1 text-left block">Guest Name</Label>
                     <Input
                       placeholder="e.g., Olumide"
                       value={guestName}
@@ -397,7 +397,7 @@ export default function Home() {
                     />
                   </div>
                   <div className="space-y-3">
-                    <Label className="text-xs uppercase font-bold tracking-widest text-muted-foreground ml-1">Event Reference</Label>
+                    <Label className="text-xs uppercase font-bold tracking-widest text-muted-foreground ml-1 text-left block">Event Reference</Label>
                     <Input
                       placeholder="e.g., The Grand Reunion"
                       value={demoEventName}
@@ -420,11 +420,11 @@ export default function Home() {
         </section>
 
         {/* Testimonials Section */}
-        <section id="testimonials" className="py-24 md:py-32 bg-background border-y border-border/40">
+        <section id="testimonials" className="py-24 md:py-32 bg-background border-t border-border/40">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">Loved by Planners & Hosts</h2>
-              <p className="mt-6 text-xl text-muted-foreground max-w-2xl mx-auto font-body text-balance">
+              <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight text-center">Loved by Planners & Hosts</h2>
+              <p className="mt-6 text-xl text-muted-foreground max-w-2xl mx-auto font-body text-balance text-center">
                 See what our users are saying about their experience with EvenTide.
               </p>
             </div>
@@ -433,9 +433,9 @@ export default function Home() {
                 <Card key={i} className="bg-secondary/20 border-2 border-accent shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col rounded-3xl overflow-hidden">
                   <CardHeader className="flex-1 p-8">
                     <Quote className="h-8 w-8 text-primary/40 mb-4" />
-                    <p className="text-lg italic leading-relaxed text-foreground/90 font-body">&quot;{t.quote}&quot;</p>
+                    <p className="text-lg italic leading-relaxed text-foreground/90 font-body text-center">&quot;{t.quote}&quot;</p>
                   </CardHeader>
-                  <CardFooter className="flex items-center gap-4 p-8 border-t border-border/10 mt-auto bg-muted/30 rounded-b-3xl">
+                  <CardFooter className="flex items-center justify-center gap-4 p-8 border-t border-border/10 mt-auto bg-muted/30 rounded-b-3xl">
                     <Avatar className="h-12 w-12 border-2 border-background shadow-md">
                       <AvatarImage src={t.avatar} alt={t.author} />
                       <AvatarFallback>{t.author[0]}</AvatarFallback>
@@ -452,11 +452,11 @@ export default function Home() {
         </section>
 
         {/* How It Works Section */}
-        <section id="how-it-works" className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden">
+        <section id="how-it-works" className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden border-y border-border/40">
           <div className="container mx-auto px-4 text-center">
-            <div className="mb-16">
-                <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">How It Works</h2>
-                <p className="mt-6 text-xl text-muted-foreground text-balance font-body max-w-3xl mx-auto">
+            <div className="mb-16 text-center">
+                <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight text-center">How It Works</h2>
+                <p className="mt-6 text-xl text-muted-foreground text-balance font-body max-w-3xl mx-auto text-center">
                     A simple, streamlined four-step lifecycle from abstract idea to flawless execution.
                 </p>
             </div>
@@ -469,16 +469,16 @@ export default function Home() {
                         </div>
                     )}
                 </div>
-                <div className="lg:col-span-7 text-center">
+                <div className="lg:col-span-7">
                     <div className="grid gap-8 sm:grid-cols-2 relative">
                     {howItWorksSteps.map((step, index) => (
-                        <Card key={index} className="border-2 border-border/40 bg-background/80 backdrop-blur-xl shadow-lg hover:shadow-2xl hover:border-primary/40 transition-all duration-500 rounded-3xl group overflow-hidden relative p-2">
+                        <Card key={index} className="border-2 border-border/40 bg-background/80 backdrop-blur-xl shadow-lg hover:shadow-2xl hover:border-primary/40 transition-all duration-500 rounded-3xl group overflow-hidden relative p-2 hover:-translate-y-3">
                         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary to-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                         <CardHeader className="text-center items-center pb-4 pt-10">
                             <div className="mb-6 bg-primary/5 p-6 rounded-3xl group-hover:bg-primary/10 group-hover:rotate-6 transition-all duration-500 shadow-inner">
                             {step.icon}
                             </div>
-                            <CardTitle className="font-headline text-2xl font-bold">{step.title}</CardTitle>
+                            <CardTitle className="font-headline text-2xl font-bold text-center">{step.title}</CardTitle>
                         </CardHeader>
                         <CardContent className="text-center text-sm text-muted-foreground leading-loose px-8 pb-10 font-body">
                             {step.description}
@@ -492,11 +492,11 @@ export default function Home() {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="py-24 md:py-40 border-t border-border/40">
+        <section id="pricing" className="py-24 md:py-40 border-t border-border/40 bg-background">
           <div className="container mx-auto px-4">
             <div className="text-center mb-20">
-              <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">Ecosystem Subscription Levels</h2>
-              <p className="mt-6 text-xl text-muted-foreground max-w-3xl mx-auto text-balance font-body">
+              <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight text-center">Ecosystem Subscription Levels</h2>
+              <p className="mt-6 text-xl text-muted-foreground max-w-3xl mx-auto text-balance font-body text-center">
                 High-fidelity functional tiers designed to scale with your ambition, from intimate gatherings to massive cultural spectacles.
               </p>
             </div>
@@ -514,18 +514,18 @@ export default function Home() {
                     </div>
                   )}
                   <CardHeader className="pt-10 pb-6 px-8 text-center">
-                    <CardTitle className="font-headline text-2xl font-bold">{tier.name}</CardTitle>
+                    <CardTitle className="font-headline text-2xl font-bold text-center">{tier.name}</CardTitle>
                      <div className="flex items-baseline justify-center gap-1 mt-4">
                       <p className="text-4xl font-bold font-headline">{tier.price}</p>
                     </div>
-                    <CardDescription className="min-h-[48px] text-xs mt-4 leading-relaxed font-medium font-body">{tier.description}</CardDescription>
+                    <CardDescription className="min-h-[48px] text-xs mt-4 leading-relaxed font-medium font-body text-center">{tier.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="flex-1 px-8">
                     <ul className="space-y-4 pt-4 border-t border-border/10">
                       {tier.features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-3 text-[13px] text-muted-foreground font-body">
                           <CircleCheck className="h-4 w-4 text-green-500 mt-0.5" />
-                          <span className="leading-snug">{feature}</span>
+                          <span className="leading-snug text-left">{feature}</span>
                         </li>
                       ))}
                     </ul>
@@ -545,10 +545,10 @@ export default function Home() {
         <section className="py-24 md:py-48 relative overflow-hidden bg-muted/30 border-t border-border/40">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[150px] -z-10" />
           <div className="container mx-auto px-4 text-center">
-            <div className="inline-flex items-center gap-2 mb-10 px-6 py-2 rounded-full bg-background border shadow-sm">
+            <div className="inline-flex items-center justify-center gap-2 mb-10 px-6 py-2 rounded-full bg-background border shadow-sm mx-auto">
                 <span className="text-sm font-bold uppercase tracking-[0.2em]">Ready to begin?</span>
             </div>
-            <h2 className="text-5xl font-headline font-bold md:text-8xl text-foreground text-balance leading-[1.1] mb-10">
+            <h2 className="text-5xl font-headline font-bold md:text-8xl text-foreground text-balance leading-[1.1] mb-10 text-center">
               Transform Your Next Event <br className="hidden md:block" /> into a <span className="italic font-logo text-primary">Masterpiece</span>
             </h2>
             <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-6">

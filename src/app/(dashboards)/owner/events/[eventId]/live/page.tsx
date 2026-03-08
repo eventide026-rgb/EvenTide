@@ -1,8 +1,8 @@
 'use client';
 
-import { use, useState, useMemo } from 'react';
+import { use, useState, useMemo, useEffect } from 'react';
 import { useDoc, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc, collection, query, orderBy, limit } from 'firebase/firestore';
+import { doc, collection, query, orderBy, limit, updateDoc } from 'firebase/firestore';
 import { 
     Loader2, 
     CircleCheck, 
@@ -13,7 +13,9 @@ import {
     Megaphone, 
     Activity,
     ArrowLeft,
-    MonitorPlay
+    MonitorPlay,
+    CirclePlay,
+    CheckCircle2
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -24,6 +26,7 @@ import { format } from 'date-fns';
 import { BroadcastClient } from '@/components/broadcast-client';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 type Event = {
     id: string;
@@ -62,6 +65,7 @@ type SongRequest = {
 export default function EventLiveDashboard({ params }: { params: Promise<{ eventId: string }> }) {
     const { eventId } = use(params);
     const firestore = useFirestore();
+    const { toast } = useToast();
     const [activeTab, setActiveTab] = useState('timeline');
 
     // 1. Event Data
@@ -103,6 +107,26 @@ export default function EventLiveDashboard({ params }: { params: Promise<{ event
     const currentItem = program?.find(p => p.status === 'In Progress');
     const nextItem = program?.find(p => p.status === 'Upcoming');
 
+    const handleStartProgramItem = async (itemId: string) => {
+        if (!program) return;
+        const batch = program.map(item => {
+            const itemRef = doc(firestore, 'events', eventId, 'program', 'main', 'items', item.id);
+            if (item.id === itemId) {
+                return updateDoc(itemRef, { status: 'In Progress' });
+            } else if (item.status === 'In Progress') {
+                return updateDoc(itemRef, { status: 'Completed' });
+            }
+            return Promise.resolve();
+        });
+        
+        try {
+            await Promise.all(batch);
+            toast({ title: "Timeline Updated", description: "The live program status has been updated for all guests." });
+        } catch (e) {
+            toast({ variant: 'destructive', title: "Update Failed" });
+        }
+    };
+
     if (isLoadingEvent) {
         return (
             <div className="flex h-screen items-center justify-center">
@@ -123,20 +147,20 @@ export default function EventLiveDashboard({ params }: { params: Promise<{ event
                     </Button>
                     <div>
                         <div className="flex items-center gap-2">
-                            <h1 className="text-2xl font-headline font-bold">{event.name}</h1>
+                            <h1 className="text-2xl font-headline font-bold text-center md:text-left">{event.name}</h1>
                             <Badge variant="outline" className="animate-pulse bg-red-500/10 text-red-500 border-red-500/20">
                                 <MonitorPlay className="h-3 w-3 mr-1" /> LIVE
                             </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground font-mono uppercase tracking-widest">{event.eventCode}</p>
+                        <p className="text-sm text-muted-foreground font-mono uppercase tracking-widest text-center md:text-left">{event.eventCode}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center md:justify-end gap-2">
                     <Button variant="secondary" className="rounded-full shadow-inner" asChild>
                         <Link href={`/owner/checkin-monitor?eventId=${eventId}`}>Full Manifest</Link>
                     </Button>
-                    <Button className="rounded-full shadow-lg shadow-primary/20">
-                        End Celebration
+                    <Button variant="outline" className="rounded-full" asChild>
+                        <Link href={`/owner/events/${eventId}/photo-wall`} target="_blank">Project Wall</Link>
                     </Button>
                 </div>
             </div>
@@ -146,36 +170,36 @@ export default function EventLiveDashboard({ params }: { params: Promise<{ event
                 <Card className="bg-gradient-to-br from-primary/10 to-background border-none shadow-sm overflow-hidden relative">
                     <div className="absolute top-0 right-0 p-2 opacity-10"><Users className="h-12 w-12"/></div>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Check-ins</CardTitle>
+                        <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider text-center md:text-left">Check-ins</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="text-center md:text-left">
                         <div className="text-3xl font-bold">{checkedInCount} / {totalGuests}</div>
                         <p className="text-xs text-muted-foreground mt-1">{checkInRate}% attendance rate</p>
                     </CardContent>
                 </Card>
                 <Card className="border-none shadow-sm bg-muted/30">
-                    <CardHeader className="pb-2">
+                    <CardHeader className="pb-2 text-center md:text-left">
                         <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Now Playing</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="text-center md:text-left">
                         <div className="text-lg font-bold line-clamp-1">{currentItem?.title || "Intermission"}</div>
                         <p className="text-xs text-muted-foreground mt-1">Started at {currentItem?.startTime || "--:--"}</p>
                     </CardContent>
                 </Card>
                 <Card className="border-none shadow-sm bg-muted/30">
-                    <CardHeader className="pb-2">
+                    <CardHeader className="pb-2 text-center md:text-left">
                         <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Up Next</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="text-center md:text-left">
                         <div className="text-lg font-bold line-clamp-1">{nextItem?.title || "TBD"}</div>
                         <p className="text-xs text-muted-foreground mt-1">Scheduled for {nextItem?.startTime || "--:--"}</p>
                     </CardContent>
                 </Card>
                 <Card className="border-none shadow-sm bg-muted/30">
-                    <CardHeader className="pb-2">
+                    <CardHeader className="pb-2 text-center md:text-left">
                         <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Engagement</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="text-center md:text-left">
                         <div className="text-3xl font-bold">{requests?.length || 0}</div>
                         <p className="text-xs text-muted-foreground mt-1">Pending song requests</p>
                     </CardContent>
@@ -187,19 +211,19 @@ export default function EventLiveDashboard({ params }: { params: Promise<{ event
                 <div className="lg:col-span-2 space-y-6">
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                         <TabsList className="w-full grid grid-cols-4 h-12 bg-muted/50 rounded-2xl p-1">
-                            <TabsTrigger value="timeline" className="rounded-xl font-bold">Timeline</TabsTrigger>
-                            <TabsTrigger value="guests" className="rounded-xl font-bold">Guests</TabsTrigger>
-                            <TabsTrigger value="gallery" className="rounded-xl font-bold">Gallery</TabsTrigger>
-                            <TabsTrigger value="engagement" className="rounded-xl font-bold">Coordination</TabsTrigger>
+                            <TabsTrigger value="timeline" className="rounded-xl font-bold text-xs">Timeline</TabsTrigger>
+                            <TabsTrigger value="guests" className="rounded-xl font-bold text-xs">Guests</TabsTrigger>
+                            <TabsTrigger value="gallery" className="rounded-xl font-bold text-xs">Gallery</TabsTrigger>
+                            <TabsTrigger value="engagement" className="rounded-xl font-bold text-xs">Interact</TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="timeline" className="mt-6">
                             <Card className="border-none shadow-lg rounded-3xl overflow-hidden">
                                 <CardHeader className="bg-muted/30 border-b">
-                                    <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5 text-primary" /> Live Program</CardTitle>
+                                    <CardTitle className="flex items-center justify-center md:justify-start gap-2"><Calendar className="h-5 w-5 text-primary" /> Live Program</CardTitle>
                                 </CardHeader>
                                 <CardContent className="pt-6">
-                                    {isLoadingProgram ? <Loader2 className="animate-spin mx-auto h-8 w-8" /> : (
+                                    {isLoadingProgram ? <Loader2 className="animate-spin mx-auto h-8 w-8 text-primary" /> : (
                                         <div className="space-y-4">
                                             {program?.map((item) => (
                                                 <div key={item.id} className={cn(
@@ -221,7 +245,12 @@ export default function EventLiveDashboard({ params }: { params: Promise<{ event
                                                         </div>
                                                     </div>
                                                     {item.status === 'Upcoming' && (
-                                                        <Button size="sm" variant="outline" className="rounded-full">Start Now</Button>
+                                                        <Button size="sm" variant="outline" className="rounded-full" onClick={() => handleStartProgramItem(item.id)}>
+                                                            <CirclePlay className="h-4 w-4 mr-2" /> Start Now
+                                                        </Button>
+                                                    )}
+                                                    {item.status === 'In Progress' && (
+                                                        <Badge className="bg-primary/20 text-primary border-primary/20 animate-pulse">LIVE NOW</Badge>
                                                     )}
                                                 </div>
                                             ))}
@@ -234,7 +263,7 @@ export default function EventLiveDashboard({ params }: { params: Promise<{ event
                         <TabsContent value="guests" className="mt-6">
                             <Card className="border-none shadow-lg rounded-3xl overflow-hidden">
                                 <CardHeader className="bg-muted/30 border-b">
-                                    <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5 text-primary" /> Recent Arrivals</CardTitle>
+                                    <CardTitle className="flex items-center justify-center md:justify-start gap-2"><Users className="h-5 w-5 text-primary" /> Recent Arrivals</CardTitle>
                                 </CardHeader>
                                 <CardContent className="pt-6 space-y-4">
                                     {guests?.filter(g => g.hasCheckedIn).slice(0, 10).map(guest => (
@@ -260,7 +289,7 @@ export default function EventLiveDashboard({ params }: { params: Promise<{ event
                         <TabsContent value="gallery" className="mt-6">
                             <Card className="border-none shadow-lg rounded-3xl overflow-hidden">
                                 <CardHeader className="bg-muted/30 border-b">
-                                    <CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5 text-primary" /> Live Photo Stream</CardTitle>
+                                    <CardTitle className="flex items-center justify-center md:justify-start gap-2"><ImageIcon className="h-5 w-5 text-primary" /> Live Photo Stream</CardTitle>
                                 </CardHeader>
                                 <CardContent className="pt-6">
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -281,7 +310,7 @@ export default function EventLiveDashboard({ params }: { params: Promise<{ event
                             <div className="grid md:grid-cols-2 gap-6">
                                 <Card className="border-none shadow-lg rounded-3xl">
                                     <CardHeader>
-                                        <CardTitle className="flex items-center gap-2"><Music className="h-5 w-5 text-primary" /> Song Queue</CardTitle>
+                                        <CardTitle className="flex items-center gap-2 text-center md:text-left"><Music className="h-5 w-5 text-primary" /> Song Queue</CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-3">
                                         {requests?.map(req => (
@@ -297,11 +326,11 @@ export default function EventLiveDashboard({ params }: { params: Promise<{ event
                                 </Card>
                                 <Card className="border-none shadow-lg rounded-3xl">
                                     <CardHeader>
-                                        <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5 text-primary" /> Poll Results</CardTitle>
+                                        <CardTitle className="flex items-center gap-2 text-center md:text-left"><Activity className="h-5 w-5 text-primary" /> Poll Engagement</CardTitle>
                                     </CardHeader>
                                     <CardContent className="flex flex-col items-center justify-center h-48 text-center">
                                         <Activity className="h-8 w-8 text-muted-foreground mb-2 opacity-20" />
-                                        <p className="text-sm text-muted-foreground">Select a poll to view real-time voting analytics.</p>
+                                        <p className="text-sm text-muted-foreground">Live polling results will appear here as guests vote.</p>
                                     </CardContent>
                                 </Card>
                             </div>
@@ -323,9 +352,9 @@ export default function EventLiveDashboard({ params }: { params: Promise<{ event
 
                     <Card className="border-none shadow-lg rounded-3xl overflow-hidden">
                         <CardHeader className="bg-muted/30 border-b">
-                            <CardTitle className="text-base">Quick Coordination</CardTitle>
+                            <CardTitle className="text-base text-center md:text-left">Quick Coordination</CardTitle>
                         </CardHeader>
-                        <CardContent className="pt-6 space-y-2">
+                        <CardContent className="pt-6 space-y-2 text-center md:text-left">
                             <Button variant="outline" className="w-full justify-start rounded-xl" asChild>
                                 <Link href={`/owner/chat`}><ImageIcon className="mr-2 h-4 w-4" /> Team Group Chat</Link>
                             </Button>
