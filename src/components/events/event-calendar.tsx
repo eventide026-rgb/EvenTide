@@ -114,7 +114,7 @@ export default function EventCalendar() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[400px]">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }

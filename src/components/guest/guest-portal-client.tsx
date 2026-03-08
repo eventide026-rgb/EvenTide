@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, getDocs, limit, doc, serverTimestamp, addDoc, updateDoc, increment, arrayUnion, orderBy } from 'firebase/firestore';
-import { Loader2, Music, Image as ImageIcon, Calendar, Gift, Vote, PenSquare, UserCheck, MapPin, Sparkles, Send, Clock, CirclePlay, ArrowRightCircle } from 'lucide-react';
+import { collection, query, where, getDocs, limit, doc, serverTimestamp, addDoc, updateDoc, increment, arrayUnion, orderBy, onSnapshot } from 'firebase/firestore';
+import { Loader2, Music, Image as ImageIcon, Calendar, Gift, Vote, PenSquare, UserCheck, MapPin, Sparkles, Send, Clock, CirclePlay, ArrowRightCircle, Megaphone } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ import { ImageUploader } from '../image-uploader';
 import { Progress } from '../ui/progress';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
+import { cn } from '@/lib/utils';
 
 type Event = {
     id: string;
@@ -60,6 +61,13 @@ type Autograph = {
     createdAt: any;
 };
 
+type Announcement = {
+    id: string;
+    content: string;
+    authorName: string;
+    timestamp: any;
+}
+
 export function GuestPortalClient({ eventCode }: { eventCode: string }) {
     const firestore = useFirestore();
     const { user } = useUser();
@@ -77,6 +85,33 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
     const [artist, setArtist] = useState('');
     const [autographMsg, setAutographMsg] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Live Announcements Listener
+    useEffect(() => {
+        if (!event?.id || !firestore) return;
+
+        const announcementsRef = collection(firestore, 'events', event.id, 'announcements');
+        const q = query(announcementsRef, orderBy('timestamp', 'desc'), limit(1));
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                if (change.type === "added") {
+                    const data = change.doc.data() as Announcement;
+                    // Only show toast for very recent announcements
+                    const isRecent = data.timestamp && (Date.now() - data.timestamp.toMillis() < 30000);
+                    if (isRecent) {
+                        toast({
+                            title: "EVENT ANNOUNCEMENT",
+                            description: data.content,
+                            duration: 10000,
+                        });
+                    }
+                }
+            });
+        });
+
+        return () => unsubscribe();
+    }, [event?.id, firestore, toast]);
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -125,6 +160,9 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
 
     const autographsQuery = useMemoFirebase(() => event ? query(collection(firestore, 'events', event.id, 'autographs'), orderBy('createdAt', 'desc'), limit(10)) : null, [event, firestore]);
     const { data: autographs } = useCollection<Autograph>(autographsQuery);
+
+    const announcementsQuery = useMemoFirebase(() => event ? query(collection(firestore, 'events', event.id, 'announcements'), orderBy('timestamp', 'desc'), limit(5)) : null, [event, firestore]);
+    const { data: announcements } = useCollection<Announcement>(announcementsQuery);
 
     const handleSongRequest = async () => {
         if (!event || !guest || !songTitle) return;
@@ -191,7 +229,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
             </div>
 
             {/* Identification Bar */}
-            <div className="bg-muted/50 border-b p-4">
+            <div className="bg-muted/50 border-b p-4 sticky top-0 z-40 backdrop-blur-md">
                 {guest ? (
                     <div className="container flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -252,6 +290,26 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
 
                     <TabsContent value="interact" className="mt-6 space-y-6">
                         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                            {/* Announcements Feed */}
+                            <Card className="md:col-span-2 bg-primary/5 border-primary/20">
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="flex items-center gap-2 text-primary">
+                                        <Megaphone className="h-5 w-5" /> Live Broadcasts
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-3">
+                                        {announcements?.map(ann => (
+                                            <div key={ann.id} className="bg-background/80 p-3 rounded-xl border shadow-sm">
+                                                <p className="text-sm font-medium">{ann.content}</p>
+                                                <p className="text-[10px] text-muted-foreground mt-1 font-bold uppercase">{ann.timestamp ? format(ann.timestamp.toDate(), 'p') : ''}</p>
+                                            </div>
+                                        ))}
+                                        {!announcements?.length && <p className="text-center text-xs text-muted-foreground py-4 italic">Waiting for event updates...</p>}
+                                    </div>
+                                </CardContent>
+                            </Card>
+
                             {/* Polls */}
                             <Card>
                                 <CardHeader><CardTitle className="flex items-center justify-center md:justify-start gap-2"><Vote className="h-5 w-5 text-primary"/> Live Polls</CardTitle></CardHeader>
@@ -327,7 +385,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                             <Card className="border-dashed"><CardContent className="pt-6"><ImageUploader eventId={event.id} /></CardContent></Card>
                             <div className="text-center text-muted-foreground py-12 border-2 border-dashed rounded-3xl">
                                 <ImageIcon className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                                <p>Live Photo Stream will appear here.</p>
+                                <p>Live Photo Stream is active. Be the first to share a moment!</p>
                             </div>
                         </div>
                     </TabsContent>
@@ -337,7 +395,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                             <div className="mx-auto bg-accent/10 p-6 rounded-full w-fit"><Gift className="h-12 w-12 text-accent" /></div>
                             <h2 className="text-2xl font-headline font-bold text-center">The Gift Registry</h2>
                             <p className="text-muted-foreground text-center">Select an item from the registry to contribute to the celebration.</p>
-                            <Button className="w-full h-12 rounded-full font-bold">Browse Registry</Button>
+                            <Button className="w-full h-12 rounded-full font-bold" asChild><Link href={`/guest-dashboard/gift-registry`}>Browse Registry</Link></Button>
                         </div>
                     </TabsContent>
                 </Tabs>

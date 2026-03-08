@@ -297,7 +297,7 @@ export default function Home() {
             </div>
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div className="flex justify-center">
-                <div className="relative w-full max-w-sm aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-background/50 transition-all duration-700 hover:scale-105">
+                <div className="relative w-full max-w-xs aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-background/50 transition-all duration-700 hover:scale-105">
                   {missionImage && (
                     <Image
                       src={missionImage.imageUrl}
@@ -323,7 +323,7 @@ export default function Home() {
                     <Card key={i} className="bg-background/50 border-2 border-border/40 hover:border-primary/40 shadow-sm hover:shadow-2xl hover:-translate-y-3 hover:scale-[1.02] transition-all duration-500 ease-out group rounded-2xl">
                       <CardContent className="flex gap-4 p-6">
                         <div className="h-12 w-12 shrink-0 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors shadow-inner">
-                          <item.icon className="h-6 w-6" />
+                          <item.icon className="h-6 w-6 text-primary group-hover:text-white transition-colors" />
                         </div>
                         <div>
                           <h3 className="font-bold text-lg">{item.title}</h3>
@@ -453,7 +453,7 @@ export default function Home() {
 
         {/* How It Works Section */}
         <section id="how-it-works" className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden border-y border-border/40">
-          <div className="container mx-auto px-4 text-center">
+          <div className="container mx-auto px-4">
             <div className="mb-16 text-center">
                 <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight text-center">How It Works</h2>
                 <p className="mt-6 text-xl text-muted-foreground text-balance font-body max-w-3xl mx-auto text-center">
