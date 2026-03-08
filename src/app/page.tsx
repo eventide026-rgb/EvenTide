@@ -201,7 +201,7 @@ export default function Home() {
                 <div className="lg:col-span-7">
                     <div className="grid gap-4 sm:grid-cols-2">
                     {howItWorksSteps.map((step, index) => (
-                        <Card key={index} className="border-none bg-background/80 backdrop-blur-xl shadow-sm hover:shadow-lg transition-all duration-300 rounded-3xl p-2">
+                        <Card key={index} className="border-2 border-accent bg-background/80 backdrop-blur-xl shadow-sm hover:shadow-lg transition-all duration-300 rounded-3xl p-2">
                         <CardHeader className="text-center items-center pb-2">
                             <div className="mb-4 bg-primary/5 p-4 rounded-2xl">
                             {step.icon}
