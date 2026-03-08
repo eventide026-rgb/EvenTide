@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -93,7 +92,8 @@ export function MoodBoardClient({ isReadOnly }: MoodBoardClientProps) {
     if (newItem.value.trim() === '') return;
     const newBoardItem: MoodboardItem = {
       id: new Date().toISOString(),
-      ...newItem,
+      type: newItem.type,
+      value: newItem.value,
     };
     setBoardData(prev => ({ items: [...prev.items, newBoardItem] }));
     setNewItem({ type: 'image', value: '' });

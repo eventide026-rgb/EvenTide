@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -124,7 +123,7 @@ export function ProgramPlannerClient({ eventId, isReadOnly = false }: ProgramPla
       };
       saveChanges();
     }
-  }, [debouncedFormValues, form.formState.isDirty, programDocRef, isReadOnly]);
+  }, [debouncedFormValues, form.formState.isDirty, programDocRef, isReadOnly, form]);
   
   const handleGenerateProgram = async (values: z.infer<typeof aiFormSchema>) => {
       if(!event) return;

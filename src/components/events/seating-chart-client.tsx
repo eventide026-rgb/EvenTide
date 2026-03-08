@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -211,7 +210,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
   const eventsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid || userRole === 'guest') return null;
     return query(collection(firestore, 'events'), where('ownerId', '==', user.uid));
-  }, [firestore, user, userRole]);
+  }, [firestore, user?.uid, userRole]);
   const { data: events, isLoading: isLoadingEvents } = useCollection<PlannerEvent>(eventsQuery);
 
   // Set default selected event
@@ -297,8 +296,9 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
     const { active, over } = event;
     if (over && active.data.current) {
         const guest = active.data.current as Guest;
-        const [,, tableId, seatNumberStr] = (over.id as string).split('-');
-        const seatNumber = parseInt(seatNumberStr, 10);
+        const parts = (over.id as string).split('-');
+        const tableId = parts[1];
+        const seatNumber = parseInt(parts[2], 10);
         handleSeatUpdate(tableId, seatNumber, guest.id);
     }
   };

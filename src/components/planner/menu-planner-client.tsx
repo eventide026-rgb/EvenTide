@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -142,7 +141,7 @@ export function MenuPlannerClient({ eventId, isReadOnly: forceReadOnly = false }
       };
       saveChanges();
     }
-  }, [debouncedFormValues, form.formState.isDirty, isReadOnly, menuDocRef]);
+  }, [debouncedFormValues, form.formState.isDirty, isReadOnly, menuDocRef, form]);
   
   const handleGenerateMenu = async (values: z.infer<typeof aiFormSchema>) => {
       setIsGenerating(true);
@@ -160,7 +159,8 @@ export function MenuPlannerClient({ eventId, isReadOnly: forceReadOnly = false }
 
   const addDish = (courseIndex: number) => {
     const courses = form.getValues('courses');
-    const newDishes = [...courses[courseIndex].dishes, { name: '', description: '' }];
+    const currentDishes = courses[courseIndex].dishes || [];
+    const newDishes = [...currentDishes, { name: '', description: '' }];
     update(courseIndex, { ...courses[courseIndex], dishes: newDishes });
   };
 

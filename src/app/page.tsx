@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -117,7 +116,7 @@ export default function Home() {
       <PublicHeader />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative w-full h-[60vh] md:h-[70vh] text-white flex items-center justify-center overflow-hidden">
+        <section className="relative w-full h-[60vh] md:h-[75vh] text-white flex items-center justify-center overflow-hidden">
           {heroImage && (
             <Image
               src={heroImage.imageUrl}
@@ -156,16 +155,16 @@ export default function Home() {
         </section>
 
         {/* How It Works Section */}
-        <section id="how-it-works" className="py-16 bg-secondary/30 relative border-y border-border/40">
-          <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto mb-16">
+        <section id="how-it-works" className="py-12 md:py-16 bg-secondary/30 relative border-y border-border/40">
+          <div className="container mx-auto px-4 text-center">
+            <div className="max-w-3xl mx-auto mb-12">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">How It Works</h2>
                 <p className="mt-4 text-lg text-muted-foreground text-balance font-body">
                     Our platform streamlines the sophisticated event journey into four logical, manageable phases.
                 </p>
             </div>
             
-            <div className="grid lg:grid-cols-12 gap-12 items-center">
+            <div className="grid lg:grid-cols-12 gap-8 items-center">
                 <div className="lg:col-span-5">
                     {processImage && (
                         <div className="relative aspect-[4/3] w-full rounded-3xl overflow-hidden shadow-2xl border border-border/40 group">
@@ -175,7 +174,7 @@ export default function Home() {
                     )}
                 </div>
                 <div className="lg:col-span-7">
-                    <div className="grid gap-6 sm:grid-cols-2">
+                    <div className="grid gap-4 sm:grid-cols-2">
                     {howItWorksSteps.map((step, index) => (
                         <Card key={index} className="border-none bg-background/80 backdrop-blur-xl shadow-sm hover:shadow-lg transition-all duration-300 rounded-3xl p-2">
                         <CardHeader className="text-center items-center pb-2">
@@ -196,9 +195,9 @@ export default function Home() {
         </section>
 
         {/* Vision Section */}
-        <section id="vision" className="py-16 bg-background relative overflow-hidden">
-          <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto mb-16">
+        <section id="vision" className="py-12 md:py-16 bg-background relative overflow-hidden">
+          <div className="container mx-auto px-4 text-center">
+            <div className="max-w-3xl mx-auto mb-12">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary font-logo">Beautifully.</span></h2>
                 <p className="mt-4 text-lg text-muted-foreground font-body text-balance">
                     Transforming gatherings into narrative masterpieces through poetic precision and technical harmony.
@@ -224,7 +223,7 @@ export default function Home() {
                 </div>
               </div>
               
-              <div className="space-y-6 order-1 lg:order-2">
+              <div className="space-y-4 order-1 lg:order-2">
                 {[
                     { title: "Empowerment", desc: "Intuitive tools that put the creator in control of every detail." },
                     { title: "Storytelling", desc: "Every celebration is a narrative; we help you archive it forever." },
@@ -232,7 +231,7 @@ export default function Home() {
                     { title: "Connection", desc: "Building a community where culture and technology converge." }
                   ].map((item, i) => (
                     <Card key={i} className="bg-secondary/20 border-none shadow-sm hover:-translate-y-3 hover:shadow-xl transition-all duration-500 group rounded-2xl overflow-hidden">
-                      <CardContent className="p-6">
+                      <CardContent className="p-6 text-left">
                         <h3 className="font-bold text-lg group-hover:text-primary transition-colors font-headline">{item.title}</h3>
                         <p className="text-muted-foreground text-sm leading-relaxed mt-1 font-body">{item.desc}</p>
                       </CardContent>
@@ -244,9 +243,9 @@ export default function Home() {
         </section>
 
         {/* Testimonials Section */}
-        <section id="testimonials" className="py-16 bg-muted/20">
-          <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto mb-16">
+        <section id="testimonials" className="py-12 md:py-16 bg-muted/20">
+          <div className="container mx-auto px-4 text-center">
+            <div className="max-w-3xl mx-auto mb-12">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">Loved by Planners & Hosts</h2>
                 <p className="mt-4 text-lg text-muted-foreground font-body">Hear from the community that brings EvenTide to life.</p>
             </div>
@@ -275,9 +274,9 @@ export default function Home() {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="py-16 border-t border-border/40 bg-background">
-          <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto mb-16">
+        <section id="pricing" className="py-12 md:py-16 border-t border-border/40 bg-background">
+          <div className="container mx-auto px-4 text-center">
+            <div className="max-w-3xl mx-auto mb-12">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">The Ecosystem Access</h2>
                 <p className="mt-4 text-lg text-muted-foreground font-body">Select the path that matches your vision.</p>
             </div>
@@ -302,10 +301,10 @@ export default function Home() {
                     </div>
                     <CardDescription className="mt-4 leading-relaxed font-medium font-body text-sm">{tier.description}</CardDescription>
                   </CardHeader>
-                  <CardContent className="flex-1 px-8">
+                  <CardContent className="flex-1 px-8 text-left">
                     <ul className="space-y-4 pt-8 border-t border-border/10">
                       {tier.features.map((feature, i) => (
-                        <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground font-body text-left">
+                        <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground font-body">
                           <CircleCheck className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                           <span className="leading-snug">{feature}</span>
                         </li>

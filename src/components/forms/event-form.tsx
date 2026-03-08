@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -223,7 +222,7 @@ export function EventForm({ showId }: EventFormProps) {
                                             <Input type="time" defaultValue={field.value ? format(field.value, 'HH:mm') : '12:00'} onChange={(e) => {
                                                 const [hours, minutes] = e.target.value.split(':');
                                                 const newDate = new Date(field.value || new Date());
-                                                newDate.setHours(parseInt(hours), parseInt(minutes));
+                                                newDate.setHours(parseInt(hours, 10), parseInt(minutes, 10));
                                                 field.onChange(newDate);
                                             }} />
                                         </div>

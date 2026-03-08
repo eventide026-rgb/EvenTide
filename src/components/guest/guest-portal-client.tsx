@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -231,7 +230,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                     ) : (
                         <div className="container flex flex-col md:flex-row items-center gap-4 mx-auto">
                             <p className="text-sm font-semibold text-center">Identify yourself to unlock interactive features.</p>
-                            <div className="flex w-full md:w-auto gap-2">
+                            <div className="flex w-full md:auto gap-2">
                                 <Input placeholder="Guest Code" className="h-9 w-32 uppercase" value={lookupCode} onChange={e => setLookupCode(e.target.value)} />
                                 <Button size="sm" onClick={handleIdentify} disabled={isIdentifying}>Identify</Button>
                             </div>
