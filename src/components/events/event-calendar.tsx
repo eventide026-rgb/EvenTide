@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -112,7 +111,7 @@ export default function EventCalendar() {
     return calendarItems.filter((item) => isSameDay(item.date, selectedDate));
   }, [calendarItems, selectedDate]);
 
-  if (isLoading) {
+  if (isLoading || !selectedDate) {
     return (
       <div className="flex justify-center items-center h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
