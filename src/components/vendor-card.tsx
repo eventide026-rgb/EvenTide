@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Badge } from './ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { Star, MapPin, Bookmark, Loader2 } from 'lucide-react';
 import { type Vendor } from '@/lib/types';
 import { Button } from './ui/button';

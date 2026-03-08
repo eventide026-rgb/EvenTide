@@ -62,7 +62,7 @@ function DraggableGuest({ guest, isAssigned }: { guest: Guest, isAssigned: boole
     disabled: isAssigned,
   });
 
-  const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
+  const style = transform ? { transform: `translate( ${transform.x}px, ${transform.y}px)` } : undefined;
 
   return (
     <Card
@@ -240,7 +240,8 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
 
   const isLoading = isLoadingEvents || (selectedEventId && (isLoadingTables || isLoadingGuests || isLoadingSeats));
 
-  const guestId = userRole === 'guest' ? (user?.uid || null) : null;
+  // Fix: Explicitly ensure guestId is string | null to resolve build error
+  const guestId: string | null = (userRole === 'guest' && user?.uid) ? user.uid : null;
 
   const { assignedGuests, unassignedGuests } = useMemo(() => {
     if (!guestsData || !allSeats) return { assignedGuests: new Set<string>(), unassignedGuests: [] };
