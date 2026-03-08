@@ -110,7 +110,6 @@ export function ProgramPlannerClient({ eventId, isReadOnly = false }: ProgramPla
   }, [initialProgramData, form]);
 
   useEffect(() => {
-    // Correct access to formState.isDirty
     if (form.formState.isDirty && programDocRef && !isReadOnly) {
       const saveChanges = async () => {
         setSaveStatus('saving');
