@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -26,8 +27,8 @@ type VendorCardProps = {
 };
 
 export function VendorCard({ vendor }: VendorCardProps) {
-  const rating = 4.9; // Placeholder
-  const reviewCount = 28; // Placeholder
+  const rating = vendor.rating || 4.9;
+  const reviewCount = vendor.reviewCount || 28;
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
@@ -35,8 +36,8 @@ export function VendorCard({ vendor }: VendorCardProps) {
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(true);
   const pathname = usePathname();
 
-  const isPlannerDashboard = pathname.startsWith('/planner-dashboard');
-  const linkHref = isPlannerDashboard ? `/planner-dashboard/vendor-hub/${vendor.id}` : `/resources/vendors/${vendor.id}`;
+  const isPlannerDashboard = pathname.startsWith('/planner');
+  const linkHref = isPlannerDashboard ? `/planner/vendor-hub/${vendor.id}` : `/resources/vendors/${vendor.id}`;
 
   useEffect(() => {
     if (!user || !firestore) {
@@ -70,7 +71,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col group h-full">
+    <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col group h-full border-none shadow-md">
       <CardHeader className="p-0">
         <div className="aspect-square relative overflow-hidden">
           <Link href={linkHref} className="absolute inset-0">
@@ -85,11 +86,11 @@ export function VendorCard({ vendor }: VendorCardProps) {
             <Button
                 variant="secondary"
                 size="icon"
-                className="absolute top-2 right-2 h-8 w-8 z-10"
+                className="absolute top-2 right-2 h-8 w-8 z-10 rounded-full"
                 onClick={toggleBookmark}
                 disabled={isBookmarkLoading}
             >
-                <Bookmark className={cn(isBookmarked ? 'fill-primary text-primary' : '')} />
+                <Bookmark className={cn("h-4 w-4", isBookmarked ? 'fill-primary text-primary' : '')} />
             </Button>
           )}
         </div>
@@ -97,7 +98,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
       <CardContent className="p-4 space-y-3 flex-1 flex flex-col">
         <div className="flex-grow">
             <h3 className="font-bold font-headline text-lg truncate">{vendor.name}</h3>
-            <Badge variant="outline">{vendor.specialty}</Badge>
+            <Badge variant="outline" className="mt-1">{vendor.specialty}</Badge>
         </div>
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
@@ -108,14 +109,14 @@ export function VendorCard({ vendor }: VendorCardProps) {
             {vendor.city && vendor.state && (
                  <div className="flex items-center gap-1 truncate">
                     <MapPin className="h-4 w-4 flex-shrink-0" />
-                    <span className="truncate">{vendor.city}, {vendor.state}</span>
+                    <span className="truncate">{vendor.city}</span>
                 </div>
             )}
         </div>
         {isPlannerDashboard ? (
              <VendorProposalDialog vendor={vendor} />
         ) : (
-             <Button className="w-full" asChild><Link href={linkHref}>View Profile</Link></Button>
+             <Button className="w-full rounded-xl font-bold" asChild><Link href={linkHref}>View Profile</Link></Button>
         )}
       </CardContent>
     </Card>

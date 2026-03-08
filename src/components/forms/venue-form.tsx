@@ -97,9 +97,9 @@ export function VenueForm({ venueId }: VenueFormProps) {
         }
     }, [existingVenueData, form]);
 
-    const { fields: imageUrlFields, remove: removeImg } = useFieldArray({
+    const { remove: removeImg } = useFieldArray({
         control: form.control,
-        name: "imageUrls" as const,
+        name: "imageUrls",
     });
 
     const amenities = form.watch('amenities');
@@ -299,8 +299,8 @@ export function VenueForm({ venueId }: VenueFormProps) {
                         render={() => <FormMessage />}
                     />
                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        {imageUrlFields.map((field, index) => (
-                            <div key={field.id} className="relative group aspect-video">
+                        {form.watch('imageUrls').map((_, index) => (
+                            <div key={index} className="relative group aspect-video">
                                 <Image
                                     src={form.watch(`imageUrls.${index}.url`)}
                                     alt={`Venue image ${index + 1}`}
@@ -324,7 +324,6 @@ export function VenueForm({ venueId }: VenueFormProps) {
                 <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <FormLabel htmlFor="amenities-input">Amenities</FormLabel>
-                        <FormDescription>List the amenities available (e.g., Parking, Wi-Fi).</FormDescription>
                         <div className="flex items-center gap-2">
                             <Input 
                                 id="amenities-input"
@@ -353,7 +352,6 @@ export function VenueForm({ venueId }: VenueFormProps) {
                     </div>
                      <div className="space-y-2">
                         <FormLabel htmlFor="features-input">Features</FormLabel>
-                        <FormDescription>List special features (e.g., Projector, Stage).</FormDescription>
                         <div className="flex items-center gap-2">
                             <Input 
                                 id="features-input"

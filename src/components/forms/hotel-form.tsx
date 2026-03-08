@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,6 @@ import { useRouter } from 'next/navigation';
 import { Loader2, PlusCircle, Trash2, X, Upload } from 'lucide-react';
 import { Checkbox } from '../ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Badge } from '../ui/badge';
 import Image from 'next/image';
 import { Label } from '@/components/ui/label';
 
@@ -103,12 +102,12 @@ export function HotelForm({ hotelId }: HotelFormProps) {
 
     const { fields: roomTypeFields, append: appendRoomType, remove: removeRoomType } = useFieldArray({
         control: form.control,
-        name: "roomTypes" as const,
+        name: "roomTypes",
     });
 
-     const { fields: imageFields, remove: removeImg } = useFieldArray({
+     const { remove: removeImg } = useFieldArray({
         control: form.control,
-        name: "imageUrls" as const,
+        name: "imageUrls",
     });
 
     const imageUrls = form.watch('imageUrls');
@@ -328,8 +327,8 @@ export function HotelForm({ hotelId }: HotelFormProps) {
                         render={() => <FormMessage />}
                     />
                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        {imageFields.map((field, index) => (
-                            <div key={field.id} className="relative group aspect-video">
+                        {imageUrls.map((_, index) => (
+                            <div key={index} className="relative group aspect-video">
                                 <Image
                                     src={form.watch(`imageUrls.${index}.url`)}
                                     alt={`Hotel image ${index + 1}`}
@@ -351,7 +350,7 @@ export function HotelForm({ hotelId }: HotelFormProps) {
                 </div>
 
 
-                <Card>
+                <Card className="border-none shadow-md">
                     <CardHeader>
                         <CardTitle>Room Types</CardTitle>
                         <FormDescription>Define the types of rooms available at your hotel.</FormDescription>

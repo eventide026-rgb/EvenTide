@@ -121,7 +121,7 @@ export default function EventCalendar() {
 
   return (
     <div className="grid md:grid-cols-3 gap-8 min-h-[600px]">
-      <Card className="md:col-span-2">
+      <Card className="md:col-span-2 border-none shadow-lg">
         <CardContent className="p-4">
           <DayPicker
             mode="single"
@@ -142,9 +142,9 @@ export default function EventCalendar() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="border-none shadow-lg">
         <CardHeader>
-          <CardTitle>
+          <CardTitle className="text-lg">
             Agenda for {selectedDate ? format(selectedDate, 'PPP') : '—'}
           </CardTitle>
         </CardHeader>

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
@@ -89,7 +89,7 @@ export function EventForm({ showId }: EventFormProps) {
 
     const { fields: imageUrlFields, append: appendImageUrl, remove: removeImageUrl } = useFieldArray({
         control: form.control,
-        name: "imageUrls" as const,
+        name: "imageUrls",
     });
         
     async function onSubmit(values: EventFormValues) {
