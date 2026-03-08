@@ -255,7 +255,7 @@ export default function Home() {
             </div>
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div className="flex justify-center">
-                <div className="relative w-full max-w-[280px] aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-background/50 transition-all duration-700 hover:scale-105">
+                <div className="relative w-full max-w-[320px] aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-background/50 transition-all duration-700 hover:scale-105">
                   {missionImage && (
                     <Image
                       src={missionImage.imageUrl}

@@ -144,7 +144,7 @@ function TableDisplay({
       </CardHeader>
       <CardContent className="pt-8">
         <TooltipProvider>
-            <div className="relative rounded-full border-2 border-dashed border-muted-foreground/30 p-8 flex items-center justify-center aspect-square max-w-sm mx-auto">
+            <div className="relative rounded-full border-2 border-dashed border-muted-foreground/30 p-8 flex items-center justify-center aspect-square max-w-[300px] mx-auto">
                 <div className="bg-background shadow-inner border w-24 h-24 rounded-full flex flex-col items-center justify-center">
                     <p className="text-muted-foreground font-bold text-xs uppercase tracking-tighter">{table.tableName}</p>
                 </div>
