@@ -11,3 +11,4 @@ import '@/ai/flows/generate-menu-suggestions.ts';
 import '@/ai/flows/curate-gallery-page.ts';
 import '@/ai/flows/suggest-moodboard-items.ts';
 import '@/ai/flows/generate-thank-you-note.ts';
+import '@/ai/flows/eni-writeup-flow.ts';

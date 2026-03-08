@@ -20,6 +20,7 @@ import { PublicFooter } from '@/components/layout/public-footer';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { EniDemo } from '@/components/ai/eni-demo';
 
 const rotatingWords = ['Effortlessly', 'Stylishly', 'Beautifully', 'Perfectly'];
 
@@ -171,8 +172,15 @@ export default function Home() {
           </div>
         </section>
 
+        {/* AI Demo Section */}
+        <section className="py-12 md:py-16 bg-background relative border-b border-border/40">
+            <div className="container mx-auto px-4">
+                <EniDemo />
+            </div>
+        </section>
+
         {/* How It Works Section */}
-        <section id="how-it-works" className="py-12 md:py-16 bg-secondary/30 relative border-y border-border/40">
+        <section id="how-it-works" className="py-12 md:py-16 bg-secondary/30 relative border-b border-border/40">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto mb-12 text-center">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">How It Works</h2>

@@ -52,7 +52,7 @@ export function TestimonialForm() {
         },
     });
 
-    // Correct Fix: Add return type annotation
+    // Added explicit return type annotation
     async function onSubmit(values: z.infer<typeof formSchema>): Promise<void> {
         if (!firestore) {
             toast({
