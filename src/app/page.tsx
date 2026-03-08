@@ -139,7 +139,7 @@ export default function Home() {
       <PublicHeader />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative w-full h-screen text-white flex items-start justify-center overflow-hidden pt-28 md:pt-36">
+        <section className="relative w-full h-[90vh] text-white flex items-start justify-center overflow-visible pt-28 md:pt-36">
           {heroImage && (
             <Image
               src={heroImage.imageUrl}
@@ -164,23 +164,25 @@ export default function Home() {
             <p className="mt-6 max-w-xl mx-auto text-base md:text-lg font-body text-white/90 leading-relaxed text-balance">
               Welcome to EvenTide, your AI-powered partner for flawless event management. From intimate gatherings to grand galas, we bring your vision to life with intuitive tools and expert assistance.
             </p>
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button asChild size="lg" className="font-bold w-full sm:w-auto h-12 px-8 text-lg rounded-full shadow-2xl shadow-primary/40">
+          </div>
+
+          {/* Buttons positioned over the transition between Hero and Lower elements */}
+          <div className="absolute bottom-0 left-0 right-0 z-30 translate-y-1/2 flex flex-col sm:flex-row items-center justify-center gap-4 px-4">
+              <Button asChild size="lg" className="font-bold w-full sm:w-auto h-14 px-10 text-lg rounded-full shadow-2xl shadow-primary/40 active:scale-[0.98] transition-all">
                 <Link href="/signup">
                   Create an Event <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="font-bold bg-white/10 border-white/20 backdrop-blur-sm hover:bg-white/20 w-full sm:w-auto h-12 px-8 text-lg rounded-full text-white">
+              <Button asChild size="lg" variant="outline" className="font-bold bg-background/80 border-white/20 backdrop-blur-md hover:bg-background w-full sm:w-auto h-14 px-10 text-lg rounded-full text-foreground shadow-xl active:scale-[0.98] transition-all">
                 <Link href="/guest-login">
                   I am a Guest
                 </Link>
               </Button>
-            </div>
           </div>
         </section>
 
         {/* AI Demo Section */}
-        <section className="py-12 md:py-16 bg-background relative border-b border-border/40">
+        <section className="pt-24 pb-12 md:pt-32 md:pb-16 bg-background relative border-b border-border/40">
             <div className="container mx-auto px-4 text-center">
                 <EniDemo />
             </div>
@@ -196,7 +198,7 @@ export default function Home() {
                 </p>
             </div>
             
-            <div className="grid lg:grid-cols-12 gap-8 items-center max-w-6xl mx-auto">
+            <div className="grid lg:grid-cols-12 gap-8 items-center max-w-6xl mx-auto text-left">
                 <div className="lg:col-span-5">
                     {processImage && (
                         <div className="relative aspect-[4/3] w-full rounded-3xl overflow-hidden shadow-2xl border border-border/40 group">
@@ -208,14 +210,14 @@ export default function Home() {
                 <div className="lg:col-span-7">
                     <div className="grid gap-4 sm:grid-cols-2">
                     {howItWorksSteps.map((step, index) => (
-                        <Card key={index} className="border-2 border-accent bg-background/80 backdrop-blur-xl shadow-sm hover:shadow-lg transition-all duration-300 rounded-3xl p-2">
-                        <CardHeader className="text-center items-center pb-2">
+                        <Card key={index} className="border-2 border-accent bg-background/80 backdrop-blur-xl shadow-sm hover:shadow-lg transition-all duration-300 rounded-3xl overflow-hidden">
+                        <CardHeader className="items-start pb-2">
                             <div className="mb-4 bg-primary/5 p-4 rounded-2xl">
                             {step.icon}
                             </div>
                             <CardTitle className="font-headline text-xl font-bold">{step.title}</CardTitle>
                         </CardHeader>
-                        <CardContent className="text-center text-sm text-muted-foreground leading-relaxed px-6 pb-6 font-body">
+                        <CardContent className="text-sm text-muted-foreground leading-relaxed font-body">
                             {step.description}
                         </CardContent>
                         </Card>
