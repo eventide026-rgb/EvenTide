@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
@@ -170,7 +169,7 @@ export function ChatClient() {
   
   const handleAskEni = () => {
     const eventName = events?.find(e => e.id === selectedEventId)?.name;
-    const starter = `Team, what are our top priorities for the '${eventName || 'event'}' this week?`;
+    const starter = `Eni: Team, what are our top priorities for the '${eventName || 'event'}' this week? Let's ensure every detail is a masterpiece.`;
     form.setValue('text', starter);
   }
 
@@ -200,8 +199,8 @@ export function ChatClient() {
         </CardHeader>
         <CardContent className="flex-1 space-y-2">
             {selectedEventId && chatRooms.map(room => (
-                <Button key={room.id} variant={selectedRoom?.id === room.id ? 'secondary' : 'ghost'} className="w-full justify-start" onClick={() => setSelectedRoom(room)}>
-                   <MessageSquare className='mr-2 h-4 w-4' /> {room.name}
+                <Button key={room.id} variant={selectedRoom?.id === room.id ? 'secondary' : 'ghost'} className="w-full justify-start rounded-xl" onClick={() => setSelectedRoom(room)}>
+                   <MessageSquare className='mr-2 h-4 w-4 text-primary' /> {room.name}
                 </Button>
             ))}
         </CardContent>
@@ -227,8 +226,13 @@ export function ChatClient() {
                             <AvatarFallback>{msg.senderName?.[0]}</AvatarFallback>
                         </Avatar>
                     )}
-                    <div className={cn('max-w-xs md:max-w-md rounded-lg px-4 py-2', msg.senderId === user?.uid ? 'bg-primary text-primary-foreground' : 'bg-muted')}>
-                        <p className="text-sm font-bold">{msg.senderName}</p>
+                    <div className={cn(
+                        'max-w-xs md:max-w-md rounded-2xl px-4 py-2', 
+                        msg.senderId === user?.uid 
+                            ? 'bg-primary text-primary-foreground rounded-br-none' 
+                            : 'bg-muted rounded-bl-none'
+                    )}>
+                        <p className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1">{msg.senderName}</p>
                         <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
                     </div>
                     {msg.senderId === user?.uid && (
@@ -242,7 +246,8 @@ export function ChatClient() {
             )}
              {!isLoadingMessages && messages?.length === 0 && (
                 <div className="text-center text-muted-foreground py-16">
-                    No messages yet. Start the conversation!
+                    <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-10" />
+                    <p>No messages yet. Start the conversation!</p>
                 </div>
              )}
             </div>
@@ -250,18 +255,18 @@ export function ChatClient() {
         <CardContent className="pt-4 border-t">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSendMessage)} className="space-y-4">
-               <Button type="button" variant="outline" size="sm" onClick={handleAskEni} disabled={!selectedEventId}>
-                    <Sparkles className="mr-2 h-4 w-4" /> Ask Eni for a conversation starter
+               <Button type="button" variant="outline" size="sm" onClick={handleAskEni} disabled={!selectedEventId} className="rounded-full bg-primary/5 hover:bg-primary/10 border-primary/20 transition-all">
+                    <Sparkles className="mr-2 h-4 w-4 text-accent" /> Ask Eni for a conversation starter
                </Button>
                <div className='flex gap-2'>
                     <FormField control={form.control} name="text" render={({ field }) => (
                         <FormItem className="flex-1">
                             <FormControl>
-                                <Input placeholder="Type your message..." {...field} disabled={!selectedRoom || isSubmitting} autoComplete='off' />
+                                <Input placeholder="Type your message..." {...field} disabled={!selectedRoom || isSubmitting} autoComplete='off' className="rounded-xl h-11" />
                             </FormControl>
                         </FormItem>
                     )}/>
-                    <Button type="submit" disabled={!selectedRoom || isSubmitting}>
+                    <Button type="submit" className="rounded-xl h-11 w-11 p-0" disabled={!selectedRoom || isSubmitting}>
                         {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                     </Button>
                </div>

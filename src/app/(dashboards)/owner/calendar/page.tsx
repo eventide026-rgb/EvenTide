@@ -1,9 +1,15 @@
-
 'use client';
 
+import { useState, useEffect } from 'react';
 import EventCalendar from '@/components/events/event-calendar';
 
 export default function CalendarPage() {
+  const [isClient, setIsAtTop] = useState(false);
+
+  useEffect(() => {
+    setIsAtTop(true);
+  }, []);
+
   return (
     <div className="h-full flex flex-col">
       <header className="pb-4 border-b">
@@ -14,7 +20,7 @@ export default function CalendarPage() {
       </header>
 
       <div className="flex-1 mt-6">
-        <EventCalendar />
+        {isClient ? <EventCalendar /> : null}
       </div>
     </div>
   );
