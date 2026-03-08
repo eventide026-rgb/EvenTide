@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -139,7 +138,7 @@ export default function Home() {
       <PublicHeader />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative w-full h-[60vh] md:h-[75vh] text-white flex items-center justify-center overflow-hidden">
+        <section className="relative w-full h-[70vh] md:h-[85vh] text-white flex items-start justify-center overflow-hidden pt-32 md:pt-48">
           {heroImage && (
             <Image
               src={heroImage.imageUrl}
@@ -186,10 +185,10 @@ export default function Home() {
 
         {/* How It Works Section */}
         <section id="how-it-works" className="py-12 md:py-16 bg-secondary/30 relative border-b border-border/40">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto mb-12 text-center">
-                <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">How It Works</h2>
-                <p className="mt-4 text-lg text-muted-foreground text-balance font-body max-w-2xl mx-auto">
+          <div className="container mx-auto px-4 text-center">
+            <div className="max-w-3xl mx-auto mb-12">
+                <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance text-center">How It Works</h2>
+                <p className="mt-4 text-lg text-muted-foreground text-balance font-body max-w-2xl mx-auto text-center">
                     Our platform streamlines the sophisticated event journey into four logical, manageable phases.
                 </p>
             </div>
@@ -227,9 +226,9 @@ export default function Home() {
         {/* Vision Section */}
         <section id="vision" className="py-12 md:py-16 bg-background relative overflow-hidden">
           <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto mb-12 text-center">
-                <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary font-logo">Beautifully.</span></h2>
-                <p className="mt-4 text-lg text-muted-foreground font-body text-balance max-w-2xl mx-auto">
+            <div className="max-w-3xl mx-auto mb-12">
+                <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight text-balance text-center">Bringing People Together, <br/><span className="text-primary font-logo">Beautifully.</span></h2>
+                <p className="mt-4 text-lg text-muted-foreground font-body text-balance max-w-2xl mx-auto text-center">
                     Transforming gatherings into narrative masterpieces through poetic precision and technical harmony.
                 </p>
             </div>
@@ -277,7 +276,7 @@ export default function Home() {
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto mb-12 text-center">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">Loved by Planners & Hosts</h2>
-                <p className="mt-4 text-lg text-muted-foreground font-body max-w-2xl mx-auto">Hear from the community that brings EvenTide to life.</p>
+                <p className="mt-4 text-lg text-muted-foreground font-body max-w-2xl mx-auto text-center">Hear from the community that brings EvenTide to life.</p>
             </div>
             
             <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
@@ -329,7 +328,7 @@ export default function Home() {
                      <div className="flex items-baseline justify-center gap-1 mt-4">
                       <p className="text-3xl font-bold font-headline">{tier.price}</p>
                     </div>
-                    <CardDescription className="mt-4 leading-relaxed font-medium font-body text-xs min-h-[3rem]">{tier.description}</CardDescription>
+                    <CardDescription className="mt-4 leading-relaxed font-medium font-body text-xs min-h-[3rem] text-center">{tier.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="flex-1 px-6 text-left">
                     <ul className="space-y-3 pt-6 border-t border-border/10">
@@ -358,14 +357,16 @@ export default function Home() {
         <section className="py-20 relative overflow-hidden bg-primary text-primary-foreground">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
           <div className="container mx-auto px-4 text-center relative z-10">
-            <h2 className="text-4xl font-headline font-bold md:text-7xl text-balance leading-[1.1] mb-10">
+            <h2 className="text-4xl font-headline font-bold md:text-7xl text-balance leading-[1.1] mb-10 text-center">
               Your Event, <br className="hidden md:block" /> <span className="italic font-logo text-accent">Reimagined.</span>
             </h2>
-            <Button asChild size="lg" variant="secondary" className="font-bold shadow-2xl h-16 px-12 text-xl group rounded-full active:scale-[0.98] transition-all">
-              <Link href="/signup">
-                Start Planning Now <ArrowRight className="ml-2 h-6 w-6 transition-transform group-hover:translate-x-2" />
-              </Link>
-            </Button>
+            <div className="flex justify-center">
+                <Button asChild size="lg" variant="secondary" className="font-bold shadow-2xl h-16 px-12 text-xl group rounded-full active:scale-[0.98] transition-all">
+                <Link href="/signup">
+                    Start Planning Now <ArrowRight className="ml-2 h-6 w-6 transition-transform group-hover:translate-x-2" />
+                </Link>
+                </Button>
+            </div>
           </div>
         </section>
       </main>

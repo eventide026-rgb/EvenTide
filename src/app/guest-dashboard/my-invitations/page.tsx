@@ -3,10 +3,9 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CircleCheck, CircleX, QrCode } from 'lucide-react';
+import { CircleCheck, CircleX, QrCode, Loader2 } from 'lucide-react';
 import { useCollection, useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, where, orderBy, doc, updateDoc } from 'firebase/firestore';
-import { Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { useState, useEffect } from 'react';
@@ -170,7 +169,7 @@ export default function MyInvitationsPage() {
                             <li key={ann.id} className="border p-4 rounded-lg bg-accent/50">
                                 <p className="font-medium">{ann.content}</p>
                                 <div className="text-xs text-muted-foreground mt-2 flex items-center justify-between">
-                                    <span>From {ann.authorName} ({ann.authorRole})</span>
+                                    <span>From {ann.authorName}</span>
                                     <span>{formatDistanceToNow(ann.timestamp.toDate(), { addSuffix: true })}</span>
                                 </div>
                             </li>

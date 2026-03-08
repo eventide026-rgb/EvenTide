@@ -176,7 +176,7 @@ export function MenuPlannerClient({ eventId, isReadOnly: forceReadOnly = false }
                     <AccordionItem key={field.id} value={`course-${index}`}>
                         <AccordionTrigger disabled={isReadOnly}>
                             <FormField control={form.control} name={`courses.${index}.title`} render={({field}) => (
-                                <Input {...field} readOnly={isReadOnly} className="text-lg font-semibold border-none shadow-none focus-visible:ring-0 p-0" />
+                                <Input {...field} onClick={(e) => e.stopPropagation()} readOnly={isReadOnly} className="text-lg font-semibold border-none shadow-none focus-visible:ring-0 p-0" />
                             )}/>
                         </AccordionTrigger>
                         <AccordionContent className="space-y-2 pl-2">
@@ -210,7 +210,7 @@ export function MenuPlannerClient({ eventId, isReadOnly: forceReadOnly = false }
   if (isLoadingMenu) return <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>;
 
   return (
-     <div className="grid md:grid-cols-3 gap-8 items-start">
+    <div className="grid md:grid-cols-3 gap-8 items-start">
       <div className={cn(isReadOnly ? "md:col-span-3" : "md:col-span-2", "space-y-4")}>
         <Card>
           <CardHeader>
