@@ -205,7 +205,7 @@ export default function PlannerCalendarPage() {
                       <div>
                         <p className="font-semibold text-sm">{item.title}</p>
                         <div className="flex gap-2 mt-1">
-                          <Badge variant={item.type === 'Event' ? 'default' : 'secondary'} className="text-[10px] h-4">
+                          <Badge variant="secondary" className="text-[10px] h-4">
                             {item.type}
                           </Badge>
                           {item.type === 'Task' && (

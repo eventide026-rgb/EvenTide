@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
@@ -197,6 +196,21 @@ function GuestManagementComponent() {
     try {
         await batch.commit();
         toast({ title: 'Guest Added', description: `${values.name} added successfully.` });
+        
+        // SMS Notification Integration
+        if (values.phoneNumber) {
+            const smsMessage = `Welcome to ${selectedEvent.name}! Your Event Code is ${selectedEvent.eventCode} and your unique Guest Code is ${guestCode}. Access your portal at https://eventide.app/e/${selectedEvent.eventCode}`;
+            
+            fetch('/api/send-sms', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ to: values.phoneNumber, message: smsMessage }),
+            })
+            .then(res => res.json())
+            .then(data => console.log("SMS notification triggered:", data))
+            .catch(err => console.error("SMS notification failed:", err));
+        }
+
         guestForm.reset();
     } catch (err) {
         console.error("Error adding guest:", err);
@@ -343,6 +357,9 @@ function GuestManagementComponent() {
                     )}/>
                     <FormField control={guestForm.control} name="email" render={({ field }) => (
                         <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="jane@example.com" {...field} /></FormControl><FormMessage /></FormItem>
+                    )}/>
+                    <FormField control={guestForm.control} name="phoneNumber" render={({ field }) => (
+                        <FormItem><FormLabel>Phone Number (for SMS)</FormLabel><FormControl><Input placeholder="+234..." {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
                     <FormField control={guestForm.control} name="category" render={({ field }) => (
                         <FormItem><FormLabel>Category</FormLabel>
