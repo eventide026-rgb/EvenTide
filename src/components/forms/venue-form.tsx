@@ -133,7 +133,7 @@ export function VenueForm({ venueId }: VenueFormProps) {
         
     async function onSubmit(values: VenueFormValues) {
         if (!firestore || !user) {
-            toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in." });
+            toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to create a listing." });
             return;
         }
         setIsLoading(true);

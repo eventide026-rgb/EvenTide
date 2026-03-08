@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Plus, Sparkles, X } from 'lucide-react';
+import { Loader2, Sparkles, X } from 'lucide-react';
 import Image from 'next/image';
 import { suggestMoodboardItems } from '@/ai/flows/suggest-moodboard-items';
 
@@ -20,9 +21,11 @@ type Event = {
   eventType: string;
 };
 
+type MoodboardItemType = 'image' | 'color' | 'note' | 'aiSuggestion';
+
 type MoodboardItem = {
   id: string;
-  type: 'image' | 'color' | 'note' | 'aiSuggestion';
+  type: MoodboardItemType;
   value: string;
   reason?: string;
 };
@@ -45,7 +48,7 @@ export function MoodBoardClient({ isReadOnly }: MoodBoardClientProps) {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [isGenerating, setIsGenerating] = useState(false);
   
-  const [newItem, setNewItem] = useState({ type: 'image' as 'image' | 'color' | 'note', value: '' });
+  const [newItem, setNewItem] = useState<{ type: 'image' | 'color' | 'note', value: string }>({ type: 'image', value: '' });
 
   const eventsQuery = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
@@ -106,10 +109,12 @@ export function MoodBoardClient({ isReadOnly }: MoodBoardClientProps) {
 
       setIsGenerating(true);
       try {
-        // Strip IDs and reason for the AI payload to match schema exactly
         const currentItemsForAI = boardData.items
             .filter(item => item.type !== 'aiSuggestion')
-            .map(({ type, value }) => ({ type: type as 'image' | 'color' | 'note', value }));
+            .map(({ type, value }) => ({ 
+                type: type as 'image' | 'color' | 'note', 
+                value 
+            }));
 
         const result = await suggestMoodboardItems({
             eventTheme: currentEvent.eventType,
@@ -118,7 +123,7 @@ export function MoodBoardClient({ isReadOnly }: MoodBoardClientProps) {
         
         const newItems: MoodboardItem[] = result.suggestions.map(s => ({
             id: new Date().toISOString() + Math.random(),
-            type: 'aiSuggestion',
+            type: 'aiSuggestion' as MoodboardItemType,
             value: s.value,
             reason: s.reason,
         }));

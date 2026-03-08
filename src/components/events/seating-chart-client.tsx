@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -19,9 +20,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { DndContext, useDroppable, useDraggable } from '@radix-ui/react-dropdown-menu'; // Fix: Correct DND import if using dnd-kit core
-// Note: If using @dnd-kit/core as per package.json, the import should be:
-import { DragEndEvent } from '@dnd-kit/core';
+import { DndContext, useDroppable, useDraggable, DragEndEvent } from '@dnd-kit/core';
 import * as React from 'react';
 
 /* ---------------------------------- TYPES --------------------------------- */
@@ -58,10 +57,23 @@ type PlannerEvent = {
 
 /* --------------------------- DND GUEST ITEM --------------------------- */
 function DraggableGuest({ guest, isAssigned }: { guest: Guest, isAssigned: boolean }) {
-  // Draggable logic usually requires @dnd-kit/core
-  // For this fix, focusing on ReactNode type compliance
+  const {attributes, listeners, setNodeRef, transform} = useDraggable({
+    id: `guest-${guest.id}`,
+    data: guest,
+    disabled: isAssigned
+  });
+
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+    zIndex: 50
+  } : undefined;
+
   return (
     <Card
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
       className={cn(
         "p-2 cursor-grab shadow-sm border border-border hover:border-primary/50 transition-colors",
         isAssigned && "bg-muted text-muted-foreground opacity-50 cursor-not-allowed"
@@ -74,10 +86,15 @@ function DraggableGuest({ guest, isAssigned }: { guest: Guest, isAssigned: boole
 }
 
 
-/* --------------------------- SEAT TARGET --------------------------- */
-function StaticSeat({ seat, children, isThisGuestSeat }: { seat: Seat, children: React.ReactNode, isThisGuestSeat: boolean }) {
+/* --------------------------- DND SEAT TARGET --------------------------- */
+function DroppableSeat({ seat, children, isThisGuestSeat }: { seat: Seat, children: React.ReactNode, isThisGuestSeat: boolean }) {
+  const { setNodeRef } = useDroppable({
+    id: `seat-${seat.tableId}-${seat.seatNumber}`,
+    data: seat,
+  });
+
   return (
-    <div className={cn("relative", isThisGuestSeat && "ring-4 ring-offset-4 ring-accent ring-offset-background rounded-full")}>
+    <div ref={setNodeRef} className={cn("relative", isThisGuestSeat && "ring-4 ring-offset-4 ring-accent ring-offset-background rounded-full")}>
         {children}
     </div>
   );
@@ -140,7 +157,7 @@ function TableDisplay({
                     const isThisGuestSeat = guestId && seat.guestId === guestId;
                     
                     return (
-                        <StaticSeat key={seat.id} seat={seat} isThisGuestSeat={!!isThisGuestSeat}>
+                        <DroppableSeat key={seat.id} seat={seat} isThisGuestSeat={!!isThisGuestSeat}>
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <button className="absolute w-10 h-10 flex items-center justify-center -translate-x-5 -translate-y-5" style={style}>
@@ -170,7 +187,7 @@ function TableDisplay({
                                     <p className="text-primary font-bold">{seat.guestName || "Available"}</p>
                                 </TooltipContent>
                             </Tooltip>
-                        </StaticSeat>
+                        </DroppableSeat>
                     )
                 })}
             </div>
@@ -276,7 +293,18 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
     }
   }
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.data.current) {
+        const guest = active.data.current as Guest;
+        const [,, tableId, seatNumberStr] = (over.id as string).split('-');
+        const seatNumber = parseInt(seatNumberStr, 10);
+        handleSeatUpdate(tableId, seatNumber, guest.id);
+    }
+  };
+
   return (
+    <DndContext onDragEnd={handleDragEnd}>
         <div className="grid lg:grid-cols-4 gap-8 h-full">
             <div className="lg:col-span-3 h-full">
                 {isLoading && selectedEventId ? (
@@ -361,5 +389,6 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
                 )}
             </div>
         </div>
+    </DndContext>
   );
 }

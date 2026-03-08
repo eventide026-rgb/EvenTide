@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -116,7 +117,7 @@ export function MenuPlannerClient({ eventId, isReadOnly: forceReadOnly = false }
     defaultValues: { cuisineStyle: 'Nigerian Fusion', numberOfCourses: 3, dietaryNotes: '' }
   });
 
-  const { fields, append, remove, update } = useFieldArray({ control: form.control, name: 'courses' });
+  const { fields, append, update } = useFieldArray({ control: form.control, name: 'courses' });
   const formValues = form.watch();
   const [debouncedFormValues] = useDebounce(formValues, 2000);
 

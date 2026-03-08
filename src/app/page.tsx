@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -21,9 +22,6 @@ import { PublicFooter } from '@/components/layout/public-footer';
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { generateWelcomeMessage } from '@/ai/flows/ai-welcome-message';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const rotatingWords = ['Effortlessly', 'Stylishly', 'Beautifully', 'Perfectly'];
@@ -106,26 +104,6 @@ export default function Home() {
   const processImage = getImage('gardenParty');
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [guestName, setGuestName] = useState('');
-  const [demoEventName, setDemoEventName] = useState('');
-  const [eniMessage, setEniMessage] = useState('');
-  const [isGeneratingEni, setIsGeneratingEni] = useState(false);
-
-  const handleGenerateEni = async () => {
-    if (!guestName || !demoEventName) return;
-    setIsGeneratingEni(true);
-    try {
-      const result = await generateWelcomeMessage({
-        guestName,
-        eventName: demoEventName
-      });
-      setEniMessage(result.message);
-    } catch (error) {
-      console.error('Eni generation failed:', error);
-    } finally {
-      setIsGeneratingEni(false);
-    }
-  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -139,7 +117,7 @@ export default function Home() {
       <PublicHeader />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative w-full h-[50vh] md:h-[60vh] text-white flex items-center justify-center overflow-hidden">
+        <section className="relative w-full h-[60vh] md:h-[70vh] text-white flex items-center justify-center overflow-hidden">
           {heroImage && (
             <Image
               src={heroImage.imageUrl}
@@ -159,10 +137,10 @@ export default function Home() {
                 {rotatingWords[currentIndex]}
               </span>
             </h1>
-            <p className="mt-4 max-w-xl mx-auto text-base md:text-lg font-body text-white/90 leading-relaxed text-balance">
-              EvenTide is your AI-powered partner for flawless event management. From intimate gatherings to grand galas, we bring your vision to life.
+            <p className="mt-6 max-w-xl mx-auto text-base md:text-lg font-body text-white/90 leading-relaxed text-balance">
+              Welcome to EvenTide, your AI-powered partner for flawless event management. From intimate gatherings to grand galas, we bring your vision to life.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button asChild size="lg" className="font-bold w-full sm:w-auto h-12 px-8 text-lg rounded-full shadow-2xl shadow-primary/40">
                 <Link href="/signup">
                   Create an Event <ArrowRight className="ml-2 h-5 w-5" />
@@ -178,28 +156,29 @@ export default function Home() {
         </section>
 
         {/* How It Works Section */}
-        <section id="how-it-works" className="py-10 bg-secondary/30 relative overflow-hidden border-y border-border/40">
+        <section id="how-it-works" className="py-16 bg-secondary/30 relative border-y border-border/40">
           <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-5 text-center space-y-6">
-                    <div className="space-y-2">
-                        <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight">How It Works</h2>
-                        <p className="text-lg text-muted-foreground text-balance font-body">
-                            A simple, streamlined four-step lifecycle from abstract idea to flawless execution.
-                        </p>
-                    </div>
+            <div className="text-center max-w-3xl mx-auto mb-16">
+                <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">How It Works</h2>
+                <p className="mt-4 text-lg text-muted-foreground text-balance font-body">
+                    Our platform streamlines the sophisticated event journey into four logical, manageable phases.
+                </p>
+            </div>
+            
+            <div className="grid lg:grid-cols-12 gap-12 items-center">
+                <div className="lg:col-span-5">
                     {processImage && (
-                        <div className="relative aspect-[4/3] w-full max-w-md mx-auto rounded-2xl overflow-hidden shadow-xl border border-border/40 group">
+                        <div className="relative aspect-[4/3] w-full rounded-3xl overflow-hidden shadow-2xl border border-border/40 group">
                             <Image src={processImage.imageUrl} alt={processImage.description} fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                         </div>
                     )}
                 </div>
                 <div className="lg:col-span-7">
-                    <div className="grid gap-4 sm:grid-cols-2 relative">
+                    <div className="grid gap-6 sm:grid-cols-2">
                     {howItWorksSteps.map((step, index) => (
-                        <Card key={index} className="border border-border/40 bg-background/80 backdrop-blur-xl shadow-sm hover:shadow-lg transition-all duration-300 rounded-2xl p-1">
-                        <CardHeader className="text-center items-center pb-2 pt-6">
+                        <Card key={index} className="border-none bg-background/80 backdrop-blur-xl shadow-sm hover:shadow-lg transition-all duration-300 rounded-3xl p-2">
+                        <CardHeader className="text-center items-center pb-2">
                             <div className="mb-4 bg-primary/5 p-4 rounded-2xl">
                             {step.icon}
                             </div>
@@ -217,17 +196,18 @@ export default function Home() {
         </section>
 
         {/* Vision Section */}
-        <section id="vision" className="py-10 bg-background relative overflow-hidden">
+        <section id="vision" className="py-16 bg-background relative overflow-hidden">
           <div className="container mx-auto px-4">
-            <div className="mb-8 max-w-3xl mx-auto text-center">
-                <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary">Beautifully.</span></h2>
-                <p className="mt-2 text-lg text-muted-foreground font-body text-balance">
-                    Transforming gatherings into narrative masterpieces through poetic precision and harmony.
+            <div className="text-center max-w-3xl mx-auto mb-16">
+                <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary font-logo">Beautifully.</span></h2>
+                <p className="mt-4 text-lg text-muted-foreground font-body text-balance">
+                    Transforming gatherings into narrative masterpieces through poetic precision and technical harmony.
                 </p>
             </div>
-            <div className="grid lg:grid-cols-2 gap-10 items-center">
-              <div className="flex justify-center">
-                <div className="relative w-full max-w-[320px] aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-background/50 transition-all duration-500 hover:scale-105">
+            
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="flex justify-center order-2 lg:order-1">
+                <div className="relative w-full max-w-[400px] aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-secondary/20 transition-all duration-500 hover:scale-105">
                   {missionImage && (
                     <Image
                       src={missionImage.imageUrl}
@@ -238,18 +218,20 @@ export default function Home() {
                     />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  <div className="absolute bottom-8 left-0 right-0 text-center px-4">
-                    <p className="text-white font-logo text-xl font-bold italic tracking-tight drop-shadow-md">"Masterpiece Moments"</p>
+                  <div className="absolute bottom-10 left-0 right-0 text-center px-4">
+                    <p className="text-white font-logo text-2xl font-bold italic tracking-tight drop-shadow-md">"The Poetic Soul of Planning"</p>
                   </div>
                 </div>
               </div>
-              <div className="space-y-4">
+              
+              <div className="space-y-6 order-1 lg:order-2">
                 {[
-                    { title: "Poetic Precision", desc: "Curated details that reflect cultural elegance." },
-                    { title: "Effortless Harmony", desc: "We handle complexity so you can stay present." },
-                    { title: "Living Archives", desc: "Transforming celebrations into digital legacies." }
+                    { title: "Empowerment", desc: "Intuitive tools that put the creator in control of every detail." },
+                    { title: "Storytelling", desc: "Every celebration is a narrative; we help you archive it forever." },
+                    { title: "Innovation", desc: "Leveraging cutting-edge AI to redefine what's possible." },
+                    { title: "Connection", desc: "Building a community where culture and technology converge." }
                   ].map((item, i) => (
-                    <Card key={i} className="bg-secondary/20 border-none shadow-xl hover:-translate-y-3 hover:scale-[1.02] transition-all duration-500 group rounded-2xl overflow-hidden">
+                    <Card key={i} className="bg-secondary/20 border-none shadow-sm hover:-translate-y-3 hover:shadow-xl transition-all duration-500 group rounded-2xl overflow-hidden">
                       <CardContent className="p-6">
                         <h3 className="font-bold text-lg group-hover:text-primary transition-colors font-headline">{item.title}</h3>
                         <p className="text-muted-foreground text-sm leading-relaxed mt-1 font-body">{item.desc}</p>
@@ -261,96 +243,28 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Meet Eni Section */}
-        <section id="meet-eni" className="py-10 bg-primary/[0.02] relative overflow-hidden border-y border-border/20">
-          <div className="container mx-auto px-4 text-center">
-            <div className="grid lg:grid-cols-2 gap-10 items-center">
-              <div className="relative order-2 lg:order-1 flex justify-center">
-                <Card className="border-none shadow-2xl bg-background/60 backdrop-blur-3xl min-h-[320px] w-full max-w-md flex flex-col justify-center p-8 relative overflow-hidden rounded-[2.5rem] border border-white/10">
-                  <div className="absolute top-6 right-8">
-                    <Quote className="h-12 w-12 text-primary/10 rotate-12" />
-                  </div>
-                  {eniMessage ? (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                      <p className="text-2xl md:text-3xl font-logo italic leading-snug text-foreground/90 text-balance tracking-tight">
-                        &quot;{eniMessage}&quot;
-                      </p>
-                      <div className="flex items-center justify-center gap-3">
-                        <div className="h-[1px] w-10 bg-primary rounded-full" />
-                        <p className="text-xs font-bold text-primary tracking-[0.3em] uppercase">Eni</p>
-                      </div>
-                      <Button variant="ghost" size="sm" className="h-auto text-muted-foreground hover:text-primary transition-colors font-bold uppercase tracking-widest text-[10px] p-0" onClick={() => setEniMessage('')}>
-                        Generate Another
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="text-center space-y-4">
-                      <div className="h-16 w-16 rounded-[1.25rem] bg-primary/5 flex items-center justify-center mx-auto mb-2 border border-primary/10">
-                        <Bot className="h-8 w-8 text-primary opacity-40 animate-pulse" />
-                      </div>
-                      <div>
-                        <p className="text-xl font-headline font-bold text-foreground/80">Eni is ready to welcome you.</p>
-                        <p className="text-sm mt-2 text-muted-foreground leading-relaxed font-body">Get a personalized celebratory note from our AI hostess.</p>
-                      </div>
-                    </div>
-                  )}
-                </Card>
-              </div>
-              <div className="order-1 lg:order-2 text-center lg:text-left">
-                <h2 className="text-4xl md:text-6xl font-headline font-bold mb-6 tracking-tight text-balance leading-tight">
-                  Meet Eni, Your <br /><span className="text-primary">AI Partner</span>
-                </h2>
-                <div className="space-y-4 max-w-md mx-auto lg:mx-0">
-                  <div className="space-y-2 text-left">
-                    <Label className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground ml-1">Guest Name</Label>
-                    <Input
-                      placeholder="e.g., Olumide"
-                      value={guestName}
-                      onChange={(e) => setGuestName(e.target.value)}
-                      className="h-12 bg-background border-border/40 rounded-xl"
-                    />
-                  </div>
-                  <div className="space-y-2 text-left">
-                    <Label className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground ml-1">Event Reference</Label>
-                    <Input
-                      placeholder="e.g., The Grand Reunion"
-                      value={demoEventName}
-                      onChange={(e) => setDemoEventName(e.target.value)}
-                      className="h-12 bg-background border-border/40 rounded-xl"
-                    />
-                  </div>
-                  <Button
-                    onClick={handleGenerateEni}
-                    disabled={isGeneratingEni || !guestName || !demoEventName}
-                    className="w-full h-12 rounded-xl font-bold text-base shadow-lg shadow-primary/20 mt-2 active:scale-[0.98] transition-all"
-                  >
-                    {isGeneratingEni ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                    Experience Eni
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         {/* Testimonials Section */}
-        <section id="testimonials" className="py-10 bg-background">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-8">Loved by Planners & Hosts</h2>
-            <div className="grid gap-6 md:grid-cols-3">
+        <section id="testimonials" className="py-16 bg-muted/20">
+          <div className="container mx-auto px-4">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+                <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">Loved by Planners & Hosts</h2>
+                <p className="mt-4 text-lg text-muted-foreground font-body">Hear from the community that brings EvenTide to life.</p>
+            </div>
+            
+            <div className="grid gap-8 md:grid-cols-3">
               {testimonials.map((t, i) => (
-                <Card key={i} className="bg-secondary/20 border-2 border-accent shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col rounded-[2rem] overflow-hidden group">
+                <Card key={i} className="bg-background border-2 border-accent shadow-xl flex flex-col rounded-[2rem] overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
                   <CardHeader className="flex-1 p-8 text-center">
-                    <Quote className="h-8 w-8 text-primary/40 mb-4 mx-auto" />
+                    <Quote className="h-10 w-10 text-primary/20 mb-6 mx-auto" />
                     <p className="text-lg italic leading-relaxed text-foreground/90 font-body">&quot;{t.quote}&quot;</p>
                   </CardHeader>
-                  <CardFooter className="flex items-center gap-4 p-8 border-t border-border/10 mt-auto bg-muted/30">
-                    <Avatar className="h-12 w-12 border-2 border-background shadow-sm">
+                  <CardFooter className="flex items-center gap-4 p-8 border-t border-border/10 bg-muted/30">
+                    <Avatar className="h-14 w-14 border-2 border-background shadow-sm">
                       <AvatarImage src={t.avatar} alt={t.author} />
                       <AvatarFallback>{t.author[0]}</AvatarFallback>
                     </Avatar>
                     <div className="text-left">
-                      <p className="font-bold text-sm tracking-tight">{t.author}</p>
+                      <p className="font-bold text-base tracking-tight">{t.author}</p>
                       <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">{t.role}</p>
                     </div>
                   </CardFooter>
@@ -361,42 +275,46 @@ export default function Home() {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="py-10 border-t border-border/40 bg-secondary/10">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-10">Subscription Plans</h2>
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto items-stretch">
+        <section id="pricing" className="py-16 border-t border-border/40 bg-background">
+          <div className="container mx-auto px-4">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+                <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">The Ecosystem Access</h2>
+                <p className="mt-4 text-lg text-muted-foreground font-body">Select the path that matches your vision.</p>
+            </div>
+            
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto items-stretch">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
-                  "flex flex-col transition-all duration-300 relative border border-border/40 rounded-[2rem] overflow-visible",
+                  "flex flex-col transition-all duration-500 relative border border-border/40 rounded-[2.5rem] overflow-visible",
                   tier.isPopular ? "border-primary/50 ring-1 ring-primary/20 shadow-2xl scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/40 shadow-sm"
                 )}>
                   {tier.isPopular && (
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-                      <div className="rounded-full shadow-lg px-6 py-1.5 font-bold uppercase tracking-widest text-[10px] whitespace-nowrap border-2 border-background bg-primary text-primary-foreground">
+                      <div className="rounded-full shadow-lg px-6 py-2 font-bold uppercase tracking-widest text-[10px] whitespace-nowrap border-2 border-background bg-primary text-primary-foreground">
                         Most Popular
                       </div>
                     </div>
                   )}
-                  <CardHeader className="pt-10 pb-6 px-8 text-center">
+                  <CardHeader className="pt-12 pb-6 px-8 text-center">
                     <CardTitle className="font-headline text-2xl font-bold">{tier.name}</CardTitle>
-                     <div className="flex items-baseline justify-center gap-1 mt-3">
-                      <p className="text-4xl font-bold font-headline">{tier.price}</p>
+                     <div className="flex items-baseline justify-center gap-1 mt-4">
+                      <p className="text-5xl font-bold font-headline">{tier.price}</p>
                     </div>
-                    <CardDescription className="min-h-[40px] text-xs mt-3 leading-relaxed font-medium font-body">{tier.description}</CardDescription>
+                    <CardDescription className="mt-4 leading-relaxed font-medium font-body text-sm">{tier.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="flex-1 px-8">
-                    <ul className="space-y-4 pt-6 border-t border-border/10">
+                    <ul className="space-y-4 pt-8 border-t border-border/10">
                       {tier.features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground font-body text-left">
-                          <CircleCheck className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                          <CircleCheck className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
                           <span className="leading-snug">{feature}</span>
                         </li>
                       ))}
                     </ul>
                   </CardContent>
                   <CardFooter className="p-8">
-                     <Button className="w-full font-bold rounded-xl h-12 shadow-inner transition-all active:scale-[0.97]" variant={tier.isPopular ? "default" : "outline"}>
-                        Select Path
+                     <Button className="w-full font-bold rounded-2xl h-14 shadow-lg transition-all active:scale-[0.97]" variant={tier.isPopular ? "default" : "outline"}>
+                        Get Started
                      </Button>
                   </CardFooter>
                 </Card>
@@ -406,14 +324,15 @@ export default function Home() {
         </section>
 
         {/* Final CTA Section */}
-        <section className="py-12 md:py-16 relative overflow-hidden bg-muted/30 border-t border-border/40">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-4xl font-headline font-bold md:text-7xl text-foreground text-balance leading-[1.1] mb-8">
-              Your Event, <br className="hidden md:block" /> <span className="italic font-logo text-primary">Reimagined.</span>
+        <section className="py-20 relative overflow-hidden bg-primary text-primary-foreground">
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
+          <div className="container mx-auto px-4 text-center relative z-10">
+            <h2 className="text-4xl font-headline font-bold md:text-7xl text-balance leading-[1.1] mb-10">
+              Your Event, <br className="hidden md:block" /> <span className="italic font-logo text-accent">Reimagined.</span>
             </h2>
-            <Button asChild size="lg" className="font-bold shadow-xl h-14 px-10 text-lg group rounded-[1.5rem] active:scale-[0.98] transition-all">
+            <Button asChild size="lg" variant="secondary" className="font-bold shadow-2xl h-16 px-12 text-xl group rounded-full active:scale-[0.98] transition-all">
               <Link href="/signup">
-                Start Planning Now <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                Start Planning Now <ArrowRight className="ml-2 h-6 w-6 transition-transform group-hover:translate-x-2" />
               </Link>
             </Button>
           </div>

@@ -1,15 +1,16 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, getDocs, limit, doc, serverTimestamp, addDoc, updateDoc, increment, arrayUnion, orderBy, onSnapshot } from 'firebase/firestore';
-import { Loader2, Music, Image as ImageIcon, Calendar, Gift, Vote, PenSquare, UserCheck, MapPin, Sparkles, Send, Clock, CirclePlay, ArrowRightCircle, Megaphone, History } from 'lucide-react';
+import { collection, query, where, getDocs, limit, serverTimestamp, addDoc, orderBy, onSnapshot } from 'firebase/firestore';
+import { Loader2, Image as ImageIcon, MapPin, Send, CirclePlay, ArrowRightCircle, PenSquare, Vote, Gift, History } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { format, isPast } from 'date-fns';
+import { isPast } from 'date-fns';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
@@ -17,8 +18,6 @@ import { ProgramPreviewCard } from '../stationery/previews/program-preview';
 import { MenuPreviewCard } from '../stationery/previews/menu-preview';
 import { ImageUploader } from '../image-uploader';
 import { Progress } from '../ui/progress';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
-import { Label } from '../ui/label';
 import { cn } from '@/lib/utils';
 
 type Event = {
@@ -76,7 +75,6 @@ type Media = {
 
 export function GuestPortalClient({ eventCode }: { eventCode: string }) {
     const firestore = useFirestore();
-    const { user } = useUser();
     const { toast } = useToast();
     
     const [event, setEvent] = useState<Event | null>(null);
@@ -126,8 +124,8 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
             const q = query(collection(firestore, 'events'), where('eventCode', '==', eventCode), limit(1));
             const snap = await getDocs(q);
             if (!snap.empty) {
-                const doc = snap.docs[0];
-                setEvent({ id: doc.id, ...doc.data() } as Event);
+                const docSnap = snap.docs[0];
+                setEvent({ id: docSnap.id, ...docSnap.data() } as Event);
             }
             setIsLoadingEvent(false);
         };
@@ -225,7 +223,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                     {guest ? (
                         <div className="container flex items-center justify-between mx-auto">
                             <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center"><UserCheck className="h-5 w-5 text-primary" /></div>
+                                <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center"><ImageIcon className="h-5 w-5 text-primary" /></div>
                                 <div><p className="font-bold text-sm">Welcome, {guest.name}</p><p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">{guest.category}</p></div>
                             </div>
                             {guest.hasCheckedIn && <Badge className="bg-green-600">Checked-In</Badge>}
@@ -247,19 +245,19 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                 <div className="container mx-auto px-4 mt-6">
                     <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-none shadow-sm overflow-hidden">
                         <CardContent className="p-4 flex items-center justify-between gap-4">
-                            <div className="flex-1 border-r border-border/50 pr-4">
+                            <div className="flex-1 border-r border-border/50 pr-4 text-center md:text-left">
                                 <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
                                     <CirclePlay className="h-3 w-3 text-primary animate-pulse" />
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Now Happening</span>
                                 </div>
-                                <p className="font-bold text-sm line-clamp-1 text-center md:text-left">{nowHappening?.title || "Intermission"}</p>
+                                <p className="font-bold text-sm line-clamp-1">{nowHappening?.title || "Intermission"}</p>
                             </div>
-                            <div className="flex-1">
+                            <div className="flex-1 text-center md:text-left">
                                 <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
                                     <ArrowRightCircle className="h-3 w-3 text-muted-foreground" />
                                     <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Up Next</span>
                                 </div>
-                                <p className="font-semibold text-sm line-clamp-1 opacity-70 text-center md:text-left">{nextHappening?.title || "TBD"}</p>
+                                <p className="font-semibold text-sm line-clamp-1 opacity-70">{nextHappening?.title || "TBD"}</p>
                             </div>
                         </CardContent>
                     </Card>
@@ -287,13 +285,13 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                         <div className="max-w-4xl mx-auto space-y-6">
                             {/* Autograph Wall */}
                             <Card className={cn(isEnded ? "border-none shadow-none bg-transparent" : "")}>
-                                <CardHeader className={cn(isEnded ? "px-0 text-center" : "text-center")}>
+                                <CardHeader className="text-center">
                                     <CardTitle className="flex items-center justify-center gap-2">
                                         <PenSquare className="h-5 w-5 text-primary"/> {isEnded ? "Final Messages" : "Celebration Wall"}
                                     </CardTitle>
                                     {isEnded && <CardDescription>Notes left by guests during the celebration.</CardDescription>}
                                 </CardHeader>
-                                <CardContent className={cn(isEnded ? "px-0" : "space-y-6")}>
+                                <CardContent>
                                     {!isEnded && guest && (
                                         <div className="flex gap-2 mb-6">
                                             <Input placeholder="Leave a celebratory message..." value={autographMsg} onChange={e => setAutographMsg(e.target.value)} />
