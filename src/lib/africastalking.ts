@@ -12,3 +12,20 @@ const africastalking = Africastalking({
 
 export const sms = africastalking.SMS;
 export const airtime = africastalking.AIRTIME;
+
+/**
+ * Send an SMS via AfricasTalking
+ * @param to - Recipient(s) phone number(s) in international format (e.g., +234...)
+ * @param message - The message content
+ * @returns - Response from Africa's Talking
+ */
+export async function sendSMS(to: string | string[], message: string) {
+  try {
+    const response = await sms.send({ to, message });
+    console.log("SMS Sent successfully:", response);
+    return response;
+  } catch (error) {
+    console.error("Error sending SMS via AfricasTalking:", error);
+    throw error;
+  }
+}
