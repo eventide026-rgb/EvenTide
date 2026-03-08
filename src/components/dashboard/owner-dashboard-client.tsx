@@ -8,7 +8,7 @@ import { CirclePlus, MoreVertical, Calendar, Users, Percent, CircleCheck, Loader
 import Link from "next/link";
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { useCollection, useFirestore, useUser, useMemoFirebase } from "@/firebase";
+import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from "@/firebase";
 import { collection, query, where, orderBy, limit } from "firebase/firestore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isToday, isFuture, format } from 'date-fns';
@@ -98,7 +98,7 @@ export function OwnerDashboardClient() {
 
 
     const guestCount = guests?.length ?? 0;
-    const checkedInCount = guests?.filter(g => g.hasCheckedIn).length ?? 0;
+    const checkedInCount = guests?.filter(g => g.hasCheckedIn)?.length ?? 0;
     const rsvpRate = selectedEvent?.guestLimit ? Math.round((guestCount / selectedEvent.guestLimit) * 100) : 0;
 
 

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useMemo, useEffect } from 'react';
@@ -100,7 +101,7 @@ export default function EventLiveDashboard({ params }: { params: Promise<{ event
     const { data: requests, isLoading: isLoadingRequests } = useCollection<SongRequest>(requestsQuery);
 
     // Derived Metrics
-    const checkedInCount = guests?.filter(g => g.hasCheckedIn).length || 0;
+    const checkedInCount = guests?.filter(g => g.hasCheckedIn)?.length || 0;
     const totalGuests = guests?.length || 0;
     const checkInRate = totalGuests > 0 ? Math.round((checkedInCount / totalGuests) * 100) : 0;
 

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -98,7 +99,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                 if (change.type === "added") {
                     const data = change.doc.data() as Announcement;
                     // Only show toast for very recent announcements
-                    const isRecent = data.timestamp && (Date.now() - data.timestamp.toMillis() < 30000);
+                    const isRecent = data.timestamp?.toMillis && (Date.now() - data.timestamp.toMillis() < 30000);
                     if (isRecent) {
                         toast({
                             title: "EVENT ANNOUNCEMENT",
@@ -214,7 +215,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
     };
 
     if (isLoadingEvent) return <div className="flex h-screen items-center justify-center bg-secondary"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
-    if (!event) return <div className="flex min-h-screen items-center justify-center text-muted-foreground p-4">Event not found.</div>;
+    if (!event) return <div className="flex min-screen items-center justify-center text-muted-foreground p-4">Event not found.</div>;
 
     return (
         <div className="min-h-screen bg-background pb-20">
@@ -231,7 +232,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
             {/* Identification Bar */}
             <div className="bg-muted/50 border-b p-4 sticky top-0 z-40 backdrop-blur-md">
                 {guest ? (
-                    <div className="container flex items-center justify-between">
+                    <div className="container flex items-center justify-between mx-auto">
                         <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center"><UserCheck className="h-5 w-5 text-primary" /></div>
                             <div><p className="font-bold text-sm">Welcome, {guest.name}</p><p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">{guest.category}</p></div>
@@ -239,7 +240,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                         {guest.hasCheckedIn && <Badge className="bg-green-600">Checked-In</Badge>}
                     </div>
                 ) : (
-                    <div className="container flex flex-col md:flex-row items-center gap-4">
+                    <div className="container flex flex-col md:flex-row items-center gap-4 mx-auto">
                         <p className="text-sm font-semibold text-center">Identify yourself to unlock interactive features.</p>
                         <div className="flex w-full md:w-auto gap-2">
                             <Input placeholder="Guest Code" className="h-9 w-32 uppercase" value={lookupCode} onChange={e => setLookupCode(e.target.value)} />

@@ -23,6 +23,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import {
   useCollection,
+  useDoc,
   useFirestore,
   useUser,
   useMemoFirebase,
@@ -120,7 +121,7 @@ export function PlannerDashboardClient() {
 
 
   const guestCount = guests?.length ?? 0;
-  const checkedInCount = guests?.filter(g => g.hasCheckedIn).length ?? 0;
+  const checkedInCount = guests?.filter(g => g.hasCheckedIn)?.length ?? 0;
   const rsvpRate = selectedEvent?.guestLimit
     ? Math.round((guestCount / selectedEvent.guestLimit) * 100)
     : 0;
@@ -291,7 +292,7 @@ export function PlannerDashboardClient() {
                 <Briefcase className="h-12 w-12" />
               </div>
               <h3 className="text-2xl font-headline font-bold">No Gig Selected</h3>
-              <p className="text-muted-foreground mt-2 max-w-sm mx-auto">
+              <p className="text-muted-foreground mt-2 max-sm mx-auto">
                 Select an active assignment from your list to access logistical tools and real-time event metrics.
               </p>
             </div>
