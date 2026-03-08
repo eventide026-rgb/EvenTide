@@ -2,7 +2,10 @@ import Africastalking from "africastalking";
 
 /**
  * @fileOverview Africastalking utility for SMS, WhatsApp and Airtime services.
- * Requires AFRICASTALKING_API_KEY and AFRICASTALKING_USERNAME environment variables.
+ * Requires the following environment variables:
+ * - AFRICASTALKING_API_KEY
+ * - AFRICASTALKING_USERNAME
+ * - AFRICASTALKING_WHATSAPP_CHANNEL (The name/number of your configured WhatsApp channel)
  */
 
 const africastalking = Africastalking({
@@ -12,8 +15,6 @@ const africastalking = Africastalking({
 
 export const sms = africastalking.SMS;
 export const airtime = africastalking.AIRTIME;
-// @ts-ignore - The WhatsApp service is available in recent SDK versions but might missing TS definitions
-export const whatsapp = africastalking.WHATSAPP;
 
 /**
  * Send an SMS via AfricasTalking
@@ -34,14 +35,19 @@ export async function sendSMS(to: string | string[], message: string) {
 
 /**
  * Send a WhatsApp message via AfricasTalking
+ * Africa's Talking uses the SMS API for WhatsApp by specifying the 'from' channel.
  * @param to - Recipient(s) phone number(s) in international format (e.g., +234...)
  * @param message - The message content
  * @returns - Response from Africa's Talking
  */
 export async function sendWhatsApp(to: string | string[], message: string) {
   try {
-    // @ts-ignore
-    const response = await whatsapp.send({ to, message });
+    const response = await sms.send({
+      to,
+      message,
+      // The 'from' field must exactly match your configured WhatsApp channel name or number in AT
+      from: process.env.AFRICASTALKING_WHATSAPP_CHANNEL || "your_whatsapp_channel_name",
+    });
     console.log("WhatsApp Sent successfully:", response);
     return response;
   } catch (error) {
