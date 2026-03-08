@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -107,10 +106,14 @@ export function MoodBoardClient({ isReadOnly }: MoodBoardClientProps) {
 
       setIsGenerating(true);
       try {
-        const currentItemsForAI = boardData.items.map(({id, reason, ...rest}) => rest);
+        // Strip IDs and reason for the AI payload to match schema exactly
+        const currentItemsForAI = boardData.items
+            .filter(item => item.type !== 'aiSuggestion')
+            .map(({ type, value }) => ({ type: type as 'image' | 'color' | 'note', value }));
+
         const result = await suggestMoodboardItems({
             eventTheme: currentEvent.eventType,
-            currentItems: currentItemsForAI as any,
+            currentItems: currentItemsForAI,
         });
         
         const newItems: MoodboardItem[] = result.suggestions.map(s => ({

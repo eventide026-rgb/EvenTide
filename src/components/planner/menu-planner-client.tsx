@@ -141,7 +141,7 @@ export function MenuPlannerClient({ eventId, isReadOnly: forceReadOnly = false }
       };
       saveChanges();
     }
-  }, [debouncedFormValues, form, isReadOnly, menuDocRef]);
+  }, [debouncedFormValues, form.formState.isDirty, isReadOnly, menuDocRef]);
   
   const handleGenerateMenu = async (values: z.infer<typeof aiFormSchema>) => {
       setIsGenerating(true);

@@ -93,7 +93,7 @@ export function EventForm({ showId }: EventFormProps) {
         
     async function onSubmit(values: EventFormValues) {
         if (!firestore || !user) {
-            toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to create or edit a show." });
+            toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in." });
             return;
         }
         setIsLoading(true);

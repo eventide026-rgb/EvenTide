@@ -123,7 +123,7 @@ export function ProgramPlannerClient({ eventId, isReadOnly = false }: ProgramPla
       };
       saveChanges();
     }
-  }, [debouncedFormValues, form, programDocRef, isReadOnly]);
+  }, [debouncedFormValues, form.formState.isDirty, programDocRef, isReadOnly]);
   
   const handleGenerateProgram = async (values: z.infer<typeof aiFormSchema>) => {
       if(!event) return;
