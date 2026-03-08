@@ -56,7 +56,7 @@ export default function EventCalendar() {
   const { user } = useUser();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
-  // HYDRATION FIX: Initialize date on client only to prevent mismatch
+  // Initialize date on client only to prevent hydration mismatch
   useEffect(() => {
     setSelectedDate(new Date());
   }, []);
@@ -74,7 +74,7 @@ export default function EventCalendar() {
   const { data: ownedEvents, isLoading: loadingOwned } = useCollection<Event>(ownedEventsQuery);
   const { data: invitedEvents, isLoading: loadingInvited } = useCollection<Event>(invitedEventsQuery);
 
-  const events = [...(ownedEvents ?? []), ...(invitedEvents ?? [])];
+  const events = useMemo(() => [...(ownedEvents ?? []), ...(invitedEvents ?? [])], [ownedEvents, invitedEvents]);
   const firstEventId = events?.[0]?.id;
 
   const tasksQuery = useMemoFirebase(() => {

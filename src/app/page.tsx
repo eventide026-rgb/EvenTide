@@ -168,12 +168,12 @@ export default function Home() {
 
           {/* Buttons positioned over the transition between Hero and Lower elements */}
           <div className="absolute bottom-0 left-0 right-0 z-30 translate-y-1/2 flex flex-col sm:flex-row items-center justify-center gap-4 px-4">
-              <Button asChild size="lg" className="font-bold w-full sm:w-auto h-14 px-10 text-lg rounded-full shadow-2xl shadow-primary/40 active:scale-[0.98] transition-all">
+              <Button asChild size="lg" className="font-bold w-full max-w-64 sm:w-auto h-14 px-8 text-lg rounded-full shadow-2xl shadow-primary/40 active:scale-[0.98] transition-all">
                 <Link href="/signup">
                   Create an Event <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="font-bold bg-background/80 border-white/20 backdrop-blur-md hover:bg-background w-full sm:w-auto h-14 px-10 text-lg rounded-full text-foreground shadow-xl active:scale-[0.98] transition-all">
+              <Button asChild size="lg" variant="outline" className="font-bold bg-background/80 border-white/20 backdrop-blur-md hover:bg-background w-full max-w-64 sm:w-auto h-14 px-8 text-lg rounded-full text-foreground shadow-xl active:scale-[0.98] transition-all">
                 <Link href="/guest-login">
                   I am a Guest
                 </Link>
@@ -191,7 +191,7 @@ export default function Home() {
         {/* How It Works Section */}
         <section id="how-it-works" className="py-12 md:py-16 bg-secondary/30 relative border-b border-border/40">
           <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto mb-12">
+            <div className="max-w-3xl mx-auto mb-12 text-center">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">How It Works</h2>
                 <p className="mt-4 text-lg text-muted-foreground text-balance font-body max-w-2xl mx-auto">
                     Our platform streamlines the sophisticated event journey into four logical, manageable phases.
@@ -231,7 +231,7 @@ export default function Home() {
         {/* Vision Section */}
         <section id="vision" className="py-12 md:py-16 bg-background relative overflow-hidden">
           <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto mb-12">
+            <div className="max-w-3xl mx-auto mb-12 text-center">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary font-logo">Beautifully.</span></h2>
                 <p className="mt-4 text-lg text-muted-foreground font-body text-balance max-w-2xl mx-auto">
                     Transforming gatherings into narrative masterpieces through poetic precision and technical harmony.
@@ -279,9 +279,9 @@ export default function Home() {
         {/* Testimonials Section */}
         <section id="testimonials" className="py-12 md:py-16 bg-muted/20">
           <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto mb-12">
+            <div className="max-w-3xl mx-auto mb-12 text-center">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">Loved by Planners & Hosts</h2>
-                <p className="mt-4 text-lg text-muted-foreground font-body max-w-2xl mx-auto">Hear from the community that brings EvenTide to life.</p>
+                <p className="mt-4 text-lg text-muted-foreground font-body max-w-2xl mx-auto text-center">Hear from the community that brings EvenTide to life.</p>
             </div>
             
             <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
@@ -310,9 +310,9 @@ export default function Home() {
         {/* Pricing Section */}
         <section id="pricing" className="py-12 md:py-16 border-t border-border/40 bg-background">
           <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto mb-12">
+            <div className="max-w-3xl mx-auto mb-12 text-center">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">Pricing Plans for Every Event</h2>
-                <p className="mt-4 text-lg text-muted-foreground font-body max-w-2xl mx-auto text-balance">Choose the perfect plan that fits the scale of your event.</p>
+                <p className="mt-4 text-lg text-muted-foreground font-body max-w-2xl mx-auto text-balance text-center">Choose the perfect plan that fits the scale of your event.</p>
             </div>
             
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 max-w-7xl mx-auto items-stretch">
@@ -362,7 +362,7 @@ export default function Home() {
         <section className="py-20 relative overflow-hidden bg-primary text-primary-foreground">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
           <div className="container mx-auto px-4 text-center relative z-10">
-            <h2 className="text-4xl font-headline font-bold md:text-7xl text-balance leading-[1.1] mb-10">
+            <h2 className="text-4xl font-headline font-bold md:text-7xl text-balance leading-[1.1] mb-10 text-center">
               Your Event, <br className="hidden md:block" /> <span className="italic font-logo text-accent">Reimagined.</span>
             </h2>
             <div className="flex justify-center">

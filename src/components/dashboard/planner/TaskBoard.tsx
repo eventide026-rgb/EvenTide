@@ -237,8 +237,8 @@ export function TaskBoard({ isReadOnly }: { isReadOnly: boolean }) {
                         )}
                     </div>
                 ) : (
-                    <Card className="h-full flex items-center justify-center">
-                        <p className="text-muted-foreground">Select an event to view the task board.</p>
+                    <Card className="h-full flex items-center justify-center text-muted-foreground">
+                        <p>Select an event to view the task board.</p>
                     </Card>
                 )}
             </div>
@@ -263,7 +263,7 @@ export function TaskBoard({ isReadOnly }: { isReadOnly: boolean }) {
                             <form onSubmit={form.handleSubmit(handleAddTask)} className="space-y-4">
                                 <FormField control={form.control} name="title" render={({field}) => <FormItem><FormLabel>Title</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage/></FormItem>} />
                                 <FormField control={form.control} name="assigneeId" render={({field}) => <FormItem><FormLabel>Assign To</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger disabled={isLoadingTeam}><SelectValue placeholder={isLoadingTeam ? "Loading team..." : "Select a team member"} /></SelectTrigger></FormControl><SelectContent>{teamMembers.map(m => <SelectItem key={m.id} value={m.id}>{m.firstName} {m.lastName}</SelectItem>)}</SelectContent></Select><FormMessage/></FormItem>} />
-                                <FormField control={form.control} name="dueDate" render={({field}) => <FormItem className="flex flex-col"><FormLabel>Due Date</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant="outline" className={cn(!field.value && 'text-muted-foreground')}>{field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}<CalendarIcon className="ml-auto h-4 w-4 opacity-50"/></Button></FormControl></PopoverTrigger><PopoverContent><Calendar mode="single" selected={field.value} onSelect={field.onChange} /></PopoverContent></Popover><FormMessage/></FormItem>}/>
+                                <FormField control={form.control} name="dueDate" render={({field}) => <FormItem className="flex flex-col"><FormLabel>Due Date</FormLabel><Popover><PopoverTrigger asChild><FormControl><Button variant="outline" className={cn(!field.value && 'text-muted-foreground')}>{field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}<CalendarIcon className="ml-auto h-4 w-4 opacity-50"/></Button></FormControl></PopoverTrigger><PopoverContent className="w-auto p-0" align="start"><Calendar mode="single" selected={field.value} onSelect={field.onChange} /></PopoverContent></Popover><FormMessage/></FormItem>}/>
                                 <Button type="submit" disabled={!selectedEventId || form.formState.isSubmitting} className="w-full"><PlusCircle className="mr-2 h-4 w-4" /> Add Task</Button>
                             </form>
                         </Form>

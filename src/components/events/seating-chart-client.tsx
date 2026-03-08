@@ -1,6 +1,7 @@
 
 'use client';
 
+import * as React from 'react';
 import { useMemo, useState, useEffect } from 'react';
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where, doc, addDoc, deleteDoc, setDoc } from 'firebase/firestore';
@@ -21,7 +22,6 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { DndContext, useDroppable, useDraggable, DragEndEvent } from '@dnd-kit/core';
-import * as React from 'react';
 
 /* ---------------------------------- TYPES --------------------------------- */
 

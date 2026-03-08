@@ -38,8 +38,8 @@ function CheckoutContent() {
         publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_test_placeholder',
     };
 
-    // Use type assertion to handle peer dep differences if necessary
-    const initializePayment = (usePaystackPayment as any)(config);
+    // React 19 compatibility handled by override in package.json
+    const initializePayment = usePaystackPayment(config);
 
     const handleComplete = () => {
         if (!user) {
@@ -58,8 +58,9 @@ function CheckoutContent() {
         }
 
         setIsProcessing(true);
+        // @ts-ignore - Paystack hook type mismatch in some versions
         initializePayment({
-            onSuccess: (reference: any) => {
+            onSuccess: () => {
                 toast({ title: "Payment Successful!", description: `Plan ${plan.name} is now active. Redirecting to event creation...` });
                 router.push('/owner/create-event');
             },

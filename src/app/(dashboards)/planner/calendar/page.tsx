@@ -54,7 +54,7 @@ export default function PlannerCalendarPage() {
   const [calendarItems, setCalendarItems] = useState<CalendarItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Correct Fix: Move Date initialization to useEffect to prevent hydration error
+  // Initialize date on client only to prevent hydration mismatch
   useEffect(() => {
     setSelectedDate(new Date());
   }, []);
@@ -85,45 +85,50 @@ export default function PlannerCalendarPage() {
         return;
       }
 
-      // Fetch all assigned events in one query
-      const eventsQuery = query(collection(firestore, 'events'), where(documentId(), 'in', eventIds));
-      const eventsSnapshot = await getDocs(eventsQuery);
-      
-      const eventsData = new Map<string, Event>();
-      eventsSnapshot.forEach(doc => {
-        eventsData.set(doc.id, { id: doc.id, ...doc.data() } as Event);
-      });
+      try {
+        // Fetch all assigned events
+        const eventsQuery = query(collection(firestore, 'events'), where(documentId(), 'in', eventIds));
+        const eventsSnapshot = await getDocs(eventsQuery);
+        
+        const eventsData = new Map<string, Event>();
+        eventsSnapshot.forEach(doc => {
+          eventsData.set(doc.id, { id: doc.id, ...doc.data() } as Event);
+        });
 
-      for (const event of Array.from(eventsData.values())) {
-        if (event.eventDate) {
-          allItems.push({
-            id: event.id,
-            type: 'Event',
-            date: event.eventDate.toDate(),
-            title: event.name,
-            parentEventName: event.name,
-          });
-        }
-
-        // Fetch tasks for each event
-        const tasksQuery = query(collection(firestore, 'events', event.id, 'tasks'));
-        const tasksSnapshot = await getDocs(tasksQuery);
-        tasksSnapshot.forEach(doc => {
-          const task = { id: doc.id, ...doc.data() } as Task;
-          if (task.dueDate) {
+        for (const event of Array.from(eventsData.values())) {
+          if (event.eventDate) {
             allItems.push({
-              id: task.id,
-              type: 'Task',
-              date: task.dueDate.toDate(),
-              title: task.title,
+              id: event.id,
+              type: 'Event',
+              date: event.eventDate.toDate(),
+              title: event.name,
               parentEventName: event.name,
             });
           }
-        });
-      }
 
-      setCalendarItems(allItems);
-      setIsLoading(false);
+          // Fetch tasks for each event
+          const tasksQuery = query(collection(firestore, 'events', event.id, 'tasks'));
+          const tasksSnapshot = await getDocs(tasksQuery);
+          tasksSnapshot.forEach(doc => {
+            const task = { id: doc.id, ...doc.data() } as Task;
+            if (task.dueDate) {
+              allItems.push({
+                id: task.id,
+                type: 'Task',
+                date: task.dueDate.toDate(),
+                title: task.title,
+                parentEventName: event.name,
+              });
+            }
+          });
+        }
+
+        setCalendarItems(allItems);
+      } catch (error) {
+        console.error("Error fetching calendar data:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchAllData();
