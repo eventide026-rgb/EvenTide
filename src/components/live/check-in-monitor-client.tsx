@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState } from 'react';
@@ -89,20 +90,24 @@ export function CheckInMonitorClient() {
   const sortedGuests = useMemo(() => {
     if (!guests) return [];
     return [...guests].sort((a, b) => {
+      // Prioritize checked-in guests
       if (a.hasCheckedIn && !b.hasCheckedIn) return -1;
       if (!a.hasCheckedIn && b.hasCheckedIn) return 1;
 
-      if (a.hasCheckedIn && b.hasCheckedIn && a.checkInTime && b.checkInTime) {
+      // Sort recent arrivals first
+      if (a.hasCheckedIn && b.hasCheckedIn && a.checkInTime?.toDate && b.checkInTime?.toDate) {
           return b.checkInTime.toDate().getTime() - a.checkInTime.toDate().getTime();
       }
 
+      // If not checked in, sort by category priority
       const priorityA = categoryPriority[a.category] || 99;
       const priorityB = categoryPriority[b.category] || 99;
       if (priorityA !== priorityB) {
         return priorityA - priorityB;
       }
       
-      return a.name.localeCompare(b.name);
+      // Finally sort by name
+      return (a.name || '').localeCompare(b.name || '');
     });
   }, [guests]);
 
@@ -124,13 +129,13 @@ export function CheckInMonitorClient() {
         <CardContent>
           <Label>Select an Event</Label>
           {isLoading ? (
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="flex items-center gap-2 text-muted-foreground mt-2">
               <Loader2 className="h-4 w-4 animate-spin" />
               <span>Loading your events...</span>
             </div>
           ) : (
             <Select onValueChange={setSelectedEventId} value={selectedEventId || ''}>
-              <SelectTrigger className="w-full md:w-1/2">
+              <SelectTrigger className="w-full md:w-1/2 mt-2">
                 <SelectValue placeholder="Select an event to monitor" />
               </SelectTrigger>
               <SelectContent>
@@ -190,7 +195,7 @@ export function CheckInMonitorClient() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            {guest.checkInTime ? format(guest.checkInTime.toDate(), 'p') : '—'}
+                                            {guest.checkInTime?.toDate ? format(guest.checkInTime.toDate(), 'p') : '—'}
                                         </TableCell>
                                     </TableRow>
                                 )) : (

@@ -7,8 +7,6 @@ import {
   ArrowRight,
   CalendarPlus,
   ShieldCheck,
-  Palette as PaletteIcon,
-  BookOpen,
   Bot,
   Quote,
   Loader2,
@@ -208,17 +206,17 @@ export default function Home() {
 
         {/* How It Works Section */}
         <section id="how-it-works" className="py-24 md:py-32 bg-secondary/30 relative overflow-hidden border-y border-border/40">
-          <div className="container mx-auto px-4 text-center">
+          <div className="container mx-auto px-4">
             <div className="mb-16 max-w-3xl mx-auto text-center">
                 <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">How It Works</h2>
                 <p className="mt-6 text-xl text-muted-foreground text-balance font-body">
                     A simple, streamlined four-step lifecycle from abstract idea to flawless execution.
                 </p>
             </div>
-            <div className="grid lg:grid-cols-12 gap-12 items-center text-left">
-                <div className="lg:col-span-5">
+            <div className="grid lg:grid-cols-12 gap-12 items-center">
+                <div className="lg:col-span-5 flex justify-center">
                     {processImage && (
-                        <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl border-2 border-border/40 group">
+                        <div className="relative aspect-[4/3] w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border-2 border-border/40 group">
                             <Image src={processImage.imageUrl} alt={processImage.description} fill className="object-cover group-hover:scale-110 transition-transform duration-[2000ms]" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                         </div>
@@ -248,16 +246,16 @@ export default function Home() {
 
         {/* Vision Section */}
         <section id="vision" className="py-24 md:py-32 bg-background relative overflow-hidden">
-          <div className="container mx-auto px-4 text-center">
+          <div className="container mx-auto px-4">
             <div className="mb-16 max-w-3xl mx-auto text-center">
                 <h2 className="text-4xl md:text-6xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary">Beautifully.</span></h2>
                 <p className="mt-6 text-xl text-muted-foreground font-body text-balance">
                     Our vision is to transform every gathering into a narrative masterpiece, leveraging technology to honor culture and connection.
                 </p>
             </div>
-            <div className="grid lg:grid-cols-2 gap-16 items-center text-left">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div className="flex justify-center">
-                <div className="relative w-full max-w-xs aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-background/50 transition-all duration-700 hover:scale-105">
+                <div className="relative w-full max-w-[280px] aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-background/50 transition-all duration-700 hover:scale-105">
                   {missionImage && (
                     <Image
                       src={missionImage.imageUrl}
@@ -273,17 +271,17 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <div className="space-y-8">
+              <div className="space-y-8 text-left">
                 <div className="grid gap-6">
                   {[
                     { title: "Poetic Precision", desc: "Every detail, from the stationery to the program, is curated to reflect cultural elegance." },
                     { title: "Effortless Harmony", desc: "We handle the complexity, allowing you to be fully present in the moments that matter." },
                     { title: "Living Archives", desc: "Beyond execution, we transform celebrations into lasting digital legacies." }
                   ].map((item, i) => (
-                    <Card key={i} className="bg-secondary/20 border-2 border-border/40 hover:border-primary/40 shadow-sm hover:shadow-2xl hover:-translate-y-3 hover:scale-[1.02] transition-all duration-500 ease-out group rounded-2xl">
+                    <Card key={i} className="bg-secondary/20 border-2 border-border/40 hover:border-primary/40 shadow-sm hover:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] hover:-translate-y-3 hover:scale-[1.02] transition-all duration-500 ease-out group rounded-2xl">
                       <CardContent className="p-6">
-                        <h3 className="font-bold text-lg group-hover:text-primary transition-colors">{item.title}</h3>
-                        <p className="text-muted-foreground text-sm leading-relaxed mt-2">{item.desc}</p>
+                        <h3 className="font-bold text-lg group-hover:text-primary transition-colors font-headline">{item.title}</h3>
+                        <p className="text-muted-foreground text-sm leading-relaxed mt-2 font-body">{item.desc}</p>
                       </CardContent>
                     </Card>
                   ))}
@@ -334,7 +332,7 @@ export default function Home() {
                     </div>
                 )}
               </div>
-              <div className="order-1 lg:order-2">
+              <div className="order-1 lg:order-2 text-left">
                 <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-accent/5 text-accent text-[10px] font-bold uppercase tracking-[0.25em] border border-accent/10 mb-8">
                   <span className="animate-pulse">●</span> The AI Soul of EvenTide
                 </div>
@@ -408,7 +406,7 @@ export default function Home() {
 
         {/* Ecosystem Section */}
         <section id="benefits" className="py-24 md:py-32 bg-secondary/10">
-            <div className="container mx-auto px-4 text-center">
+            <div className="container mx-auto px-4">
                 <div className="mb-20 max-w-3xl mx-auto text-center">
                     <Badge variant="outline" className="mb-4 border-primary/20 text-primary font-bold uppercase tracking-widest px-4 py-1 rounded-full">The EvenTide Ecosystem</Badge>
                     <h2 className="text-4xl md:text-6xl font-headline font-bold text-foreground text-balance leading-tight">A Tool for Everyone</h2>
@@ -416,14 +414,14 @@ export default function Home() {
                         EvenTide is designed to empower every role involved in making an event a success.
                     </p>
                 </div>
-                <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4 text-left">
+                <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
                     {roleBenefits.map((role) => (
                         <Card key={role.title} className="border-2 border-border/40 bg-background hover:bg-muted/30 transition-all duration-500 hover:-translate-y-3 hover:scale-[1.02] group shadow-sm hover:shadow-2xl hover:border-primary/20 flex flex-col p-6 rounded-3xl">
                             <div className="space-y-1 mb-6 text-center md:text-left">
                                 <CardTitle className="font-headline text-2xl group-hover:text-primary transition-colors">{role.title}</CardTitle>
                                 <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60">{role.roleTitle}</p>
                             </div>
-                            <CardContent className="flex-1 p-0">
+                            <CardContent className="flex-1 p-0 text-left">
                                 <ul className="space-y-4">
                                     {role.features.map((feature, i) => (
                                         <li key={i} className="text-sm text-muted-foreground leading-relaxed flex gap-3">
