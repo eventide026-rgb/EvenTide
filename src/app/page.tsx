@@ -182,13 +182,13 @@ export default function Home() {
         <section id="how-it-works" className="py-8 md:py-12 bg-secondary/30 relative overflow-hidden border-y border-border/40">
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-5 text-center lg:text-left">
-                    <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-4">How It Works</h2>
-                    <p className="text-lg text-muted-foreground text-balance font-body mb-8">
+                <div className="lg:col-span-5 text-center">
+                    <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-4 text-center">How It Works</h2>
+                    <p className="text-lg text-muted-foreground text-balance font-body mb-8 text-center">
                         A simple, streamlined four-step lifecycle from abstract idea to flawless execution.
                     </p>
                     {processImage && (
-                        <div className="relative aspect-[4/3] w-full max-w-md mx-auto lg:mx-0 rounded-2xl overflow-hidden shadow-xl border border-border/40 group">
+                        <div className="relative aspect-[4/3] w-full max-w-md mx-auto rounded-2xl overflow-hidden shadow-xl border border-border/40 group">
                             <Image src={processImage.imageUrl} alt={processImage.description} fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                         </div>
@@ -219,8 +219,8 @@ export default function Home() {
         <section id="vision" className="py-8 md:py-12 bg-background relative overflow-hidden">
           <div className="container mx-auto px-4">
             <div className="mb-10 max-w-3xl mx-auto text-center">
-                <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary">Beautifully.</span></h2>
-                <p className="mt-3 text-lg text-muted-foreground font-body text-balance">
+                <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight text-balance text-center">Bringing People Together, <br/><span className="text-primary">Beautifully.</span></h2>
+                <p className="mt-3 text-lg text-muted-foreground font-body text-balance text-center">
                     Transforming gatherings into narrative masterpieces through poetic precision and harmony.
                 </p>
             </div>
@@ -248,7 +248,7 @@ export default function Home() {
                     { title: "Effortless Harmony", desc: "We handle complexity so you can stay present." },
                     { title: "Living Archives", desc: "Transforming celebrations into digital legacies." }
                   ].map((item, i) => (
-                    <Card key={i} className="bg-secondary/20 border border-border/40 hover:border-primary/40 shadow-sm hover:-translate-y-2 hover:scale-[1.01] transition-all duration-500 group rounded-xl">
+                    <Card key={i} className="bg-secondary/20 border border-border/40 shadow-sm hover:-translate-y-3 hover:scale-[1.02] transition-all duration-500 group rounded-xl">
                       <CardContent className="p-5">
                         <h3 className="font-bold text-base group-hover:text-primary transition-colors font-headline">{item.title}</h3>
                         <p className="text-muted-foreground text-sm leading-relaxed mt-1 font-body">{item.desc}</p>
@@ -262,7 +262,7 @@ export default function Home() {
 
         {/* Meet Eni Section */}
         <section id="meet-eni" className="py-8 md:py-12 bg-primary/[0.02] relative overflow-hidden border-y border-border/20">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-4 text-center">
             <div className="grid lg:grid-cols-2 gap-10 items-center">
               <div className="relative order-2 lg:order-1 flex justify-center">
                 <Card className="border-none shadow-2xl bg-background/60 backdrop-blur-3xl min-h-[280px] w-full max-w-md flex flex-col justify-center p-8 relative overflow-hidden rounded-[2rem] border border-white/10">
@@ -271,12 +271,12 @@ export default function Home() {
                   </div>
                   {eniMessage ? (
                     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                      <p className="text-2xl md:text-3xl font-logo italic leading-snug text-foreground/90 text-balance tracking-tight">
+                      <p className="text-2xl md:text-3xl font-logo italic leading-snug text-foreground/90 text-balance tracking-tight text-center">
                         &quot;{eniMessage}&quot;
                       </p>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center gap-3">
                         <div className="h-[1px] w-10 bg-primary rounded-full" />
-                        <p className="text-xs font-bold text-primary tracking-[0.3em] uppercase">Eni</p>
+                        <p className="text-xs font-bold text-primary tracking-[0.3em] uppercase text-center">Eni</p>
                       </div>
                       <Button variant="ghost" size="sm" className="h-auto text-muted-foreground hover:text-primary transition-colors font-bold uppercase tracking-widest text-[10px] p-0" onClick={() => setEniMessage('')}>
                         Generate Another
@@ -296,7 +296,7 @@ export default function Home() {
                 </Card>
               </div>
               <div className="order-1 lg:order-2 text-center lg:text-left">
-                <h2 className="text-4xl md:text-6xl font-headline font-bold mb-6 tracking-tight text-balance leading-tight text-center md:text-left">
+                <h2 className="text-4xl md:text-6xl font-headline font-bold mb-6 tracking-tight text-balance leading-tight text-center lg:text-left">
                   Meet Eni, Your <br /><span className="text-primary">AI Partner</span>
                 </h2>
                 <div className="space-y-4 max-w-md mx-auto lg:mx-0">
@@ -335,7 +335,7 @@ export default function Home() {
         {/* Testimonials Section */}
         <section id="testimonials" className="py-8 md:py-12 bg-background">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-10">Loved by Planners & Hosts</h2>
+            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-10 text-center">Loved by Planners & Hosts</h2>
             <div className="grid gap-6 md:grid-cols-3">
               {testimonials.map((t, i) => (
                 <Card key={i} className="bg-secondary/20 border-2 border-accent shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col rounded-2xl overflow-hidden group">
@@ -362,7 +362,7 @@ export default function Home() {
         {/* Pricing Section */}
         <section id="pricing" className="py-8 md:py-12 border-t border-border/40 bg-secondary/10">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-12">Subscription Plans</h2>
+            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-12 text-center">Subscription Plans</h2>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto items-stretch">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
@@ -381,9 +381,9 @@ export default function Home() {
                      <div className="flex items-baseline justify-center gap-1 mt-2">
                       <p className="text-3xl font-bold font-headline">{tier.price}</p>
                     </div>
-                    <CardDescription className="min-h-[40px] text-[10px] mt-2 leading-relaxed font-medium font-body">{tier.description}</CardDescription>
+                    <CardDescription className="min-h-[40px] text-[10px] mt-2 leading-relaxed font-medium font-body text-center">{tier.description}</CardDescription>
                   </CardHeader>
-                  <CardContent className="flex-1 px-6">
+                  <CardContent className="flex-1 px-6 text-center">
                     <ul className="space-y-3 pt-4 border-t border-border/10">
                       {tier.features.map((feature, i) => (
                         <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground font-body text-left">
@@ -393,7 +393,7 @@ export default function Home() {
                       ))}
                     </ul>
                   </CardContent>
-                  <CardFooter className="p-6">
+                  <CardFooter className="p-6 text-center">
                      <Button className="w-full font-bold rounded-xl h-10 shadow-inner transition-all active:scale-[0.97]" variant={tier.isPopular ? "default" : "outline"}>
                         Select Path
                      </Button>
@@ -406,8 +406,8 @@ export default function Home() {
 
         {/* Final CTA Section */}
         <section className="py-8 md:py-12 relative overflow-hidden bg-muted/30 border-t border-border/40 text-center">
-          <div className="container mx-auto px-4">
-            <h2 className="text-4xl font-headline font-bold md:text-7xl text-foreground text-balance leading-[1.1] mb-8">
+          <div className="container mx-auto px-4 text-center">
+            <h2 className="text-4xl font-headline font-bold md:text-7xl text-foreground text-balance leading-[1.1] mb-8 text-center">
               Your Event, <br className="hidden md:block" /> <span className="italic font-logo text-primary">Reimagined.</span>
             </h2>
             <Button asChild size="lg" className="font-bold shadow-xl h-14 px-10 text-lg group rounded-[1.5rem] active:scale-[0.98] transition-all">

@@ -57,6 +57,8 @@ const formSchema = z.object({
     roomTypes: z.array(roomTypeSchema).min(1, "At least one room type is required."),
 });
 
+type HotelFormValues = z.infer<typeof formSchema>;
+
 type HotelFormProps = {
     hotelId?: string;
 };
@@ -77,7 +79,7 @@ export function HotelForm({ hotelId }: HotelFormProps) {
 
     const { data: existingHotelData, isLoading: isLoadingHotel } = useDoc(hotelDocRef);
 
-    const form = useForm<z.infer<typeof formSchema>>({
+    const form = useForm<HotelFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
@@ -101,13 +103,15 @@ export function HotelForm({ hotelId }: HotelFormProps) {
 
     const { fields: roomTypeFields, append: appendRoomType, remove: removeRoomType } = useFieldArray({
         control: form.control,
-        name: "roomTypes",
+        name: "roomTypes" as const,
     });
 
      const { fields: imageFields, remove: removeImg } = useFieldArray({
         control: form.control,
-        name: "imageUrls",
+        name: "imageUrls" as const,
     });
+
+    const imageUrls = form.watch('imageUrls');
 
     const selectedState = form.watch('state');
     const cities = selectedState
@@ -141,7 +145,7 @@ export function HotelForm({ hotelId }: HotelFormProps) {
         });
     };
         
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: HotelFormValues) {
         if (!firestore || !user) {
             toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in." });
             return;

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm, useFieldArray } from 'react-hook-form';
@@ -41,10 +42,14 @@ const formSchema = z.object({
     state: z.string({ required_error: "Please select a state."}),
     city: z.string({ required_error: "Please select a city."}),
     capacity: z.coerce.number().min(1, "Capacity must be at least 1."),
-    imageUrls: z.array(z.string().url("Must be a valid URL.")).min(1, "At least one image URL is required."),
+    imageUrls: z.array(z.object({
+        url: z.string().url("Must be a valid URL.")
+    })).min(1, "At least one image URL is required."),
     amenities: z.array(z.string()).min(1, "Select at least one amenity."),
     features: z.array(z.string()).min(1, "Select at least one feature."),
 });
+
+type VenueFormValues = z.infer<typeof formSchema>;
 
 type VenueFormProps = {
     venueId?: string;
@@ -69,7 +74,7 @@ export function VenueForm({ venueId }: VenueFormProps) {
 
     const { data: existingVenueData, isLoading: isLoadingVenue } = useDoc(venueDocRef);
 
-    const form = useForm<z.infer<typeof formSchema>>({
+    const form = useForm<VenueFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
@@ -84,13 +89,17 @@ export function VenueForm({ venueId }: VenueFormProps) {
 
     useEffect(() => {
         if (existingVenueData) {
-            form.reset(existingVenueData);
+            const mappedData = {
+                ...existingVenueData,
+                imageUrls: existingVenueData.imageUrls.map((url: string) => ({ url })),
+            };
+            form.reset(mappedData);
         }
     }, [existingVenueData, form]);
 
-    const { remove: removeImg } = useFieldArray({
+    const { fields: imageUrlFields, remove: removeImg } = useFieldArray({
         control: form.control,
-        name: "imageUrls",
+        name: "imageUrls" as const,
     });
 
     const amenities = form.watch('amenities');
@@ -122,27 +131,31 @@ export function VenueForm({ venueId }: VenueFormProps) {
         }
     }, [selectedState, form]);
         
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: VenueFormValues) {
         if (!firestore || !user) {
             toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in." });
             return;
         }
         setIsLoading(true);
 
+        const venueData = {
+            ...values,
+            ownerId: user.uid,
+            imageUrls: values.imageUrls.map(img => img.url),
+        };
+
         try {
             if (isEditMode && venueDocRef) {
-                await updateDoc(venueDocRef, { ...values, updatedAt: serverTimestamp() });
+                await updateDoc(venueDocRef, { ...venueData, updatedAt: serverTimestamp() });
                 toast({
                     title: "Venue Updated!",
                     description: `${values.name} has been successfully updated.`,
                 });
             } else {
-                const venueData = {
-                    ...values,
-                    ownerId: user.uid,
+                await addDoc(collection(firestore, "venues"), {
+                    ...venueData,
                     createdAt: serverTimestamp(),
-                };
-                await addDoc(collection(firestore, "venues"), venueData);
+                });
                 toast({
                     title: "Venue Created!",
                     description: `${values.name} has been successfully listed.`,
@@ -165,14 +178,16 @@ export function VenueForm({ venueId }: VenueFormProps) {
         const files = event.target.files;
         if (!files) return;
 
-        const newImageUrls: string[] = [];
+        const currentImages = form.getValues('imageUrls');
+        const newImageObjects: { url: string }[] = [];
+        
         Array.from(files).forEach(file => {
             const reader = new FileReader();
             reader.onload = (e) => {
                  if (typeof e.target?.result === 'string') {
-                    newImageUrls.push(e.target.result);
-                    if(newImageUrls.length === files.length) {
-                        form.setValue('imageUrls', [...form.getValues('imageUrls'), ...newImageUrls]);
+                    newImageObjects.push({ url: e.target.result });
+                    if(newImageObjects.length === files.length) {
+                        form.setValue('imageUrls', [...currentImages, ...newImageObjects]);
                     }
                 }
             };
@@ -284,10 +299,10 @@ export function VenueForm({ venueId }: VenueFormProps) {
                         render={() => <FormMessage />}
                     />
                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                        {form.watch('imageUrls').map((url, index) => (
-                            <div key={index} className="relative group aspect-video">
+                        {imageUrlFields.map((field, index) => (
+                            <div key={field.id} className="relative group aspect-video">
                                 <Image
-                                    src={url}
+                                    src={form.watch(`imageUrls.${index}.url`)}
                                     alt={`Venue image ${index + 1}`}
                                     fill
                                     className="object-cover rounded-md border"

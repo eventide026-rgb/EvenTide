@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
@@ -40,6 +41,8 @@ const formSchema = z.object({
     eventType: z.string().min(2, "Show type is required."),
 });
 
+type EventFormValues = z.infer<typeof formSchema>;
+
 type EventFormProps = {
     showId?: string;
 };
@@ -60,7 +63,7 @@ export function EventForm({ showId }: EventFormProps) {
 
     const { data: existingShowData, isLoading: isLoadingShow } = useDoc(showDocRef);
 
-    const form = useForm<z.infer<typeof formSchema>>({
+    const form = useForm<EventFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
@@ -86,10 +89,10 @@ export function EventForm({ showId }: EventFormProps) {
 
     const { fields: imageUrlFields, append: appendImageUrl, remove: removeImageUrl } = useFieldArray({
         control: form.control,
-        name: "imageUrls",
+        name: "imageUrls" as const,
     });
         
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: EventFormValues) {
         if (!firestore || !user) {
             toast({ variant: "destructive", title: "Authentication Error", description: "You must be logged in to create or edit a show." });
             return;

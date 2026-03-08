@@ -84,7 +84,7 @@ function DraggableGuest({ guest, isAssigned }: { guest: Guest, isAssigned: boole
 
 
 /* --------------------------- DND SEAT TARGET --------------------------- */
-function DroppableSeat({ seat, children, isThisGuestSeat }: { seat: Seat, children: React.ReactNode, isThisGuestSeat: boolean }) {
+function DroppableSeat({ seat, children, isThisGuestSeat }: { seat: Seat, children: React.NewNode, isThisGuestSeat: boolean }) {
   const { setNodeRef } = useDroppable({
     id: `seat-${seat.tableId}-${seat.seatNumber}`,
     data: seat,
@@ -241,7 +241,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
 
   const isLoading = isLoadingEvents || (selectedEventId && (isLoadingTables || isLoadingGuests || isLoadingSeats));
 
-  const guestId: string | null = (userRole === 'guest' && user?.uid) ? user.uid : null;
+  const guestId = (userRole === 'guest' && user?.uid) ? (user.uid as string) : null;
 
   const { assignedGuests, unassignedGuests } = useMemo(() => {
     if (!guestsData || !allSeats) return { assignedGuests: new Set<string>(), unassignedGuests: [] };

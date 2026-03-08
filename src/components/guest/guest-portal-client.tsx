@@ -105,7 +105,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === "added") {
                     const data = change.doc.data() as Announcement;
-                    // Safely check for timestamp to avoid "toMillis of undefined"
+                    // Safely check for timestamp and toMillis to avoid crash
                     if (data.timestamp?.toMillis) {
                         const isRecent = (Date.now() - data.timestamp.toMillis() < 30000);
                         if (isRecent) {
@@ -220,7 +220,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                 </div>
             )}
 
-            {/* Identification Bar (Only if not ended or already identified) */}
+            {/* Identification Bar */}
             {!isEnded && (
                 <div className="bg-muted/50 border-b p-4 sticky top-0 z-40 backdrop-blur-md">
                     {guest ? (
@@ -243,7 +243,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                 </div>
             )}
 
-            {/* Live Program Pulse (Only if active) */}
+            {/* Live Program Pulse */}
             {!isEnded && (
                 <div className="container mx-auto px-4 mt-6">
                     <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-none shadow-sm overflow-hidden">
