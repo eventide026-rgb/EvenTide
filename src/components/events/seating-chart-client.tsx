@@ -243,7 +243,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
 
   const isLoading = isLoadingEvents || (selectedEventId && (isLoadingTables || isLoadingGuests || isLoadingSeats));
 
-  const guestId: string | null = (userRole === 'guest' && user?.uid) ? user.uid : null;
+  const guestId: string | null = (userRole === 'guest' && user?.uid) ? (user.uid as string) : null;
 
   const { unassignedGuests } = useMemo(() => {
     if (!guestsData || !allSeats) return { assignedGuests: new Set<string>(), unassignedGuests: [] };

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -50,9 +49,14 @@ type CalendarItem = {
 export default function PlannerCalendarPage() {
   const firestore = useFirestore();
   const { user } = useUser();
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [calendarItems, setCalendarItems] = useState<CalendarItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Initialize date on client only to prevent hydration error
+  useEffect(() => {
+    setSelectedDate(new Date());
+  }, []);
 
   // 1. Get all event assignments for the current planner
   const plannerAssignmentsQuery = useMemoFirebase(() => {
@@ -133,7 +137,7 @@ export default function PlannerCalendarPage() {
     return calendarItems.filter((item) => isSameDay(item.date, selectedDate));
   }, [calendarItems, selectedDate]);
 
-  if (isLoading) {
+  if (isLoading || !selectedDate) {
     return (
       <div className="flex justify-center items-center h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
