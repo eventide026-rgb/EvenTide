@@ -264,7 +264,7 @@ export default function Home() {
                     { title: "Innovation", desc: "Leveraging cutting-edge AI to redefine what's possible." },
                     { title: "Connection", desc: "Building a community where culture and technology converge." }
                   ].map((item, i) => (
-                    <Card key={i} className="bg-secondary/20 border-none shadow-sm hover:-translate-y-3 hover:shadow-xl transition-all duration-500 group rounded-2xl overflow-hidden">
+                    <Card key={i} className="bg-background border border-primary/10 shadow-sm hover:-translate-y-2 hover:scale-[1.02] hover:border-primary/50 hover:bg-primary/[0.03] transition-all duration-500 group rounded-2xl overflow-hidden cursor-default">
                       <CardContent className="p-6 text-left">
                         <h3 className="font-bold text-lg group-hover:text-primary transition-colors font-headline">{item.title}</h3>
                         <p className="text-muted-foreground text-sm leading-relaxed mt-1 font-body">{item.desc}</p>
