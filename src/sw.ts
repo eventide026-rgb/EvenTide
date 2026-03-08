@@ -7,7 +7,7 @@
 
 import { precacheAndRoute } from 'workbox-precaching';
 
-// Augment self to include the ServiceWorkerGlobalScope and the __WB_MANIFEST property
+// Correctly augment self to include the ServiceWorkerGlobalScope and the __WB_MANIFEST property
 declare const self: ServiceWorkerGlobalScope & { __WB_MANIFEST: (string | { url: string; revision: string | null })[] };
 
 self.addEventListener('install', () => {

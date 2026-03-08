@@ -94,7 +94,7 @@ export default function PlannerCalendarPage() {
         eventsData.set(doc.id, { id: doc.id, ...doc.data() } as Event);
       });
 
-      for (const event of eventsData.values()) {
+      for (const event of Array.from(eventsData.values())) {
         if (event.eventDate) {
           allItems.push({
             id: event.id,

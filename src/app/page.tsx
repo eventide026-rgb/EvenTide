@@ -138,8 +138,8 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <PublicHeader />
       <main className="flex-1">
-        {/* Hero Section - Spread full screen */}
-        <section className="relative w-full h-screen text-white flex items-start justify-center overflow-hidden pt-48 md:pt-64">
+        {/* Hero Section - immersive height with optimized padding */}
+        <section className="relative w-full h-screen text-white flex items-start justify-center overflow-hidden pt-28 md:pt-36">
           {heroImage && (
             <Image
               src={heroImage.imageUrl}
@@ -160,7 +160,7 @@ export default function Home() {
               </span>
             </h1>
             <p className="mt-6 max-w-xl mx-auto text-base md:text-lg font-body text-white/90 leading-relaxed text-balance">
-              Welcome to EvenTide, your AI-powered partner for flawless event management. From intimate gatherings to grand galas, we bring your vision to life.
+              Welcome to EvenTide, your AI-powered partner for flawless event management. From intimate gatherings to grand galas, we bring your vision to life with intuitive tools and expert assistance.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button asChild size="lg" className="font-bold w-full sm:w-auto h-12 px-8 text-lg rounded-full shadow-2xl shadow-primary/40">
@@ -184,7 +184,7 @@ export default function Home() {
             </div>
         </section>
 
-        {/* How It Works Section - Tighter spacing, Gold edges */}
+        {/* How It Works Section - Premium Gold Edges */}
         <section id="how-it-works" className="py-12 md:py-16 bg-secondary/30 relative border-b border-border/40">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto mb-12">
@@ -224,7 +224,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Vision Section - Tighter spacing, Pop-up cards */}
+        {/* Vision Section - Interactive Pop-up cards */}
         <section id="vision" className="py-12 md:py-16 bg-background relative overflow-hidden">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto mb-12 text-center">
@@ -303,7 +303,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Pricing Section - Capsule badge, Tighter spacing */}
+        {/* Pricing Section - Capsule badge */}
         <section id="pricing" className="py-12 md:py-16 border-t border-border/40 bg-background">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto mb-12 text-center">
