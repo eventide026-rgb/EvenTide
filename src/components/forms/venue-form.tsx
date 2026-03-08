@@ -382,7 +382,7 @@ export function VenueForm({ venueId }: VenueFormProps) {
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {isLoading ? (isEditMode ? "Saving..." : "Creating...") : (isEditMode ? "Save Changes" : "Create Venue Listing")}
+                    {isLoading ? "Saving..." : (isEditMode ? "Save Changes" : "Create Venue Listing")}
                 </Button>
             </form>
         </Form>

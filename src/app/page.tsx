@@ -183,8 +183,8 @@ export default function Home() {
           <div className="container mx-auto px-4">
             <div className="grid lg:grid-cols-12 gap-8 items-center">
                 <div className="lg:col-span-5 text-center">
-                    <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-4 text-center">How It Works</h2>
-                    <p className="text-lg text-muted-foreground text-balance font-body mb-8 text-center">
+                    <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-4">How It Works</h2>
+                    <p className="text-lg text-muted-foreground text-balance font-body mb-8">
                         A simple, streamlined four-step lifecycle from abstract idea to flawless execution.
                     </p>
                     {processImage && (
@@ -216,17 +216,17 @@ export default function Home() {
         </section>
 
         {/* Vision Section */}
-        <section id="vision" className="py-8 md:py-12 bg-background relative overflow-hidden">
+        <section id="vision" className="py-10 md:py-16 bg-background relative overflow-hidden">
           <div className="container mx-auto px-4">
             <div className="mb-10 max-w-3xl mx-auto text-center">
-                <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight text-balance text-center">Bringing People Together, <br/><span className="text-primary">Beautifully.</span></h2>
-                <p className="mt-3 text-lg text-muted-foreground font-body text-balance text-center">
+                <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary">Beautifully.</span></h2>
+                <p className="mt-3 text-lg text-muted-foreground font-body text-balance">
                     Transforming gatherings into narrative masterpieces through poetic precision and harmony.
                 </p>
             </div>
             <div className="grid lg:grid-cols-2 gap-10 items-center">
               <div className="flex justify-center">
-                <div className="relative w-full max-w-[260px] aspect-square rounded-[2rem] overflow-hidden shadow-xl ring-4 ring-background/50 transition-all duration-500 hover:scale-105">
+                <div className="relative w-full max-w-[320px] aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-background/50 transition-all duration-500 hover:scale-105">
                   {missionImage && (
                     <Image
                       src={missionImage.imageUrl}
@@ -237,8 +237,8 @@ export default function Home() {
                     />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                  <div className="absolute bottom-6 left-0 right-0 text-center px-4">
-                    <p className="text-white font-logo text-lg font-bold italic tracking-tight drop-shadow-md">"Masterpiece Moments"</p>
+                  <div className="absolute bottom-8 left-0 right-0 text-center px-4">
+                    <p className="text-white font-logo text-xl font-bold italic tracking-tight drop-shadow-md">"Masterpiece Moments"</p>
                   </div>
                 </div>
               </div>
@@ -248,9 +248,9 @@ export default function Home() {
                     { title: "Effortless Harmony", desc: "We handle complexity so you can stay present." },
                     { title: "Living Archives", desc: "Transforming celebrations into digital legacies." }
                   ].map((item, i) => (
-                    <Card key={i} className="bg-secondary/20 border border-border/40 shadow-sm hover:-translate-y-3 hover:scale-[1.02] transition-all duration-500 group rounded-xl">
-                      <CardContent className="p-5">
-                        <h3 className="font-bold text-base group-hover:text-primary transition-colors font-headline">{item.title}</h3>
+                    <Card key={i} className="bg-secondary/20 border border-border/40 shadow-sm hover:-translate-y-3 hover:scale-[1.02] transition-all duration-500 group rounded-2xl overflow-hidden border-none shadow-xl">
+                      <CardContent className="p-6">
+                        <h3 className="font-bold text-lg group-hover:text-primary transition-colors font-headline">{item.title}</h3>
                         <p className="text-muted-foreground text-sm leading-relaxed mt-1 font-body">{item.desc}</p>
                       </CardContent>
                     </Card>
@@ -261,22 +261,22 @@ export default function Home() {
         </section>
 
         {/* Meet Eni Section */}
-        <section id="meet-eni" className="py-8 md:py-12 bg-primary/[0.02] relative overflow-hidden border-y border-border/20">
+        <section id="meet-eni" className="py-10 md:py-16 bg-primary/[0.02] relative overflow-hidden border-y border-border/20">
           <div className="container mx-auto px-4 text-center">
             <div className="grid lg:grid-cols-2 gap-10 items-center">
               <div className="relative order-2 lg:order-1 flex justify-center">
-                <Card className="border-none shadow-2xl bg-background/60 backdrop-blur-3xl min-h-[280px] w-full max-w-md flex flex-col justify-center p-8 relative overflow-hidden rounded-[2rem] border border-white/10">
+                <Card className="border-none shadow-2xl bg-background/60 backdrop-blur-3xl min-h-[320px] w-full max-w-md flex flex-col justify-center p-8 relative overflow-hidden rounded-[2.5rem] border border-white/10">
                   <div className="absolute top-6 right-8">
                     <Quote className="h-12 w-12 text-primary/10 rotate-12" />
                   </div>
                   {eniMessage ? (
                     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                      <p className="text-2xl md:text-3xl font-logo italic leading-snug text-foreground/90 text-balance tracking-tight text-center">
+                      <p className="text-2xl md:text-3xl font-logo italic leading-snug text-foreground/90 text-balance tracking-tight">
                         &quot;{eniMessage}&quot;
                       </p>
                       <div className="flex items-center justify-center gap-3">
                         <div className="h-[1px] w-10 bg-primary rounded-full" />
-                        <p className="text-xs font-bold text-primary tracking-[0.3em] uppercase text-center">Eni</p>
+                        <p className="text-xs font-bold text-primary tracking-[0.3em] uppercase">Eni</p>
                       </div>
                       <Button variant="ghost" size="sm" className="h-auto text-muted-foreground hover:text-primary transition-colors font-bold uppercase tracking-widest text-[10px] p-0" onClick={() => setEniMessage('')}>
                         Generate Another
@@ -284,7 +284,7 @@ export default function Home() {
                     </div>
                   ) : (
                     <div className="text-center space-y-4">
-                      <div className="h-16 w-16 rounded-[1rem] bg-primary/5 flex items-center justify-center mx-auto mb-2 border border-primary/10">
+                      <div className="h-16 w-16 rounded-[1.25rem] bg-primary/5 flex items-center justify-center mx-auto mb-2 border border-primary/10">
                         <Bot className="h-8 w-8 text-primary opacity-40 animate-pulse" />
                       </div>
                       <div>
@@ -296,7 +296,7 @@ export default function Home() {
                 </Card>
               </div>
               <div className="order-1 lg:order-2 text-center lg:text-left">
-                <h2 className="text-4xl md:text-6xl font-headline font-bold mb-6 tracking-tight text-balance leading-tight text-center lg:text-left">
+                <h2 className="text-4xl md:text-6xl font-headline font-bold mb-6 tracking-tight text-balance leading-tight">
                   Meet Eni, Your <br /><span className="text-primary">AI Partner</span>
                 </h2>
                 <div className="space-y-4 max-w-md mx-auto lg:mx-0">
@@ -333,24 +333,24 @@ export default function Home() {
         </section>
 
         {/* Testimonials Section */}
-        <section id="testimonials" className="py-8 md:py-12 bg-background">
+        <section id="testimonials" className="py-10 md:py-16 bg-background">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-10 text-center">Loved by Planners & Hosts</h2>
+            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-10">Loved by Planners & Hosts</h2>
             <div className="grid gap-6 md:grid-cols-3">
               {testimonials.map((t, i) => (
-                <Card key={i} className="bg-secondary/20 border-2 border-accent shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col rounded-2xl overflow-hidden group">
-                  <CardHeader className="flex-1 p-6">
-                    <Quote className="h-6 w-6 text-primary/40 mb-3" />
-                    <p className="text-base italic leading-relaxed text-foreground/90 font-body">&quot;{t.quote}&quot;</p>
+                <Card key={i} className="bg-secondary/20 border-2 border-accent shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col rounded-[2rem] overflow-hidden group">
+                  <CardHeader className="flex-1 p-8">
+                    <Quote className="h-8 w-8 text-primary/40 mb-4" />
+                    <p className="text-lg italic leading-relaxed text-foreground/90 font-body">&quot;{t.quote}&quot;</p>
                   </CardHeader>
-                  <CardFooter className="flex items-center gap-3 p-6 border-t border-border/10 mt-auto bg-muted/30">
-                    <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                  <CardFooter className="flex items-center gap-4 p-8 border-t border-border/10 mt-auto bg-muted/30">
+                    <Avatar className="h-12 w-12 border-2 border-background shadow-sm">
                       <AvatarImage src={t.avatar} alt={t.author} />
                       <AvatarFallback>{t.author[0]}</AvatarFallback>
                     </Avatar>
                     <div className="text-left">
-                      <p className="font-bold text-xs tracking-tight">{t.author}</p>
-                      <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{t.role}</p>
+                      <p className="font-bold text-sm tracking-tight">{t.author}</p>
+                      <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">{t.role}</p>
                     </div>
                   </CardFooter>
                 </Card>
@@ -360,41 +360,41 @@ export default function Home() {
         </section>
 
         {/* Pricing Section */}
-        <section id="pricing" className="py-8 md:py-12 border-t border-border/40 bg-secondary/10">
+        <section id="pricing" className="py-10 md:py-16 border-t border-border/40 bg-secondary/10">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-12 text-center">Subscription Plans</h2>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto items-stretch">
+            <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance leading-tight mb-12">Subscription Plans</h2>
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto items-stretch">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
-                  "flex flex-col transition-all duration-300 relative border border-border/40 rounded-[1.5rem] overflow-visible",
-                  tier.isPopular ? "border-primary/50 ring-1 ring-primary/20 shadow-xl scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/40 shadow-sm"
+                  "flex flex-col transition-all duration-300 relative border border-border/40 rounded-[2rem] overflow-visible",
+                  tier.isPopular ? "border-primary/50 ring-1 ring-primary/20 shadow-2xl scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/40 shadow-sm"
                 )}>
                   {tier.isPopular && (
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-                      <div className="rounded-full shadow-md px-4 py-1 font-bold uppercase tracking-widest text-[9px] whitespace-nowrap border-2 border-background bg-primary text-primary-foreground">
+                      <div className="rounded-full shadow-lg px-6 py-1.5 font-bold uppercase tracking-widest text-[10px] whitespace-nowrap border-2 border-background bg-primary text-primary-foreground">
                         Most Popular
                       </div>
                     </div>
                   )}
-                  <CardHeader className="pt-8 pb-4 px-6 text-center">
-                    <CardTitle className="font-headline text-xl font-bold">{tier.name}</CardTitle>
-                     <div className="flex items-baseline justify-center gap-1 mt-2">
-                      <p className="text-3xl font-bold font-headline">{tier.price}</p>
+                  <CardHeader className="pt-10 pb-6 px-8 text-center">
+                    <CardTitle className="font-headline text-2xl font-bold">{tier.name}</CardTitle>
+                     <div className="flex items-baseline justify-center gap-1 mt-3">
+                      <p className="text-4xl font-bold font-headline">{tier.price}</p>
                     </div>
-                    <CardDescription className="min-h-[40px] text-[10px] mt-2 leading-relaxed font-medium font-body text-center">{tier.description}</CardDescription>
+                    <CardDescription className="min-h-[40px] text-xs mt-3 leading-relaxed font-medium font-body">{tier.description}</CardDescription>
                   </CardHeader>
-                  <CardContent className="flex-1 px-6 text-center">
-                    <ul className="space-y-3 pt-4 border-t border-border/10">
+                  <CardContent className="flex-1 px-8">
+                    <ul className="space-y-4 pt-6 border-t border-border/10">
                       {tier.features.map((feature, i) => (
-                        <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground font-body text-left">
-                          <CircleCheck className="h-3.5 w-3.5 text-green-500 mt-0.5 flex-shrink-0" />
+                        <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground font-body text-left">
+                          <CircleCheck className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                           <span className="leading-snug">{feature}</span>
                         </li>
                       ))}
                     </ul>
                   </CardContent>
-                  <CardFooter className="p-6 text-center">
-                     <Button className="w-full font-bold rounded-xl h-10 shadow-inner transition-all active:scale-[0.97]" variant={tier.isPopular ? "default" : "outline"}>
+                  <CardFooter className="p-8">
+                     <Button className="w-full font-bold rounded-xl h-12 shadow-inner transition-all active:scale-[0.97]" variant={tier.isPopular ? "default" : "outline"}>
                         Select Path
                      </Button>
                   </CardFooter>
@@ -405,9 +405,9 @@ export default function Home() {
         </section>
 
         {/* Final CTA Section */}
-        <section className="py-8 md:py-12 relative overflow-hidden bg-muted/30 border-t border-border/40 text-center">
+        <section className="py-12 md:py-20 relative overflow-hidden bg-muted/30 border-t border-border/40">
           <div className="container mx-auto px-4 text-center">
-            <h2 className="text-4xl font-headline font-bold md:text-7xl text-foreground text-balance leading-[1.1] mb-8 text-center">
+            <h2 className="text-4xl font-headline font-bold md:text-7xl text-foreground text-balance leading-[1.1] mb-8">
               Your Event, <br className="hidden md:block" /> <span className="italic font-logo text-primary">Reimagined.</span>
             </h2>
             <Button asChild size="lg" className="font-bold shadow-xl h-14 px-10 text-lg group rounded-[1.5rem] active:scale-[0.98] transition-all">

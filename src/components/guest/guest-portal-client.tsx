@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { format, isPast } from 'date-fns';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { ProgramPreviewCard } from '../stationery/previews/program-preview';
 import { MenuPreviewCard } from '../stationery/previews/menu-preview';
@@ -105,7 +106,6 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
             snapshot.docChanges().forEach((change) => {
                 if (change.type === "added") {
                     const data = change.doc.data() as Announcement;
-                    // Safely check for timestamp and toMillis to avoid crash
                     if (data.timestamp?.toMillis) {
                         const isRecent = (Date.now() - data.timestamp.toMillis() < 30000);
                         if (isRecent) {
@@ -202,12 +202,14 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
             {/* Header */}
             <div className="relative h-64 w-full text-white flex items-end p-6 overflow-hidden">
                 <Image src={`https://picsum.photos/seed/${event.id}/1200/800`} alt="Event" fill className="object-cover brightness-50" />
-                <div className="relative z-10 space-y-2">
-                    <Badge className={cn(isEnded ? "bg-muted text-muted-foreground" : "bg-accent text-accent-foreground")}>
-                        {isEnded ? "Concluded" : event.eventType}
-                    </Badge>
+                <div className="relative z-10 space-y-2 text-center w-full">
+                    <div className="flex justify-center mb-2">
+                        <Badge className={cn(isEnded ? "bg-muted text-muted-foreground" : "bg-accent text-accent-foreground")}>
+                            {isEnded ? "Concluded" : event.eventType}
+                        </Badge>
+                    </div>
                     <h1 className="text-3xl font-headline font-bold">{event.name}</h1>
-                    <p className="text-sm flex items-center gap-2"><MapPin className="h-4 w-4" />{event.location}</p>
+                    <p className="text-sm flex items-center justify-center gap-2"><MapPin className="h-4 w-4" />{event.location}</p>
                 </div>
             </div>
 
@@ -288,8 +290,8 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                         <div className="max-w-4xl mx-auto space-y-6">
                             {/* Autograph Wall */}
                             <Card className={cn(isEnded ? "border-none shadow-none bg-transparent" : "")}>
-                                <CardHeader className={cn(isEnded ? "px-0" : "")}>
-                                    <CardTitle className="flex items-center justify-center md:justify-start gap-2">
+                                <CardHeader className={cn(isEnded ? "px-0 text-center" : "text-center")}>
+                                    <CardTitle className="flex items-center justify-center gap-2">
                                         <PenSquare className="h-5 w-5 text-primary"/> {isEnded ? "Final Messages" : "Celebration Wall"}
                                     </CardTitle>
                                     {isEnded && <CardDescription>Notes left by guests during the celebration.</CardDescription>}
@@ -315,7 +317,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
 
                             {!isEnded && polls?.length ? (
                                 <Card>
-                                    <CardHeader><CardTitle className="flex items-center justify-center md:justify-start gap-2"><Vote className="h-5 w-5 text-primary"/> Live Polls</CardTitle></CardHeader>
+                                    <CardHeader className="text-center"><CardTitle className="flex items-center justify-center gap-2"><Vote className="h-5 w-5 text-primary"/> Live Polls</CardTitle></CardHeader>
                                     <CardContent className="space-y-6">
                                         {polls.map(poll => (
                                             <div key={poll.id} className="space-y-3">
