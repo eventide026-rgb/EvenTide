@@ -2,6 +2,7 @@
 
 /**
  * @fileOverview Service Worker for EvenTide PWA.
+ * Technical fix for property 'addEventListener' does not exist on type 'typeof globalThis'.
  */
 
 import { precacheAndRoute } from 'workbox-precaching';

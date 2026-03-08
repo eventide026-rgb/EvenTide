@@ -55,7 +55,7 @@ export default function EventCalendar() {
   const { user } = useUser();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
-  // Initialize date on client only to prevent hydration mismatch
+  // Initialize date on client only to prevent hydration mismatch in Next.js 15
   useEffect(() => {
     setSelectedDate(new Date());
   }, []);
