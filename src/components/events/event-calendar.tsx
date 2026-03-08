@@ -55,7 +55,7 @@ export default function EventCalendar() {
   const { user } = useUser();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
-  // Ensure selectedDate is only initialized on the client to prevent hydration errors
+  // Use useEffect to set the initial date on the client only, preventing hydration errors
   useEffect(() => {
     setSelectedDate(new Date());
   }, []);

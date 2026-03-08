@@ -157,14 +157,14 @@ export default function Home() {
         {/* How It Works Section */}
         <section id="how-it-works" className="py-12 md:py-16 bg-secondary/30 relative border-y border-border/40">
           <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto mb-12">
+            <div className="max-w-3xl mx-auto mb-12 text-center">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">How It Works</h2>
-                <p className="mt-4 text-lg text-muted-foreground text-balance font-body">
+                <p className="mt-4 text-lg text-muted-foreground text-balance font-body max-w-2xl mx-auto">
                     Our platform streamlines the sophisticated event journey into four logical, manageable phases.
                 </p>
             </div>
             
-            <div className="grid lg:grid-cols-12 gap-8 items-center">
+            <div className="grid lg:grid-cols-12 gap-8 items-center max-w-6xl mx-auto">
                 <div className="lg:col-span-5">
                     {processImage && (
                         <div className="relative aspect-[4/3] w-full rounded-3xl overflow-hidden shadow-2xl border border-border/40 group">
@@ -197,14 +197,14 @@ export default function Home() {
         {/* Vision Section */}
         <section id="vision" className="py-12 md:py-16 bg-background relative overflow-hidden">
           <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto mb-12">
+            <div className="max-w-3xl mx-auto mb-12 text-center">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary font-logo">Beautifully.</span></h2>
-                <p className="mt-4 text-lg text-muted-foreground font-body text-balance">
+                <p className="mt-4 text-lg text-muted-foreground font-body text-balance max-w-2xl mx-auto">
                     Transforming gatherings into narrative masterpieces through poetic precision and technical harmony.
                 </p>
             </div>
             
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
               <div className="flex justify-center order-2 lg:order-1">
                 <div className="relative w-full max-w-[400px] aspect-square rounded-[3rem] overflow-hidden shadow-2xl ring-8 ring-secondary/20 transition-all duration-500 hover:scale-105">
                   {missionImage && (
@@ -245,12 +245,12 @@ export default function Home() {
         {/* Testimonials Section */}
         <section id="testimonials" className="py-12 md:py-16 bg-muted/20">
           <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto mb-12">
+            <div className="max-w-3xl mx-auto mb-12 text-center">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">Loved by Planners & Hosts</h2>
-                <p className="mt-4 text-lg text-muted-foreground font-body">Hear from the community that brings EvenTide to life.</p>
+                <p className="mt-4 text-lg text-muted-foreground font-body max-w-2xl mx-auto">Hear from the community that brings EvenTide to life.</p>
             </div>
             
-            <div className="grid gap-8 md:grid-cols-3">
+            <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
               {testimonials.map((t, i) => (
                 <Card key={i} className="bg-background border-2 border-accent shadow-xl flex flex-col rounded-[2rem] overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
                   <CardHeader className="flex-1 p-8 text-center">
@@ -276,9 +276,9 @@ export default function Home() {
         {/* Pricing Section */}
         <section id="pricing" className="py-12 md:py-16 border-t border-border/40 bg-background">
           <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto mb-12">
+            <div className="max-w-3xl mx-auto mb-12 text-center">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-foreground text-balance">The Ecosystem Access</h2>
-                <p className="mt-4 text-lg text-muted-foreground font-body">Select the path that matches your vision.</p>
+                <p className="mt-4 text-lg text-muted-foreground font-body max-w-2xl mx-auto">Select the path that matches your vision.</p>
             </div>
             
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto items-stretch">

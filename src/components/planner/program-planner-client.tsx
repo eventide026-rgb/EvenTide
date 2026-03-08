@@ -125,7 +125,7 @@ export function ProgramPlannerClient({ eventId, isReadOnly = false }: ProgramPla
     }
   }, [debouncedFormValues, form.formState.isDirty, programDocRef, isReadOnly, form]);
   
-  const handleGenerateProgram = async (values: z.infer<typeof aiFormSchema>) => {
+  const handleGenerateProgram = async (values: z.infer<typeof aiFormSchema>): Promise<void> => {
       if(!event) return;
       setIsGenerating(true);
       try {
@@ -220,7 +220,7 @@ export function ProgramPlannerClient({ eventId, isReadOnly = false }: ProgramPla
                                 <FormItem><FormLabel>Start Time</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage/></FormItem>
                             )}/>
                             <FormField control={aiForm.control} name="endTime" render={({field}) => (
-                                <FormItem><FormLabel>End Time</FormLabel><FormControl><Input type="time" {...field} /></FormControl><FormMessage/></FormItem>
+                                <FormItem><FormLabel>End Time</FormLabel><FormControl><Input type="time" {...field} /></FormControl></FormItem>
                             )}/>
                         </div>
                         <FormField control={aiForm.control} name="mcName" render={({field}) => (

@@ -143,7 +143,7 @@ export function MenuPlannerClient({ eventId, isReadOnly: forceReadOnly = false }
     }
   }, [debouncedFormValues, form.formState.isDirty, isReadOnly, menuDocRef, form]);
   
-  const handleGenerateMenu = async (values: z.infer<typeof aiFormSchema>) => {
+  const handleGenerateMenu = async (values: z.infer<typeof aiFormSchema>): Promise<void> => {
       setIsGenerating(true);
       try {
           const result = await generateMenuSuggestions(values);

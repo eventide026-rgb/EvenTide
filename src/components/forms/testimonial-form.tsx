@@ -51,7 +51,7 @@ export function TestimonialForm() {
         },
     });
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof formSchema>): Promise<void> {
         if (!firestore) {
             toast({
                 variant: "destructive",

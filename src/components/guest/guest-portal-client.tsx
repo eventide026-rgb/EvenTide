@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -172,7 +173,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
     const autographsQuery = useMemoFirebase(() => event ? query(collection(firestore, 'events', event.id, 'autographs'), orderBy('createdAt', 'desc'), limit(20)) : null, [event, firestore]);
     const { data: autographs } = useCollection<Autograph>(autographsQuery);
 
-    const handleAutograph = async () => {
+    const handleAutograph = async (): Promise<void> => {
         if (!event || !guest || !autographMsg) return;
         setIsSubmitting(true);
         try {

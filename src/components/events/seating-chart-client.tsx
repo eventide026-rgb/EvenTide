@@ -253,7 +253,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
   }, [guestsData, allSeats]);
 
 
-  const handleAddTable = async () => {
+  const handleAddTable = async (): Promise<void> => {
     if (!firestore || !selectedEventId || !newTableName || newTableCapacity < 1) return;
     try {
         const tablesCollection = collection(firestore, `events/${selectedEventId}/tables`);
@@ -269,7 +269,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
     }
   }
 
-  const handleSeatUpdate = async (tableId: string, seatNumber: number, guestId: string | null) => {
+  const handleSeatUpdate = async (tableId: string, seatNumber: number, guestId: string | null): Promise<void> => {
     if (!firestore || !selectedEventId) return;
     
     const existingSeat = allSeats?.find(s => s.tableId === tableId && s.seatNumber === seatNumber);
