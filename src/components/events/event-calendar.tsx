@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -55,7 +56,7 @@ export default function EventCalendar() {
   const { user } = useUser();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
-  // Use useEffect to prevent hydration error by initializing date on client
+  // Correct Fix: Move Date initialization to useEffect to prevent hydration error
   useEffect(() => {
     setSelectedDate(new Date());
   }, []);

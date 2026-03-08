@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useMemo, useState, useEffect } from 'react';
@@ -329,7 +330,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
                     <div className="flex h-full items-center justify-center text-center p-8 border-2 border-dashed rounded-3xl">
                         <div className="max-w-xs">
                             <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
-                            <p className="text-muted-foreground font-medium">
+                            <p className="text-muted-foreground font-medium text-center">
                             {selectedEventId ? 'The seating plan for this celebration is currently open for design.' : 'Select an active celebration to begin seating assignments.'}
                             </p>
                         </div>
@@ -339,7 +340,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
             <div className="lg:col-span-1 flex flex-col gap-6">
                 {(userRole === 'planner' || userRole === 'owner') && (
                     <Card className="border-none shadow-sm bg-muted/30">
-                        <CardHeader className="pb-3"><CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Celebration</CardTitle></CardHeader>
+                        <CardHeader className="pb-3 text-center md:text-left"><CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Celebration</CardTitle></CardHeader>
                         <CardContent>
                             <Select onValueChange={setSelectedEventId} value={selectedEventId || ''} disabled={isLoadingEvents}>
                                 <SelectTrigger className="rounded-xl"><SelectValue placeholder="Select Event" /></SelectTrigger>
@@ -353,7 +354,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
                 {userRole === 'planner' && (
                     <>
                         <Card className="border-none shadow-md">
-                            <CardHeader className="pb-3"><CardTitle className="text-base">Add New Table</CardTitle></CardHeader>
+                            <CardHeader className="pb-3 text-center md:text-left"><CardTitle className="text-base">Add New Table</CardTitle></CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="table-name" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Label</Label>
@@ -367,7 +368,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
                             </CardContent>
                         </Card>
                         <Card className="flex-grow border-none shadow-lg overflow-hidden flex flex-col">
-                            <CardHeader className="bg-muted/30 pb-3"><CardTitle className="flex items-center gap-2 text-base"><Users className="h-4 w-4 text-primary" /> Unassigned ({unassignedGuests.length})</CardTitle></CardHeader>
+                            <CardHeader className="bg-muted/30 pb-3 text-center md:text-left"><CardTitle className="flex items-center justify-center md:justify-start gap-2 text-base"><Users className="h-4 w-4 text-primary" /> Unassigned ({unassignedGuests.length})</CardTitle></CardHeader>
                             <CardContent className="flex-1 p-0">
                                 <ScrollArea className="h-[400px]">
                                     <div className="p-4 space-y-3">
@@ -383,8 +384,8 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
                 )}
                 {userRole === 'guest' && (
                     <Card className="bg-accent/10 border-accent/20">
-                        <CardHeader><CardTitle className="text-accent">Assigned Seating</CardTitle></CardHeader>
-                        <CardContent><p className="text-sm text-foreground/80 leading-relaxed font-medium">Your designated seat is highlighted on the chart. Please look for the gold ring to identify your table.</p></CardContent>
+                        <CardHeader className="text-center md:text-left"><CardTitle className="text-accent">Assigned Seating</CardTitle></CardHeader>
+                        <CardContent><p className="text-sm text-foreground/80 leading-relaxed font-medium text-center md:text-left">Your designated seat is highlighted on the chart. Please look for the gold ring to identify your table.</p></CardContent>
                     </Card>
                 )}
             </div>

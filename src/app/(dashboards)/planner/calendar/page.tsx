@@ -54,7 +54,7 @@ export default function PlannerCalendarPage() {
   const [calendarItems, setCalendarItems] = useState<CalendarItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Correct Fix: Initialize date on client only to prevent hydration error
+  // Correct Fix: Move Date initialization to useEffect to prevent hydration error
   useEffect(() => {
     setSelectedDate(new Date());
   }, []);
@@ -150,8 +150,8 @@ export default function PlannerCalendarPage() {
     <div className="h-full flex flex-col">
       <header className="pb-4 border-b">
         <div>
-          <h1 className="text-3xl font-bold font-headline">My Calendar</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold font-headline text-center md:text-left">My Calendar</h1>
+          <p className="text-muted-foreground text-center md:text-left">
             A unified view of all your assigned events and task deadlines.
           </p>
         </div>

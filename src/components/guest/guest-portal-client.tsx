@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -189,7 +190,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
     };
 
     if (isLoadingEvent) return <div className="flex h-screen items-center justify-center bg-secondary"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
-    if (!event) return <div className="flex min-h-screen items-center justify-center text-muted-foreground p-4">Event not found.</div>;
+    if (!event) return <div className="flex min-h-screen items-center justify-center text-muted-foreground p-4 text-center">Event not found.</div>;
 
     return (
         <div className="min-h-screen bg-background pb-20">
@@ -211,8 +212,8 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
             {isEnded && (
                 <div className="bg-primary/10 border-b p-6 text-center space-y-2">
                     <History className="h-8 w-8 mx-auto text-primary opacity-50 mb-2" />
-                    <h2 className="text-2xl font-headline font-bold text-primary">Memories of {event.name}</h2>
-                    <p className="text-sm text-muted-foreground max-w-md mx-auto">The celebration has ended, but the moments live on. Browse the gallery and messages from our wonderful guests.</p>
+                    <h2 className="text-2xl font-headline font-bold text-primary text-center">Memories of {event.name}</h2>
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto text-center">The celebration has ended, but the moments live on. Browse the gallery and messages from our wonderful guests.</p>
                 </div>
             )}
 
@@ -228,7 +229,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                             {guest.hasCheckedIn && <Badge className="bg-green-600">Checked-In</Badge>}
                         </div>
                     ) : (
-                        <div className="container flex flex-col md:flex-row items-center gap-4 mx-auto">
+                        <div className="container flex flex-col md:flex-row items-center justify-center gap-4 mx-auto">
                             <p className="text-sm font-semibold text-center">Identify yourself to unlock interactive features.</p>
                             <div className="flex w-full md:w-auto gap-2">
                                 <Input placeholder="Guest Code" className="h-9 w-32 uppercase" value={lookupCode} onChange={e => setLookupCode(e.target.value)} />
@@ -288,7 +289,7 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                                     <CardTitle className="flex items-center justify-center gap-2">
                                         <PenSquare className="h-5 w-5 text-primary"/> {isEnded ? "Final Messages" : "Celebration Wall"}
                                     </CardTitle>
-                                    {isEnded && <CardDescription>Notes left by guests during the celebration.</CardDescription>}
+                                    {isEnded && <CardDescription className="text-center">Notes left by guests during the celebration.</CardDescription>}
                                 </CardHeader>
                                 <CardContent>
                                     {!isEnded && guest && (
@@ -344,8 +345,8 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                                 ))}
                                 {!media?.length && (
                                     <div className="col-span-full text-center text-muted-foreground py-20 border-2 border-dashed rounded-3xl">
-                                        <ImageIcon className="h-12 w-12 mx-auto mb-2 opacity-20" />
-                                        <p>No photos have been shared yet.</p>
+                                        <ImageIcon className="h-12 w-12 mx-auto mb-2 opacity-20 text-center" />
+                                        <p className="text-center">No photos have been shared yet.</p>
                                     </div>
                                 )}
                             </div>
