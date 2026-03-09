@@ -14,7 +14,7 @@ interface NotifyOptions {
   email?: string | null;
   subject?: string;
   message?: string;
-  htmlContent?: string;
+  html?: string;
   templateId?: TemplateId;
   templateData?: TemplateData;
 }
@@ -24,14 +24,14 @@ interface NotifyOptions {
  * Automatically handles templates and logs results to Firestore for history tracking.
  */
 export async function notifyUser(options: NotifyOptions) {
-  let { subject, message, htmlContent, phone, email, templateId, templateData } = options;
+  let { subject, message, html, phone, email, templateId, templateData } = options;
 
   // 1. Resolve Content from Template if provided
   if (templateId && templateData) {
     const template = getTemplate(templateId, templateData);
     subject = subject || template.subject;
     message = message || template.text;
-    htmlContent = htmlContent || template.html;
+    html = html || template.html;
   }
 
   if (!subject || !message) {
@@ -40,54 +40,32 @@ export async function notifyUser(options: NotifyOptions) {
 
   const tasks = [];
 
-  // 2. Dispatch SMS (Africa's Talking)
+  // 2. Dispatch Mobile Channels (Africa's Talking)
   if (phone) {
-    tasks.push(
-      sendSMS(phone, message).then(res => ({ channel: 'sms', status: 'success', details: res }))
-        .catch(err => ({ channel: 'sms', status: 'error', details: err.message }))
-    );
+    tasks.push(sendSMS(phone, message));
+    tasks.push(sendWhatsApp(phone, message));
   }
 
-  // 3. Dispatch WhatsApp (Africa's Talking)
-  if (phone) {
-    tasks.push(
-      sendWhatsApp(phone, message).then(res => ({ channel: 'whatsapp', status: 'success', details: res }))
-        .catch(err => ({ channel: 'whatsapp', status: 'error', details: err.message }))
-    );
-  }
-
-  // 4. Dispatch Email (Brevo)
+  // 3. Dispatch Email Channel (Brevo)
   if (email) {
-    tasks.push(
-      sendEmail(email, subject, htmlContent || message).then(res => ({ channel: 'email', status: 'success', details: res }))
-        .catch(err => ({ channel: 'email', status: 'error', details: err.message }))
-    );
+    tasks.push(sendEmail(email, subject, html || message));
   }
 
+  // 4. Parallel execution with allSettled to ensure maximum deliverability
+  const results = await Promise.allSettled(tasks);
+
+  // 5. Audit Logging to Firestore for history tracking
   try {
-    const rawResults = await Promise.all(tasks);
-    const channelResults = rawResults.reduce((acc: any, curr: any) => {
-        acc[curr.channel] = { status: curr.status, details: curr.details };
-        return acc;
-    }, {});
-
-    // 5. Audit Logging to Firestore
-    try {
-        await adminDb.collection('notification_logs').add({
-            recipient: { email, phone },
-            subject,
-            message,
-            templateId: templateId || null,
-            results: channelResults,
-            timestamp: new Date().toISOString()
-        });
-    } catch (logError) {
-        console.error("Failed to log notification to database:", logError);
-    }
-
-    return channelResults;
-  } catch (error) {
-    console.error("Critical Notification Pipeline Failure:", error);
-    throw error;
+    await adminDb.collection('notification_logs').add({
+      recipient: { email, phone },
+      subject,
+      message,
+      templateId: templateId || null,
+      timestamp: new Date().toISOString()
+    });
+  } catch (logError) {
+    console.error("Failed to log notification to database:", logError);
   }
+
+  return results;
 }
