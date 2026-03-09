@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -156,7 +157,7 @@ export default function Home() {
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-headline font-extrabold tracking-tight leading-[1.1] text-balance">
               Plan Your Event
               <br />
-              <span className="bg-gradient-to-r from-[#60A5FA] to-[#FDE047] text-transparent bg-clip-text transition-all duration-500">
+              <span className="bg-gradient-to-r from-[#4169E1] to-[#D4AF37] text-transparent bg-clip-text transition-all duration-500">
                 {rotatingWords[currentIndex]}
               </span>
             </h1>
