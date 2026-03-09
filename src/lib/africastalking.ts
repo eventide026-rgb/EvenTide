@@ -1,66 +1,54 @@
-
 import Africastalking from "africastalking";
 
-/**
- * @fileOverview Africastalking utility for SMS and WhatsApp services.
- * Safely handles missing environment variables during the build phase and runtime.
- */
+const africastalking = Africastalking({
+  apiKey: process.env.AFRICASTALKING_API_KEY || "",
+  username: process.env.AFRICASTALKING_USERNAME || "",
+});
 
-const apiKey = process.env.AFRICASTALKING_API_KEY;
-const username = process.env.AFRICASTALKING_USERNAME;
-
-let atInstance: any;
-let smsService: any;
-
-// CRITICAL: Only initialize if BOTH required credentials are present
-// This prevents the SDK from throwing a "username is required" error during build.
-if (apiKey && username && apiKey !== 'undefined' && username !== 'undefined') {
-  try {
-    atInstance = Africastalking({ apiKey, username });
-    smsService = atInstance.SMS;
-  } catch (e) {
-    console.error("Failed to initialize Africastalking:", e);
-  }
-}
-
-export const sms = smsService;
+export const sms = africastalking.SMS;
+export const whatsapp = africastalking.PAYLOADS ? africastalking.PAYLOADS.WhatsApp : null;
+export const airtime = africastalking.AIRTIME;
 
 /**
- * Send an SMS via AfricasTalking
+ * Send SMS
  */
 export async function sendSMS(to: string | string[], message: string) {
-  if (!smsService) {
-    console.warn("SMS service not initialized. Skipping delivery.");
-    return { status: 'skipped', reason: 'missing_config' };
-  }
   try {
-    const response = await smsService.send({ to, message });
-    console.log("SMS Sent successfully:", response);
+    const response = await sms.send({ to, message });
+    console.log("SMS Sent:", response);
     return response;
   } catch (error) {
-    console.error("Error sending SMS via AfricasTalking:", error);
+    console.error("Error sending SMS:", error);
     throw error;
   }
 }
 
 /**
- * Send a WhatsApp message via AfricasTalking
+ * Send WhatsApp Message (requires Africa's Talking WhatsApp approval)
  */
-export async function sendWhatsApp(to: string | string[], message: string) {
-  if (!smsService) {
-    console.warn("WhatsApp service not initialized. Skipping delivery.");
-    return { status: 'skipped', reason: 'missing_config' };
-  }
+export async function sendWhatsApp(to: string, message: string) {
+  if (!whatsapp) throw new Error("WhatsApp not enabled in Africa's Talking account.");
+
   try {
-    const response = await smsService.send({
-      to,
-      message,
-      from: process.env.AFRICASTALKING_WHATSAPP_CHANNEL || "EvenTide",
-    });
-    console.log("WhatsApp Sent successfully:", response);
+    const response = await whatsapp.send({ to, message });
+    console.log("WhatsApp Sent:", response);
     return response;
   } catch (error) {
-    console.error("Error sending WhatsApp message via AfricasTalking:", error);
+    console.error("Error sending WhatsApp:", error);
+    throw error;
+  }
+}
+
+/**
+ * Send Airtime
+ */
+export async function sendAirtime(recipients: { phoneNumber: string; amount: string }[]) {
+  try {
+    const response = await airtime.send({ recipients });
+    console.log("Airtime Sent:", response);
+    return response;
+  } catch (error) {
+    console.error("Error sending Airtime:", error);
     throw error;
   }
 }
