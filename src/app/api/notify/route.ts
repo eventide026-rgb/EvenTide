@@ -1,32 +1,30 @@
-
 import { notifyUser } from "@/lib/notifications";
+import { templates } from "@/lib/templates";
 import { NextResponse } from "next/server";
 
 /**
  * @fileOverview High-Fidelity Unified Notification API endpoint.
- * Dispatches alerts via Email, SMS, and WhatsApp using the professional orchestrator.
+ * Dispatches alerts via Email, SMS, and WhatsApp using reusable templates.
  */
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { 
-        phone, 
-        email, 
-        subject, 
-        message, 
-        templateId, 
-        templateData 
-    } = body;
+    const { type, phone, email, data } = await req.json();
 
-    // The orchestrator handles template resolution, logging, and tri-channel delivery
+    // 1. Resolve Content from Template
+    if (!templates[type]) {
+      return NextResponse.json({ error: `Invalid template type: ${type}` }, { status: 400 });
+    }
+
+    const template = templates[type](data);
+
+    // 2. Dispatch via Orchestration Engine
     const result = await notifyUser({
       phone,
       email,
-      subject,
-      message,
-      templateId,
-      templateData
+      subject: template.subject,
+      message: template.message,
+      html: template.html
     });
 
     return NextResponse.json({

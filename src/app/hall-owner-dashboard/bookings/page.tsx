@@ -2,7 +2,7 @@
 'use client';
 
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, updateDoc, writeBatch, getDocs } from 'firebase/firestore';
+import { collection, query, where, doc, updateDoc, writeBatch } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
@@ -54,7 +54,7 @@ export default function BookingsPage() {
     try {
       await batch.commit();
 
-      // Trigger Unified Tri-Channel Notification on Confirmation
+      // Trigger Template-driven Notification on Confirmation
       if (newStatus === 'confirmed') {
           fetch('/api/notify', {
               method: 'POST',
@@ -62,8 +62,13 @@ export default function BookingsPage() {
               body: JSON.stringify({
                   email: booking.userEmail,
                   phone: booking.userPhone,
-                  subject: 'Event Booking Confirmed',
-                  message: `Your booking for "${booking.venueName}" on ${format(booking.eventDate.toDate(), 'MMMM d')} has been confirmed. We look forward to hosting your event: "${booking.eventName}".`
+                  type: 'bookingConfirmed',
+                  data: {
+                      recipientName: 'Valued Client',
+                      eventName: booking.eventName,
+                      venueName: booking.venueName,
+                      eventDate: format(booking.eventDate.toDate(), 'MMMM d, yyyy')
+                  }
               }),
           }).catch(err => console.error("Post-confirmation notification failed:", err));
       }

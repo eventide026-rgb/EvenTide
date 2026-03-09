@@ -1,15 +1,7 @@
-
 /**
  * @fileOverview EvenTide Notification Template Library.
  * Provides reusable message structures for Email, SMS, and WhatsApp.
  */
-
-export type TemplateId = 
-  | 'INVITATION' 
-  | 'BOOKING_CONFIRMED' 
-  | 'BROADCAST' 
-  | 'EVENT_REMINDER' 
-  | 'ACCOUNT_UPDATE';
 
 export interface TemplateData {
   recipientName?: string;
@@ -25,7 +17,7 @@ export interface TemplateData {
 
 export interface NotificationContent {
   subject: string;
-  text: string;
+  message: string;
   html: string;
 }
 
@@ -72,92 +64,78 @@ const wrapInEmailLayout = (title: string, bodyHtml: string) => `
   </html>
 `;
 
-export const getTemplate = (id: TemplateId, data: TemplateData): NotificationContent => {
-  switch (id) {
-    case 'INVITATION':
-      return {
-        subject: `Exclusive Invitation: ${data.eventName}`,
-        text: `Welcome to ${data.eventName}! 🎉 Your Event Code is ${data.eventCode} and your Guest Code is ${data.guestCode}. Access your pass: ${data.ctaUrl || 'eventide.app/guest-login'}`,
-        html: wrapInEmailLayout(
-          'You Are Cordially Invited',
-          `
-          <p>Dear ${data.recipientName || 'Honored Guest'},</p>
-          <p>It is our distinct pleasure to invite you to <strong>${data.eventName}</strong>.</p>
-          <div style="background: #f1f5f9; padding: 20px; border-radius: 16px; margin: 20px 0;">
-            <p style="margin: 0; font-size: 14px; color: #64748b;">Event Access Codes:</p>
-            <p style="margin: 5px 0; font-family: monospace; font-weight: bold; font-size: 18px;">Event: ${data.eventCode}</p>
-            <p style="margin: 5px 0; font-family: monospace; font-weight: bold; font-size: 18px;">Guest: ${data.guestCode}</p>
-          </div>
-          <p>Please present these codes or your digital gatepass at the entrance for seamless check-in.</p>
-          <a href="${data.ctaUrl || 'https://eventide.app/guest-login'}" class="button">Access Guest Portal</a>
-          `
-        )
-      };
+export const templates: Record<string, (data: TemplateData) => NotificationContent> = {
+  invitation: (data) => ({
+    subject: `Exclusive Invitation: ${data.eventName}`,
+    message: `Welcome to ${data.eventName}! 🎉 Your Event Code is ${data.eventCode} and your Guest Code is ${data.guestCode}. Access your pass: ${data.ctaUrl || 'eventide.app/guest-login'}`,
+    html: wrapInEmailLayout(
+      'You Are Cordially Invited',
+      `
+      <p>Dear ${data.recipientName || 'Honored Guest'},</p>
+      <p>It is our distinct pleasure to invite you to <strong>${data.eventName}</strong>.</p>
+      <div style="background: #f1f5f9; padding: 20px; border-radius: 16px; margin: 20px 0;">
+        <p style="margin: 0; font-size: 14px; color: #64748b;">Event Access Codes:</p>
+        <p style="margin: 5px 0; font-family: monospace; font-weight: bold; font-size: 18px;">Event: ${data.eventCode}</p>
+        <p style="margin: 5px 0; font-family: monospace; font-weight: bold; font-size: 18px;">Guest: ${data.guestCode}</p>
+      </div>
+      <p>Please present these codes or your digital gatepass at the entrance for seamless check-in.</p>
+      <a href="${data.ctaUrl || 'https://eventide.app/guest-login'}" class="button">Access Guest Portal</a>
+      `
+    )
+  }),
 
-    case 'BOOKING_CONFIRMED':
-      return {
-        subject: "Event Booking Confirmed 🎉",
-        text: `Your booking for ${data.eventName || data.venueName} on ${data.eventDate} has been confirmed.`,
-        html: wrapInEmailLayout(
-          'Booking Confirmed',
-          `
-          <p>Hello ${data.recipientName || 'there'},</p>
-          <p>We are pleased to inform you that your booking request for <b>${data.eventName || data.venueName}</b> on <b>${data.eventDate}</b> has been <strong>successfully confirmed</strong>.</p>
-          <p>The service provider is preparing for your arrival. You can view full details in your dashboard.</p>
-          <a href="https://eventide.app/owner" class="button">View My Dashboard</a>
-          `
-        )
-      };
+  bookingConfirmed: (data) => ({
+    subject: "Event Booking Confirmed 🎉",
+    message: `Your booking for ${data.eventName || data.venueName} on ${data.eventDate} has been confirmed.`,
+    html: wrapInEmailLayout(
+      'Booking Confirmed',
+      `
+      <p>Hello ${data.recipientName || 'there'},</p>
+      <p>We are pleased to inform you that your booking request for <b>${data.eventName || data.venueName}</b> on <b>${data.eventDate}</b> has been <strong>successfully confirmed</strong>.</p>
+      <p>The service provider is preparing for your arrival. You can view full details in your dashboard.</p>
+      <a href="https://eventide.app/owner" class="button">View My Dashboard</a>
+      `
+    )
+  }),
 
-    case 'BROADCAST':
-      return {
-        subject: `Live Update: ${data.eventName}`,
-        text: `Broadcasting from ${data.eventName}: ${data.message}`,
-        html: wrapInEmailLayout(
-          'Live Event Announcement',
-          `
-          <p>A new announcement has been published for <strong>${data.eventName}</strong>:</p>
-          <blockquote style="font-size: 18px; font-style: italic; color: #1e293b; border-left: 4px solid ${BRAND_COLORS.primary}; padding-left: 20px; margin: 30px 0;">
-            "${data.message}"
-          </blockquote>
-          <p>Stay tuned to your guest dashboard for more live updates!</p>
-          `
-        )
-      };
+  broadcast: (data) => ({
+    subject: `Live Update: ${data.eventName}`,
+    message: `Broadcasting from ${data.eventName}: ${data.message}`,
+    html: wrapInEmailLayout(
+      'Live Event Announcement',
+      `
+      <p>A new announcement has been published for <strong>${data.eventName}</strong>:</p>
+      <blockquote style="font-size: 18px; font-style: italic; color: #1e293b; border-left: 4px solid ${BRAND_COLORS.primary}; padding-left: 20px; margin: 30px 0;">
+        "${data.message}"
+      </blockquote>
+      <p>Stay tuned to your guest dashboard for more live updates!</p>
+      `
+    )
+  }),
 
-    case 'EVENT_REMINDER':
-      return {
-        subject: "Event Reminder ⏰",
-        text: `Reminder: Your event ${data.eventName} is happening on ${data.eventDate}.`,
-        html: wrapInEmailLayout(
-          'Event Reminder',
-          `
-          <p>Friendly reminder that <b>${data.eventName}</b> is happening on <b>${data.eventDate}</b>.</p>
-          <p>We look forward to seeing you there!</p>
-          <a href="https://eventide.app/guest-login" class="button">View Event Details</a>
-          `
-        )
-      };
+  eventReminder: (data) => ({
+    subject: "Event Reminder ⏰",
+    message: `Reminder: Your event ${data.eventName} is happening on ${data.eventDate}.`,
+    html: wrapInEmailLayout(
+      'Event Reminder',
+      `
+      <p>Friendly reminder that <b>${data.eventName}</b> is happening on <b>${data.eventDate}</b>.</p>
+      <p>We look forward to seeing you there!</p>
+      <a href="https://eventide.app/guest-login" class="button">View Event Details</a>
+      `
+    )
+  }),
 
-    case 'ACCOUNT_UPDATE':
-      return {
-        subject: "Security Alert: Account Updated",
-        text: `Hello ${data.recipientName}, your EvenTide account profile was recently updated.`,
-        html: wrapInEmailLayout(
-          'Account Security Update',
-          `
-          <p>Hello ${data.recipientName},</p>
-          <p>This is an automated notification to inform you that your account profile was recently updated.</p>
-          <p>If you did not make this change, please contact our support team immediately.</p>
-          `
-        )
-      };
-
-    default:
-      return {
-        subject: 'EvenTide Notification',
-        text: data.message || '',
-        html: wrapInEmailLayout('Notification', `<p>${data.message}</p>`)
-      };
-  }
+  accountUpdate: (data) => ({
+    subject: "Security Alert: Account Updated",
+    message: `Hello ${data.recipientName}, your EvenTide account profile was recently updated.`,
+    html: wrapInEmailLayout(
+      'Account Security Update',
+      `
+      <p>Hello ${data.recipientName},</p>
+      <p>This is an automated notification to inform you that your account profile was recently updated.</p>
+      <p>If you did not make this change, please contact our support team immediately.</p>
+      `
+    )
+  })
 };

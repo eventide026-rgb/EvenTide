@@ -208,8 +208,8 @@ function GuestManagementComponent() {
             body: JSON.stringify({ 
                 phone: values.phoneNumber, 
                 email: values.email,
-                templateId: 'INVITATION',
-                templateData: {
+                type: 'invitation',
+                data: {
                     recipientName: values.name,
                     eventName: selectedEvent.name,
                     eventCode: selectedEvent.eventCode,

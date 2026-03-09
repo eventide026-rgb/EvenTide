@@ -54,7 +54,7 @@ export default function BookingsPage() {
     try {
       await updateDoc(bookingRef, { status: newStatus });
 
-      // Trigger Unified Tri-Channel Notification on Confirmation
+      // Trigger Template-driven Notification on Confirmation
       if (newStatus === 'confirmed') {
           fetch('/api/notify', {
               method: 'POST',
@@ -62,8 +62,12 @@ export default function BookingsPage() {
               body: JSON.stringify({
                   email: booking.userEmail,
                   phone: booking.userPhone,
-                  subject: 'Hotel Reservation Confirmed',
-                  message: `Your stay at "${booking.hotelName}" has been confirmed for ${format(booking.checkInDate.toDate(), 'MMMM d')}. Room: ${booking.roomTypeName}. We look forward to welcoming you!`
+                  type: 'bookingConfirmed',
+                  data: {
+                      recipientName: 'Valued Client',
+                      eventName: `${booking.hotelName} (${booking.roomTypeName})`,
+                      eventDate: format(booking.checkInDate.toDate(), 'MMMM d, yyyy')
+                  }
               }),
           }).catch(err => console.error("Post-confirmation notification failed:", err));
       }

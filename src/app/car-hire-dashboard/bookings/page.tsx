@@ -50,7 +50,7 @@ export default function BookingsPage() {
     try {
       await updateDoc(bookingRef, { status: newStatus });
 
-      // Trigger Unified Tri-Channel Notification on Confirmation
+      // Trigger Template-driven Notification on Confirmation
       const booking = bookings?.find(b => b.id === bookingId);
       if (newStatus === 'confirmed' && booking) {
           fetch('/api/notify', {
@@ -59,8 +59,8 @@ export default function BookingsPage() {
               body: JSON.stringify({
                   email: booking.userEmail,
                   phone: booking.userPhone,
-                  templateId: 'BOOKING_CONFIRMED',
-                  templateData: {
+                  type: 'bookingConfirmed',
+                  data: {
                       recipientName: 'Valued Client',
                       eventName: booking.carName,
                       eventDate: `${format(booking.pickupDate.toDate(), 'MMMM d')} to ${format(booking.returnDate.toDate(), 'MMMM d')}`

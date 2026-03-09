@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -101,7 +102,7 @@ export function BroadcastClient() {
                 ? guests 
                 : guests.filter(g => g.category === values.targetGroup);
             
-            // Push to all identified targets using the unified notify API
+            // Push to all identified targets using the unified template notify API
             targetGuests.forEach(guest => {
                 if (guest.phoneNumber || guest.email) {
                     fetch('/api/notify', {
@@ -110,8 +111,11 @@ export function BroadcastClient() {
                         body: JSON.stringify({ 
                             phone: guest.phoneNumber,
                             email: guest.email,
-                            subject: `Urgent Update: ${eventName}`,
-                            message: values.content
+                            type: 'broadcast',
+                            data: {
+                                eventName: eventName,
+                                message: values.content
+                            }
                         }),
                     }).catch(err => console.error("Broadcast delivery failed for recipient:", guest.id, err));
                 }
