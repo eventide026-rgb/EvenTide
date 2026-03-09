@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -221,7 +220,7 @@ export function BroadcastClient() {
                                     <FormItem className="flex flex-row items-center justify-between rounded-2xl border p-4 bg-background/50">
                                         <div className="space-y-0.5">
                                             <div className="flex items-center gap-2">
-                                                <Smartphone className="h-4 w-4 text-primary" />
+                                                <img src="/icons/channels.svg" className="h-4 w-4" alt="Channels" />
                                                 <FormLabel className="text-sm font-bold">Multi-Channel Push</FormLabel>
                                             </div>
                                             <FormDescription className="text-[10px] flex items-center gap-1">
