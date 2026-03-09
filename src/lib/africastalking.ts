@@ -1,3 +1,4 @@
+
 import Africastalking from "africastalking";
 
 /**
@@ -10,6 +11,7 @@ let africastalking: any = null;
 const apiKey = process.env.AFRICASTALKING_API_KEY;
 const username = process.env.AFRICASTALKING_USERNAME;
 
+// Only initialize if we have the required credentials to avoid Joi validation errors
 if (apiKey && username) {
   try {
     africastalking = Africastalking({

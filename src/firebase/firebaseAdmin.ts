@@ -7,19 +7,21 @@ import { getFirestore } from 'firebase-admin/firestore';
  * Verifies environment variables before initialization to prevent runtime crashes.
  */
 
-const serviceAccount = {
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-};
+const projectId = process.env.FIREBASE_PROJECT_ID;
+const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+const privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
 function getAdminApp() {
   if (getApps().length > 0) return getApp();
   
-  if (serviceAccount.projectId && serviceAccount.clientEmail && serviceAccount.privateKey) {
+  if (projectId && clientEmail && privateKey) {
     try {
       return initializeApp({
-        credential: cert(serviceAccount as any),
+        credential: cert({
+          projectId,
+          clientEmail,
+          privateKey: privateKey.replace(/\\n/g, '\n'),
+        } as any),
       });
     } catch (e) {
       console.error("Firebase Admin initialization error:", e);
@@ -27,12 +29,11 @@ function getAdminApp() {
     }
   }
   
-  console.warn("Firebase Admin SDK not initialized: Missing required environment variables.");
+  console.warn("Firebase Admin SDK not initialized: Missing required environment variables (PROJECT_ID, CLIENT_EMAIL, or PRIVATE_KEY).");
   return null;
 }
 
 const adminApp = getAdminApp();
 
-// Export adminDb as a proxy or null-safe object if possible, but here we export the instance
-// Routes using adminDb must check for its existence if they want to be fully resilient.
+// Export adminDb as a proxy or null-safe object if possible
 export const adminDb = adminApp ? getFirestore(adminApp) : null as any;

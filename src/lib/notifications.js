@@ -1,43 +1,9 @@
-// lib/notifications.js
-
-import { sendSMS, sendWhatsApp } from "@/lib/africastalking";
-import { sendEmail } from "@/lib/brevo";
 
 /**
- * Send notifications through multiple channels
+ * @fileOverview Redundant JS utility. Delegating to TypeScript version for orchestration.
  */
-export async function notifyUser({
-  phone,
-  email,
-  subject,
-  message,
-  htmlContent
-}) {
-  const tasks = [];
+import { notifyUser as notifyUserTs } from './notifications';
 
-  // SMS
-  if (phone) {
-    tasks.push(sendSMS(phone, message));
-  }
-
-  // WhatsApp
-  if (phone) {
-    tasks.push(sendWhatsApp(phone, message));
-  }
-
-  // Email
-  if (email) {
-    tasks.push(sendEmail(email, subject, htmlContent));
-  }
-
-  try {
-    const results = await Promise.allSettled(tasks);
-
-    console.log("Notification results:", results);
-
-    return results;
-  } catch (error) {
-    console.error("Notification error:", error);
-    throw error;
-  }
+export async function notifyUser(options) {
+  return notifyUserTs(options);
 }
