@@ -9,14 +9,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Send } from 'lucide-react';
+import { Loader2, Send, Megaphone, Smartphone, CheckCircle2 } from 'lucide-react';
 import { Label } from './ui/label';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from './ui/badge';
+import { Switch } from './ui/switch';
 
 type Event = {
   id: string;
@@ -33,9 +34,16 @@ type Announcement = {
     timestamp: any;
 };
 
+type Guest = {
+    id: string;
+    phoneNumber?: string;
+    category: string;
+}
+
 const broadcastFormSchema = z.object({
   content: z.string().min(5, 'Announcement must be at least 5 characters long.'),
   targetGroup: z.string().default('All Guests'),
+  sendToMobile: z.boolean().default(false),
 });
 
 export function BroadcastClient() {
@@ -46,7 +54,7 @@ export function BroadcastClient() {
 
   const form = useForm<z.infer<typeof broadcastFormSchema>>({
     resolver: zodResolver(broadcastFormSchema),
-    defaultValues: { content: '', targetGroup: 'All Guests' },
+    defaultValues: { content: '', targetGroup: 'All Guests', sendToMobile: false },
   });
 
   const eventsQuery = useMemoFirebase(() => {
@@ -63,6 +71,13 @@ export function BroadcastClient() {
 
   const { data: announcements, isLoading: isLoadingAnnouncements } = useCollection<Announcement>(announcementsQuery);
 
+  // Fetch guests for mobile notification targets
+  const guestsQuery = useMemoFirebase(() => {
+      if (!firestore || !selectedEventId) return null;
+      return query(collection(firestore, 'events', selectedEventId, 'guests'));
+  }, [firestore, selectedEventId]);
+  const { data: guests } = useCollection<Guest>(guestsQuery);
+
   const handleSendBroadcast = async (values: z.infer<typeof broadcastFormSchema>) => {
     if (!firestore || !user || !selectedEventId) return;
 
@@ -70,20 +85,51 @@ export function BroadcastClient() {
         eventId: selectedEventId,
         authorId: user.uid,
         authorName: user.displayName || user.email,
-        authorRole: 'Owner', // This should be dynamic based on user role
+        authorRole: 'Owner',
         content: values.content,
         targetGroup: values.targetGroup,
-        targetRoles: values.targetGroup === 'All Guests' ? ['All Guests'] : [values.targetGroup], // Simplified
+        targetRoles: values.targetGroup === 'All Guests' ? ['All Guests'] : [values.targetGroup],
         timestamp: serverTimestamp(),
     };
 
     try {
+        // 1. Save to Live Feed (Firestore)
         await addDoc(collection(firestore, 'events', selectedEventId, 'announcements'), announcementData);
-        toast({ title: 'Broadcast Sent!', description: 'Your announcement has been sent to the selected guests.' });
-        form.reset();
+        
+        // 2. Multi-channel Mobile Notification (SMS & WhatsApp)
+        if (values.sendToMobile && guests) {
+            const targetGuests = values.targetGroup === 'All Guests' 
+                ? guests 
+                : guests.filter(g => g.category === values.targetGroup);
+            
+            const mobileTargets = targetGuests
+                .map(g => g.phoneNumber)
+                .filter(phone => !!phone && phone.length > 5);
+
+            if (mobileTargets.length > 0) {
+                // We send individually to handle personalized formatting or group batches via our API
+                // For this MVP, we call the notify API for each or batch them if supported.
+                // Here we'll notify them about the update.
+                mobileTargets.forEach(phoneNumber => {
+                    fetch('/api/notify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            phoneNumber, 
+                            message: `[EvenTide] Update for ${events?.find(e => e.id === selectedEventId)?.name}: ${values.content}` 
+                        }),
+                    }).catch(err => console.error("Mobile notification failed for", phoneNumber, err));
+                });
+                
+                toast({ title: 'Mobile Alerts Queued', description: `Notifications sent to ${mobileTargets.length} guests.` });
+            }
+        }
+
+        toast({ title: 'Broadcast Published', description: 'Your announcement is now live.' });
+        form.reset({ ...form.getValues(), content: '' }); // Keep event and group selection
     } catch (error) {
         console.error('Error sending announcement:', error);
-        toast({ variant: 'destructive', title: 'Failed to Send', description: 'Could not send the announcement.' });
+        toast({ variant: 'destructive', title: 'Failed to Send', description: 'Could not publish the announcement.' });
     }
   };
 
@@ -93,49 +139,51 @@ export function BroadcastClient() {
   return (
     <div className="grid md:grid-cols-3 gap-8 items-start">
         <div className="md:col-span-2">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Announcement Log</CardTitle>
-                    <CardDescription>History of all broadcasts sent for the selected event.</CardDescription>
+            <Card className="border-none shadow-lg">
+                <CardHeader className="bg-muted/10 border-b">
+                    <CardTitle className="flex items-center gap-2"><Megaphone className="h-5 w-5 text-primary"/> Broadcast Log</CardTitle>
+                    <CardDescription>Real-time feed of all updates sent to participants.</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                     {isLoadingAnnouncements && selectedEventId ? (
-                        <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>
+                        <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
                     ) : announcements && announcements.length > 0 ? (
                         <ul className="space-y-4">
                             {announcements.map(ann => (
-                                <li key={ann.id} className="border p-4 rounded-lg">
-                                    <p>{ann.content}</p>
-                                    <div className="text-xs text-muted-foreground mt-2 flex items-center justify-between">
-                                        <span>From {ann.authorName} ({ann.authorRole})</span>
-                                        <span>{formatDistanceToNow(ann.timestamp.toDate(), { addSuffix: true })}</span>
+                                <li key={ann.id} className="border p-4 rounded-2xl bg-muted/20 relative group">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <Badge variant="outline" className="bg-background/50 border-primary/20">{ann.targetGroup}</Badge>
+                                        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">{formatDistanceToNow(ann.timestamp.toDate(), { addSuffix: true })}</span>
                                     </div>
-                                    <Badge variant="outline" className="mt-2">{ann.targetGroup}</Badge>
+                                    <p className="text-sm leading-relaxed">{ann.content}</p>
+                                    <p className="text-[10px] text-muted-foreground mt-2 font-bold">— {ann.authorName}</p>
                                 </li>
                             ))}
                         </ul>
                     ) : (
-                        <div className="text-center py-16 border-dashed border-2 rounded-lg">
-                            <p className="text-muted-foreground">No announcements sent for this event yet.</p>
+                        <div className="text-center py-20 border-2 border-dashed rounded-3xl opacity-50">
+                            <Megaphone className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground">The announcement log is empty.</p>
                         </div>
                     )}
                 </CardContent>
             </Card>
         </div>
         <div className="md:col-span-1">
-            <Card>
+            <Card className="border-none shadow-xl bg-gradient-to-br from-primary/5 to-background">
                 <CardHeader>
-                    <CardTitle>New Broadcast</CardTitle>
+                    <CardTitle>Instant Broadcast</CardTitle>
+                    <CardDescription>Push updates to the live feed and mobile devices.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-4">
-                        <div>
-                            <Label>Select Event</Label>
+                    <div className="space-y-6">
+                        <div className="space-y-2">
+                            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Target Event</Label>
                             {isLoading ? (
-                                <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /><span>Loading events...</span></div>
+                                <Skeleton className="h-10 w-full rounded-xl" />
                             ) : (
                                 <Select onValueChange={setSelectedEventId} value={selectedEventId || ''}>
-                                    <SelectTrigger><SelectValue placeholder="Choose an event" /></SelectTrigger>
+                                    <SelectTrigger className="rounded-xl h-11"><SelectValue placeholder="Choose event" /></SelectTrigger>
                                     <SelectContent>
                                         {events && events.length > 0 ? (
                                             events.map((event) => (<SelectItem key={event.id} value={event.id}>{event.name}</SelectItem>))
@@ -147,17 +195,16 @@ export function BroadcastClient() {
                             )}
                         </div>
                         <Form {...form}>
-                            <form onSubmit={form.handleSubmit(handleSendBroadcast)} className="space-y-4 pt-4 border-t">
+                            <form onSubmit={form.handleSubmit(handleSendBroadcast)} className="space-y-6">
                                 <FormField control={form.control} name="targetGroup" render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Audience</FormLabel>
+                                        <FormLabel className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Target Audience</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value} disabled={!selectedEventId}>
-                                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                            <FormControl><SelectTrigger className="rounded-xl h-11"><SelectValue /></SelectTrigger></FormControl>
                                             <SelectContent>
                                                 <SelectItem value="All Guests">All Guests</SelectItem>
-                                                <SelectItem value="VIP">VIP</SelectItem>
-                                                <SelectItem value="VVIP">VVIP</SelectItem>
-                                                <SelectItem value="Family">Family</SelectItem>
+                                                <SelectItem value="VIP">VIPs Only</SelectItem>
+                                                <SelectItem value="Staff">Staff Only</SelectItem>
                                             </SelectContent>
                                         </Select>
                                         <FormMessage />
@@ -165,14 +212,30 @@ export function BroadcastClient() {
                                 )}/>
                                 <FormField control={form.control} name="content" render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Message</FormLabel>
-                                        <FormControl><Textarea rows={5} placeholder="e.g., Dinner is now being served in the main hall." {...field} disabled={!selectedEventId} /></FormControl>
+                                        <FormLabel className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Message</FormLabel>
+                                        <FormControl><Textarea rows={4} className="rounded-2xl resize-none" placeholder="What's happening now?" {...field} disabled={!selectedEventId} /></FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}/>
-                                <Button type="submit" className="w-full" disabled={!selectedEventId || isFormSubmitting}>
+                                
+                                <FormField control={form.control} name="sendToMobile" render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center justify-between rounded-2xl border p-4 bg-background/50">
+                                        <div className="space-y-0.5">
+                                            <div className="flex items-center gap-2">
+                                                <Smartphone className="h-4 w-4 text-primary" />
+                                                <FormLabel className="text-sm font-bold">Mobile Push</FormLabel>
+                                            </div>
+                                            <FormDescription className="text-[10px]">Send via SMS & WhatsApp</FormDescription>
+                                        </div>
+                                        <FormControl>
+                                            <Switch checked={field.value} onCheckedChange={field.onChange} disabled={!selectedEventId} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}/>
+
+                                <Button type="submit" className="w-full rounded-2xl h-12 font-bold shadow-lg" disabled={!selectedEventId || isFormSubmitting}>
                                     {isFormSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-                                    {isFormSubmitting ? "Sending..." : "Send Broadcast"}
+                                    {isFormSubmitting ? "Pushing..." : "Send Broadcast"}
                                 </Button>
                             </form>
                         </Form>

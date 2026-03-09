@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
@@ -60,6 +61,7 @@ import {
   UserPlus,
   Trash2,
   Edit,
+  Smartphone,
 } from 'lucide-react';
 import { Label } from '../ui/label';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -197,18 +199,22 @@ function GuestManagementComponent() {
         await batch.commit();
         toast({ title: 'Guest Added', description: `${values.name} added successfully.` });
         
-        // SMS Notification Integration
+        // Omni-channel Notification Integration (SMS & WhatsApp)
         if (values.phoneNumber) {
-            const smsMessage = `Welcome to ${selectedEvent.name}! Your Event Code is ${selectedEvent.eventCode} and your unique Guest Code is ${guestCode}. Access your portal at https://eventide.app/e/${selectedEvent.eventCode}`;
+            const message = `Welcome to ${selectedEvent.name}! 🎉 Your Event Code is ${selectedEvent.eventCode} and your unique Guest Code is ${guestCode}. Access your digital gatepass and portal at https://eventide.app/e/${selectedEvent.eventCode}`;
             
-            fetch('/api/send-sms', {
+            fetch('/api/notify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ to: values.phoneNumber, message: smsMessage }),
+                body: JSON.stringify({ phoneNumber: values.phoneNumber, message }),
             })
             .then(res => res.json())
-            .then(data => console.log("SMS notification triggered:", data))
-            .catch(err => console.error("SMS notification failed:", err));
+            .then(data => {
+                if (data.success) {
+                    toast({ title: "Welcome Alert Sent", description: "Guest notified via SMS and WhatsApp." });
+                }
+            })
+            .catch(err => console.error("Mobile notification failed:", err));
         }
 
         guestForm.reset();
@@ -281,15 +287,15 @@ function GuestManagementComponent() {
     <div className="grid md:grid-cols-3 gap-8 items-start">
       <div className="md:col-span-2 flex flex-col gap-6">
         {selectedEvent && (
-          <Card>
+          <Card className="border-none shadow-lg">
             <CardHeader>
-              <CardTitle>Guest Capacity</CardTitle>
+              <CardTitle>Event Capacity</CardTitle>
               <CardDescription>{guestCount} of {guestLimit} spots filled.</CardDescription>
             </CardHeader>
-            <CardContent><Progress value={capacityPercentage} /></CardContent>
+            <CardContent><Progress value={capacityPercentage} className="h-2" /></CardContent>
           </Card>
         )}
-        <Card>
+        <Card className="border-none shadow-lg">
           <CardHeader>
             <CardTitle>Guest Roster</CardTitle>
             <CardDescription>
@@ -298,29 +304,29 @@ function GuestManagementComponent() {
           </CardHeader>
           <CardContent>
             {isLoadingGuests && selectedEventId ? (
-              <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+              <div className="flex justify-center items-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
             ) : guests && guests.length > 0 ? (
-              <div className="rounded-md border">
+              <div className="rounded-md border overflow-hidden">
                 <Table>
-                  <TableHeader>
+                  <TableHeader className="bg-muted/50">
                     <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Code</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>RSVP</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="font-bold">Name</TableHead>
+                      <TableHead className="font-bold">Code</TableHead>
+                      <TableHead className="font-bold">Category</TableHead>
+                      <TableHead className="font-bold">RSVP</TableHead>
+                      <TableHead className="text-right font-bold">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {guests.map((guest) => (
-                      <TableRow key={guest.id}>
+                      <TableRow key={guest.id} className="hover:bg-muted/30">
                         <TableCell className="font-medium">{guest.name}</TableCell>
-                        <TableCell><Badge variant="secondary">{guest.guestCode}</Badge></TableCell>
+                        <TableCell><Badge variant="secondary" className="font-mono">{guest.guestCode}</Badge></TableCell>
                         <TableCell><Badge variant="outline">{guest.category}</Badge></TableCell>
                         <TableCell>{guest.rsvpStatus}</TableCell>
                         <TableCell className="text-right">
                           <Button variant="ghost" size="icon" onClick={() => setEditingGuest(guest)}><Edit className="h-4 w-4" /></Button>
-                          <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteGuest(guest)}><Trash2 className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGuest(guest)}><Trash2 className="h-4 w-4" /></Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -328,43 +334,52 @@ function GuestManagementComponent() {
                 </Table>
               </div>
             ) : (
-              <div className="text-center py-16 border-dashed border-2 rounded-lg">
-                <UserPlus className="mx-auto h-12 w-12 text-muted-foreground" />
-                <h3 className="mt-4 text-xl font-semibold">Your guest list is empty</h3>
+              <div className="text-center py-20 border-2 border-dashed rounded-3xl opacity-50">
+                <UserPlus className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-xl font-headline font-bold">Your guest list is empty</h3>
+                <p className="text-sm text-muted-foreground mt-1">Start adding guests to see them in your roster.</p>
               </div>
             )}
           </CardContent>
         </Card>
       </div>
       <div className="md:col-span-1 space-y-6">
-        <Card>
-          <CardHeader><CardTitle>{editingGuest ? 'Edit Guest' : 'Add New Guest'}</CardTitle></CardHeader>
+        <Card className="border-none shadow-xl bg-gradient-to-br from-primary/5 to-background">
+          <CardHeader><CardTitle className="font-headline">{editingGuest ? 'Edit Guest' : 'Add New Guest'}</CardTitle></CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div>
-                <Label>Select Event</Label>
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Target Event</Label>
                 <Select onValueChange={setSelectedEventId} value={selectedEventId || ''}>
-                    <SelectTrigger><SelectValue placeholder="Choose an event" /></SelectTrigger>
+                    <SelectTrigger className="rounded-xl h-11"><SelectValue placeholder="Choose event" /></SelectTrigger>
                     <SelectContent>
                       {events?.map((event) => (<SelectItem key={event.id} value={event.id}>{event.name}</SelectItem>))}
                     </SelectContent>
                 </Select>
               </div>
               <Form {...guestForm}>
-                <form onSubmit={guestForm.handleSubmit(handleFormSubmit)} className="space-y-4 pt-4 border-t">
+                <form onSubmit={guestForm.handleSubmit(handleFormSubmit)} className="space-y-5 pt-4 border-t">
                     <FormField control={guestForm.control} name="name" render={({ field }) => (
-                        <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="e.g., Jane Doe" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel className="font-bold">Full Name</FormLabel><FormControl><Input placeholder="e.g., Jane Doe" className="rounded-xl h-11" {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
                     <FormField control={guestForm.control} name="email" render={({ field }) => (
-                        <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="jane@example.com" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel className="font-bold">Email</FormLabel><FormControl><Input type="email" placeholder="jane@example.com" className="rounded-xl h-11" {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
                     <FormField control={guestForm.control} name="phoneNumber" render={({ field }) => (
-                        <FormItem><FormLabel>Phone Number (for SMS)</FormLabel><FormControl><Input placeholder="+234..." {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem>
+                            <div className="flex items-center gap-2">
+                                <Smartphone className="h-4 w-4 text-primary" />
+                                <FormLabel className="font-bold">Phone Number</FormLabel>
+                            </div>
+                            <FormControl><Input placeholder="+234..." className="rounded-xl h-11" {...field} /></FormControl>
+                            <FormDescription className="text-[10px]">Required for SMS/WhatsApp invitations.</FormDescription>
+                            <FormMessage />
+                        </FormItem>
                     )}/>
                     <FormField control={guestForm.control} name="category" render={({ field }) => (
-                        <FormItem><FormLabel>Category</FormLabel>
+                        <FormItem><FormLabel className="font-bold">Guest Category</FormLabel>
                           <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl><SelectTrigger><SelectValue placeholder="Category" /></SelectTrigger></FormControl>
+                            <FormControl><SelectTrigger className="rounded-xl h-11"><SelectValue placeholder="Category" /></SelectTrigger></FormControl>
                             <SelectContent>
                               <SelectItem value="Chairperson">Chairperson</SelectItem>
                               <SelectItem value="VVIP">VVIP</SelectItem>
@@ -376,11 +391,11 @@ function GuestManagementComponent() {
                           </Select>
                         <FormMessage /></FormItem>
                     )}/>
-                    <div className="flex gap-2">
-                      {editingGuest && <Button type="button" variant="outline" onClick={() => setEditingGuest(null)} className="w-full">Cancel</Button>}
-                      <Button type="submit" className="w-full" disabled={!selectedEventId || isFormSubmitting}>
-                        {isFormSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin text-primary" />}
-                        {editingGuest ? 'Save Changes' : 'Add Guest'}
+                    <div className="flex gap-3 pt-2">
+                      {editingGuest && <Button type="button" variant="ghost" onClick={() => setEditingGuest(null)} className="w-full rounded-xl">Cancel</Button>}
+                      <Button type="submit" className="w-full rounded-xl h-12 font-bold shadow-lg" disabled={!selectedEventId || isFormSubmitting}>
+                        {isFormSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
+                        {editingGuest ? 'Save Changes' : 'Add to List'}
                       </Button>
                     </div>
                 </form>
