@@ -318,8 +318,8 @@ export default function Home() {
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 max-w-7xl mx-auto items-stretch">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
-                  "flex flex-col transition-all duration-500 relative border border-border/40 rounded-[2.5rem] overflow-visible",
-                  tier.isPopular ? "border-primary/50 ring-1 ring-primary/20 shadow-2xl scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/40 shadow-sm"
+                  "flex flex-col transition-all duration-500 relative border-2 border-accent rounded-[2.5rem] overflow-visible shadow-sm",
+                  tier.isPopular ? "border-primary ring-1 ring-primary/20 shadow-2xl scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/40"
                 )}>
                   {tier.isPopular && (
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
