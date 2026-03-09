@@ -1,10 +1,10 @@
-
 import { notifyUser } from "@/lib/notifications";
+import { NextResponse } from "next/server";
 
 /**
- * @fileOverview Unified Multi-channel Notification API.
- * Orchestrates delivery via SMS, WhatsApp (Africa's Talking), and Email (Brevo)
- * using the notifyUser abstraction with EvenTide branding.
+ * @fileOverview High-Fidelity Unified Notification API endpoint.
+ * Accepts details for phone and email alerts, wraps content in a premium
+ * HTML template for email, and dispatches via the notifications orchestrator.
  */
 
 export async function POST(req: Request) {
@@ -12,26 +12,44 @@ export async function POST(req: Request) {
     const { phone, email, subject, message } = await req.json();
 
     if (!subject || !message) {
-        return Response.json({ error: "Subject and message are required" }, { status: 400 });
+      return NextResponse.json({ error: "subject and message are required" }, { status: 400 });
     }
 
-    // Construct a premium HTML wrapper for the email channel aligned with EvenTide's high-fidelity brand
+    // High-Fidelity HTML Wrapper for the Email Channel
     const htmlContent = `
-      <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; background-color: #ffffff; border-radius: 24px; border: 1px solid #e2e8f0; color: #1e293b;">
-        <div style="margin-bottom: 32px; text-align: center;">
-            <span style="font-family: 'Playfair Display', serif; font-weight: bold; font-size: 28px; background: linear-gradient(to right, #60A5FA, #FDE047); -webkit-background-clip: text; color: transparent; display: inline-block;">EvenTide</span>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Playfair+Display:wght@700&display=swap');
+          body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background-color: #f8fafc; }
+          .container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 24px; overflow: hidden; border: 1px solid #e2e8f0; }
+          .header { padding: 40px 20px; text-align: center; border-bottom: 1px solid #f1f5f9; }
+          .logo { font-family: 'Playfair Display', serif; font-weight: bold; font-size: 32px; background: linear-gradient(to right, #60A5FA, #FDE047); -webkit-background-clip: text; color: transparent; }
+          .content { padding: 40px; color: #1e293b; line-height: 1.7; }
+          .footer { padding: 24px; text-align: center; background: #f8fafc; border-top: 1px solid #f1f5f9; font-size: 12px; color: #94a3b8; }
+          h2 { color: #4169E1; margin-top: 0; font-weight: 700; font-size: 24px; }
+          .message { color: #475569; font-size: 16px; margin-bottom: 32px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <span class="logo">EvenTide</span>
+          </div>
+          <div class="content">
+            <h2>${subject}</h2>
+            <div class="message">
+              ${message.replace(/\n/g, '<br>')}
+            </div>
+          </div>
+          <div class="footer">
+            <p>Sent via the EvenTide Orchestration Engine. Your Event, Reimagined.</p>
+            <p>&copy; ${new Date().getFullYear()} EvenTide App</p>
+          </div>
         </div>
-        <h2 style="color: #4169E1; font-size: 22px; margin-top: 0; margin-bottom: 20px; font-weight: 700;">${subject}</h2>
-        <div style="font-size: 16px; line-height: 1.7; color: #475569; margin-bottom: 32px;">
-          ${message.replace(/\n/g, '<br>')}
-        </div>
-        <div style="border-top: 1px solid #f1f5f9; padding-top: 24px; margin-top: 24px; text-align: center;">
-            <p style="font-size: 12px; color: #94a3b8; margin: 0;">
-                Sent via the EvenTide Orchestration Engine.<br>
-                <em>Your Event, Reimagined.</em>
-            </p>
-        </div>
-      </div>
+      </body>
+      </html>
     `;
 
     const result = await notifyUser({
@@ -42,14 +60,14 @@ export async function POST(req: Request) {
       htmlContent
     });
 
-    return Response.json({
+    return NextResponse.json({
       success: true,
       result
     });
 
   } catch (error: any) {
-    console.error("Notification API Error:", error);
-    return Response.json(
+    console.error("API Route Error [notify]:", error);
+    return NextResponse.json(
       { error: error.message || "Internal Server Error" },
       { status: 500 }
     );

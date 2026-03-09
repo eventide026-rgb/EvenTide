@@ -8,7 +8,6 @@
 
 import * as SibApiV3Sdk from 'sib-api-v3-sdk';
 
-// Initialize the Brevo client
 const client = SibApiV3Sdk.ApiClient.instance;
 const apiKey = client.authentications['api-key'];
 apiKey.apiKey = process.env.BREVO_API_KEY || '';
@@ -17,10 +16,6 @@ const transactionalEmailsApi = new SibApiV3Sdk.TransactionalEmailsApi();
 
 /**
  * Send a transactional email using Brevo
- * @param to - Recipient email address
- * @param subject - Email subject line
- * @param htmlContent - The HTML body of the email
- * @returns - The API response data
  */
 export async function sendEmail(to: string, subject: string, htmlContent: string) {
   if (!process.env.BREVO_API_KEY) {
