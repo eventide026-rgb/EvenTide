@@ -1,41 +1,35 @@
-import { notifyUser } from "@/lib/notifications";
-import { templates } from "@/lib/templates";
+
+import { addNotificationToQueue } from "@/lib/notificationQueue";
 import { NextResponse } from "next/server";
 
 /**
- * @fileOverview High-Fidelity Unified Notification API endpoint.
- * Dispatches alerts via Email, SMS, and WhatsApp using reusable templates.
- * Includes automated logging for enterprise tracking.
+ * @fileOverview High-Fidelity Unified Notification API (Queued).
+ * Instead of processing delivery immediately, we queue the intent.
+ * This ensures the API is non-blocking and highly responsive.
  */
 
 export async function POST(req: Request) {
   try {
-    const { type, phone, email, data } = await req.json();
+    const body = await req.json();
 
-    // 1. Resolve Content from Template
-    if (!templates[type]) {
-      return NextResponse.json({ error: `Invalid template type: ${type}` }, { status: 400 });
+    // 1. Basic Validation
+    if (!body.type) {
+      return NextResponse.json(
+        { error: "Notification 'type' is required for queueing." },
+        { status: 400 }
+      );
     }
 
-    const template = templates[type](data);
-
-    // 2. Dispatch via Orchestration Engine (which handles logging internally)
-    const result = await notifyUser({
-      type,
-      phone,
-      email,
-      subject: template.subject,
-      message: template.message,
-      html: template.html
-    });
+    // 2. Queue the notification for background processing
+    await addNotificationToQueue(body);
 
     return NextResponse.json({
       success: true,
-      result
+      message: "Notification successfully queued for delivery.",
     });
 
   } catch (error: any) {
-    console.error("API Route Error [notify]:", error);
+    console.error("API Route Error [notify-queue]:", error);
     return NextResponse.json(
       { error: error.message || "Internal Server Error" },
       { status: 500 }
