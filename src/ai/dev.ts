@@ -12,3 +12,4 @@ import '@/ai/flows/suggest-moodboard-items.ts';
 import '@/ai/flows/generate-thank-you-note.ts';
 import '@/ai/flows/eni-writeup-flow.ts';
 import '@/ai/flows/suggest-seating-flow.ts';
+import '@/ai/flows/eni-guest-assistant.ts';

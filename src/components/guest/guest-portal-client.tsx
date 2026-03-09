@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -19,6 +18,7 @@ import { MenuPreviewCard } from '../stationery/previews/menu-preview';
 import { ImageUploader } from '../image-uploader';
 import { Progress } from '../ui/progress';
 import { cn } from '@/lib/utils';
+import { EniAssistantChat } from './eni-assistant-chat';
 
 type Event = {
     id: string;
@@ -365,6 +365,15 @@ export function GuestPortalClient({ eventCode }: { eventCode: string }) {
                     )}
                 </Tabs>
             </div>
+
+            {/* AI Assistant Integration */}
+            {!isEnded && guest && (
+                <EniAssistantChat 
+                    eventId={event.id} 
+                    guestId={guest.id} 
+                    guestName={guest.name} 
+                />
+            )}
         </div>
     );
 }
