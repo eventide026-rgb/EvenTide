@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useFirestore } from '@/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
+import { getStorage, ref, uploadString, getDownloadURL } from 'firebase/storage';
 import { Loader2, Sparkles, Upload } from "lucide-react";
 import type { Stationery, EventColors, CardType } from '@/app/owner-dashboard/stationery-hub/invitation-studio/[eventId]/page';
 import { generateInvitationCard } from '@/ai/flows/invitation-card-design';
@@ -54,6 +55,7 @@ export function ControlPanel({
     const [aiPrompt, setAiPrompt] = useState("");
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -68,7 +70,7 @@ export function ControlPanel({
                 title: 'Theme Saved!',
                 description: 'Your event stationery theme has been updated.',
             });
-            router.push(`/owner-dashboard/stationery-hub/gatepass-preview/${eventId}`);
+            router.push(`/owner/stationery-hub/gatepass-preview/${eventId}`);
         } catch (error) {
             console.error("Error saving theme:", error);
             toast({ variant: 'destructive', title: 'Save Failed', description: 'Could not save your theme.' });
@@ -82,18 +84,31 @@ export function ControlPanel({
         setStationery(prev => ({ ...prev, [backgroundProp]: url }));
     }
 
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                if (typeof reader.result === 'string') {
-                    handleSetBackground(reader.result);
-                    toast({ title: "Background applied!" });
-                }
-            };
-            reader.readAsDataURL(file);
-        }
+        if (!file || !eventId) return;
+
+        setIsUploading(true);
+        const storage = getStorage();
+        const filePath = `events/${eventId}/stationery/${activeTab}_${Date.now()}_${file.name}`;
+        const storageRef = ref(storage, filePath);
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = async (e) => {
+            const dataUrl = e.target?.result as string;
+            try {
+                const uploadTask = await uploadString(storageRef, dataUrl, 'data_url');
+                const downloadURL = await getDownloadURL(uploadTask.ref);
+                handleSetBackground(downloadURL);
+                toast({ title: "Custom background applied!", description: "The image has been uploaded and set as your background." });
+            } catch (error) {
+                console.error("Upload error:", error);
+                toast({ variant: 'destructive', title: "Upload failed", description: "There was an error saving your image." });
+            } finally {
+                setIsUploading(false);
+            }
+        };
     };
 
     const handleGenerate = async () => {
@@ -180,8 +195,10 @@ export function ControlPanel({
                                     variant="outline" 
                                     className="w-full" 
                                     onClick={() => fileInputRef.current?.click()}
+                                    disabled={isUploading}
                                 >
-                                    <Upload className="mr-2 h-4 w-4" /> Upload Background
+                                    {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin text-primary" /> : <Upload className="mr-2 h-4 w-4" />}
+                                    {isUploading ? "Uploading..." : "Upload Background"}
                                 </Button>
                             </div>
                         </AccordionContent>
