@@ -1,6 +1,7 @@
-import { Redis } from "@upstash/redis";
 
-export const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
+/**
+ * @fileOverview Legacy JS utility. Delegating to robust TypeScript version.
+ */
+import { redis as redisTs } from './redis';
+
+export const redis = redisTs;

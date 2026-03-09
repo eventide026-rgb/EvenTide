@@ -11,16 +11,32 @@ const projectId = process.env.FIREBASE_PROJECT_ID;
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
 const privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
+/**
+ * Cleans the private key string, handling escaped newlines and potential wrapping quotes.
+ */
+function formatPrivateKey(key: string | undefined): string | null {
+  if (!key) return null;
+  // Handle literal newlines and escaped newlines
+  let formattedKey = key.replace(/\\n/g, '\n');
+  // Remove wrapping quotes if they exist (common in some env managers)
+  if (formattedKey.startsWith('"') && formattedKey.endsWith('"')) {
+    formattedKey = formattedKey.substring(1, formattedKey.length - 1);
+  }
+  return formattedKey;
+}
+
 function getAdminApp() {
   if (getApps().length > 0) return getApp();
   
-  if (projectId && clientEmail && privateKey) {
+  const formattedKey = formatPrivateKey(privateKey);
+
+  if (projectId && clientEmail && formattedKey) {
     try {
       return initializeApp({
         credential: cert({
           projectId,
           clientEmail,
-          privateKey: privateKey.replace(/\\n/g, '\n'),
+          privateKey: formattedKey,
         } as any),
       });
     } catch (e) {
@@ -29,11 +45,12 @@ function getAdminApp() {
     }
   }
   
-  console.warn("Firebase Admin SDK not initialized: Missing required environment variables (PROJECT_ID, CLIENT_EMAIL, or PRIVATE_KEY).");
+  console.warn("Firebase Admin SDK not initialized: Missing or malformed required environment variables (PROJECT_ID, CLIENT_EMAIL, or PRIVATE_KEY).");
   return null;
 }
 
 const adminApp = getAdminApp();
 
-// Export adminDb as a proxy or null-safe object if possible
+// Export adminDb as a null-safe reference or null. 
+// Using 'any' allows consumers to attempt method calls, but we should always check if it's truthy.
 export const adminDb = adminApp ? getFirestore(adminApp) : null as any;

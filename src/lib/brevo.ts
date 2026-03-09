@@ -1,3 +1,4 @@
+
 /**
  * @fileOverview Brevo Transactional Email Utility.
  * Replaced legacy sib-api-v3-sdk with modern @getbrevo/brevo for high-performance delivery.
@@ -9,18 +10,28 @@
 
 import * as Brevo from '@getbrevo/brevo';
 
-const apiInstance = new Brevo.TransactionalEmailsApi();
+let apiInstance: Brevo.TransactionalEmailsApi | null = null;
 
-if (process.env.BREVO_API_KEY) {
-  apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
+function getBrevoApi() {
+  if (apiInstance) return apiInstance;
+  
+  if (process.env.BREVO_API_KEY) {
+    apiInstance = new Brevo.TransactionalEmailsApi();
+    apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
+    return apiInstance;
+  }
+  
+  return null;
 }
 
 /**
  * Send a transactional email using Brevo
  */
 export async function sendEmail(to: string, subject: string, htmlContent: string) {
-  if (!process.env.BREVO_API_KEY) {
-    console.warn('BREVO_API_KEY is not set. Email delivery will be skipped.');
+  const api = getBrevoApi();
+  
+  if (!api) {
+    console.warn('Brevo API not initialized (Missing BREVO_API_KEY). Email delivery will be skipped.');
     return null;
   }
 
@@ -35,7 +46,7 @@ export async function sendEmail(to: string, subject: string, htmlContent: string
   sendSmtpEmail.to = [{ email: to }];
 
   try {
-    const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
+    const data = await api.sendTransacEmail(sendSmtpEmail);
     console.log('Brevo Email sent successfully:', data);
     return data;
   } catch (error) {

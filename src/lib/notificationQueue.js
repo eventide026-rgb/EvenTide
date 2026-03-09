@@ -1,15 +1,13 @@
-import { redis } from "./redis";
 
-const QUEUE_NAME = "notification_queue";
+/**
+ * @fileOverview Legacy JS utility. Delegating to TypeScript version for safety.
+ */
+import { addNotificationToQueue as addTs, getNextNotification as getNextTs } from './notificationQueue';
 
 export async function addNotificationToQueue(data) {
-  await redis.lpush(QUEUE_NAME, JSON.stringify(data));
+  return addTs(data);
 }
 
 export async function getNextNotification() {
-  const item = await redis.rpop(QUEUE_NAME);
-
-  if (!item) return null;
-
-  return JSON.parse(item);
+  return getNextTs();
 }

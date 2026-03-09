@@ -10,12 +10,13 @@ import { Redis } from "@upstash/redis";
 const url = process.env.UPSTASH_REDIS_REST_URL;
 const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
+// Only initialize if both URL and Token are present to prevent library warnings
 export const redis = (url && token) 
   ? new Redis({ url, token }) 
-  : null as unknown as Redis;
+  : null;
 
 if (!url || !token) {
     if (process.env.NODE_ENV === 'production') {
-        console.warn("Redis environment variables are missing. Notification queueing will be disabled.");
+        console.warn("Upstash Redis environment variables are missing. Notification queueing will be disabled.");
     }
 }

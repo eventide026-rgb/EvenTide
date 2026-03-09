@@ -13,7 +13,7 @@ const QUEUE_NAME = "notification_queue";
  */
 export async function addNotificationToQueue(data: any) {
   if (!redis) {
-    console.warn("Redis not available. Dropping notification from queue.");
+    console.warn("Redis not configured. Skipping queue push.");
     return;
   }
   try {
