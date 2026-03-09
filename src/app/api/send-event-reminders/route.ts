@@ -23,13 +23,18 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // 2. Readiness Check
+  if (!adminDb) {
+    return NextResponse.json({ error: "Backend services not available" }, { status: 503 });
+  }
+
   try {
-    // 2. Define the "Tomorrow" window
+    // 3. Define the "Tomorrow" window
     const now = new Date();
     const tomorrowStart = new Date(now.getTime() + 24 * 60 * 60 * 1000);
     const tomorrowEnd = new Date(tomorrowStart.getTime() + 24 * 60 * 60 * 1000);
 
-    // 3. Query upcoming events
+    // 4. Query upcoming events
     const eventsSnapshot = await adminDb.collection('events')
       .where('eventDate', '>=', tomorrowStart)
       .where('eventDate', '<', tomorrowEnd)
@@ -44,12 +49,12 @@ export async function GET(req: Request) {
 
     let remindersTriggered = 0;
 
-    // 4. Orchestrate reminders for each event's guest list
+    // 5. Orchestrate reminders for each event's guest list
     for (const eventDoc of eventsSnapshot.docs) {
       const eventData = eventDoc.data();
       const guestsSnapshot = await eventDoc.ref.collection('guests').get();
 
-      const reminderBatch = guestsSnapshot.docs.map(async (guestDoc) => {
+      const reminderBatch = guestsSnapshot.docs.map(async (guestDoc: any) => {
         const guestData = guestDoc.data();
         
         if (guestData.email || guestData.phoneNumber) {

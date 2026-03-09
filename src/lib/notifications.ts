@@ -58,25 +58,27 @@ export async function notifyUser(options: NotifyOptions) {
   const status = hasError ? (results.every(r => r.status === 'error') ? 'failed' : 'partial_success') : 'sent';
 
   // 5. Enterprise Audit Logging
-  try {
-    await adminDb.collection('notification_logs').add({
-        type,
-        channels,
-        status,
-        recipient: { 
-            phone: phone || null, 
-            email: email || null 
-        },
-        content: {
-            subject,
-            message: message.substring(0, 500) // Truncate long messages for the log
-        },
-        deliveryDetails: results,
-        createdAt: new Date().toISOString(),
-        timestamp: new Date()
-    });
-  } catch (logError) {
-      console.error("CRITICAL: Audit Log Failure:", logError);
+  if (adminDb) {
+    try {
+        await adminDb.collection('notification_logs').add({
+            type,
+            channels,
+            status,
+            recipient: { 
+                phone: phone || null, 
+                email: email || null 
+            },
+            content: {
+                subject,
+                message: message.substring(0, 500) // Truncate long messages for the log
+            },
+            deliveryDetails: results,
+            createdAt: new Date().toISOString(),
+            timestamp: new Date()
+        });
+    } catch (logError) {
+        console.error("CRITICAL: Audit Log Failure:", logError);
+    }
   }
 
   return results;
