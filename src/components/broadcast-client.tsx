@@ -13,11 +13,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDes
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Send, Megaphone, Smartphone, CheckCircle2 } from 'lucide-react';
+import { Loader2, Send, Megaphone, Smartphone, Mail } from 'lucide-react';
 import { Label } from './ui/label';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from './ui/badge';
 import { Switch } from './ui/switch';
+import { Skeleton } from './ui/skeleton';
 
 type Event = {
   id: string;
@@ -36,6 +37,7 @@ type Announcement = {
 
 type Guest = {
     id: string;
+    email?: string;
     phoneNumber?: string;
     category: string;
 }
@@ -71,7 +73,6 @@ export function BroadcastClient() {
 
   const { data: announcements, isLoading: isLoadingAnnouncements } = useCollection<Announcement>(announcementsQuery);
 
-  // Fetch guests for mobile notification targets
   const guestsQuery = useMemoFirebase(() => {
       if (!firestore || !selectedEventId) return null;
       return query(collection(firestore, 'events', selectedEventId, 'guests'));
@@ -81,6 +82,7 @@ export function BroadcastClient() {
   const handleSendBroadcast = async (values: z.infer<typeof broadcastFormSchema>) => {
     if (!firestore || !user || !selectedEventId) return;
 
+    const eventName = events?.find(e => e.id === selectedEventId)?.name || 'Event';
     const announcementData = {
         eventId: selectedEventId,
         authorId: user.uid,
@@ -93,43 +95,45 @@ export function BroadcastClient() {
     };
 
     try {
-        // 1. Save to Live Feed (Firestore)
         await addDoc(collection(firestore, 'events', selectedEventId, 'announcements'), announcementData);
         
-        // 2. Multi-channel Mobile Notification (SMS & WhatsApp)
         if (values.sendToMobile && guests) {
             const targetGuests = values.targetGroup === 'All Guests' 
                 ? guests 
                 : guests.filter(g => g.category === values.targetGroup);
             
-            const mobileTargets = targetGuests
-                .map(g => g.phoneNumber)
-                .filter(phone => !!phone && phone.length > 5);
-
-            if (mobileTargets.length > 0) {
-                // We send individually to handle personalized formatting or group batches via our API
-                // For this MVP, we call the notify API for each or batch them if supported.
-                // Here we'll notify them about the update.
-                mobileTargets.forEach(phoneNumber => {
+            // Push to all identified targets across channels
+            targetGuests.forEach(guest => {
+                if (guest.phoneNumber || guest.email) {
                     fetch('/api/notify', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
-                            phoneNumber, 
-                            message: `[EvenTide] Update for ${events?.find(e => e.id === selectedEventId)?.name}: ${values.content}` 
+                            phoneNumber: guest.phoneNumber,
+                            email: guest.email,
+                            subject: `Urgent Update: ${eventName}`,
+                            message: values.content,
+                            htmlContent: `
+                                <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+                                    <h3 style="color: #4169E1; margin-top: 0;">Update for ${eventName}</h3>
+                                    <p style="font-size: 16px; line-height: 1.6;">${values.content}</p>
+                                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+                                    <p style="font-size: 12px; color: #64748b;">This message was sent via EvenTide Live Broadcast.</p>
+                                </div>
+                            `
                         }),
-                    }).catch(err => console.error("Mobile notification failed for", phoneNumber, err));
-                });
-                
-                toast({ title: 'Mobile Alerts Queued', description: `Notifications sent to ${mobileTargets.length} guests.` });
-            }
+                    }).catch(err => console.error("Broadcast delivery failed for recipient:", guest.id, err));
+                }
+            });
+            
+            toast({ title: 'Broadcast Distributed', description: `Alerts pushed to ${targetGuests.length} guests.` });
         }
 
         toast({ title: 'Broadcast Published', description: 'Your announcement is now live.' });
-        form.reset({ ...form.getValues(), content: '' }); // Keep event and group selection
+        form.reset({ ...form.getValues(), content: '' });
     } catch (error) {
         console.error('Error sending announcement:', error);
-        toast({ variant: 'destructive', title: 'Failed to Send', description: 'Could not publish the announcement.' });
+        toast({ variant: 'destructive', title: 'Failed to Send' });
     }
   };
 
@@ -173,7 +177,7 @@ export function BroadcastClient() {
             <Card className="border-none shadow-xl bg-gradient-to-br from-primary/5 to-background">
                 <CardHeader>
                     <CardTitle>Instant Broadcast</CardTitle>
-                    <CardDescription>Push updates to the live feed and mobile devices.</CardDescription>
+                    <CardDescription>Push updates to the live feed, mobile devices, and email.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-6">
@@ -223,9 +227,11 @@ export function BroadcastClient() {
                                         <div className="space-y-0.5">
                                             <div className="flex items-center gap-2">
                                                 <Smartphone className="h-4 w-4 text-primary" />
-                                                <FormLabel className="text-sm font-bold">Mobile Push</FormLabel>
+                                                <FormLabel className="text-sm font-bold">Omni-Channel Push</FormLabel>
                                             </div>
-                                            <FormDescription className="text-[10px]">Send via SMS & WhatsApp</FormDescription>
+                                            <FormDescription className="text-[10px] flex items-center gap-1">
+                                                <Smartphone className="h-3 w-3"/> SMS/WA + <Mail className="h-3 w-3"/> Email
+                                            </FormDescription>
                                         </div>
                                         <FormControl>
                                             <Switch checked={field.value} onCheckedChange={field.onChange} disabled={!selectedEventId} />
