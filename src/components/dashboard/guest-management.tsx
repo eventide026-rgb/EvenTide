@@ -64,6 +64,7 @@ import {
   Edit,
   Smartphone,
   Mail,
+  MessageSquare,
 } from 'lucide-react';
 import { Label } from '../ui/label';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -93,6 +94,7 @@ function GuestManagementComponent() {
   const { toast } = useToast();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [editingGuest, setEditingGuest] = useState<Guest | null>(null);
+  const [isSendingWhatsApp, setIsSendingWhatsApp] = useState<string | null>(null);
 
   const guestForm = useForm<z.infer<typeof guestFormSchema>>({
     resolver: zodResolver(guestFormSchema),
@@ -165,6 +167,45 @@ function GuestManagementComponent() {
   const guestLimit = selectedEvent?.guestLimit || 20;
   const capacityPercentage = guestLimit > 0 ? (guestCount / guestLimit) * 100 : 0;
 
+  const handleSendDirectWhatsApp = async (guest: Guest) => {
+    if (!guest.phoneNumber) {
+        toast({ variant: 'destructive', title: "No Phone Number", description: "This guest does not have a phone number on file." });
+        return;
+    }
+
+    const message = window.prompt(`Send WhatsApp to ${guest.name}:`, `Hello ${guest.name}, we are looking forward to seeing you at ${selectedEvent?.name || 'our event'}! 🎉`);
+    
+    if (!message) return;
+
+    setIsSendingWhatsApp(guest.id);
+    try {
+        const res = await fetch("/api/whatsapp/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                phoneNumber: guest.phoneNumber,
+                message: message,
+            }),
+        });
+
+        const result = await res.json();
+        if (result.success) {
+            toast({ title: "WhatsApp Sent!", description: `Message delivered to ${guest.name}.` });
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (error: any) {
+        console.error("WhatsApp Send Error:", error);
+        toast({ 
+            variant: "destructive", 
+            title: "Delivery Failed", 
+            description: "Please ensure your WhatsApp number is configured in .env" 
+        });
+    } finally {
+        setIsSendingWhatsApp(null);
+    }
+  };
+
   const handleAddGuest = async (values: z.infer<typeof guestFormSchema>) => {
     if (!firestore || !selectedEventId || !selectedEvent) return;
 
@@ -201,7 +242,6 @@ function GuestManagementComponent() {
         await batch.commit();
         toast({ title: 'Guest Added', description: `${values.name} added successfully.` });
         
-        // Template-driven Notification Dispatch
         fetch('/api/notify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -313,22 +353,35 @@ function GuestManagementComponent() {
                   <TableHeader className="bg-muted/50">
                     <TableRow>
                       <TableHead className="font-bold">Name</TableHead>
-                      <TableHead className="font-bold">Code</TableHead>
                       <TableHead className="font-bold">Category</TableHead>
-                      <TableHead className="font-bold">RSVP</TableHead>
+                      <TableHead className="font-bold text-center">RSVP</TableHead>
                       <TableHead className="text-right font-bold">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {guests.map((guest) => (
                       <TableRow key={guest.id} className="hover:bg-muted/30">
-                        <TableCell className="font-medium">{guest.name}</TableCell>
-                        <TableCell><Badge variant="secondary" className="font-mono">{guest.guestCode}</Badge></TableCell>
+                        <TableCell>
+                            <div className="font-medium">{guest.name}</div>
+                            <div className="text-[10px] font-mono text-muted-foreground uppercase">{guest.guestCode}</div>
+                        </TableCell>
                         <TableCell><Badge variant="outline">{guest.category}</Badge></TableCell>
-                        <TableCell>{guest.rsvpStatus}</TableCell>
+                        <TableCell className="text-center">{guest.rsvpStatus}</TableCell>
                         <TableCell className="text-right">
-                          <Button variant="ghost" size="icon" onClick={() => setEditingGuest(guest)}><Edit className="h-4 w-4" /></Button>
-                          <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGuest(guest)}><Trash2 className="h-4 w-4" /></Button>
+                          <div className="flex justify-end gap-1">
+                            <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => handleSendDirectWhatsApp(guest)}
+                                title="Send Direct WhatsApp"
+                                className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                disabled={isSendingWhatsApp === guest.id}
+                            >
+                                {isSendingWhatsApp === guest.id ? <Loader2 className="h-4 w-4 animate-spin"/> : <MessageSquare className="h-4 w-4" />}
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => setEditingGuest(guest)}><Edit className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => handleDeleteGuest(guest)}><Trash2 className="h-4 w-4" /></Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
