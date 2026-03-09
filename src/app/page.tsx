@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -155,7 +156,7 @@ export default function Home() {
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-headline font-extrabold tracking-tight leading-[1.1] text-balance">
               Plan Your Event
               <br />
-              <span className="bg-gradient-to-r from-[#4169E1] to-[#D4AF37] text-transparent bg-clip-text transition-all duration-500">
+              <span className="bg-gradient-to-r from-primary to-accent text-transparent bg-clip-text transition-all duration-500">
                 {rotatingWords[currentIndex]}
               </span>
             </h1>
@@ -165,12 +166,12 @@ export default function Home() {
           </div>
 
           <div className="absolute bottom-0 left-0 right-0 z-30 translate-y-1/2 flex flex-col sm:flex-row items-center justify-center gap-4 px-4">
-              <Button asChild size="lg" className="font-bold w-full max-w-64 sm:w-auto h-11 px-8 text-base rounded-full shadow-2xl bg-[#4169E1] hover:bg-[#4169E1]/90 backdrop-blur-xl border border-white/20 transition-all active:scale-[0.98]">
+              <Button asChild size="lg" className="font-bold w-full max-w-64 sm:w-auto h-11 px-8 text-base rounded-full shadow-2xl bg-primary hover:bg-primary/90 backdrop-blur-xl border border-white/20 transition-all active:scale-[0.98]">
                 <Link href="/signup">
                   Create an Event <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="font-bold bg-white/10 border-white/20 backdrop-blur-xl hover:bg-[#4169E1] hover:text-white hover:border-[#4169E1] w-full max-w-64 sm:w-auto h-11 px-8 text-base rounded-full text-white shadow-xl active:scale-[0.98] transition-all">
+              <Button asChild size="lg" variant="outline" className="font-bold bg-white/10 border-white/20 backdrop-blur-xl hover:bg-primary hover:text-white hover:border-primary w-full max-w-64 sm:w-auto h-11 px-8 text-base rounded-full text-white shadow-xl active:scale-[0.98] transition-all">
                 <Link href="/guest-login">
                   I am a Guest
                 </Link>
@@ -207,7 +208,7 @@ export default function Home() {
                 <div className="lg:col-span-7">
                     <div className="grid gap-4 sm:grid-cols-2">
                     {howItWorksSteps.map((step, index) => (
-                        <Card key={index} className="border-2 border-[#D4AF37] bg-background/80 backdrop-blur-xl shadow-sm hover:shadow-lg transition-all duration-300 rounded-3xl overflow-hidden">
+                        <Card key={index} className="border-2 border-accent bg-background/80 backdrop-blur-xl shadow-sm hover:shadow-lg transition-all duration-300 rounded-3xl overflow-hidden">
                         <CardHeader className="items-start pb-2">
                             <div className="mb-4 bg-primary/5 p-4 rounded-2xl">
                             {step.icon}
@@ -229,7 +230,7 @@ export default function Home() {
         <section id="vision" className="py-12 md:py-16 bg-background relative overflow-hidden">
           <div className="container mx-auto px-4 text-center">
             <div className="max-w-3xl mx-auto mb-12 text-center">
-                <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-[#4169E1] font-logo">Beautifully.</span></h2>
+                <h2 className="text-3xl md:text-5xl font-headline font-bold leading-tight text-balance">Bringing People Together, <br/><span className="text-primary font-logo">Beautifully.</span></h2>
                 <p className="mt-4 text-lg text-muted-foreground font-body text-balance max-w-2xl mx-auto">
                     Transforming gatherings into narrative masterpieces through poetic precision and technical harmony.
                 </p>
@@ -263,7 +264,7 @@ export default function Home() {
                   ].map((item, i) => (
                     <Card key={i} className="bg-primary border border-primary/10 shadow-sm hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 group rounded-2xl overflow-hidden cursor-default">
                       <CardContent className="p-6 text-left">
-                        <h3 className="font-bold text-lg text-white group-hover:text-[#D4AF37] transition-colors font-headline">{item.title}</h3>
+                        <h3 className="font-bold text-lg text-white group-hover:text-accent transition-colors font-headline">{item.title}</h3>
                         <p className="text-white/80 text-sm leading-relaxed mt-1 font-body">{item.desc}</p>
                       </CardContent>
                     </Card>
@@ -283,7 +284,7 @@ export default function Home() {
             
             <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
               {testimonials.map((t, i) => (
-                <Card key={i} className="bg-background border-2 border-[#D4AF37] shadow-xl flex flex-col rounded-[2rem] overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
+                <Card key={i} className="bg-background border-2 border-accent shadow-xl flex flex-col rounded-[2rem] overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
                   <CardHeader className="flex-1 p-8 text-center">
                     <Quote className="h-10 w-10 text-primary/20 mb-6 mx-auto" />
                     <p className="text-lg italic leading-relaxed text-foreground/90 font-body">&quot;{t.quote}&quot;</p>
@@ -315,12 +316,12 @@ export default function Home() {
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 max-w-7xl mx-auto items-stretch">
               {pricingTiers.map((tier) => (
                 <Card key={tier.name} className={cn(
-                  "flex flex-col transition-all duration-500 relative border-2 border-[#D4AF37] rounded-[2.5rem] overflow-visible shadow-sm",
-                  tier.isPopular ? "border-[#4169E1] ring-1 ring-[#4169E1]/20 shadow-2xl scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/40"
+                  "flex flex-col transition-all duration-500 relative border-2 border-accent rounded-[2.5rem] overflow-visible shadow-sm",
+                  tier.isPopular ? "border-primary ring-1 ring-primary/20 shadow-2xl scale-105 z-10 bg-background" : "hover:scale-[1.02] bg-background/40"
                 )}>
                   {tier.isPopular && (
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
-                      <div className="rounded-full shadow-lg px-6 py-2 font-bold uppercase tracking-widest text-[10px] whitespace-nowrap border-2 border-background bg-[#4169E1] text-white">
+                      <div className="rounded-full shadow-lg px-6 py-2 font-bold uppercase tracking-widest text-[10px] whitespace-nowrap border-2 border-background bg-primary text-white">
                         Most Popular
                       </div>
                     </div>
@@ -356,11 +357,11 @@ export default function Home() {
         </section>
 
         {/* Final CTA Section */}
-        <section className="py-20 relative overflow-hidden bg-[#4169E1] text-white">
+        <section className="py-20 relative overflow-hidden bg-primary text-white">
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
           <div className="container mx-auto px-4 text-center relative z-10">
             <h2 className="text-4xl font-headline font-bold md:text-7xl text-balance leading-[1.1] mb-10 text-center">
-              Your Event, <br className="hidden md:block" /> <span className="italic font-logo text-[#D4AF37]">Reimagined.</span>
+              Your Event, <br className="hidden md:block" /> <span className="italic font-logo text-accent">Reimagined.</span>
             </h2>
             <div className="flex justify-center">
                 <Button asChild size="lg" variant="secondary" className="font-bold shadow-2xl h-16 px-12 text-xl group rounded-full active:scale-[0.98] transition-all">

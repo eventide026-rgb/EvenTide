@@ -3,35 +3,35 @@ import { getNextNotification } from "@/lib/notificationQueue";
 import { notifyUser } from "@/lib/notifications";
 import { templates } from "@/lib/templates";
 import { NextResponse } from "next/server";
+import { adminDb } from "@/firebase/firebaseAdmin";
+
+export const dynamic = 'force-dynamic';
 
 /**
  * @fileOverview Notification Queue Worker API Route.
- * This endpoint is designed to be called by a periodic scheduler (Cron).
- * 
- * Flow:
- * 1. Pull the next notification job from the Redis queue (FIFO).
- * 2. Resolve the appropriate brand template based on the job type.
- * 3. Orchestrate tri-channel delivery (Email, SMS, WhatsApp) via the notification service.
- * 4. Record the audit log in Firestore.
+ * Processes the next job in the FIFO queue and dispatches via tri-channel delivery.
  */
 
 export async function GET() {
   try {
-    // 1. Retrieve the next job from the high-performance Redis queue
+    // 1. Safety check for Admin SDK
+    if (!adminDb) {
+      return NextResponse.json({ error: "Backend services not available" }, { status: 503 });
+    }
+
     const job = await getNextNotification();
 
     if (!job) {
       return NextResponse.json({ message: "No jobs in queue" });
     }
 
-    // 2. Extract job parameters
     const { type, phone, email, data } = job;
 
-    // 3. Process based on template type
+    // 2. Resolve Template and Dispatch
     if (type && templates[type]) {
-      const template = templates[type](data);
+      // Pass an empty object fallback to prevent template crashes
+      const template = templates[type](data || {});
       
-      // 4. Dispatch the resolved template content
       await notifyUser({
         phone,
         email,
@@ -41,7 +41,7 @@ export async function GET() {
         type
       });
     } else {
-      // Fallback for manual or legacy notification formats
+      // Fallback for manual or untemplated messages
       await notifyUser({
         phone: job.phone || null,
         email: job.email || null,

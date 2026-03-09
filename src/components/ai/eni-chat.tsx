@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -9,7 +10,6 @@ import { useToast } from '@/hooks/use-toast';
 
 /**
  * @fileOverview EniChat - A sophisticated AI interaction component.
- * Allows users to send messages to the Eni Brain and receive poetic, celebratory responses.
  */
 export function EniChat() {
   const [message, setMessage] = useState("");

@@ -1,26 +1,40 @@
+
 import Africastalking from "africastalking";
 
 /**
  * @fileOverview Africastalking utility for SMS and WhatsApp services.
- * Requires the following environment variables:
- * - AFRICASTALKING_API_KEY
- * - AFRICASTALKING_USERNAME
- * - AFRICASTALKING_WHATSAPP_CHANNEL (The exact name of your WhatsApp channel in AT)
+ * Safely handles missing environment variables during the build phase and runtime.
  */
 
-const africastalking = Africastalking({
-  apiKey: process.env.AFRICASTALKING_API_KEY || '',
-  username: process.env.AFRICASTALKING_USERNAME || '',
-});
+const apiKey = process.env.AFRICASTALKING_API_KEY;
+const username = process.env.AFRICASTALKING_USERNAME;
 
-export const sms = africastalking.SMS;
+let atInstance: any;
+let smsService: any;
+
+// CRITICAL: Only initialize if BOTH required credentials are present
+// This prevents the SDK from throwing a "username is required" error during build.
+if (apiKey && username && apiKey !== 'undefined' && username !== 'undefined') {
+  try {
+    atInstance = Africastalking({ apiKey, username });
+    smsService = atInstance.SMS;
+  } catch (e) {
+    console.error("Failed to initialize Africastalking:", e);
+  }
+}
+
+export const sms = smsService;
 
 /**
  * Send an SMS via AfricasTalking
  */
 export async function sendSMS(to: string | string[], message: string) {
+  if (!smsService) {
+    console.warn("SMS service not initialized. Skipping delivery.");
+    return { status: 'skipped', reason: 'missing_config' };
+  }
   try {
-    const response = await sms.send({ to, message });
+    const response = await smsService.send({ to, message });
     console.log("SMS Sent successfully:", response);
     return response;
   } catch (error) {
@@ -31,14 +45,16 @@ export async function sendSMS(to: string | string[], message: string) {
 
 /**
  * Send a WhatsApp message via AfricasTalking
- * WhatsApp uses the SMS API but requires the specific 'from' channel identifier.
  */
 export async function sendWhatsApp(to: string | string[], message: string) {
+  if (!smsService) {
+    console.warn("WhatsApp service not initialized. Skipping delivery.");
+    return { status: 'skipped', reason: 'missing_config' };
+  }
   try {
-    const response = await sms.send({
+    const response = await smsService.send({
       to,
       message,
-      // Must match your configured WhatsApp channel in the AT dashboard
       from: process.env.AFRICASTALKING_WHATSAPP_CHANNEL || "EvenTide",
     });
     console.log("WhatsApp Sent successfully:", response);

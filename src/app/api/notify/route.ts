@@ -2,17 +2,16 @@
 import { addNotificationToQueue } from "@/lib/notificationQueue";
 import { NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 /**
  * @fileOverview High-Fidelity Unified Notification API (Queued).
- * Instead of processing delivery immediately, we queue the intent.
- * This ensures the API is non-blocking and highly responsive.
  */
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    // 1. Basic Validation
     if (!body.type) {
       return NextResponse.json(
         { error: "Notification 'type' is required for queueing." },
@@ -20,7 +19,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 2. Queue the notification for background processing
     await addNotificationToQueue(body);
 
     return NextResponse.json({

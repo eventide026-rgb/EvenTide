@@ -1,14 +1,25 @@
+
 import { ai } from "@/ai/genkit";
 import { NextResponse } from "next/server";
+
+export const dynamic = 'force-dynamic';
 
 /**
  * @fileOverview Eni Brain API Route.
  * This endpoint serves as the central intelligence hub for the Eni assistant.
- * It uses Genkit to process user messages and generate brand-aligned, poetic responses.
  */
 
 export async function POST(req: Request) {
   try {
+    // 1. Verify environment readiness
+    if (!process.env.GOOGLE_GENAI_API_KEY && !process.env.GOOGLE_API_KEY) {
+        console.error("Eni AI: API Key missing in environment.");
+        return NextResponse.json(
+            { reply: "I am currently focused on perfecting my next masterpiece. Please ask me again once my creative essence is fully restored." },
+            { status: 200 } // Return as 200 to show graceful message in UI
+        );
+    }
+
     const body = await req.json();
     const { message } = body;
 
@@ -16,6 +27,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No message provided." }, { status: 400 });
     }
 
+    // 2. Generate Poetic Response
     const { text } = await ai.generate({
       system: `
         You are Eni, the AI Soul of EvenTide. 
@@ -39,8 +51,8 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error("Eni AI Route Error:", error);
     return NextResponse.json(
-      { error: "Eni is currently contemplating new masterpieces. Please try again in a moment." },
-      { status: 500 }
+      { reply: "I apologize, but my creative circuits have encountered a brief pause. Let us speak again in a moment." },
+      { status: 200 }
     );
   }
 }
