@@ -9,9 +9,9 @@ import { Sparkles, Send, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 /**
- * @fileOverview EniChat - A sophisticated AI interaction component.
+ * @fileOverview EniChat - Upgraded AI Concierge Component.
  */
-export function EniChat() {
+export function EniChat({ eventId }: { eventId?: string }) {
   const [message, setMessage] = useState("");
   const [reply, setReply] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -29,7 +29,10 @@ export function EniChat() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ 
+          message,
+          eventId // Pass the context of the current event if in a dashboard
+        }),
       });
 
       if (!res.ok) {
@@ -56,9 +59,11 @@ export function EniChat() {
         <div className="mx-auto bg-primary/10 p-3 rounded-2xl w-fit mb-4">
           <Sparkles className="h-6 w-6 text-[#D4AF37]" />
         </div>
-        <CardTitle className="text-2xl font-headline font-bold">Ask Eni</CardTitle>
+        <CardTitle className="text-2xl font-headline font-bold">Event Concierge</CardTitle>
         <CardDescription className="max-w-md mx-auto text-sm text-muted-foreground">
-          Get creative inspiration or coordination help from the AI soul of EvenTide.
+          {eventId 
+            ? "Ask Eni to manage your guests, send invites, or refine your program." 
+            : "Get creative inspiration or coordination help from the AI soul of EvenTide."}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -67,7 +72,7 @@ export function EniChat() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-            placeholder="Ask Eni about your event theme, menu, or planning..."
+            placeholder={eventId ? "Eni, invite all VIPs on WhatsApp..." : "Ask Eni about your event theme..."}
             className="rounded-xl h-12 flex-1 border-primary/20 focus-visible:ring-primary shadow-inner"
             disabled={isLoading}
           />
@@ -89,7 +94,7 @@ export function EniChat() {
             <div className="flex items-center justify-end gap-2 mt-4 pt-4 border-t border-primary/10">
               <div className="text-right">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-primary">— Eni</p>
-                <p className="text-[8px] text-muted-foreground uppercase tracking-tighter">Your Creative Director</p>
+                <p className="text-[8px] text-muted-foreground uppercase tracking-tighter">Your Concierge</p>
               </div>
               <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
                 <Sparkles className="h-4 w-4 text-[#D4AF37]" />
