@@ -5,6 +5,7 @@ export const dynamic = 'force-dynamic';
 
 /**
  * @fileOverview Direct WhatsApp Delivery API Route.
+ * Returns normalized response format expected by EvenTide dashboard.
  */
 
 export async function POST(req: Request) {
@@ -20,10 +21,13 @@ export async function POST(req: Request) {
 
     const result = await sendWhatsAppMessage(phoneNumber, message);
 
+    // Map AT response to expected EvenTide format
     return NextResponse.json({
-      success: true,
-      result,
+      status: result.status === 'Success' ? 'SENT' : result.status,
+      phoneNumber: phoneNumber,
+      messageId: result.messageId || `ATX-${Date.now()}`
     });
+
   } catch (error: any) {
     console.error("API Route Error [whatsapp-send]:", error);
     return NextResponse.json(

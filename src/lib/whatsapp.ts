@@ -17,7 +17,7 @@ export async function sendWhatsAppMessage(
     return { success: false, status: "Missing Credentials" };
   }
 
-  // 2. Execute Dispatch
+  // 2. Execute Dispatch to Africa's Talking
   const response = await fetch(
     "https://chat.africastalking.com/whatsapp/message/send",
     {
@@ -31,7 +31,7 @@ export async function sendWhatsAppMessage(
         waNumber: waNumber,
         phoneNumber: phoneNumber,
         body: {
-          text: message, // Africa's Talking uses 'text' inside the body object for text messages
+          text: message, // AT uses 'text' key for standard WhatsApp messages
         },
       }),
     }
