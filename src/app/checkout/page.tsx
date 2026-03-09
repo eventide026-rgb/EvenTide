@@ -31,7 +31,7 @@ function CheckoutContent() {
     const planSlug = searchParams.get('plan') || 'starter';
     const plan = plans[planSlug as keyof typeof plans] || plans.starter;
 
-    // Auth Guard: If not logged in, redirect to login with this page as return path
+    // MANDATORY AUTH GATE: If not logged in, redirect to login with this page as return path
     useEffect(() => {
         if (!isUserLoading && !user) {
             const currentUrl = window.location.pathname + window.location.search;
@@ -51,7 +51,8 @@ function CheckoutContent() {
     const handleComplete = () => {
         if (!user) {
             toast({ title: "Login Required", description: "Please sign in to proceed with your plan selection." });
-            router.push(`/login?redirect=/checkout?plan=${planSlug}`);
+            const currentUrl = window.location.pathname + window.location.search;
+            router.push(`/login?redirect=${encodeURIComponent(currentUrl)}`);
             return;
         }
 
@@ -59,7 +60,7 @@ function CheckoutContent() {
             setIsProcessing(true);
             setTimeout(() => {
                 toast({ title: "Plan Activated!", description: "Welcome to EvenTide Starter. Let's create your event!" });
-                router.push('/owner/create-event');
+                router.push('/owner');
             }, 1500);
             return;
         }
@@ -69,7 +70,7 @@ function CheckoutContent() {
         initializePayment({
             onSuccess: () => {
                 toast({ title: "Payment Successful!", description: `Plan ${plan.name} is now active. Redirecting to event creation...` });
-                router.push('/owner/create-event');
+                router.push('/owner');
             },
             onClose: () => {
                 setIsProcessing(false);
@@ -78,7 +79,14 @@ function CheckoutContent() {
         });
     };
 
-    if (isUserLoading || !user) return <div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+    if (isUserLoading || !user) {
+        return (
+            <div className="flex flex-col items-center justify-center h-64 gap-4">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <p className="text-muted-foreground font-headline font-bold uppercase tracking-widest animate-pulse">Securing Session...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="container mx-auto px-4 py-12">
@@ -131,7 +139,7 @@ export default function CheckoutPage() {
         <div className="flex min-h-screen flex-col bg-secondary">
             <PublicHeader />
             <main className="flex-1 flex items-center justify-center pt-24 pb-12">
-                <Suspense fallback={<Loader2 className="h-8 w-8 animate-spin" />}>
+                <Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
                     <CheckoutContent />
                 </Suspense>
             </main>

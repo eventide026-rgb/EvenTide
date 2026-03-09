@@ -90,7 +90,12 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
         // 2. If an authenticated user lands on an auth page, redirect them away to their dashboard.
         const correctDashboard = ROLE_DASHBOARD_MAP[role];
         if (isOnAuthPage && correctDashboard) {
-            router.replace(correctDashboard);
+            const redirectTo = searchParams.get('redirect');
+            if (redirectTo) {
+                router.replace(redirectTo);
+            } else {
+                router.replace(correctDashboard);
+            }
             return;
         }
         

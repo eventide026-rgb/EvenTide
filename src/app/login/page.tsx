@@ -44,7 +44,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<Loader2 className="animate-spin" />}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>}>
       <LoginContent />
     </Suspense>
   );

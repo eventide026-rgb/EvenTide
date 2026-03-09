@@ -46,7 +46,7 @@ function SignUpContent() {
 
 export default function SignUpPage() {
   return (
-    <Suspense fallback={<Loader2 className="animate-spin" />}>
+    <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>}>
       <SignUpContent />
     </Suspense>
   );
