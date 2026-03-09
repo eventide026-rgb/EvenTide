@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, Suspense, useState, useMemo } from 'react';
@@ -80,6 +81,10 @@ function PurchasePageContents({ showId }: { showId: string }) {
     return populatedSelection.reduce((sum, item) => sum + item.total, 0);
   }, [populatedSelection]);
 
+  const totalTickets = useMemo(() => {
+    return populatedSelection.reduce((sum, item) => sum + item.quantity, 0);
+  }, [populatedSelection]);
+
   const finalizePurchase = async (paystackReference: string) => {
     if (!firestore || !user || populatedSelection.length === 0) return;
 
@@ -104,6 +109,20 @@ function PurchasePageContents({ showId }: { showId: string }) {
     
     try {
       await batch.commit();
+      
+      // Dispatch multi-channel notification
+      if (user.email) {
+          fetch('/api/notify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  email: user.email,
+                  subject: `Tickets Secured: Confirmation for Show ID ${showId.substring(0, 6)}`,
+                  message: `Congratulations! Your purchase was successful. You have secured ${totalTickets} ticket(s). You can view your digital tickets and entry passes in your profile dashboard or on the confirmation page.`
+              }),
+          }).catch(err => console.error("Post-purchase notification failed:", err));
+      }
+
       toast({ title: 'Purchase Successful!', description: 'Your tickets have been generated.' });
       router.push(`/shows/${showId}/confirmation/${purchaseId}`);
     } catch (error) {
