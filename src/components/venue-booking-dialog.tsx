@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { User } from 'firebase/auth';
 import { addDoc, collection, serverTimestamp, doc, writeBatch } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -43,6 +43,10 @@ export function VenueBookingDialog({ venue, user, isUserLoading }: VenueBookingD
   const [eventName, setEventName] = useState("");
   const [numberOfGuests, setNumberOfGuests] = useState(1);
 
+  // Fetch the user's profile to get their phone number for notifications
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: userProfile } = useDoc<any>(userProfileRef);
+
   const handleBooking = async () => {
     if (!firestore || !user || !eventDate || !eventName) {
       toast({ variant: 'destructive', title: 'Error', description: 'Please fill all fields and ensure you are logged in.' });
@@ -55,6 +59,7 @@ export function VenueBookingDialog({ venue, user, isUserLoading }: VenueBookingD
       venueOwnerId: venue.ownerId,
       userId: user.uid,
       userEmail: user.email,
+      userPhone: userProfile?.phoneNumber || user?.phoneNumber || null,
       venueName: venue.name,
       eventName,
       eventDate: eventDate,

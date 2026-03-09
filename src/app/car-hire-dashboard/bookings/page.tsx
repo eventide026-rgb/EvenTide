@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-import { Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-center';
 
 type CarBooking = {
   id: string;
@@ -27,6 +27,7 @@ type CarBooking = {
   totalPrice: number;
   status: 'pending' | 'confirmed' | 'declined';
   userEmail: string;
+  userPhone?: string;
 };
 
 export default function BookingsPage() {
@@ -48,6 +49,21 @@ export default function BookingsPage() {
     
     try {
       await updateDoc(bookingRef, { status: newStatus });
+
+      // Trigger Unified Tri-Channel Notification on Confirmation
+      const booking = bookings?.find(b => b.id === bookingId);
+      if (newStatus === 'confirmed' && booking) {
+          fetch('/api/notify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  email: booking.userEmail,
+                  phone: booking.userPhone,
+                  subject: 'Car Rental Confirmed',
+                  message: `Your rental for "${booking.carName}" has been confirmed from ${format(booking.pickupDate.toDate(), 'MMMM d')} to ${format(booking.returnDate.toDate(), 'MMMM d')}. Thank you for choosing EvenTide logistics!`
+              }),
+          }).catch(err => console.error("Post-confirmation notification failed:", err));
+      }
 
       toast({
         title: 'Booking Updated',

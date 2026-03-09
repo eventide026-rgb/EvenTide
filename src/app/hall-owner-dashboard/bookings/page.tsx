@@ -28,6 +28,7 @@ type VenueBooking = {
   numberOfGuests: number;
   status: 'pending' | 'confirmed' | 'declined';
   userEmail: string;
+  userPhone?: string;
 };
 
 export default function BookingsPage() {
@@ -52,6 +53,21 @@ export default function BookingsPage() {
     
     try {
       await batch.commit();
+
+      // Trigger Unified Tri-Channel Notification on Confirmation
+      if (newStatus === 'confirmed') {
+          fetch('/api/notify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  email: booking.userEmail,
+                  phone: booking.userPhone,
+                  subject: 'Event Booking Confirmed',
+                  message: `Your booking for "${booking.venueName}" on ${format(booking.eventDate.toDate(), 'MMMM d')} has been confirmed. We look forward to hosting your event: "${booking.eventName}".`
+              }),
+          }).catch(err => console.error("Post-confirmation notification failed:", err));
+      }
+
       toast({
         title: 'Booking Updated',
         description: `The booking has been ${newStatus}.`,

@@ -3,8 +3,8 @@
 
 import { useState } from 'react';
 import { User } from 'firebase/auth';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { addDoc, collection, serverTimestamp, doc } from 'firebase/firestore';
+import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -44,6 +44,10 @@ export function BookingDialog({ hotel, roomType, user, isUserLoading }: BookingD
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [guests, setGuests] = useState(1);
 
+  // Fetch user profile for phone number
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: userProfile } = useDoc<any>(userProfileRef);
+
   const nights = dateRange?.from && dateRange?.to ? differenceInDays(dateRange.to, dateRange.from) : 0;
   const totalPrice = nights * roomType.price;
 
@@ -59,6 +63,7 @@ export function BookingDialog({ hotel, roomType, user, isUserLoading }: BookingD
       hotelOwnerId: hotel.ownerId,
       userId: user.uid,
       userEmail: user.email,
+      userPhone: userProfile?.phoneNumber || user?.phoneNumber || null,
       hotelName: hotel.name,
       roomTypeName: roomType.name,
       checkInDate: dateRange.from,

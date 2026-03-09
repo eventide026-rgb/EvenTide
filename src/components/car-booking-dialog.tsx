@@ -3,8 +3,8 @@
 
 import { useState } from 'react';
 import { User } from 'firebase/auth';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { useFirestore } from '@/firebase';
+import { addDoc, collection, serverTimestamp, doc } from 'firebase/firestore';
+import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -42,6 +42,10 @@ export function CarBookingDialog({ car, user, isUserLoading }: CarBookingDialogP
   const [isLoading, setIsLoading] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
+  // Fetch user profile for phone number
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: userProfile } = useDoc<any>(userProfileRef);
+
   const days = dateRange?.from && dateRange?.to ? differenceInDays(dateRange.to, dateRange.from) + 1 : 0;
   const totalPrice = days * car.pricePerDay;
 
@@ -57,6 +61,7 @@ export function CarBookingDialog({ car, user, isUserLoading }: CarBookingDialogP
       carOwnerId: car.ownerId,
       userId: user.uid,
       userEmail: user.email,
+      userPhone: userProfile?.phoneNumber || user?.phoneNumber || null,
       carName: `${car.year} ${car.make} ${car.model}`,
       pickupDate: dateRange.from,
       returnDate: dateRange.to,
