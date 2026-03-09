@@ -4,7 +4,12 @@
  * Provides reusable message structures for Email, SMS, and WhatsApp.
  */
 
-export type TemplateId = 'INVITATION' | 'BOOKING_CONFIRMED' | 'BROADCAST' | 'ACCOUNT_UPDATE';
+export type TemplateId = 
+  | 'INVITATION' 
+  | 'BOOKING_CONFIRMED' 
+  | 'BROADCAST' 
+  | 'EVENT_REMINDER' 
+  | 'ACCOUNT_UPDATE';
 
 export interface TemplateData {
   recipientName?: string;
@@ -91,17 +96,13 @@ export const getTemplate = (id: TemplateId, data: TemplateData): NotificationCon
 
     case 'BOOKING_CONFIRMED':
       return {
-        subject: `Booking Confirmed: ${data.venueName || data.eventName}`,
-        text: `Success! Your booking for "${data.venueName || data.eventName}" on ${data.eventDate} has been confirmed. Thank you for using EvenTide!`,
+        subject: "Event Booking Confirmed 🎉",
+        text: `Your booking for ${data.eventName || data.venueName} on ${data.eventDate} has been confirmed.`,
         html: wrapInEmailLayout(
           'Booking Confirmed',
           `
           <p>Hello ${data.recipientName || 'there'},</p>
-          <p>We are pleased to inform you that your booking request has been <strong>successfully confirmed</strong>.</p>
-          <div style="border-left: 4px solid ${BRAND_COLORS.accent}; padding-left: 20px; margin: 20px 0;">
-            <p><strong>Item:</strong> ${data.venueName || data.eventName}</p>
-            <p><strong>Date:</strong> ${data.eventDate}</p>
-          </div>
+          <p>We are pleased to inform you that your booking request for <b>${data.eventName || data.venueName}</b> on <b>${data.eventDate}</b> has been <strong>successfully confirmed</strong>.</p>
           <p>The service provider is preparing for your arrival. You can view full details in your dashboard.</p>
           <a href="https://eventide.app/owner" class="button">View My Dashboard</a>
           `
@@ -120,6 +121,34 @@ export const getTemplate = (id: TemplateId, data: TemplateData): NotificationCon
             "${data.message}"
           </blockquote>
           <p>Stay tuned to your guest dashboard for more live updates!</p>
+          `
+        )
+      };
+
+    case 'EVENT_REMINDER':
+      return {
+        subject: "Event Reminder ⏰",
+        text: `Reminder: Your event ${data.eventName} is happening on ${data.eventDate}.`,
+        html: wrapInEmailLayout(
+          'Event Reminder',
+          `
+          <p>Friendly reminder that <b>${data.eventName}</b> is happening on <b>${data.eventDate}</b>.</p>
+          <p>We look forward to seeing you there!</p>
+          <a href="https://eventide.app/guest-login" class="button">View Event Details</a>
+          `
+        )
+      };
+
+    case 'ACCOUNT_UPDATE':
+      return {
+        subject: "Security Alert: Account Updated",
+        text: `Hello ${data.recipientName}, your EvenTide account profile was recently updated.`,
+        html: wrapInEmailLayout(
+          'Account Security Update',
+          `
+          <p>Hello ${data.recipientName},</p>
+          <p>This is an automated notification to inform you that your account profile was recently updated.</p>
+          <p>If you did not make this change, please contact our support team immediately.</p>
           `
         )
       };

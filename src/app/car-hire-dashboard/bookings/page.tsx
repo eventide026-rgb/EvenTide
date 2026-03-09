@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-import { Loader2 } from 'lucide-center';
+import { Loader2 } from 'lucide-react';
 
 type CarBooking = {
   id: string;
@@ -59,8 +59,12 @@ export default function BookingsPage() {
               body: JSON.stringify({
                   email: booking.userEmail,
                   phone: booking.userPhone,
-                  subject: 'Car Rental Confirmed',
-                  message: `Your rental for "${booking.carName}" has been confirmed from ${format(booking.pickupDate.toDate(), 'MMMM d')} to ${format(booking.returnDate.toDate(), 'MMMM d')}. Thank you for choosing EvenTide logistics!`
+                  templateId: 'BOOKING_CONFIRMED',
+                  templateData: {
+                      recipientName: 'Valued Client',
+                      eventName: booking.carName,
+                      eventDate: `${format(booking.pickupDate.toDate(), 'MMMM d')} to ${format(booking.returnDate.toDate(), 'MMMM d')}`
+                  }
               }),
           }).catch(err => console.error("Post-confirmation notification failed:", err));
       }

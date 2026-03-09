@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
@@ -200,20 +201,23 @@ function GuestManagementComponent() {
         await batch.commit();
         toast({ title: 'Guest Added', description: `${values.name} added successfully.` });
         
-        // Multi-channel Notification Integration (SMS, WhatsApp & Email)
-        const portalUrl = `https://eventide.app/e/${selectedEvent.eventCode}`;
-        const message = `Welcome to ${selectedEvent.name}! 🎉 Your Event Code is ${selectedEvent.eventCode} and your unique Guest Code is ${guestCode}. Access your digital gatepass at ${portalUrl}`;
-        
+        // Template-driven Notification Dispatch
         fetch('/api/notify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
                 phone: values.phoneNumber, 
                 email: values.email,
-                subject: `Your Official Invitation to ${selectedEvent.name}`,
-                message
+                templateId: 'INVITATION',
+                templateData: {
+                    recipientName: values.name,
+                    eventName: selectedEvent.name,
+                    eventCode: selectedEvent.eventCode,
+                    guestCode: guestCode,
+                    ctaUrl: `https://eventide.app/e/${selectedEvent.eventCode}`
+                }
             }),
-        }).catch(err => console.error("Notification pipeline failed:", err));
+        }).catch(err => console.error("Invitation pipeline failed:", err));
 
         guestForm.reset();
     } catch (err) {
