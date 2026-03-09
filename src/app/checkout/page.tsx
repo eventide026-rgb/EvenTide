@@ -1,6 +1,7 @@
+
 'use client';
 
-import { Suspense, useState, useMemo } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +31,14 @@ function CheckoutContent() {
     const planSlug = searchParams.get('plan') || 'starter';
     const plan = plans[planSlug as keyof typeof plans] || plans.starter;
 
+    // Auth Guard: If not logged in, redirect to login with this page as return path
+    useEffect(() => {
+        if (!isUserLoading && !user) {
+            const currentUrl = window.location.pathname + window.location.search;
+            router.replace(`/login?redirect=${encodeURIComponent(currentUrl)}`);
+        }
+    }, [user, isUserLoading, router]);
+
     const config = {
         reference: (new Date()).getTime().toString(),
         email: user?.email || '',
@@ -37,7 +46,6 @@ function CheckoutContent() {
         publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_test_placeholder',
     };
 
-    // React 19 compatibility handled by override in package.json
     const initializePayment = usePaystackPayment(config);
 
     const handleComplete = () => {
@@ -70,7 +78,7 @@ function CheckoutContent() {
         });
     };
 
-    if (isUserLoading) return <div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+    if (isUserLoading || !user) return <div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
 
     return (
         <div className="container mx-auto px-4 py-12">

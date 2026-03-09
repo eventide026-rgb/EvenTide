@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -21,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useAuth, useFirestore } from "@/firebase";
 import { 
@@ -68,6 +69,7 @@ const formSchema = z.object({
 export function SignUpForm() {
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const auth = useAuth();
   const firestore = useFirestore();
   const [isLoading, setIsLoading] = useState(false);
@@ -160,8 +162,13 @@ export function SignUpForm() {
                 description: "Welcome to EvenTide! Redirecting you now...",
             });
             
-            const destination = ROLE_DASHBOARD_MAP[values.role] || "/owner-dashboard";
-            router.push(destination);
+            const redirectTo = searchParams.get('redirect');
+            if (redirectTo) {
+                router.replace(redirectTo);
+            } else {
+                const destination = ROLE_DASHBOARD_MAP[values.role] || "/owner";
+                router.push(destination);
+            }
         }
 
     } catch (error: any) {

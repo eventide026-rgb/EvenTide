@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Auth, onAuthStateChanged, User } from 'firebase/auth';
 import { doc, getDoc, Firestore } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -27,6 +27,7 @@ const AUTH_PATHS = [
 export function useAuthHandler(auth: Auth, firestore: Firestore) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -69,12 +70,20 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
         // 1. Handle new logins from an auth page
         if (isNewLogin && isOnAuthPage) {
           sessionStorage.removeItem('isNewLogin');
+          
+          const redirectTo = searchParams.get('redirect');
+          
           toast({
             title: "Login Successful!",
             description: `Welcome back, ${firstName}! Redirecting...`,
           });
-          const destination = ROLE_DASHBOARD_MAP[role] || '/';
-          router.replace(destination);
+          
+          if (redirectTo) {
+              router.replace(redirectTo);
+          } else {
+              const destination = ROLE_DASHBOARD_MAP[role] || '/';
+              router.replace(destination);
+          }
           return;
         }
 
@@ -97,5 +106,5 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
     });
 
     return () => unsubscribe();
-  }, [auth, firestore, router, pathname, toast]);
+  }, [auth, firestore, router, pathname, toast, searchParams]);
 }

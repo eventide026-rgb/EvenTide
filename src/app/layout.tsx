@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { FirebaseClientProvider } from '@/firebase';
 import { AuthRedirector } from '@/components/auth/auth-redirector';
 import { CommandCenter } from '@/components/layout/command-center';
+import { Suspense } from 'react';
+import { Loader2 } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'EvenTide',
@@ -26,7 +28,9 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <FirebaseClientProvider>
-          <AuthRedirector />
+          <Suspense fallback={null}>
+            <AuthRedirector />
+          </Suspense>
           <CommandCenter />
           {children}
         </FirebaseClientProvider>
