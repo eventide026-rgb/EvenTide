@@ -101,25 +101,17 @@ export function BroadcastClient() {
                 ? guests 
                 : guests.filter(g => g.category === values.targetGroup);
             
-            // Push to all identified targets across channels
+            // Push to all identified targets using the unified notify API
             targetGuests.forEach(guest => {
                 if (guest.phoneNumber || guest.email) {
                     fetch('/api/notify', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
-                            phoneNumber: guest.phoneNumber,
+                            phone: guest.phoneNumber,
                             email: guest.email,
                             subject: `Urgent Update: ${eventName}`,
-                            message: values.content,
-                            htmlContent: `
-                                <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
-                                    <h3 style="color: #4169E1; margin-top: 0;">Update for ${eventName}</h3>
-                                    <p style="font-size: 16px; line-height: 1.6;">${values.content}</p>
-                                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-                                    <p style="font-size: 12px; color: #64748b;">This message was sent via EvenTide Live Broadcast.</p>
-                                </div>
-                            `
+                            message: values.content
                         }),
                     }).catch(err => console.error("Broadcast delivery failed for recipient:", guest.id, err));
                 }
@@ -226,10 +218,10 @@ export function BroadcastClient() {
                                         <div className="space-y-0.5">
                                             <div className="flex items-center gap-2">
                                                 <Smartphone className="h-4 w-4 text-primary" />
-                                                <FormLabel className="text-sm font-bold">Omni-Channel Push</FormLabel>
+                                                <FormLabel className="text-sm font-bold">Multi-Channel Push</FormLabel>
                                             </div>
                                             <FormDescription className="text-[10px] flex items-center gap-1">
-                                                <Smartphone className="h-3 w-3"/> SMS/WA + <Mail className="h-3 w-3"/> Email
+                                                SMS + WhatsApp + Email
                                             </FormDescription>
                                         </div>
                                         <FormControl>

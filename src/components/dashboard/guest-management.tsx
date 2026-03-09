@@ -201,59 +201,19 @@ function GuestManagementComponent() {
         toast({ title: 'Guest Added', description: `${values.name} added successfully.` });
         
         // Multi-channel Notification Integration (SMS, WhatsApp & Email)
-        if (values.phoneNumber || values.email) {
-            const portalUrl = `https://eventide.app/e/${selectedEvent.eventCode}`;
-            const message = `Welcome to ${selectedEvent.name}! 🎉 Your Event Code is ${selectedEvent.eventCode} and your unique Guest Code is ${guestCode}. Access your digital gatepass at ${portalUrl}`;
-            
-            fetch('/api/notify', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    phoneNumber: values.phoneNumber, 
-                    message,
-                    email: values.email,
-                    subject: `Your Official Invitation to ${selectedEvent.name}`,
-                    htmlContent: `
-                        <div style="font-family: 'Space Grotesk', sans-serif; padding: 40px; background-color: #f8fafc; color: #1e293b;">
-                            <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 24px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
-                                <div style="padding: 40px; text-align: center;">
-                                    <h1 style="color: #4169E1; font-size: 28px; margin-bottom: 8px;">You're Invited!</h1>
-                                    <p style="font-size: 16px; color: #64748b;">A masterpiece is being planned, and we want you there.</p>
-                                    
-                                    <div style="margin: 32px 0; padding: 24px; background: #f1f5f9; border-radius: 16px;">
-                                        <h2 style="margin: 0; font-size: 20px;">${selectedEvent.name}</h2>
-                                        <div style="margin-top: 16px; display: flex; justify-content: center; gap: 20px;">
-                                            <div style="text-align: left;">
-                                                <p style="margin: 0; font-size: 10px; font-weight: bold; text-transform: uppercase; color: #64748b;">Event Code</p>
-                                                <p style="margin: 0; font-family: monospace; font-size: 18px; font-weight: bold;">${selectedEvent.eventCode}</p>
-                                            </div>
-                                            <div style="text-align: left; margin-left: 20px; border-left: 1px solid #cbd5e1; padding-left: 20px;">
-                                                <p style="margin: 0; font-size: 10px; font-weight: bold; text-transform: uppercase; color: #64748b;">Guest Code</p>
-                                                <p style="margin: 0; font-family: monospace; font-size: 18px; font-weight: bold;">${guestCode}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <a href="${portalUrl}" style="display: inline-block; padding: 16px 32px; background: #4169E1; color: white; text-decoration: none; border-radius: 12px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(65, 105, 225, 0.4);">Open Guest Portal</a>
-                                    
-                                    <p style="margin-top: 32px; font-size: 12px; color: #94a3b8;">Please have your Guest Code ready for check-in at the venue.</p>
-                                </div>
-                                <div style="background: #4169E1; padding: 12px; text-align: center;">
-                                    <span style="color: white; font-size: 12px; font-weight: bold; letter-spacing: 2px;">POWERED BY EVENTIDE</span>
-                                </div>
-                            </div>
-                        </div>
-                    `
-                }),
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    toast({ title: "Multi-channel Alerts Sent", description: "Guest notified via SMS, WhatsApp, and Email." });
-                }
-            })
-            .catch(err => console.error("Notification pipeline failed:", err));
-        }
+        const portalUrl = `https://eventide.app/e/${selectedEvent.eventCode}`;
+        const message = `Welcome to ${selectedEvent.name}! 🎉 Your Event Code is ${selectedEvent.eventCode} and your unique Guest Code is ${guestCode}. Access your digital gatepass at ${portalUrl}`;
+        
+        fetch('/api/notify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                phone: values.phoneNumber, 
+                email: values.email,
+                subject: `Your Official Invitation to ${selectedEvent.name}`,
+                message
+            }),
+        }).catch(err => console.error("Notification pipeline failed:", err));
 
         guestForm.reset();
     } catch (err) {
@@ -407,7 +367,7 @@ function GuestManagementComponent() {
                                 <FormLabel className="font-bold">Email</FormLabel>
                             </div>
                             <FormControl><Input type="email" placeholder="jane@example.com" className="rounded-xl h-11" {...field} /></FormControl>
-                            <FormDescription className="text-[10px]">Guest receives a professional HTML invitation.</FormDescription>
+                            <FormDescription className="text-[10px]">Guest receives a professional invitation.</FormDescription>
                             <FormMessage />
                         </FormItem>
                     )}/>

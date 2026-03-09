@@ -1,64 +1,41 @@
-import { sendSMS, sendWhatsApp } from "@/lib/africastalking";
-import { sendEmail } from "@/lib/brevo";
-import { NextResponse } from "next/server";
+import { notifyUser } from "@/lib/notifications";
 
 /**
  * @fileOverview Unified Multi-channel Notification API.
- * Orchestrates delivery via SMS, WhatsApp (Africa's Talking), and Email (Brevo).
+ * Orchestrates delivery via SMS, WhatsApp (Africa's Talking), and Email (Brevo)
+ * using the notifyUser abstraction.
  */
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { phoneNumber, message, email, subject, htmlContent } = body;
+    const { phone, email, subject, message } = await req.json();
 
-    const deliveryTasks: Promise<any>[] = [];
+    // Construct a standard HTML wrapper for the email channel
+    const htmlContent = `
+      <div style="font-family: sans-serif; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+        <h2 style="color: #4169E1; margin-top: 0;">${subject}</h2>
+        <p style="font-size: 16px; line-height: 1.6;">${message}</p>
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+        <p style="font-size: 12px; color: #64748b;">Sent via EvenTide Notification Engine.</p>
+      </div>
+    `;
 
-    // Queue Mobile Tasks (SMS & WhatsApp)
-    if (phoneNumber && message) {
-      deliveryTasks.push(
-        sendSMS(phoneNumber, message).catch(err => ({ error: 'SMS Failed', details: err.message }))
-      );
-      deliveryTasks.push(
-        sendWhatsApp(phoneNumber, message).catch(err => ({ error: 'WhatsApp Failed', details: err.message }))
-      );
-    }
+    const result = await notifyUser({
+      phone,
+      email,
+      subject,
+      message,
+      htmlContent
+    });
 
-    // Queue Email Task (Brevo)
-    if (email && (htmlContent || message)) {
-      deliveryTasks.push(
-        sendEmail(
-          email, 
-          subject || 'Notification from EvenTide', 
-          htmlContent || `<p>${message}</p>`
-        ).catch(err => ({ error: 'Email Failed', details: err.message }))
-      );
-    }
-
-    if (deliveryTasks.length === 0) {
-      return NextResponse.json(
-        { error: "No valid delivery channels (phone or email) provided." },
-        { status: 400 }
-      );
-    }
-
-    // Use allSettled so one channel failure doesn't block the others
-    const results = await Promise.allSettled(deliveryTasks);
-
-    return NextResponse.json({
+    return Response.json({
       success: true,
-      message: "Notifications processed",
-      results: results.map((r, i) => ({
-        channel: i === 0 ? 'SMS' : i === 1 ? 'WhatsApp' : 'Email',
-        status: r.status,
-        // @ts-ignore
-        details: r.status === 'fulfilled' ? r.value : r.reason
-      }))
-    }, { status: 200 });
+      result
+    });
 
   } catch (error: any) {
-    console.error("Unified Notification API Error:", error);
-    return NextResponse.json(
+    console.error("Notification API Error:", error);
+    return Response.json(
       { error: error.message || "Internal Server Error" },
       { status: 500 }
     );
