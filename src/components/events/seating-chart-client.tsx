@@ -1,11 +1,10 @@
-
 'use client';
 
 import * as React from 'react';
 import { useMemo, useState, useEffect } from 'react';
 import { useCollection, useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, query, where, doc, addDoc, deleteDoc, setDoc } from 'firebase/firestore';
-import { Loader2, Armchair, User, Users, Trash2, CirclePlus } from 'lucide-react';
+import { collection, query, where, doc, addDoc, deleteDoc, setDoc, writeBatch, documentId } from 'firebase/firestore';
+import { Loader2, Armchair, User, Users, Trash2, CirclePlus, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
 import { cn } from '@/lib/utils';
@@ -22,6 +21,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { DndContext, useDroppable, useDraggable, DragEndEvent } from '@dnd-kit/core';
+import { suggestSeating } from '@/ai/flows/suggest-seating-flow';
 
 /* ---------------------------------- TYPES --------------------------------- */
 
@@ -53,6 +53,7 @@ type Guest = {
 type PlannerEvent = {
     id: string;
     name: string;
+    eventType?: string;
 };
 
 /* --------------------------- DND GUEST ITEM --------------------------- */
@@ -206,6 +207,7 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
   const [selectedEventId, setSelectedEventId] = useState(initialEventId);
   const [newTableName, setNewTableName] = useState("");
   const [newTableCapacity, setNewTableCapacity] = useState(8);
+  const [isAutoSeating, setIsAutoSeating] = useState(false);
 
   // Fetch events for Planner/Owner to select from
   const eventsQuery = useMemoFirebase(() => {
@@ -214,14 +216,12 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
   }, [firestore, user?.uid, userRole]);
   const { data: events, isLoading: isLoadingEvents } = useCollection<PlannerEvent>(eventsQuery);
 
-  // Set default selected event
   useEffect(() => {
     if (!initialEventId && events && events.length > 0) {
       setSelectedEventId(events[0].id);
     }
   }, [events, initialEventId]);
 
-  // Fetch tables and guests for the selected event
   const tablesQuery = useMemoFirebase(() => {
     if (!firestore || !selectedEventId) return null;
     return query(collection(firestore, 'events', selectedEventId, 'tables'));
@@ -287,11 +287,47 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
             const seatsCol = collection(firestore, `events/${selectedEventId}/seats`);
             await addDoc(seatsCol, { tableId, seatNumber, guestId });
         }
-        toast({title: "Seating Updated"});
     } catch (e) {
         toast({variant: "destructive", title: "Could not update seat."});
     }
   }
+
+  const handleAutoSeatWithEni = async () => {
+      if (!selectedEventId || !guestsData || !tablesData || !firestore) return;
+      setIsAutoSeating(true);
+      try {
+          const result = await suggestSeating({
+              guests: guestsData.map(g => ({ id: g.id, name: g.name, category: g.category })),
+              tables: tablesData.map(t => ({ id: t.id, tableName: t.tableName, capacity: t.capacity })),
+              eventVibe: events?.find(e => e.id === selectedEventId)?.eventType || 'Elegant'
+          });
+
+          const batch = writeBatch(firestore);
+          
+          // Clear existing seats
+          allSeats?.forEach(seat => {
+              const seatRef = doc(firestore, `events/${selectedEventId}/seats`, seat.id);
+              batch.delete(seatRef);
+          });
+
+          // Apply new assignments
+          result.assignments.forEach(assignment => {
+              const seatRef = doc(collection(firestore, `events/${selectedEventId}/seats`));
+              batch.set(seatRef, assignment);
+          });
+
+          await batch.commit();
+          toast({
+              title: "Seating Optimized!",
+              description: `Eni: "${result.eniReasoning}"`,
+          });
+      } catch (error) {
+          console.error("Auto-seating error:", error);
+          toast({ variant: 'destructive', title: "AI Seating Failed" });
+      } finally {
+          setIsAutoSeating(false);
+      }
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -341,13 +377,21 @@ export function SeatingChartClient({ eventId: initialEventId, userRole }: Seatin
                 {(userRole === 'planner' || userRole === 'owner') && (
                     <Card className="border-none shadow-sm bg-muted/30">
                         <CardHeader className="pb-3 text-center md:text-left"><CardTitle className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Celebration</CardTitle></CardHeader>
-                        <CardContent>
+                        <CardContent className="space-y-4">
                             <Select onValueChange={setSelectedEventId} value={selectedEventId || ''} disabled={isLoadingEvents}>
                                 <SelectTrigger className="rounded-xl"><SelectValue placeholder="Select Event" /></SelectTrigger>
                                 <SelectContent>
                                     {events?.map(event => <SelectItem key={event.id} value={event.id}>{event.name}</SelectItem>)}
                                 </SelectContent>
                             </Select>
+                            <Button 
+                                className="w-full rounded-xl font-bold bg-gradient-to-r from-primary to-accent text-white" 
+                                onClick={handleAutoSeatWithEni}
+                                disabled={!selectedEventId || isAutoSeating || !guestsData?.length || !tablesData?.length}
+                            >
+                                {isAutoSeating ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Sparkles className="mr-2 h-4 w-4"/>}
+                                {isAutoSeating ? "Eni is Seating..." : "Auto-Seat with Eni"}
+                            </Button>
                         </CardContent>
                     </Card>
                 )}
