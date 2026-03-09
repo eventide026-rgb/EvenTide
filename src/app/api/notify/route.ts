@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 /**
  * @fileOverview High-Fidelity Unified Notification API endpoint.
  * Dispatches alerts via Email, SMS, and WhatsApp using reusable templates.
+ * Includes automated logging for enterprise tracking.
  */
 
 export async function POST(req: Request) {
@@ -18,8 +19,9 @@ export async function POST(req: Request) {
 
     const template = templates[type](data);
 
-    // 2. Dispatch via Orchestration Engine
+    // 2. Dispatch via Orchestration Engine (which handles logging internally)
     const result = await notifyUser({
+      type,
       phone,
       email,
       subject: template.subject,

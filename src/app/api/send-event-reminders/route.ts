@@ -59,6 +59,7 @@ export async function GET(req: Request) {
           });
 
           await notifyUser({
+            type: 'eventReminder',
             phone: guestData.phoneNumber,
             email: guestData.email,
             subject: template.subject,
