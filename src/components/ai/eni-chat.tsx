@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -58,7 +57,7 @@ export function EniChat() {
           <Sparkles className="h-6 w-6 text-[#D4AF37]" />
         </div>
         <CardTitle className="text-2xl font-headline font-bold">Ask Eni</CardTitle>
-        <CardDescription className="max-w-md mx-auto text-sm">
+        <CardDescription className="max-w-md mx-auto text-sm text-muted-foreground">
           Get creative inspiration or coordination help from the AI soul of EvenTide.
         </CardDescription>
       </CardHeader>
@@ -75,7 +74,7 @@ export function EniChat() {
           <Button 
             onClick={sendMessage} 
             disabled={isLoading || !message.trim()}
-            className="rounded-xl h-12 px-6 font-bold shadow-lg transition-all active:scale-95"
+            className="rounded-xl h-12 px-6 font-bold shadow-lg transition-all active:scale-95 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
             {isLoading ? "Thinking..." : "Send"}

@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -262,10 +261,10 @@ export default function Home() {
                     { title: "Innovation", desc: "Leveraging cutting-edge AI to redefine what's possible." },
                     { title: "Connection", desc: "Building a community where culture and technology converge." }
                   ].map((item, i) => (
-                    <Card key={i} className="bg-background border border-primary/10 shadow-sm hover:-translate-y-2 hover:scale-[1.02] hover:border-primary/50 hover:bg-primary/[0.03] transition-all duration-500 group rounded-2xl overflow-hidden cursor-default">
+                    <Card key={i} className="bg-primary border border-primary/10 shadow-sm hover:-translate-y-2 hover:scale-[1.02] transition-all duration-500 group rounded-2xl overflow-hidden cursor-default">
                       <CardContent className="p-6 text-left">
-                        <h3 className="font-bold text-lg group-hover:text-[#4169E1] transition-colors font-headline">{item.title}</h3>
-                        <p className="text-muted-foreground text-sm leading-relaxed mt-1 font-body">{item.desc}</p>
+                        <h3 className="font-bold text-lg text-white group-hover:text-[#D4AF37] transition-colors font-headline">{item.title}</h3>
+                        <p className="text-white/80 text-sm leading-relaxed mt-1 font-body">{item.desc}</p>
                       </CardContent>
                     </Card>
                   ))}
@@ -331,7 +330,7 @@ export default function Home() {
                      <div className="flex items-baseline justify-center gap-1 mt-4">
                       <p className="text-3xl font-bold font-headline">{tier.price}</p>
                     </div>
-                    <CardDescription className="mt-4 leading-relaxed font-medium font-body text-xs min-h-[3rem]">{tier.description}</CardDescription>
+                    <CardDescription className="mt-4 leading-relaxed font-medium font-body text-xs min-h-[3rem] text-muted-foreground">{tier.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="flex-1 px-6 text-left">
                     <ul className="space-y-3 pt-6 border-t border-border/10">
