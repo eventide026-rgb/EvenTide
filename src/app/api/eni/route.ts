@@ -1,4 +1,3 @@
-
 import { ai } from "@/ai/genkit";
 import { NextResponse } from "next/server";
 import { adminDb } from "@/firebase/firebaseAdmin";
@@ -38,7 +37,7 @@ const getGuestRegistry = ai.defineTool(
   async (input) => {
     if (!adminDb) return [];
     const snapshot = await adminDb.collection('events').doc(input.eventId).collection('guests').get();
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
   }
 );
 

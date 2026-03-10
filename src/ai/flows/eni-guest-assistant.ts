@@ -26,31 +26,40 @@ const getSeatingInfo = ai.defineTool(
     }),
   },
   async (input) => {
-    const seatsSnap = await adminDb
-      .collection('events')
-      .doc(input.eventId)
-      .collection('seats')
-      .where('guestId', '==', input.guestId)
-      .limit(1)
-      .get();
-
-    if (seatsSnap.empty) {
-      return { tableName: 'Unassigned', message: 'The seating plan is still being finalized.' };
+    if (!adminDb) {
+      return { tableName: 'Unknown', message: 'The seating information system is currently offline.' };
     }
 
-    const seatData = seatsSnap.docs[0].data();
-    const tableSnap = await adminDb
-      .collection('events')
-      .doc(input.eventId)
-      .collection('tables')
-      .doc(seatData.tableId)
-      .get();
+    try {
+      const seatsSnap = await adminDb
+        .collection('events')
+        .doc(input.eventId)
+        .collection('seats')
+        .where('guestId', '==', input.guestId)
+        .limit(1)
+        .get();
 
-    return {
-      tableName: tableSnap.exists ? tableSnap.data()?.tableName : 'Unknown Table',
-      seatNumber: seatData.seatNumber,
-      message: 'Found the assignment.',
-    };
+      if (seatsSnap.empty) {
+        return { tableName: 'Unassigned', message: 'The seating plan is still being finalized.' };
+      }
+
+      const seatData = seatsSnap.docs[0].data();
+      const tableSnap = await adminDb
+        .collection('events')
+        .doc(input.eventId)
+        .collection('tables')
+        .doc(seatData.tableId)
+        .get();
+
+      return {
+        tableName: tableSnap.exists ? tableSnap.data()?.tableName : 'Unknown Table',
+        seatNumber: seatData.seatNumber,
+        message: 'Found the assignment.',
+      };
+    } catch (error) {
+      console.error("Tool Error [getSeatingInfo]:", error);
+      return { tableName: 'Unknown', message: 'I encountered an error while searching for your seat.' };
+    }
   }
 );
 
@@ -65,14 +74,22 @@ const getEventMenu = ai.defineTool(
     outputSchema: z.any(),
   },
   async (input) => {
-    const menuSnap = await adminDb
-      .collection('events')
-      .doc(input.eventId)
-      .collection('menu')
-      .doc('main')
-      .get();
+    if (!adminDb) {
+      return { message: 'The culinary details are temporarily unavailable.' };
+    }
 
-    return menuSnap.exists ? menuSnap.data() : { message: 'The culinary plan is still a surprise.' };
+    try {
+      const menuSnap = await adminDb
+        .collection('events')
+        .doc(input.eventId)
+        .collection('menu')
+        .doc('main')
+        .get();
+
+      return menuSnap.exists ? menuSnap.data() : { message: 'The culinary plan is still a surprise.' };
+    } catch (error) {
+      return { message: 'I could not retrieve the menu at this time.' };
+    }
   }
 );
 
@@ -87,14 +104,22 @@ const getEventProgram = ai.defineTool(
     outputSchema: z.any(),
   },
   async (input) => {
-    const programSnap = await adminDb
-      .collection('events')
-      .doc(input.eventId)
-      .collection('program')
-      .doc('main')
-      .get();
+    if (!adminDb) {
+      return { message: 'The schedule is currently being realigned.' };
+    }
 
-    return programSnap.exists ? programSnap.data() : { message: 'The schedule is still being tuned for perfection.' };
+    try {
+      const programSnap = await adminDb
+        .collection('events')
+        .doc(input.eventId)
+        .collection('program')
+        .doc('main')
+        .get();
+
+      return programSnap.exists ? programSnap.data() : { message: 'The schedule is still being tuned for perfection.' };
+    } catch (error) {
+      return { message: 'The event program could not be fetched.' };
+    }
   }
 );
 
