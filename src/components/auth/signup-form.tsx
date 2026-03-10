@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -92,7 +91,7 @@ export function SignUpForm() {
       toast({
         variant: "destructive",
         title: "Configuration Error",
-        description: "Firebase is not configured correctly. Please try again later.",
+        description: "Firebase services are not available. Please ensure your environment is configured correctly and try again.",
       });
       return;
     }

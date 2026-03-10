@@ -21,7 +21,14 @@ const app = (() => {
   }
   
   // Only attempt initialization if a valid-looking API key exists
-  if (firebaseConfig.apiKey && firebaseConfig.apiKey !== 'undefined' && firebaseConfig.apiKey !== '') {
+  // We check for 'undefined' string because Next.js sometimes passes 
+  // literal 'undefined' if the env var is missing during build.
+  const isConfigValid = 
+    firebaseConfig.apiKey && 
+    firebaseConfig.apiKey !== 'undefined' && 
+    firebaseConfig.apiKey !== '';
+
+  if (isConfigValid) {
     return initializeApp(firebaseConfig);
   }
   
