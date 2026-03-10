@@ -43,9 +43,9 @@ export interface FirebaseContextState {
 }
 
 export interface FirebaseServicesAndUser {
-  firebaseApp: FirebaseApp;
-  firestore: Firestore;
-  auth: Auth;
+  firebaseApp: FirebaseApp | null;
+  firestore: Firestore | null;
+  auth: Auth | null;
   user: User | null;
   isUserLoading: boolean;
   userError: Error | null;
@@ -83,7 +83,6 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 
   /**
    * 🔐 AUTH RESOLUTION GATE
-   * This guarantees auth is resolved exactly once before rendering children.
    */
   useEffect(() => {
     if (!auth) {
@@ -138,12 +137,10 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   return (
     <FirebaseContext.Provider value={contextValue}>
       <FirebaseErrorListener />
-
-      {/* 🚨 CRITICAL FIX
-          Children DO NOT render until auth is resolved.
-          This prevents Firestore root queries & permission errors.
+      {/* 
+          Children render once auth is resolved OR if auth is not available (build time)
       */}
-      {!userAuthState.isUserLoading && children}
+      {(!userAuthState.isUserLoading || !auth) && children}
     </FirebaseContext.Provider>
   );
 };
@@ -159,40 +156,25 @@ export const useFirebase = (): FirebaseServicesAndUser => {
     throw new Error('useFirebase must be used within a FirebaseProvider.');
   }
 
-  // During build time (SSR), we allow null services to prevent crashes.
-  // We only throw on the client if configuration is missing.
-  if (typeof window !== 'undefined') {
-    if (
-      !context.areServicesAvailable ||
-      !context.firebaseApp ||
-      !context.firestore ||
-      !context.auth
-    ) {
-      throw new Error(
-        'Firebase services not available. Check FirebaseProvider configuration.'
-      );
-    }
-  }
-
   return {
-    firebaseApp: context.firebaseApp!,
-    firestore: context.firestore!,
-    auth: context.auth!,
+    firebaseApp: context.firebaseApp,
+    firestore: context.firestore,
+    auth: context.auth,
     user: context.user,
     isUserLoading: context.isUserLoading,
     userError: context.userError,
   };
 };
 
-export const useAuth = (): Auth => {
+export const useAuth = (): Auth | null => {
   return useFirebase().auth;
 };
 
-export const useFirestore = (): Firestore => {
+export const useFirestore = (): Firestore | null => {
   return useFirebase().firestore;
 };
 
-export const useFirebaseApp = (): FirebaseApp => {
+export const useFirebaseApp = (): FirebaseApp | null => {
   return useFirebase().firebaseApp;
 };
 

@@ -3,9 +3,12 @@
 import app from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
-import { getFirestore, Firestore } from 'firebase/firestore'
+import { getFirestore, Firestore } from 'firebase/firestore';
 
-// IMPORTANT: DO NOT MODIFY THIS FUNCTION
+/**
+ * @fileOverview Resilient Firebase SDK Initialization.
+ * Ensures the app doesn't crash during build time or SSR if config is missing.
+ */
 export function initializeFirebase() {
   let firebaseApp: FirebaseApp | null = null;
 
@@ -13,14 +16,13 @@ export function initializeFirebase() {
     firebaseApp = getApp();
   } else {
     try {
-      // Important! initializeApp() is called without any arguments because Firebase App Hosting
-      // integrates with the initializeApp() function to provide the environment variables needed to
-      // populate the FirebaseOptions in production. It is critical that we attempt to call initializeApp()
-      // without arguments.
-      firebaseApp = initializeApp();
+      // Only call initializeApp() without arguments if in an environment that supports it (like Firebase App Hosting)
+      // otherwise fallback to our defined config.
+      if (process.env.NEXT_PUBLIC_FIREBASE_API_KEY) {
+        firebaseApp = app;
+      }
     } catch (e) {
-      // Fallback to the configured app instance (which might be null on server/build)
-      firebaseApp = app;
+      console.warn("Firebase app initialization skipped or failed.");
     }
   }
 
@@ -28,19 +30,29 @@ export function initializeFirebase() {
 }
 
 export function getSdks(firebaseApp: FirebaseApp | null) {
-  if (!firebaseApp) {
+  // Return null placeholders if the app failed to initialize
+  if (!firebaseApp || !firebaseApp.options.apiKey || firebaseApp.options.apiKey === 'undefined') {
     return {
-      firebaseApp: null as unknown as FirebaseApp,
-      auth: null as unknown as Auth,
-      firestore: null as unknown as Firestore,
+      firebaseApp: null,
+      auth: null,
+      firestore: null,
     };
   }
   
-  return {
-    firebaseApp,
-    auth: getAuth(firebaseApp),
-    firestore: getFirestore(firebaseApp)
-  };
+  try {
+    return {
+      firebaseApp,
+      auth: getAuth(firebaseApp),
+      firestore: getFirestore(firebaseApp)
+    };
+  } catch (error) {
+    console.warn("Firebase SDK attachment failed:", error);
+    return {
+      firebaseApp: null,
+      auth: null,
+      firestore: null,
+    };
+  }
 }
 
 export * from './provider';

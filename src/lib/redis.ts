@@ -1,22 +1,20 @@
-
 import { Redis } from "@upstash/redis";
 
 /**
- * @fileOverview Upstash Redis instance configuration.
- * Used for managing the high-performance notification queue.
- * Safely handles missing environment variables during the build phase.
+ * @fileOverview Silent Upstash Redis initialization.
+ * Prevents warnings and crashes if environment variables are missing.
  */
 
 const url = process.env.UPSTASH_REDIS_REST_URL;
 const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-// Only initialize if both URL and Token are present to prevent library warnings
-export const redis = (url && token) 
+// Only initialize if the URL is valid and contains 'http'
+const isValidConfig = url && url.startsWith('http') && token;
+
+export const redis = isValidConfig 
   ? new Redis({ url, token }) 
   : null;
 
-if (!url || !token) {
-    if (process.env.NODE_ENV === 'production') {
-        console.warn("Upstash Redis environment variables are missing. Notification queueing will be disabled.");
-    }
+if (!isValidConfig && process.env.NODE_ENV === 'production') {
+    console.info("Upstash Redis: Configuration not found. Notification queueing is in standby mode.");
 }

@@ -1,13 +1,8 @@
-
 /**
- * @fileOverview Redundant JS utility. Delegating to TypeScript version for safety.
+ * @fileOverview This file is deprecated. Logic has been moved to africastalking.ts to avoid build conflicts.
  */
-import { sendSMS as sendSMSTs, sendWhatsApp as sendWhatsAppTs } from './africastalking';
-
-export async function sendSMS(to, message) {
-  return sendSMSTs(to, message);
-}
-
-export async function sendWhatsApp(to, message) {
-  return sendWhatsAppTs(to, message);
-}
+export const sms = null;
+export const whatsapp = null;
+export const airtime = null;
+export async function sendSMS() { return { status: 'Deprecated' }; }
+export async function sendWhatsApp() { return { status: 'Deprecated' }; }
