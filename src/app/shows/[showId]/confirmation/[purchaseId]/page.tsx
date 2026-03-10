@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, Suspense } from 'react';
@@ -24,11 +25,14 @@ function ConfirmationPageContents({ showId, purchaseId }: { showId: string, purc
     const firestore = useFirestore();
     const { user, isUserLoading } = useUser();
 
-    const showRef = useMemoFirebase(() => doc(firestore, 'shows', showId), [firestore, showId]);
+    const showRef = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return doc(firestore, 'shows', showId);
+    }, [firestore, showId]);
     const { data: show, isLoading: isLoadingShow } = useDoc<Show>(showRef);
 
     const ticketsQuery = useMemoFirebase(() => {
-        if (!user) return null;
+        if (!firestore || !user) return null;
         return query(
             collection(firestore, 'shows', showId, 'tickets'),
             where('purchaseId', '==', purchaseId),
@@ -76,11 +80,11 @@ function ConfirmationPageContents({ showId, purchaseId }: { showId: string, purc
 }
 
 export default function ConfirmationPage({ params }: { params: Promise<{ showId: string, purchaseId: string }> }) {
-    const { showId, purchaseId } = use(params);
+    const resolvedParams = use(params);
     return (
         <div className="container mx-auto px-4 py-12">
             <Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
-                <ConfirmationPageContents showId={showId} purchaseId={purchaseId} />
+                <ConfirmationPageContents showId={resolvedParams.showId} purchaseId={resolvedParams.purchaseId} />
             </Suspense>
         </div>
     );

@@ -24,13 +24,15 @@ const AUTH_PATHS = [
  * Global Auth Handler Hook.
  * Manages post-login redirection and synchronizes user role with cookies for Middleware.
  */
-export function useAuthHandler(auth: Auth, firestore: Firestore) {
+export function useAuthHandler(auth: Auth | null, firestore: Firestore | null) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { toast } = useToast();
 
   useEffect(() => {
+    if (!auth || !firestore) return;
+
     const unsubscribe = onAuthStateChanged(auth, async (user: User | null) => {
       if (!user) {
         // User signed out: Clear session storage and cookies
@@ -64,7 +66,6 @@ export function useAuthHandler(auth: Auth, firestore: Firestore) {
         sessionStorage.setItem('userName', firstName);
 
         // Synchronize with Cookies for Middleware (Edge)
-        // Use a simple cookie for middleware visibility
         document.cookie = `userRole=${role}; path=/; max-age=604800; SameSite=Lax`;
 
         // 1. Handle new logins from an auth page

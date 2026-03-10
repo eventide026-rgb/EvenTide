@@ -70,34 +70,49 @@ export default function EventLiveDashboard({ params }: { params: Promise<{ event
     const [activeTab, setActiveTab] = useState('timeline');
 
     // 1. Event Data
-    const eventRef = useMemoFirebase(() => doc(firestore, 'events', eventId), [firestore, eventId]);
+    const eventRef = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return doc(firestore, 'events', eventId);
+    }, [firestore, eventId]);
     const { data: event, isLoading: isLoadingEvent } = useDoc<Event>(eventRef);
 
     // 2. Real-time Guest Stream
-    const guestsQuery = useMemoFirebase(() => query(collection(firestore, 'events', eventId, 'guests')), [firestore, eventId]);
+    const guestsQuery = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return query(collection(firestore, 'events', eventId, 'guests'));
+    }, [firestore, eventId]);
     const { data: guests, isLoading: isLoadingGuests } = useCollection<Guest>(guestsQuery);
 
     // 3. Real-time Program Stream
-    const programQuery = useMemoFirebase(() => query(
-        collection(firestore, 'events', eventId, 'program', 'main', 'items'), 
-        orderBy('startTime', 'asc')
-    ), [firestore, eventId]);
+    const programQuery = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return query(
+            collection(firestore, 'events', eventId, 'program', 'main', 'items'), 
+            orderBy('startTime', 'asc')
+        );
+    }, [firestore, eventId]);
     const { data: program, isLoading: isLoadingProgram } = useCollection<ProgramItem>(programQuery);
 
     // 4. Live Media Stream
-    const mediaQuery = useMemoFirebase(() => query(
-        collection(firestore, 'events', eventId, 'media'), 
-        orderBy('uploadTimestamp', 'desc'),
-        limit(12)
-    ), [firestore, eventId]);
+    const mediaQuery = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return query(
+            collection(firestore, 'events', eventId, 'media'), 
+            orderBy('uploadTimestamp', 'desc'),
+            limit(12)
+        );
+    }, [firestore, eventId]);
     const { data: media, isLoading: isLoadingMedia } = useCollection<Media>(mediaQuery);
 
     // 5. Engagement Stream (Song Requests)
-    const requestsQuery = useMemoFirebase(() => query(
-        collection(firestore, 'events', eventId, 'songRequests'),
-        orderBy('createdAt', 'desc'),
-        limit(10)
-    ), [firestore, eventId]);
+    const requestsQuery = useMemoFirebase(() => {
+        if (!firestore) return null;
+        return query(
+            collection(firestore, 'events', eventId, 'songRequests'),
+            orderBy('createdAt', 'desc'),
+            limit(10)
+        );
+    }, [firestore, eventId]);
     const { data: requests, isLoading: isLoadingRequests } = useCollection<SongRequest>(requestsQuery);
 
     // Derived Metrics
@@ -109,7 +124,7 @@ export default function EventLiveDashboard({ params }: { params: Promise<{ event
     const nextItem = program?.find(p => p.status === 'Upcoming');
 
     const handleStartProgramItem = async (itemId: string) => {
-        if (!program) return;
+        if (!program || !firestore) return;
         const batch = program.map(item => {
             const itemRef = doc(firestore, 'events', eventId, 'program', 'main', 'items', item.id);
             if (item.id === itemId) {
@@ -136,7 +151,7 @@ export default function EventLiveDashboard({ params }: { params: Promise<{ event
         );
     }
 
-    if (!event) return <div>Event not found.</div>;
+    if (!event) return <div>Event not found or configuration missing.</div>;
 
     return (
         <div className="flex flex-col gap-8 pb-20">
@@ -279,7 +294,7 @@ export default function EventLiveDashboard({ params }: { params: Promise<{ event
                                                 </div>
                                             </div>
                                             <span className="text-xs text-muted-foreground font-mono">
-                                                {guest.checkInTime ? format(guest.checkInTime.toDate(), 'HH:mm') : '--:--'}
+                                                {guest.checkInTime?.toDate ? format(guest.checkInTime.toDate(), 'HH:mm') : '--:--'}
                                             </span>
                                         </div>
                                     ))}
