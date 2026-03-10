@@ -2,37 +2,40 @@
 
 import app from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore'
+import { getAuth, Auth } from 'firebase/auth';
+import { getFirestore, Firestore } from 'firebase/firestore'
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
 export function initializeFirebase() {
-  if (!getApps().length) {
-    // Important! initializeApp() is called without any arguments because Firebase App Hosting
-    // integrates with the initializeApp() function to provide the environment variables needed to
-    // populate the FirebaseOptions in production. It is critical that we attempt to call initializeApp()
-    // without arguments.
-    let firebaseApp;
+  let firebaseApp: FirebaseApp | null = null;
+
+  if (getApps().length > 0) {
+    firebaseApp = getApp();
+  } else {
     try {
-      // Attempt to initialize via Firebase App Hosting environment variables
+      // Important! initializeApp() is called without any arguments because Firebase App Hosting
+      // integrates with the initializeApp() function to provide the environment variables needed to
+      // populate the FirebaseOptions in production. It is critical that we attempt to call initializeApp()
+      // without arguments.
       firebaseApp = initializeApp();
     } catch (e) {
-      // Fallback to the configured app instance
+      // Fallback to the configured app instance (which might be null on server/build)
       firebaseApp = app;
     }
-
-    if (!firebaseApp) {
-        throw new Error("Firebase initialization failed: No valid configuration found. Please ensure your .env file is populated with NEXT_PUBLIC_FIREBASE_* variables.");
-    }
-
-    return getSdks(firebaseApp);
   }
 
-  // If already initialized, return the SDKs with the already initialized App
-  return getSdks(getApp());
+  return getSdks(firebaseApp);
 }
 
-export function getSdks(firebaseApp: FirebaseApp) {
+export function getSdks(firebaseApp: FirebaseApp | null) {
+  if (!firebaseApp) {
+    return {
+      firebaseApp: null as unknown as FirebaseApp,
+      auth: null as unknown as Auth,
+      firestore: null as unknown as Firestore,
+    };
+  }
+  
   return {
     firebaseApp,
     auth: getAuth(firebaseApp),

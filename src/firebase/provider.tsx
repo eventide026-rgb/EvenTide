@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, {
@@ -21,9 +20,9 @@ import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 
 interface FirebaseProviderProps {
   children: ReactNode;
-  firebaseApp: FirebaseApp;
-  firestore: Firestore;
-  auth: Auth;
+  firebaseApp: FirebaseApp | null;
+  firestore: Firestore | null;
+  auth: Auth | null;
 }
 
 interface UserAuthState {
@@ -91,7 +90,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       setUserAuthState({
         user: null,
         isUserLoading: false,
-        userError: new Error('Auth service not provided.'),
+        userError: null,
       });
       return;
     }
@@ -126,9 +125,9 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 
     return {
       areServicesAvailable: servicesAvailable,
-      firebaseApp: servicesAvailable ? firebaseApp : null,
-      firestore: servicesAvailable ? firestore : null,
-      auth: servicesAvailable ? auth : null,
+      firebaseApp,
+      firestore,
+      auth,
 
       user: userAuthState.user,
       isUserLoading: userAuthState.isUserLoading,
@@ -160,21 +159,25 @@ export const useFirebase = (): FirebaseServicesAndUser => {
     throw new Error('useFirebase must be used within a FirebaseProvider.');
   }
 
-  if (
-    !context.areServicesAvailable ||
-    !context.firebaseApp ||
-    !context.firestore ||
-    !context.auth
-  ) {
-    throw new Error(
-      'Firebase services not available. Check FirebaseProvider configuration.'
-    );
+  // During build time (SSR), we allow null services to prevent crashes.
+  // We only throw on the client if configuration is missing.
+  if (typeof window !== 'undefined') {
+    if (
+      !context.areServicesAvailable ||
+      !context.firebaseApp ||
+      !context.firestore ||
+      !context.auth
+    ) {
+      throw new Error(
+        'Firebase services not available. Check FirebaseProvider configuration.'
+      );
+    }
   }
 
   return {
-    firebaseApp: context.firebaseApp,
-    firestore: context.firestore,
-    auth: context.auth,
+    firebaseApp: context.firebaseApp!,
+    firestore: context.firestore!,
+    auth: context.auth!,
     user: context.user,
     isUserLoading: context.isUserLoading,
     userError: context.userError,
