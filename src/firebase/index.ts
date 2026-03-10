@@ -1,6 +1,6 @@
 'use client';
 
-import app, { firebaseConfig } from '@/firebase/config';
+import app from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore'
@@ -19,6 +19,10 @@ export function initializeFirebase() {
     } catch (e) {
       // Fallback to the configured app instance
       firebaseApp = app;
+    }
+
+    if (!firebaseApp) {
+        throw new Error("Firebase initialization failed: No valid configuration found. Please ensure your .env file is populated with NEXT_PUBLIC_FIREBASE_* variables.");
     }
 
     return getSdks(firebaseApp);
