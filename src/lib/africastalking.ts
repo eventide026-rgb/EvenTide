@@ -1,1 +1,1 @@
-declare module "africastalking";
+const Africastalking = require("africastalking");
